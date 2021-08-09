@@ -10,7 +10,8 @@
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.40",
-        "laravel/tinker": "^2.5"
+        "laravel/tinker": "^2.5",
+        "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
@@ -25,7 +26,13 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/helpers/createTable.php",
+            "app/helpers/customSnakeCase.php",
+            "app/helpers/handlerTableCreate.php",
+            "app/helpers/normalize.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
