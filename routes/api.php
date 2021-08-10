@@ -3,9 +3,12 @@
 /* use App\Http\Controllers\AuthController; */
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\PositionController;
+use App\Http\Controllers\WorkContractTypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -45,7 +48,10 @@ Route::group(
 
 		Route::get('/get-menu',  [MenuController::class, 'getByPerson']);
 		Route::post('/save-menu',  [MenuController::class, 'store']);
-
+		
 		Route::resource('dependencies', DependencyController::class);
+		Route::resource('company', CompanyController::class);
+		Route::resource('positions', PositionController::class);
+		Route::resource('work-contract-type', WorkContractTypeController::class);
 	}
 );
