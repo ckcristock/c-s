@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\FixedTurn;
+use App\Models\RotatingTurn;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class FixedTurnController extends Controller
+class RotatingTurnController extends Controller
 {
     use ApiResponser;
     /**
@@ -16,7 +16,9 @@ class FixedTurnController extends Controller
      */
     public function index()
     {
-        return  $this->success( FixedTurn::all(['id as value','name as text']) );
+        //
+        return  $this->success( RotatingTurn::all(['id as value','name as text']) );
+
     }
 
     /**

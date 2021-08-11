@@ -18,7 +18,7 @@ class WorkContractTypeController extends Controller
     public function index(Request $request)
     {
         return $this->success(
-           WorkContractType::all(['id as value','name as text'])
+           WorkContractType::all(['id as value','name as text','conclude'])
          );
     }
 
