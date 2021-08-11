@@ -14,8 +14,8 @@ class DependencyController extends Controller
     
     public function index(Request $request){
       return   $this->success(
-        Dependency::when($request->get('company_id'),function($q,$p){
-          $q->where('company_id',$p);
+        Dependency::when($request->get('group_id'),function($q,$p){
+          $q->where('group_id',$p);
          })
         ->get(['id as value','name as text']) );
     }

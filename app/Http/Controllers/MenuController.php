@@ -160,7 +160,6 @@ class MenuController extends Controller
     public function getByPerson()
     {
         self::$user = User::where('person_id', Request()->get('person_id'))->first();
-        /*   return response(self::$user); */
         $menus = Menu::whereNull('parent_id')->get(['id', 'name']);
         foreach ($menus as &$item) {
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FixedTurnController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PensionFundController;
 use App\Http\Controllers\PersonController;
@@ -15,7 +16,6 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\RotatingTurnController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\WorkContractTypeController;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -66,5 +66,7 @@ Route::group(
 		Route::resource('pension-funds', PensionFundController::class);
 		Route::resource('compensation-funds', CompensationFundController::class);
 		Route::resource('epss', EpsController::class);
+		Route::resource('people', PersonController::class);
+		Route::resource('group', GroupController::class);
 	}
 );
