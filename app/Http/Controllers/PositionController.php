@@ -14,12 +14,12 @@ class PositionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request )
+    public function index(Request $request)
     {
         return $this->success(
-            Position::when($request->get('dependency_id') ,function($q,$p){
-                $q->where('dependency_id',$p);
-            })->get(['id as value','name as text'])
+            Position::when($request->get('dependency_id'), function ($q, $p) {
+                $q->where('dependency_id', $p);
+            })->get(['id as value', 'name as text'])
         );
     }
 
@@ -30,9 +30,10 @@ class PositionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         //
+      
     }
 
     /**
@@ -44,6 +45,12 @@ class PositionController extends Controller
     public function store(Request $request)
     {
         //
+        try {
+            Position::updateOrCreate( ['id' => $request->get('id')],$request->all());
+            return $this->success('creado con exito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**

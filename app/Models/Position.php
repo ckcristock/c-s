@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Position extends Model
 {
+    protected $fillable = ['name', 'dependency_id'];
+
     use HasFactory;
     /**
      * Get the user that owns the Position
@@ -16,5 +18,9 @@ class Position extends Model
     public function dependency()
     {
         return $this->belongsTo(Dependency::class);
+    }
+    public function municipality()
+    {
+        return $this->belongsTo(Municipality::class);
     }
 }

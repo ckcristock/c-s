@@ -5,11 +5,14 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompensationFundController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FixedTurnController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\JobController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\PensionFundController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PositionController;
@@ -55,6 +58,7 @@ Route::group(
 
 		Route::get('/get-menu',  [MenuController::class, 'getByPerson']);
 		Route::post('/save-menu',  [MenuController::class, 'store']);
+		Route::post('/jobs/set-state/{id}',  [JobController::class, 'setState']);
 		
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
@@ -68,5 +72,8 @@ Route::group(
 		Route::resource('epss', EpsController::class);
 		Route::resource('people', PersonController::class);
 		Route::resource('group', GroupController::class);
+		Route::resource('departments', DepartmentController::class);
+		Route::resource('municipalities', MunicipalityController::class);
+		Route::resource('jobs', JobController::class);
 	}
 );
