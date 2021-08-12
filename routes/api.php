@@ -7,12 +7,14 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
+use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FixedTurnController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MunicipalityController;
+use App\Http\Controllers\PayrollFactorController;
 use App\Http\Controllers\PensionFundController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PositionController;
@@ -59,6 +61,7 @@ Route::group(
 		Route::get('/get-menu',  [MenuController::class, 'getByPerson']);
 		Route::post('/save-menu',  [MenuController::class, 'store']);
 		Route::post('/jobs/set-state/{id}',  [JobController::class, 'setState']);
+		Route::get('/payroll-factor-people',  [PayrollFactorController::class, 'indexByPeople']);
 		
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
@@ -75,5 +78,7 @@ Route::group(
 		Route::resource('departments', DepartmentController::class);
 		Route::resource('municipalities', MunicipalityController::class);
 		Route::resource('jobs', JobController::class);
+		Route::resource('disability-leaves', DisabilityLeaveController::class);
+		Route::resource('payroll-factor', PayrollFactorController::class);
 	}
 );

@@ -40,10 +40,11 @@ class Person extends Model
 
     public function contractultimate()
     {
-        return $this->hasOne(WorkContract::class)
+        return $this->hasOne(WorkContract::class)->with('position.dependency', 'work_contract_type');
+       /*  return $this->hasOne(WorkContract::class)
         ->with(
         'work_contract_type')
-        ->orderBy('id', 'Desc');
+        ->orderBy('id', 'Desc'); */
 
         //->with('cargo.dependencia.centroCosto', 'tipo_contrato');
     }
@@ -51,6 +52,11 @@ class Person extends Model
     {
         return $this->hasOne(WorkContract::class);
         //->with('cargo.dependencia.centroCosto', 'tipo_contrato')->where('liquidado', 1);
+    }
+
+    public function payroll_factors()
+    {
+        return $this->hasMany(PayrollFactor::class);
     }
 
 }

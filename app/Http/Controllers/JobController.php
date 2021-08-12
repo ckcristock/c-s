@@ -38,6 +38,7 @@ class JobController extends Controller
                 $q->select('name','id');
             }
             ])
+            ->orderBy('id','DESC')
             ->paginate($pageSize, '*', 'page', $page)
         );
     }
