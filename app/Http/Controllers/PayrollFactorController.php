@@ -17,8 +17,10 @@ class PayrollFactorController extends Controller
 
     public function store(Request $request)
     {
-        if ($this->customValidate($request->all())) {
-            PayrollFactor::create($this->pushFlag($request->all()));
+        if ( $request->get('id') || $this->customValidate($request->all()) ) {
+
+            $values = $request->get('id') ? $request->all() : $this->pushFlag($request->all()) ;
+            PayrollFactor::updateOrCreate(['id' => $request->get('id')], $values);
             return $this->success('Novedad creada correctamente');
         }
         return $this->error('El funcionario ya se encuentra con novedades registradas en este periodo', 422);
@@ -29,6 +31,7 @@ class PayrollFactorController extends Controller
         return $this->success(Person::with(
             [
                 'payroll_factors' => function ($q) use ($request) {
+               
                     $q->where('date_start', '>=', $request->get('date_start'))
                         ->where('date_end', '<=', $request->get('date_end'));
                 },
