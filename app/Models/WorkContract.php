@@ -30,6 +30,6 @@ class WorkContract extends Model
 
     public function work_contract_type()
     {
-        return $this->belongsTo(workContractType::class);
+        return $this->belongsTo(WorkContractType::class);
     }
 }

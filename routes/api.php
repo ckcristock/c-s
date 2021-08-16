@@ -11,6 +11,8 @@ use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FixedTurnController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\InventaryDotationController;
+use App\Http\Controllers\InventaryDotationGroupController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MunicipalityController;
@@ -62,6 +64,9 @@ Route::group(
 		Route::post('/save-menu',  [MenuController::class, 'store']);
 		Route::post('/jobs/set-state/{id}',  [JobController::class, 'setState']);
 		Route::get('/payroll-factor-people',  [PayrollFactorController::class, 'indexByPeople']);
+		Route::get('/inventary-dotation-by-group',  [InventaryDotationGroupController::class, 'indexByGruop']);
+		Route::get('/inventary-dotation-statistics',  [InventaryDotationGroupController::class, 'statistics']);
+		Route::get('/inventary-dotation-stock',  [InventaryDotationController::class, 'getInventary']);
 		
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
@@ -80,5 +85,7 @@ Route::group(
 		Route::resource('jobs', JobController::class);
 		Route::resource('disability-leaves', DisabilityLeaveController::class);
 		Route::resource('payroll-factor', PayrollFactorController::class);
+		Route::resource('inventary-dotation', InventaryDotationController::class);
+		Route::resource('inventary-dotation-group', InventaryDotationGroupController::class);
 	}
 );
