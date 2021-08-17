@@ -20,7 +20,7 @@ class PersonController extends Controller
      */
     public function index()
     {
-        return $this->success(Person::all(['id as value', DB::raw( 'CONCAT_WS(" ",first_name,first_surname) as text ')]));
+        return $this->success(Person::all(['id as value', DB::raw('CONCAT_WS(" ",first_name,first_surname) as text ')]));
     }
 
     /**
@@ -52,7 +52,7 @@ class PersonController extends Controller
                 )
                 ->join('work_contracts as w', function ($join) {
                     $join->on('p.id', '=', 'w.person_id')
-                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                                 join people as u2 on u2.id = a2.person_id group by u2.id)');
                 })
                 ->join('companies as c', 'c.id', '=', 'w.company_id')
@@ -63,7 +63,7 @@ class PersonController extends Controller
                         ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');
                 })
 
-                ->when( $data ['dependencies'], function ($q, $fill) {
+                ->when($data['dependencies'], function ($q, $fill) {
                     $q->whereIn('d.id', $fill);
                 })
 
@@ -72,6 +72,53 @@ class PersonController extends Controller
                 })
 
                 ->paginate($pageSize, ['*'], 'page')
+        );
+    }
+
+    public function getAll(Request $request)
+    {
+        # code...
+        $data = $request->all();
+        return $this->success(
+            DB::table('people as p')
+                ->select(
+                    'p.id',
+                    'p.identifier',
+                    'p.image',
+                    'p.status',
+                    'p.full_name',
+                    'p.first_surname',
+                    'p.first_name',
+                    'pos.name as position',
+                    'd.name as dependency',
+                    'p.id as value',
+                    DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '),
+                    'c.name as company',
+                    DB::raw('w.id AS work_contract_id')
+                )
+                ->join('work_contracts as w', function ($join) {
+                    $join->on('p.id', '=', 'w.person_id')
+                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
+                                join people as u2 on u2.id = a2.person_id group by u2.id)');
+                })
+                ->join('companies as c', 'c.id', '=', 'w.company_id')
+                ->join('positions as pos', 'pos.id', '=', 'w.position_id')
+                ->join('dependencies as d', 'd.id', '=', 'pos.dependency_id')
+                ->where('p.status','Activo')
+               /*  ->when($data['name'], function ($q, $fill) {
+                    $q->where('p.identifier', 'like', '%' . $fill . '%')
+                        ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');
+                })
+ */
+                ->when($data['dependencies'], function ($q, $fill) {
+                    $q->where('d.id', $fill);
+                })
+
+               /*  ->when($data['status'], function ($q, $fill) {
+                    $q->whereIn('p.status', $fill);
+                }) */
+
+                ->get()
         );
     }
 

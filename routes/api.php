@@ -23,6 +23,7 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProductDotationTypeController;
 use App\Http\Controllers\RotatingTurnController;
+use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
@@ -62,15 +63,18 @@ Route::group(
 	],
 	function ($router) {
 		Route::get("people-paginate", [PersonController::class, "indexPaginate"]);
+		Route::get("people-all", [PersonController::class, "getAll"]);
 
 		Route::get('/get-menu',  [MenuController::class, 'getByPerson']);
 		Route::post('/save-menu',  [MenuController::class, 'store']);
 		Route::post('/jobs/set-state/{id}',  [JobController::class, 'setState']);
 		Route::get('/payroll-factor-people',  [PayrollFactorController::class, 'indexByPeople']);
 		Route::get('/inventary-dotation-by-category',  [InventaryDotationController::class, 'indexGruopByCategory']);
-		Route::get('/inventary-dotation-statistics',  [ProductDotationTypeController::class, 'statistics']);
+		Route::get('/inventary-dotation-statistics',  [InventaryDotationController::class, 'statistics']);
 		Route::get('/inventary-dotation-stock',  [InventaryDotationController::class, 'getInventary']);
-		
+		Route::post('/dotations-update/{id}',  [DotationController::class, 'update']);
+		Route::get('/dotations-total-types',  [DotationController::class, 'getTotatlByTypes']);
+
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
 		Route::resource('positions', PositionController::class);
@@ -91,6 +95,7 @@ Route::group(
 		Route::resource('inventary-dotation', InventaryDotationController::class);
 		Route::resource('product-dotation-types', ProductDotationTypeController::class);
 		Route::resource('dotations', DotationController::class);
+		Route::resource('rrhh-activiy-types', RrhhActivityTypeController::class);
 		/* Route::resource('inventary-dotation-group', ProductDotationType::class); */
 	}
 );

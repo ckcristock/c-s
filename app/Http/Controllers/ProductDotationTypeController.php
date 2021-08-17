@@ -30,15 +30,7 @@ class ProductDotationTypeController extends Controller
         }
     }
 
-   
 
-    public function statistics(Request $request)
-    {
-        $d = DB::select('SELECT count(*) as CantidadMes,
-         SUM(cost) as SumaMes 
-         FROM dotations 
-         where month(dispatched_at)= ' . $request->get('cantMes') . ' AND state = "Activa"');
 
-        return $this->success($d ? $d[0] : ['SumaMes'=>0,'CantidadMes'=>0]);
-    }
+
 }
