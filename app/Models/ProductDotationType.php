@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class ProductDotationType extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['name'];
+
+  
+    public function inventary(){
+        return $this->hasMany(InventaryDotation::class)->where('stock','>','0');
+    }
 }

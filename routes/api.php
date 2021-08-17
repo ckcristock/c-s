@@ -8,6 +8,7 @@ use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DisabilityLeaveController;
+use App\Http\Controllers\DotationController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FixedTurnController;
 use App\Http\Controllers\GroupController;
@@ -20,9 +21,11 @@ use App\Http\Controllers\PayrollFactorController;
 use App\Http\Controllers\PensionFundController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\ProductDotationTypeController;
 use App\Http\Controllers\RotatingTurnController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\WorkContractTypeController;
+use App\Models\ProductDotationType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -64,8 +67,8 @@ Route::group(
 		Route::post('/save-menu',  [MenuController::class, 'store']);
 		Route::post('/jobs/set-state/{id}',  [JobController::class, 'setState']);
 		Route::get('/payroll-factor-people',  [PayrollFactorController::class, 'indexByPeople']);
-		Route::get('/inventary-dotation-by-group',  [InventaryDotationGroupController::class, 'indexByGruop']);
-		Route::get('/inventary-dotation-statistics',  [InventaryDotationGroupController::class, 'statistics']);
+		Route::get('/inventary-dotation-by-category',  [InventaryDotationController::class, 'indexGruopByCategory']);
+		Route::get('/inventary-dotation-statistics',  [ProductDotationTypeController::class, 'statistics']);
 		Route::get('/inventary-dotation-stock',  [InventaryDotationController::class, 'getInventary']);
 		
 		Route::resource('dependencies', DependencyController::class);
@@ -86,6 +89,8 @@ Route::group(
 		Route::resource('disability-leaves', DisabilityLeaveController::class);
 		Route::resource('payroll-factor', PayrollFactorController::class);
 		Route::resource('inventary-dotation', InventaryDotationController::class);
-		Route::resource('inventary-dotation-group', InventaryDotationGroupController::class);
+		Route::resource('product-dotation-types', ProductDotationTypeController::class);
+		Route::resource('dotations', DotationController::class);
+		/* Route::resource('inventary-dotation-group', ProductDotationType::class); */
 	}
 );

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InventaryDotation;
+use App\Models\ProductDotationType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,11 +28,25 @@ class InventaryDotationController extends Controller
 
     public function getInventary()
     {
-        $id = Request()->get('inventary_dotation_group_id');
-        $d = DB::select('SELECT * FROM inventary_dotation_groups GI
-        INNER JOIN inventary_dotations ID ON GI.id = ID.inventary_dotation_group_id
-        WHERE GI.id = "' . $id . '"');
+        $d = ProductDotationType::with('inventary')
+            ->whereHas('inventary',function($q){
 
+            })
+        ->get();
         return $this->success( $d );
+    }
+
+    public function indexGruopByCategory(Request $request)
+    {
+      
+
+        $d = DB::select(
+            'SELECT CPD.name ,SUM(stock) stock
+            FROM inventary_dotations ID
+            INNER JOIN product_dotation_types CPD 
+            ON ID.product_dotation_type_id = CPD.id
+            GROUP BY ID.product_dotation_type_id ',
+        );
+        return $this->success($d);
     }
 }

@@ -11,8 +11,8 @@ use Illuminate\Http\Request;
 
 class PayrollFactorController extends Controller
 {
-    
-    use payrollFactorDates;
+    //
+    use PayrollFactorDates;
     use ApiResponser;
 
     public function store(Request $request)
