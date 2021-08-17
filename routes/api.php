@@ -21,6 +21,7 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\RotatingTurnController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\WorkContractTypeController;
+use App\Http\Controllers\ZonesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -80,5 +81,10 @@ Route::group(
 		Route::resource('jobs', JobController::class);
 		Route::resource('disability-leaves', DisabilityLeaveController::class);
 		Route::resource('payroll-factor', PayrollFactorController::class);
+		Route::resource('zones', ZonesController::class);
+
+		
+		
+		
 	}
 );
