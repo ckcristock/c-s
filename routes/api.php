@@ -73,7 +73,7 @@ Route::group(
 		Route::resource('severance-funds', SeveranceFundController::class);
 		Route::resource('pension-funds', PensionFundController::class);
 		Route::resource('compensation-funds', CompensationFundController::class);
-		Route::resource('epss', EpsController::class);
+		Route::resource('eps', EpsController::class);
 		Route::resource('people', PersonController::class);
 		Route::resource('group', GroupController::class);
 		Route::resource('departments', DepartmentController::class);
