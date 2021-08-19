@@ -83,8 +83,8 @@ Route::group(
 		Route::resource('payroll-factor', PayrollFactorController::class);
 		Route::resource('zones', ZonesController::class);
 
-		
-		
-		
+		/* Paginations */
+		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);		
+		Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
 	}
 );
