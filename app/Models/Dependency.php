@@ -9,14 +9,4 @@ class Dependency extends Model
 {
     use HasFactory;
     protected $fillable = ['name', 'group_id'];
-
-    /**
-     * Una dependencia tiene muchos cargos
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function positions()
-    {
-        return $this->hasMany(Position::class);
-    }
 }

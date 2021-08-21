@@ -11,8 +11,6 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.40",
         "laravel/tinker": "^2.5",
-        "league/flysystem-aws-s3-v3": "1.0",
-        "pear/http_request2": "^2.4",
         "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
@@ -21,8 +19,7 @@
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^5.0",
-        "phpunit/phpunit": "^9.3.3",
-        "pear/http_request2": "^2.4"
+        "phpunit/phpunit": "^9.3.3"
     },
     "autoload": {
         "psr-4": {

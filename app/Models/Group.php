@@ -10,14 +10,4 @@ class Group extends Model
    
     use HasFactory;
     protected $fillable = ['name'];
-
-    /**
-     * Un grupo tiene muchas dependencias
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function dependencies()
-    {
-        return $this->hasMany(Dependency::class);
-    }
 }
