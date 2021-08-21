@@ -15,7 +15,9 @@ use App\Models\Correo;
 use App\Models\Empresa;
 use App\Models\Marcation;
 use App\Models\Person;
+use App\Services\PersonService;
 use Carbon\Carbon;
+use Facade\FlareClient\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -31,214 +33,202 @@ class AsistenciaController extends Controller
 {
     public function validar()
     {
-
-        $dias = array(
-            0 => "Domingo",
-            1 => "Lunes",
-            2 => "Martes",
-            3 => "Miercoles",
-            4 => "Jueves",
-            5 => "Viernes",
-            6 => "Sabado"
-        );
-
-        $imgBase64 = request()->imagen;
-        $temperatura = request()->temperatura;
-        $image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imgBase64));
-
-        $file_path = 'temporales/' . Str::random(30) . time() . '.png';
-        Storage::disk('public')->put($file_path, $image, 'public');
-
-        #$fully = Storage::disk('public')->url($file_path);
-        $fully = 'https://cms.modumb.com/storage/magazine/_800x422/guia-practica-para-identificar-el-rostro-de-un-cliente-8282.jpg';
-
-        $empresa = Company::where('id', 1)->get();
-        /*$ cliente = Cliente::with('face')->where('documento', $empresa[0]["numero_documento"])->get(); */
-
-        $ocpApimSubscriptionKey = 'df2f7a1cb9a14c66b11a7a2253999da5';
-        $azure_grupo = 'personalnuevo';
-        $uriBase = 'https://facemaqymon2021.cognitiveservices.azure.com/face/v1.0';
-        $response = Http::accept('application/json')->withHeaders([
-            'Content-Type' => 'application/json',
-            'Ocp-Apim-Subscription-Key' => $ocpApimSubscriptionKey
-        ])->post('https://facemaqymon2021.cognitiveservices.azure.com/face/v1.0' . '/detect', [
-           /*  'returnFaceId' => 'true',
-            'returnFaceLandmarks' => 'false',
-            'returnFaceAttributes' => 'true',
-            'recognitionModel' => 'recognition_04',
-            'returnRecognitionModel' => 'true',
-            'detectionModel' => 'detection_03', */
-            'url' => $fully
-        ]);
-        $res = $response->json();
-     dd($res);
-        $face_id = '';
         try {
+            //code...
 
+            $dias = array(
+                0 => "Domingo",
+                1 => "Lunes",
+                2 => "Martes",
+                3 => "Miercoles",
+                4 => "Jueves",
+                5 => "Viernes",
+                6 => "Sabado"
+            );
 
+            $imgBase64 = request()->imagen;
+            $temperatura = request()->temperatura;
+            $image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imgBase64));
 
-            if (key_exists('faceId', $res[0]) && count($res) > 0) {
-                $face_id = $res[0]['faceId'];
-                /* dd($face_id); */
-            } else {
+            $file_path = 'temporales/' . Str::random(30) . time() . '.png';
+            Storage::disk('public')->put($file_path, $image, 'public');
+
+            $fully = Storage::disk('public')->url($file_path);
+            //return $fully;
+            //$fully = 'https://cms.modumb.com/storage/magazine/_800x422/guia-practica-para-identificar-el-rostro-de-un-cliente-8282.jpg';
+
+            $empresa = Company::where('id', 1)->get();
+            /*$ cliente = Cliente::with('face')->where('documento', $empresa[0]["numero_documento"])->get(); */
+
+            $params = [
+                'returnFaceId' => 'true',
+                'returnFaceLandmarks' => 'false',
+                'returnFaceAttributes' => 'mask',
+                'recognitionModel' => 'recognition_04',
+                'returnRecognitionModel' => 'true',
+                'detectionModel' => 'detection_03'
+            ];
+            $ocpApimSubscriptionKey = 'df2f7a1cb9a14c66b11a7a2253999da5';
+            $azure_grupo = 'personalnuevo';
+            $uriBase = 'https://facemaqymon2021.cognitiveservices.azure.com/face/v1.0';
+            $response = Http::accept('application/json')->withHeaders([
+                'Content-Type' => 'application/json',
+                'Ocp-Apim-Subscription-Key' => $ocpApimSubscriptionKey
+            ])->post($uriBase  . '/detect?' . http_build_query($params), [
+
+                'url' => $fully
+            ]);
+            $res = $response->json();
+            $face_id = '';
+            try {
+                if ( !key_exists('error',$res) && key_exists('faceId', $res[0]) && count($res) > 0) {
+                    $face_id = $res[0]['faceId'];
+                    /* dd($face_id); */
+                } else {
+                    Marcation::create([
+                        'type' => 'error',
+                        'img' => $fully,
+                        'description' => 'Error conectando al Servidor de rostros, es posible que no se vea un rostro con claridad',
+                        'date' => date("Y-m-d H:i:s")
+                    ]);
+
+                    $error = array(
+                        'title' => 'Opps!',
+                        'text' => 'Error conectando al Servidor de rostros, es posible que no se vea un rostro con claridad',
+                        'type' => 'error'
+                    );
+                    return $error;
+                }
+            } catch (HttpException $ex) {
                 Marcation::create([
-                    'tipo' => 'error',
+                    'type' => 'error',
                     'img' => $fully,
-                    'detalles' => 'Error conectando al Servidor de rostros, es posible que no se vea un rostro con claridad',
-                    'fecha' => date("Y-m-d H:i:s")
+                    'description' => 'Error de Servidor: ' . $ex,
+                    'date' => date("Y-m-d H:i:s")
                 ]);
                 $error = array(
                     'title' => 'Opps!',
-                    'text' => 'Error conectando al Servidor de rostros, es posible que no se vea un rostro con claridad',
+                    'text' => 'Error de Servidor: ' . $ex,
                     'type' => 'error'
                 );
                 return $error;
             }
-        } catch (HttpException $ex) {
-            Marcation::create([
-                'tipo' => 'error',
-                'img' => $fully,
-                'detalles' => 'Error de Servidor: ' . $ex,
-                'fecha' => date("Y-m-d H:i:s")
-            ]);
-            $error = array(
-                'title' => 'Opps!',
-                'text' => 'Error de Servidor: ' . $ex,
-                'type' => 'error'
-            );
-            return $error;
-        }
 
-        if ($face_id != "") {
-            /* INICIO DE IDENTIFICACIÓN DE ROSTRO */
-            /*    $request2 = new \Http_Request2($uriBase . '/identify');
-            $url = $request2->getUrl();
-            $headers = array(
-                'Content-Type' => 'application/json',
-                'Ocp-Apim-Subscription-Key' => $ocpApimSubscriptionKey,
-            );
-            $request2->setHeader($headers);
-            $parameters = array();
-            $url->setQueryVariables($parameters);
-            $request2->setMethod(\HTTP_Request2::METHOD_POST);
-            $body = array(
-                'personGroupId' => $azure_grupo,
-                'faceIds' => [
-                    $face_id
-                ],
-                "confidenceThreshold" => 0.6,
-                "maxNumOfCandidatesReturned" => 1
-            );
-            $request2->setBody(json_encode($body));
- */
+            if ($face_id != "") {
+                /* INICIO DE IDENTIFICACIÓN DE ROSTRO */
 
-            $response = Http::accept('application/json')->withHeaders([
-                'Content-Type' => 'application/json',
-                'Ocp-Apim-Subscription-Key' => $ocpApimSubscriptionKey
-            ])
-           
-            ->post('https://facemaqymon2021.cognitiveservices.azure.com/face/v1.0' . '/identify', [
-                'personGroupId' => $azure_grupo,
-                'faceIds' => [
-                    $face_id
-                ],
-                "confidenceThreshold" => 0.6,
-                "maxNumOfCandidatesReturned" => 1
-            ]);
+                $response = Http::accept('application/json')->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Ocp-Apim-Subscription-Key' => $ocpApimSubscriptionKey
+                ])
 
-            return Response($response->json());
-            try {
-                /*   $response = $request2->send();
-                $resp = $response->getBody();
-                Log::info($response->getBody());
-                $resp = json_decode($resp); */
+                    ->post($uriBase . '/identify', [
+                        'personGroupId' => $azure_grupo,
+                        'faceIds' => [
+                            $face_id
+                        ],
+                        "confidenceThreshold" => 0.6,
+                        "maxNumOfCandidatesReturned" => 1
+                    ]);
 
-                //dd($resp);
-                /*  if (is_array($resp) && count($resp) > 0) {
-                    $candidatos = $resp[0]->candidates;
-
-                    if (count($candidatos) > 0) {
-                        $candidato = $candidatos[0]->personId;
-                        if ($candidato != '') {
-                            $hactual = date("H:i:s");
-                            $hoy = date('Y-m-d');
-                            $ayer = date("Y-m-d", strtotime(date("Y-m-d") . ' - 1 day'));
-
-                            $funcionario = Person::funcionario_turno($candidato, $dias[date("w", strtotime($hoy))], $hoy, $ayer);
+                //return Response($response->json());
+                try {
+                    //$response = $request2->send();
+                    //$resp = $response->getBody();
+                    //Log::info($response->json());
+                    $resp = $response->json();
 
 
-                            if ($funcionario) {
-                                $tipo_turno = $funcionario->tipo_turno;
-                                switch ($tipo_turno) {
-                                    case 'Fijo':
-                                        return $this->ValidaTurnoFijo($funcionario, $hoy, $hactual, $fully, $temperatura, $empresa[0]);
-                                        break;
-                                    case 'Rotativo':
-                                        return $this->ValidaTurnoRotativo($funcionario, $hoy, $ayer, $hactual, $fully, $temperatura, $empresa[0]);
-                                        break;
-                                    case 'Libre':
-                                        return $this->ValidaTurnoLibre($funcionario, $hoy, $hactual, $fully, $temperatura, $empresa[0]);
-                                        break;
+                    if (key_exists('candidates', $resp[0]) && count($res) > 0) {
+                        $candidatos = $resp[0]['candidates'];
+
+                        if (count($candidatos) > 0) {
+                            $candidato = $candidatos[0]['personId'];
+
+                            if ($candidato != '') {
+                                $hactual = date("H:i:s");
+                                $hoy = date('Y-m-d');
+                                $ayer = date("Y-m-d", strtotime(date("Y-m-d") . ' - 1 day'));
+                                $funcionario = PersonService::funcionario_turno($candidato, $dias[date("w", strtotime($hoy))], $hoy, $ayer);
+
+                             
+
+                                if ($funcionario) {
+                                    $tipo_turno = $funcionario->contractultimate->turn_type;
+                                    switch ($tipo_turno) {
+                                        case 'Fijo':
+                                            return $this->ValidaTurnoFijo($funcionario, $hoy, $hactual, $fully, $temperatura, $empresa[0]);
+                                            break;
+                                        case 'Rotativo':
+                                            return $this->ValidaTurnoRotativo($funcionario, $hoy, $ayer, $hactual, $fully, $temperatura, $empresa[0]);
+                                            break;
+                                        case 'Libre':
+                                            return $this->ValidaTurnoLibre($funcionario, $hoy, $hactual, $fully, $temperatura, $empresa[0]);
+                                            break;
+                                    }
+                                } else {
+                                    Marcation::create([
+                                        'type' => 'error',
+                                        'img' => $fully,
+                                        'description' => 'Se identifica un rostro pero al parecer no esta activo en el Sistema',
+                                        'date' => Carbon::now(),
+                                        // 'fecha'=>date("Y-m-d H:i:s")
+                                    ]);
+                                    $error = array(
+                                        'title' => 'Error!',
+                                        'img' => $fully,
+                                        'html' => 'Identificamos un rostro pero al parecer no esta activo en el Sistema',
+                                        'icon' => 'error'
+                                    );
+                                    return $error;
                                 }
-                            } else {
-                                Marcation::create([
-                                    'tipo' => 'error',
-                                    'img' => $fully,
-                                    'detalles' => 'Se identifica un rostro pero al parecer no esta activo en el Sistema',
-                                    'fecha' => Carbon::now(),
-                                    // 'fecha'=>date("Y-m-d H:i:s")
-                                ]);
-                                $error = array(
-                                    'title' => 'Error!',
-                                    'img' => $fully,
-                                    'html' => 'Identificamos un rostro pero al parecer no esta activo en el Sistema',
-                                    'type' => 'error'
-                                );
-                                return $error;
                             }
+                        } else {
+                            Marcation::create([
+                                'type' => 'error',
+                                'img' => $fully,
+                                'description' => 'No se logra identificar el rosto',
+                                'date' => date("Y-m-d H:i:s")
+                            ]);
+                            $error = array(
+                                'title' => 'Acceso Denegado!',
+                                'html' => 'Su rostro no se encuentra en nuestros registros',
+                                'icon' => 'error'
+                            );
+                            return $error;
                         }
                     } else {
                         Marcation::create([
-                            'tipo' => 'error',
+                            'type' => 'error',
                             'img' => $fully,
-                            'detalles' => 'No se logra identificar el rosto',
-                            'fecha' => date("Y-m-d H:i:s")
+                            'description' => 'No se logra identificar el rosto',
+                            'date' => date("Y-m-d H:i:s")
                         ]);
                         $error = array(
                             'title' => 'Acceso Denegado!',
                             'html' => 'Su rostro no se encuentra en nuestros registros',
-                            'type' => 'error'
+                            'icon' => 'error'
                         );
                         return $error;
                     }
-                } else {
+                } catch (HttpException $ex) {
                     Marcation::create([
-                        'tipo' => 'error',
+                        'type' => 'error',
                         'img' => $fully,
-                        'detalles' => 'No se logra identificar el rosto',
-                        'fecha' => date("Y-m-d H:i:s")
+                        'description' => 'Error de Servidor: ' . $ex,
+                        'date' => date("Y-m-d H:i:s")
                     ]);
                     $error = array(
-                        'title' => 'Acceso Denegado!',
-                        'html' => 'Su rostro no se encuentra en nuestros registros',
-                        'type' => 'error'
+                        'title' => 'Opps!',
+                        'html' => 'Error de Servidor: ' . $ex,
+                        'icon' => 'error'
                     );
                     return $error;
-                } */
-            } catch (HttpException $ex) {
-                Marcation::create([
-                    'tipo' => 'error',
-                    'img' => $fully,
-                    'detalles' => 'Error de Servidor: ' . $ex,
-                    'fecha' => date("Y-m-d H:i:s")
-                ]);
-                $error = array(
-                    'title' => 'Opps!',
-                    'html' => 'Error de Servidor: ' . $ex,
-                    'type' => 'error'
-                );
-                return $error;
+                }
             }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response($th->getMessage().$th->getLine().$th->getFile());
         }
     }
 
@@ -260,7 +250,7 @@ class AsistenciaController extends Controller
         $respuesta = array(
             'title' => 'Acceso muy pronto',
             'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Acabas de ingresar, Espera unos minutos </strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
-            'type' => 'warning'
+            'icon' => 'warning'
         );
         return $respuesta;
     }
@@ -268,7 +258,6 @@ class AsistenciaController extends Controller
 
     private function ValidaTurnoFijo($func, $hoy, $hactual, $fully, $temperatura, $empresa)
     {
-
         if (count($func->diariosTurnoFijo) != 0) {
 
             if ($func->diariosTurnoFijo[0]['hora_salida_uno'] == null) {
@@ -297,8 +286,8 @@ class AsistenciaController extends Controller
 
         if (count($func->diariosTurnoFijo) == 0) {
             /** VALIDO LA ENTRADA */
-            if (isset($func->turnoFijo->horariosTurnoFijo[0])) {
-                $hora = $func->turnoFijo->horariosTurnoFijo[0];
+            if (isset($func->contractultimate->fixedTurn->horariosTurnoFijo[0])) {
+                $hora = $func->contractultimate->fixedTurn->horariosTurnoFijo[0];
 
                 $tipo_dia = date("w", strtotime($hoy));
 
@@ -328,9 +317,9 @@ class AsistenciaController extends Controller
 
                 /** GUARDO LOS DATOS DEL HORARIO DEL DIA */
                 $datos = array(
-                    'funcionario_id' => $func->id,
+                    'person_id' => $func->id,
                     'fecha' => $hoy,
-                    'turno_fijo_id' => $hora->turno_fijo_id,
+                    'turno_fijo_id' => $hora->fixed_turn_id,
                     'hora_entrada_uno' => $hactual,
                     'img_uno' => $fully,
                     'temp_uno' => $temperatura
@@ -348,7 +337,7 @@ class AsistenciaController extends Controller
                         $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                         $obj->ubicacion = 'entrada';
                         $obj->destino = $func->email;
-                        $obj->cargo = $func->cargo->nombre;
+                       /*  $obj->cargo = $func->cargo->nombre; */
                         /** Datos Empresa */
                         $obj->empresa = $empresa->razon_social;
                         $obj->nit = $empresa->numero_documento;
@@ -361,7 +350,7 @@ class AsistenciaController extends Controller
                     $respuesta = array(
                         'title' => 'Acceso Autorizado',
                         'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido, Hoy ha llegado temprano</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
-                        'type' => 'success'
+                        'icon' => 'success'
                     );
                     return $respuesta;
                 } else {
@@ -374,7 +363,7 @@ class AsistenciaController extends Controller
                         'real_entry' => $hactual,
                         'entry' => $h_inicio
                     );
-
+                    
                     Llegadas::guardarLlegadaTarde($datos_llegada);
                     /** FIN GUARDAR LLEGADA */
 
@@ -387,7 +376,7 @@ class AsistenciaController extends Controller
                         $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                         $obj->ubicacion = 'entrada';
                         $obj->destino = $func->email;
-                        $obj->cargo = $func->cargo->nombre;
+                        /* $obj->cargo = $func->cargo->nombre; */
                         /** Datos Empresa */
                         $obj->empresa = $empresa->razon_social;
                         $obj->nit = $empresa->numero_documento;
@@ -400,17 +389,17 @@ class AsistenciaController extends Controller
                     $respuesta = array(
                         'title' => 'Acceso Autorizado',
                         'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br><strong style='color:red;'>" . $lleg . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
-                        'type' => 'success'
+                        'icon' => 'success'
                     );
                     return $respuesta;
                 }
             } else {
 
                 Marcation::create([
-                    'tipo' => 'error',
+                    'type' => 'error',
                     'img' => $fully,
-                    'funcionario_id' => $func->id,
-                    'detalles' => 'El Funcionario no tiene Turno Asignado',
+                    'description' => $func->id,
+                    'dateles' => 'El Funcionario no tiene Turno Asignado',
                     'fecha' => date("Y-m-d H:i:s")
                 ]);
 
@@ -418,7 +407,7 @@ class AsistenciaController extends Controller
                 $error = array(
                     'title' => 'Sin Turno Asignado',
                     'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Hoy no Tiene un Turno Asignado</strong>",
-                    'type' => 'error'
+                    'icon' => 'error'
                 );
                 return $error;
             }
@@ -433,7 +422,7 @@ class AsistenciaController extends Controller
                     $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                     $obj->ubicacion = 'entrada';
                     $obj->destino = $func->email;
-                    $obj->cargo = $func->cargo->nombre;
+                   /*  $obj->cargo = $func->cargo->nombre; */
                     /** Datos Empresa */
                     $obj->empresa = $empresa->razon_social;
                     $obj->nit = $empresa->numero_documento;
@@ -453,13 +442,14 @@ class AsistenciaController extends Controller
                 $respuesta = array(
                     'title' => 'Hasta Luego',
                     'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Hasta Luego</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
-                    'type' => 'success'
+                    'icon' => 'success'
                 );
                 return $respuesta;
             } elseif ($diario->hora_entrada_dos == null) {
 
+                $hora = $func->contractultimate->fixedTurn->horariosTurnoFijo[0];
 
-                $hora = $func->turnoFijo->horariosTurnoFijo[0];
+                //$hora = $func->turnoFijo->horariosTurnoFijo[0];
                 $datos = array(
                     'hora_entrada_dos' => $hactual,
                     'img_tres' => $fully,
@@ -479,7 +469,7 @@ class AsistenciaController extends Controller
 
                 if ($diff >= $tol_ent) {
                     $datos_llegada = array(
-                        'funcionario_id' => $func->id,
+                        'person_id' => $func->id,
                         'fecha' => $hoy,
                         'tiempo' => $diff,
                         'entrada_real' => $hactual,
@@ -499,7 +489,7 @@ class AsistenciaController extends Controller
                         $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                         $obj->ubicacion = 'entrada';
                         $obj->destino = $func->email;
-                        $obj->cargo = $func->cargo->nombre;
+                        /* $obj->cargo = $func->cargo->nombre; */
                         /** Datos Empresa */
                         $obj->empresa = $empresa->razon_social;
                         $obj->nit = $empresa->numero_documento;
@@ -512,7 +502,7 @@ class AsistenciaController extends Controller
                     $respuesta = array(
                         'title' => 'Bienvenido de Nuevo',
                         'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br><strong style='color:red;'>" . $lleg . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
-                        'type' => 'success'
+                        'icon' => 'success'
                     );
                     return $respuesta;
                 } else {
@@ -524,7 +514,7 @@ class AsistenciaController extends Controller
                         $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                         $obj->ubicacion = 'entrada';
                         $obj->destino = $func->email;
-                        $obj->cargo = $func->cargo->nombre;
+                        /* $obj->cargo = $func->cargo->nombre; */
                         /** Datos Empresa */
                         $obj->empresa = $empresa->razon_social;
                         $obj->nit = $empresa->numero_documento;
@@ -536,7 +526,7 @@ class AsistenciaController extends Controller
                     $respuesta = array(
                         'title' => 'Bienvenido de Nuevo',
                         'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido de Nuevo</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
-                        'type' => 'success'
+                        'icon' => 'success'
                     );
                     return $respuesta;
                 }
@@ -549,7 +539,7 @@ class AsistenciaController extends Controller
                     $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                     $obj->ubicacion = 'entrada';
                     $obj->destino = $func->email;
-                    $obj->cargo = $func->cargo->nombre;
+                   /*  $obj->cargo = $func->cargo->nombre; */
                     /** Datos Empresa */
                     $obj->empresa = $empresa->razon_social;
                     $obj->nit = $empresa->numero_documento;
@@ -568,22 +558,22 @@ class AsistenciaController extends Controller
                 $respuesta = array(
                     'title' => 'Hasta Mañana',
                     'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Hasta Mañana</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
-                    'type' => 'success'
+                    'icon' => 'success'
                 );
                 return $respuesta;
             } else {
                 Marcation::create([
-                    'tipo' => 'error',
+                    'type' => 'error',
                     'img' => $fully,
-                    'funcionario_id' => $func->id,
-                    'detalles' => 'El funcionario ya había reportado Turno',
+                    'description' => $func->id,
+                    'dateles' => 'El funcionario ya había reportado Turno',
                     'fecha' => date("Y-m-d H:i:s")
                 ]);
 
                 $respuesta = array(
                     'title' => 'Ya has reportado Turno',
                     'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Ya reportaste entrada y salida el día de hoy</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
-                    'type' => 'warning'
+                    'icon' => 'warning'
                 );
                 return $respuesta;
             }
@@ -609,7 +599,7 @@ class AsistenciaController extends Controller
                     $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                     $obj->ubicacion = 'entrada';
                     $obj->destino = $func->email;
-                    $obj->cargo = $func->cargo->nombre;
+                    /* $obj->cargo = $func->cargo->nombre; */
                     /** Datos Empresa */
                     $obj->empresa = $empresa->razon_social;
                     $obj->nit = $empresa->numero_documento;
@@ -629,7 +619,7 @@ class AsistenciaController extends Controller
                 $respuesta = array(
                     'title' => 'Hasta Mañana',
                     'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Hasta Mañana</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
-                    'type' => 'success'
+                    'icon' => 'success'
                 );
                 return $respuesta;
             }
@@ -652,7 +642,7 @@ class AsistenciaController extends Controller
                         $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                         $obj->ubicacion = 'entrada';
                         $obj->destino = $func->email;
-                        $obj->cargo = $func->cargo->nombre;
+                       /*  $obj->cargo = $func->cargo->nombre; */
                         /** Datos Empresa */
                         $obj->empresa = $empresa->razon_social;
                         $obj->nit = $empresa->numero_documento;
@@ -672,38 +662,38 @@ class AsistenciaController extends Controller
                     $respuesta = array(
                         'title' => 'Hasta Mañana',
                         'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Hasta Mañana</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
-                        'type' => 'success'
+                        'icon' => 'success'
                     );
                     return $respuesta;
                 } else {
                     Marcation::create([
-                        'tipo' => 'error',
+                        'type' => 'error',
                         'img' => $fully,
-                        'funcionario_id' => $func->id,
-                        'detalles' => 'El funcionario ya había reportado Turno',
+                        'description' => $func->id,
+                        'dateles' => 'El funcionario ya había reportado Turno',
                         'fecha' => date("Y-m-d H:i:s")
                     ]);
 
                     $respuesta = array(
                         'title' => 'Ya has reportado Turno',
                         'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Ya reportaste entrada y salida del turno de hoy</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
-                        'type' => 'warning'
+                        'icon' => 'warning'
                     );
                     return $respuesta;
                 }
             } else {
                 Marcation::create([
-                    'tipo' => 'error',
+                    'type' => 'error',
                     'img' => $fully,
-                    'funcionario_id' => $func->id,
-                    'detalles' => 'El funcionario ya había reportado Ingreso',
+                    'description' => $func->id,
+                    'dateles' => 'El funcionario ya había reportado Ingreso',
                     'fecha' => date("Y-m-d H:i:s")
                 ]);
 
                 $respuesta = array(
                     'title' => 'Ya has reportado Ingreso',
                     'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Ya marcaste ingreso en un rango de 10 minutos</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
-                    'type' => 'warning'
+                    'icon' => 'warning'
                 );
                 return $respuesta;
             }
@@ -712,17 +702,17 @@ class AsistenciaController extends Controller
 
                 if ($func->horariosTurnoRotativo[0]->turno_rotativo_id == 0) {
                     Marcation::create([
-                        'tipo' => 'error',
+                        'type' => 'error',
                         'img' => $fully,
-                        'funcionario_id' => $func->id,
-                        'detalles' => 'El funcionario tenía día de descanso',
+                        'description' => $func->id,
+                        'dateles' => 'El funcionario tenía día de descanso',
                         'fecha' => date("Y-m-d H:i:s")
                     ]);
 
                     $respuesta = array(
                         'title' => 'Día de Descanso',
                         'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>De acuerdo a la programación, hoy es su día libre</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
-                        'type' => 'warning'
+                        'icon' => 'warning'
                     );
                     return $respuesta;
                 } else {
@@ -733,7 +723,7 @@ class AsistenciaController extends Controller
                     $totalDuration = $finishTime->diffInSeconds($startTime, false);
 
                     $datos = array(
-                        'funcionario_id' => $func->id,
+                        'person_id' => $func->id,
                         'fecha' => $hoy,
                         'turno_rotativo_id' => $turno_asignado->id,
                         'hora_entrada_uno' => $hactual,
@@ -746,7 +736,7 @@ class AsistenciaController extends Controller
                         Diarios::guardarDiarioTurnoRotativo($datos);
 
                         $datos_llegada = array(
-                            'funcionario_id' => $func->id,
+                            'person_id' => $func->id,
                             'fecha' => $hoy,
                             'tiempo' => $totalDuration,
                             'entrada_real' => $hactual,
@@ -766,7 +756,7 @@ class AsistenciaController extends Controller
                             $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                             $obj->ubicacion = 'entrada';
                             $obj->destino = $func->email;
-                            $obj->cargo = $func->cargo->nombre;
+                           /*  $obj->cargo = $func->cargo->nombre; */
                             /** Datos Empresa */
                             $obj->empresa = $empresa->razon_social;
                             $obj->nit = $empresa->numero_documento;
@@ -779,22 +769,22 @@ class AsistenciaController extends Controller
                         $respuesta = array(
                             'title' => 'Acceso Autorizado',
                             'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br><strong style='color:red;'>" . $lleg . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
-                            'type' => 'success'
+                            'icon' => 'success'
                         );
                         return $respuesta;
                     } elseif ($totalDuration < (-3600)) {
                         Marcation::create([
-                            'tipo' => 'error',
+                            'type' => 'error',
                             'img' => $fully,
-                            'funcionario_id' => $func->id,
-                            'detalles' => 'El funcionario estaba marcando turno muy temprano',
+                            'description' => $func->id,
+                            'dateles' => 'El funcionario estaba marcando turno muy temprano',
                             'fecha' => date("Y-m-d H:i:s")
                         ]);
 
                         $respuesta = array(
                             'title' => 'Muy Temprano',
                             'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Su turno asignado para hoy,<br> tiene hora de Ingreso a las " . $turno_asignado->hora_inicio_uno . "</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
-                            'type' => 'warning'
+                            'icon' => 'warning'
                         );
                         return $respuesta;
                     } else {
@@ -806,7 +796,7 @@ class AsistenciaController extends Controller
                             $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                             $obj->ubicacion = 'entrada';
                             $obj->destino = $func->email;
-                            $obj->cargo = $func->cargo->nombre;
+                           /*  $obj->cargo = $func->cargo->nombre; */
                             /** Datos Empresa */
                             $obj->empresa = $empresa->razon_social;
                             $obj->nit = $empresa->numero_documento;
@@ -821,24 +811,24 @@ class AsistenciaController extends Controller
                         $respuesta = array(
                             'title' => 'Acceso Autorizado',
                             'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido, Hoy ha llegado temprano</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
-                            'type' => 'success'
+                            'icon' => 'success'
                         );
                         return $respuesta;
                     }
                 }
             } else {
                 Marcation::create([
-                    'tipo' => 'error',
+                    'type' => 'error',
                     'img' => $fully,
-                    'funcionario_id' => $func->id,
-                    'detalles' => 'El funcionario no tenía turno asignado',
+                    'description' => $func->id,
+                    'dateles' => 'El funcionario no tenía turno asignado',
                     'fecha' => date("Y-m-d H:i:s")
                 ]);
 
                 $respuesta = array(
                     'title' => 'Sin Turno Asignado',
                     'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>No tiene un turno asignado para este día, por favor comuníquese con su superior.</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
-                    'type' => 'warning'
+                    'icon' => 'warning'
                 );
                 return $respuesta;
             }

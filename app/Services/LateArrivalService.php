@@ -47,7 +47,7 @@ class LateArrivalService
 
     static public function allMarcations($dates)
     {
-        return DB::table('marcation as m')
+        return DB::table('marcations as m')
             ->join('people as p', 'm.person_id', '=', 'p.id')
             ->join('work_contracts as w', function ($join) {
                 $join->on('p.id', '=', 'w.person_id')

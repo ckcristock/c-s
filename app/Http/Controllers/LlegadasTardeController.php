@@ -66,6 +66,7 @@ class LlegadasTardeController extends Controller
     }
     public static function guardarLlegadaTarde($datos)
     {
+        
         LateArrival::create($datos);
         return true;
     }

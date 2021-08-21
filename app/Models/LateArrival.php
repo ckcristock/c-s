@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class LateArrival extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'date',
+        'entry',
+        'person_id',
+        'real_entry',
+        'time',
+    ];
 
      /**
      * Una llegada tarde pertenece a un centro de costo

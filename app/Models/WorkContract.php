@@ -42,4 +42,14 @@ class WorkContract extends Model
     {
         return $this->belongsTo(Person::class);
     }
+
+    /**
+     * Get the user that owns the WorkContract
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function fixedTurn()
+    {
+        return $this->belongsTo(FixedTurn::class);
+    }
 }
