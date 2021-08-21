@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Eps extends Model
+class Zones extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'code', 'nit', 'status'];
-    protected $table = 'epss';
+    protected $fillable = ['name', 'status'];
 }

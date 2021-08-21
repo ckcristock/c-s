@@ -28,6 +28,10 @@ class WorkContract extends Model
         return $this->belongsTo(Position::class);
     }
 
+    public function people(){
+        return $this->belongsTo(People::class);
+    }
+
     public function work_contract_type()
     {
         return $this->belongsTo(WorkContractType::class);

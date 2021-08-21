@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Municipality extends Model
 {
     use HasFactory;
-
+    protected $fillable = ['name', 'code', 'codigo_dane', 'department_id'];
   
     public function department()
     {

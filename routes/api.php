@@ -30,6 +30,7 @@ use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
+use App\Http\Controllers\ZonesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -112,7 +113,7 @@ Route::group(
 		Route::resource('severance-funds', SeveranceFundController::class);
 		Route::resource('pension-funds', PensionFundController::class);
 		Route::resource('compensation-funds', CompensationFundController::class);
-		Route::resource('epss', EpsController::class);
+		Route::resource('eps', EpsController::class);
 		Route::resource('people', PersonController::class);
 		Route::resource('group', GroupController::class);
 		Route::resource('departments', DepartmentController::class);
@@ -127,5 +128,14 @@ Route::group(
 		Route::resource('rrhh-activity', RrhhActivityController::class);
 		Route::resource('late-arrivals', LateArrivalController::class);
 		/* Route::resource('inventary-dotation-group', ProductDotationType::class); */
+		Route::resource('zones', ZonesController::class);
+
+		/* Paginations */
+		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);		
+		Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
+
+		Route::get('person/{id}', [PersonController::class, 'basicData']);
+		Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
+		Route::get('enterpriseData/{id}', [PersonController::class, 'enterpriseData']);
 	}
 );

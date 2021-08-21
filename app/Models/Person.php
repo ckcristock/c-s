@@ -43,6 +43,12 @@ class Person extends Model
     {
         return $this->hasOne(WorkContract::class)->with('position.dependency', 'work_contract_type');
     }
+
+    public function work_contract()
+    {
+        return $this->hasOne(WorkContract::class);
+    }
+
     public function liquidado()
     {
         return $this->hasOne(WorkContract::class);
