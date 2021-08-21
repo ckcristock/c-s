@@ -2,6 +2,7 @@
 
 /* use App\Http\Controllers\AuthController; */
 
+use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompensationFundController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\InventaryDotationController;
 use App\Http\Controllers\InventaryDotationGroupController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\LateArrivalController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\PayrollFactorController;
@@ -23,6 +25,7 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProductDotationTypeController;
 use App\Http\Controllers\RotatingTurnController;
+use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\WorkContractTypeController;
@@ -40,6 +43,9 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::post('/asistencia/validar', [AsistenciaController::class, 'validar']);
+
 
 Route::prefix("auth")->group(
 	function () {
@@ -69,11 +75,33 @@ Route::group(
 		Route::post('/save-menu',  [MenuController::class, 'store']);
 		Route::post('/jobs/set-state/{id}',  [JobController::class, 'setState']);
 		Route::get('/payroll-factor-people',  [PayrollFactorController::class, 'indexByPeople']);
+
+
+		/** Rutas inventario dotacion rrhh */
 		Route::get('/inventary-dotation-by-category',  [InventaryDotationController::class, 'indexGruopByCategory']);
 		Route::get('/inventary-dotation-statistics',  [InventaryDotationController::class, 'statistics']);
 		Route::get('/inventary-dotation-stock',  [InventaryDotationController::class, 'getInventary']);
 		Route::post('/dotations-update/{id}',  [DotationController::class, 'update']);
 		Route::get('/dotations-total-types',  [DotationController::class, 'getTotatlByTypes']);
+		/** end*/
+
+		/** Rutas actividades rrhh */
+		Route::get('/rrhh-activity-people/{id}',  [RrhhActivityController::class, 'getPeople']);
+		Route::get('/rrhh-activity/cancel/{id}',  [RrhhActivityController::class, 'cancel']);
+		Route::post('/rrhh-activity-types/set',  [RrhhActivityTypeController::class, 'setState']);
+		/** end*/
+
+		
+
+		/** Rutas del módulo de llegadas tarde */
+		Route::get('/late_arrivals/data/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'getData'])->where([
+			'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+		]);
+
+		Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class,'statistics']);
+
+		/** Resources */
 
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
@@ -95,7 +123,9 @@ Route::group(
 		Route::resource('inventary-dotation', InventaryDotationController::class);
 		Route::resource('product-dotation-types', ProductDotationTypeController::class);
 		Route::resource('dotations', DotationController::class);
-		Route::resource('rrhh-activiy-types', RrhhActivityTypeController::class);
+		Route::resource('rrhh-activity-types', RrhhActivityTypeController::class);
+		Route::resource('rrhh-activity', RrhhActivityController::class);
+		Route::resource('late-arrivals', LateArrivalController::class);
 		/* Route::resource('inventary-dotation-group', ProductDotationType::class); */
 	}
 );

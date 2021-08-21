@@ -32,4 +32,14 @@ class WorkContract extends Model
     {
         return $this->belongsTo(WorkContractType::class);
     }
+
+    /**
+     * El contrato pertenece a un funcionario
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function person()
+    {
+        return $this->belongsTo(Person::class);
+    }
 }
