@@ -72,7 +72,7 @@ class PersonController extends Controller
                     $q->whereIn('p.status', $fill);
                 })
 
-                ->paginate($pageSize, ['*'], 'page')
+                ->paginate($pageSize, ['*'],'page', $page)
         );
     }
 

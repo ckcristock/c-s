@@ -15,7 +15,8 @@ class ZonesController extends Controller
         $page = key_exists('page', $data) ? $data['page'] : 1;
         $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 5;
         return $this->success(
-            Zones::paginate($pageSize, ['*'])
+            Zones::paginate($pageSize, ['*'],'page', $page)
+
         );
     }
 

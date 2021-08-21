@@ -56,7 +56,8 @@ class MunicipalityController extends Controller
                     }
                 ]);
             })
-            ->paginate($pageSize, ['*'])
+            ->paginate($pageSize, ['*'],'page', $page)
+
         );
     }
 

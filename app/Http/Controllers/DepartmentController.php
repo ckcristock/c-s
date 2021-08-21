@@ -28,7 +28,7 @@ class DepartmentController extends Controller
             {
                 $q->where('name','like','%'.$fill.'%');
             })
-            ->paginate($pageSize, ['*'])
+            ->paginate($pageSize, ['*'],'page', $page)
         );
     }
 

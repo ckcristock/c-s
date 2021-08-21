@@ -27,7 +27,8 @@ class EpsController extends Controller
             ->when( Request()->get('code'), function($q, $fill){
                 $q->where('code', 'like','%'.$fill.'%');
             })
-            ->paginate($pageSize, ['*'])
+            ->paginate($pageSize, ['*'],'page', $page)
+
         );
     }
 
