@@ -86,5 +86,9 @@ Route::group(
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);		
 		Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
+
+		Route::get('person/{id}', [PersonController::class, 'basicData']);
+		Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
+		Route::get('enterpriseData/{id}', [PersonController::class, 'enterpriseData']);
 	}
 );

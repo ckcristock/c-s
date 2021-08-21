@@ -9,4 +9,5 @@ class Eps extends Model
 {
     use HasFactory;
     protected $fillable = ['name', 'code', 'nit', 'status'];
+    protected $table = 'epss';
 }

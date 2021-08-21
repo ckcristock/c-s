@@ -45,9 +45,16 @@ class MunicipalityController extends Controller
             {
                 $q->where('name','like','%'.$fill.'%');
             })
-            ->when( Request()->get('codigo_dane') , function($q, $fill)
+            ->when( Request()->get('department') , function($q, $fill)
             {
-                $q->where('codigo_dane','like','%'.$fill.'%');
+                $q->with([
+                    'department' => function($q)
+                    {
+                        $q->select('name')->when( Request()->get('name'), function($q, $fill){
+                            $q->where('name', 'like','%'.$fill.'%');
+                        });
+                    }
+                ]);
             })
             ->paginate($pageSize, ['*'])
         );

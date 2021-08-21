@@ -48,6 +48,12 @@ class Person extends Model
 
         //->with('cargo.dependencia.centroCosto', 'tipo_contrato');
     }
+
+    public function work_contract()
+    {
+        return $this->hasOne(WorkContract::class);
+    }
+
     public function liquidado()
     {
         return $this->hasOne(WorkContract::class);

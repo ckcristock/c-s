@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
+use function PHPSTORM_META\map;
+
 class PersonController extends Controller
 {
     use ApiResponser;
@@ -62,7 +64,6 @@ class PersonController extends Controller
                     $q->where('p.identifier', 'like', '%' . $fill . '%')
                         ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');
                 })
-
                 ->when( $data ['dependencies'], function ($q, $fill) {
                     $q->whereIn('d.id', $fill);
                 })
@@ -73,6 +74,95 @@ class PersonController extends Controller
 
                 ->paginate($pageSize, ['*'], 'page')
         );
+    }
+
+    public function basicData($id)
+    {
+        return $this->success(
+            DB::table('people as p')
+            ->select(
+                'p.first_name',
+                'p.first_surname',
+                'p.id',
+                'p.image',
+                'p.second_name',
+                'p.second_surname',
+                'w.salary',
+                'w.id as work_contract_id',
+                'p.signature',
+                'p.title'
+            )
+            ->join('work_contracts as w', function ($join) {
+                $join->on('p.id', '=', 'w.person_id')
+                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                            join people as u2 on u2.id = a2.person_id group by u2.id)');
+            })
+            ->where('p.id', '=', $id)
+            ->get()
+        );
+    }
+
+    public function basicDataForm($id)
+    {
+        return $this->success(
+            DB::table('people as p')
+            ->select(
+                'p.first_name',
+                'p.first_surname',
+                'p.second_name',
+                'p.second_surname',
+                'p.identifier',
+                'p.image',
+                'p.email',
+                'p.degree',
+                'p.date_of_birth',
+                'p.gener',
+                'p.marital_status',
+                'p.direction',
+                'p.cell_phone'
+            )
+            ->where('p.id', '=', $id)
+            ->get()
+        );
+    }
+
+    public function enterpriseData($id)
+    {
+        return $this->success(
+            DB::table('people as p')
+            ->select(
+                'p.id',
+                'w.turn_type',
+                'posi.name as position_name',
+                'd.name as depencency_name',
+                'gr.name as group_name',
+                'f.name as fixed_turn_name',
+                'c.name as company_name',
+                'w.turn_type'
+            )
+            ->join('work_contracts as w', function ($join) {
+                $join->on('p.id', '=', 'w.person_id')
+                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                            join people as u2 on u2.id = a2.person_id group by u2.id)');
+            })
+            ->join('positions as posi', function ($join) {
+                $join->on('posi.id', '=', 'p.id');
+            })
+            ->join('dependencies as d', function ($join) {
+                $join->on('d.id', '=', 'p.person_id');
+            })
+            ->join('groups as gr', function ($join) {
+                $join->on('gr.id', '=', 'posi.id');
+            })
+            ->join('fixed_turns as f', function ($join) {
+                $join->on('f.id', '=', 'w.fixed_turn_id');
+            })
+            ->join('companies as c', function ($join) {
+                $join->on('c.d', '=', 'p.company_id');
+            })
+            ->where('p.id', '=', $id)
+            ->get()
+            );
     }
 
     /**
@@ -120,7 +210,8 @@ class PersonController extends Controller
      */
     public function show(Person $person)
     {
-        //
+        $person = Person::find($person);
+        return response()->json($person, 200);
     }
 
     /**
