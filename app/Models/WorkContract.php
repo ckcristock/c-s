@@ -34,6 +34,26 @@ class WorkContract extends Model
 
     public function work_contract_type()
     {
-        return $this->belongsTo(workContractType::class);
+        return $this->belongsTo(WorkContractType::class);
+    }
+
+    /**
+     * El contrato pertenece a un funcionario
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function person()
+    {
+        return $this->belongsTo(Person::class);
+    }
+
+    /**
+     * Get the user that owns the WorkContract
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function fixedTurn()
+    {
+        return $this->belongsTo(FixedTurn::class);
     }
 }
