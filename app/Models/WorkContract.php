@@ -20,8 +20,6 @@ class WorkContract extends Model
         'rotating_turn_id',
         'company_id',
         'person_id'
-        ,
-       
     ];
     public function position()
     {

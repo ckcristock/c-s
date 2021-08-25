@@ -20,6 +20,8 @@ class Person extends Model
         'eps_id',
         'first_name',
         'first_surname',
+        'second_name',
+        'second_surname',
         'gener',
         'identifier',
         'image',

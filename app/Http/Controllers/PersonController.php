@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Eps;
+use App\Models\FixedTurn;
 use App\Models\Person;
 use App\Models\User;
 use App\Models\WorkContract;
@@ -145,7 +147,7 @@ class PersonController extends Controller
                             join people as u2 on u2.id = a2.person_id group by u2.id)');
             })
             ->where('p.id', '=', $id)
-            ->get()
+            ->first()
         );
     }
 
@@ -166,10 +168,21 @@ class PersonController extends Controller
                 'p.gener',
                 'p.marital_status',
                 'p.direction',
-                'p.cell_phone'
+                'p.cell_phone',
+                'p.first_name',
+                'p.first_surname',
+                'p.id',
+                'p.image',
+                'p.second_name',
+                'p.second_surname',
             )
+            ->join('work_contracts as w', function ($join) {
+                $join->on('p.id', '=', 'w.person_id')
+                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                            join people as u2 on u2.id = a2.person_id group by u2.id)');
+            })
             ->where('p.id', '=', $id)
-            ->get()
+            ->first()
         );
     }
 
@@ -178,38 +191,136 @@ class PersonController extends Controller
         return $this->success(
             DB::table('people as p')
             ->select(
-                'p.id',
-                'w.turn_type',
+                'p.id as person_id',
                 'posi.name as position_name',
-                'd.name as depencency_name',
+                'd.name as dependency_name',
                 'gr.name as group_name',
+                'd.group_id',
+                'w.rotating_turn_id',
+                'posi.dependency_id',
                 'f.name as fixed_turn_name',
                 'c.name as company_name',
-                'w.turn_type'
+                'w.turn_type',
+                'w.position_id',
+                'w.company_id',
+                'w.fixed_turn_id',
+                'w.id'
             )
             ->join('work_contracts as w', function ($join) {
-                $join->on('p.id', '=', 'w.person_id')
+                $join->on('w.person_id', '=', 'p.id')
                     ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
                             join people as u2 on u2.id = a2.person_id group by u2.id)');
             })
             ->join('positions as posi', function ($join) {
-                $join->on('posi.id', '=', 'p.id');
+                $join->on('posi.id', '=', 'w.position_id');
             })
             ->join('dependencies as d', function ($join) {
-                $join->on('d.id', '=', 'p.person_id');
+                $join->on('d.id', '=', 'posi.dependency_id');
             })
             ->join('groups as gr', function ($join) {
-                $join->on('gr.id', '=', 'posi.id');
+                $join->on('gr.id', '=', 'd.group_id');
             })
-            ->join('fixed_turns as f', function ($join) {
+            ->leftJoin('fixed_turns as f', function ($join) {
                 $join->on('f.id', '=', 'w.fixed_turn_id');
             })
             ->join('companies as c', function ($join) {
-                $join->on('c.d', '=', 'p.company_id');
+                $join->on('c.id', '=', 'w.company_id');
             })
             ->where('p.id', '=', $id)
-            ->get()
+            ->first()
             );
+    }
+
+    public function updateEnterpriseData(Request $request)
+    {
+        try {
+            $work_contract = WorkContract::find($request->get('id'));
+                $work_contract->update($request->all());
+                return response()->json(['message' => 'Se ha actualizado con éxito']);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    
+    public function salary($id)
+    {
+        return $this->success(
+            DB::table('people as p')
+            ->select(
+                'w.date_of_admission',
+                'w.date_end', 
+                'w.salary',
+                'wc.name as contract_type',
+                'w.work_contract_type_id',
+                'w.id'
+                )
+                ->join('work_contracts as w', function ($join) {
+                    $join->on('w.person_id', '=', 'p.id')
+                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                    join people as u2 on u2.id = a2.person_id group by u2.id)');
+                })
+                ->join('work_contract_types as wc', function ($join) {
+                    $join->on('wc.id', '=', 'w.work_contract_type_id');
+                })
+                ->where('p.id', '=', $id)
+                ->first()
+            );
+        }
+        
+    public function updateSalaryInfo( Request $request )
+    {
+        try {
+            $salary = WorkContract::find($request->get('id'));
+            $salary->update($request->all());
+            return response()->json(['message' => 'Se ha actualizado con éxito']);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    public function afiliation($id)
+    {
+        try {
+            return $this->success(
+                    DB::table('people as p')
+                    ->select(
+                        'p.eps_id',
+                        'e.name as eps_name',
+                        'e.id'
+                    )
+                    ->join('epss as e', function ($join) {
+                        $join->on('e.id', '=', 'p.eps_id');
+                    })
+                    ->where('p.id', '=', $id)
+                    ->first()
+                    /* ->get() */
+            );
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    public function updateAfiliation( Request $request, $id )
+    {
+        try {
+            $afiliation = Person::find($id);
+            $afiliation->update($request->all());
+            return response()->json(['message' => 'Se ha actualizado con éxito']);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    public function fixed_turn()
+    {
+        try {
+            return $this->success(
+                FixedTurn::all(['id as value', 'name as text'])
+            );
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -220,6 +331,28 @@ class PersonController extends Controller
     public function create()
     {
         //
+    }
+
+    public function epss()
+    {
+        try {
+            return $this->success(
+                EPS::all()
+            );
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    public function updateBasicData( Request $request, $id )
+    {
+        try {
+            $person = Person::find($id);
+            $person->update($request->all());
+            return response()->json($person);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**

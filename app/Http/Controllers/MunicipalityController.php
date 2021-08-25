@@ -34,9 +34,17 @@ class MunicipalityController extends Controller
             Municipality::orderBy('name')
             ->with([
                 'department' => function($q){
-                    $q->select('id', 'name');
+                    $q->select('id','name')->when( Request()->get('department'), function($q, $fill){
+                        $q->where('name', 'like','%'.$fill.'%');
+                    });
                 }
             ])
+            ->whereHas('department',function($q){
+                $q->when( Request()->get('department'), function($q, $fill){
+                
+                    $q->where('name', 'like','%'.$fill.'%');
+                });
+            })
             ->when( Request()->get('code') , function($q, $fill)
             {
                 $q->where('code','like','%'.$fill.'%');
@@ -44,17 +52,6 @@ class MunicipalityController extends Controller
             ->when( Request()->get('name') , function($q, $fill)
             {
                 $q->where('name','like','%'.$fill.'%');
-            })
-            ->when( Request()->get('department') , function($q, $fill)
-            {
-                $q->with([
-                    'department' => function($q)
-                    {
-                        $q->select('name')->when( Request()->get('name'), function($q, $fill){
-                            $q->where('name', 'like','%'.$fill.'%');
-                        });
-                    }
-                ]);
             })
             ->paginate($pageSize, ['*'],'page', $page)
 
