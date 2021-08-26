@@ -292,14 +292,14 @@ class AsistenciaController extends Controller
                 $tipo_dia = date("w", strtotime($hoy));
 
                 if ($hactual <= '12:00:00' && ($tipo_dia != 6 && $tipo_dia != 0)) {
-                    $diferencia = $this->RestarHoras($hactual, $hora->hora_inicio_uno);
-                    $h_inicio = $hora->hora_inicio_uno;
+                    $diferencia = $this->RestarHoras($hactual, $hora->entry_time_one);
+                    $h_inicio = $hora->entry_time_one;
                 } elseif ($hactual <= '12:00:00' && ($tipo_dia == 6 || $tipo_dia == 0)) {
-                    $diferencia = $this->RestarHoras($hactual, $hora->hora_inicio_uno);
-                    $h_inicio = $hora->hora_inicio_uno;
+                    $diferencia = $this->RestarHoras($hactual, $hora->entry_time_one);
+                    $h_inicio = $hora->entry_time_one;
                 } else {
-                    $diferencia = $this->RestarHoras($hactual, $hora->hora_inicio_dos);
-                    $h_inicio = $hora->hora_inicio_dos;
+                    $diferencia = $this->RestarHoras($hactual, $hora->entry_time_two);
+                    $h_inicio = $hora->entry_time_two;
                 }
                 $dife = $diferencia;
                 $diferencia = explode(":", $diferencia);
@@ -313,7 +313,7 @@ class AsistenciaController extends Controller
                 $diff_b = ($diff_a + $diferencia[1]) * $sig;
 
                 $diff = (($diferencia[0] * 60 * 60) + ($diferencia[1] * 60) + ($diferencia[2])) * $sig;
-                $tol_ent = ($hora->Tolerancia_Entrada * 60);
+                $tol_ent = ($hora->leave_tolerance * 60);
 
                 /** GUARDO LOS DATOS DEL HORARIO DEL DIA */
                 $datos = array(
@@ -457,7 +457,7 @@ class AsistenciaController extends Controller
                 );
                 Diarios::actualizaDiarioTurnoFijo($datos, $diario->id);
 
-                $diferencia = $this->RestarHoras($hactual, $hora->hora_inicio_dos);
+                $diferencia = $this->RestarHoras($hactual, $hora->entry_time_two);
                 $diferencia = explode(":", $diferencia);
                 $sig = 1;
                 if (strpos($diferencia[0], "-") !== false) {
@@ -465,7 +465,7 @@ class AsistenciaController extends Controller
                     $diferencia[0] = str_replace("-", "", $diferencia[0]);
                 }
                 $diff = (($diferencia[0] * 60 * 60) + ($diferencia[1] * 60) + ($diferencia[2])) * $sig;
-                $tol_ent = ($hora->Tolerancia_Entrada * 60);
+                $tol_ent = ($hora->leave_tolerance * 60);
 
                 if ($diff >= $tol_ent) {
                     $datos_llegada = array(
@@ -473,7 +473,7 @@ class AsistenciaController extends Controller
                         'fecha' => $hoy,
                         'tiempo' => $diff,
                         'entrada_real' => $hactual,
-                        'entrada_turno' => $hora->hora_inicio_dos
+                        'entrada_turno' => $hora->entry_time_two
                     );
 
                     Llegadas::guardarLlegadaTarde($datos_llegada);
@@ -731,7 +731,7 @@ class AsistenciaController extends Controller
                         'temp_uno' => $temperatura
                     );
 
-                    if ($totalDuration > ($turno_asignado->tolerancia_entrada * 60)) {
+                    if ($totalDuration > ($turno_asignado->leave_tolerance * 60)) {
 
                         Diarios::guardarDiarioTurnoRotativo($datos);
 

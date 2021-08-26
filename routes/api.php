@@ -12,6 +12,7 @@ use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\DotationController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FixedTurnController;
+use App\Http\Controllers\FixedTurnHourController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\InventaryDotationController;
 use App\Http\Controllers\InventaryDotationGroupController;
@@ -92,7 +93,7 @@ Route::group(
 		Route::post('/rrhh-activity-types/set',  [RrhhActivityTypeController::class, 'setState']);
 		/** end*/
 
-		
+
 
 		/** Rutas del módulo de llegadas tarde */
 		Route::get('/late_arrivals/data/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'getData'])->where([
@@ -100,7 +101,8 @@ Route::group(
 			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
 		]);
 
-		Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class,'statistics']);
+		Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'statistics']);
+		Route::get('/fixed-turn-hours', [FixedTurnHourController::class, 'index']);
 
 		/** Resources */
 
@@ -131,7 +133,7 @@ Route::group(
 		Route::resource('zones', ZonesController::class);
 
 		/* Paginations */
-		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);		
+		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);

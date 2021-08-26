@@ -7,14 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class FixedTurn extends Model
 {
-    use HasFactory;
-    public function horariosTurnoFijo()
-    {
-        return $this->hasMany(HorarioTurnoFijo::class);
-    }
+	use HasFactory;
+	protected $fillable = [
+		"entry_tolerance",
+		"extra_hours",
+		"leave_tolerance",
+		"name",
+	];
+	public function horariosTurnoFijo()
+	{
+		return $this->hasMany(FixedTurnHour::class);
+	}
 
-    public function diariosTurnoFijo()
-    {
-        return $this->hasMany(DiarioTurnoFijo::class);
-    }
+	public function diariosTurnoFijo()
+	{
+		return $this->hasMany(DiarioTurnoFijo::class);
+	}
 }

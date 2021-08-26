@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\FixedTurn;
 use App\Models\FixedTurnHour;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class FixedTurnController extends Controller
+class FixedTurnHourController extends Controller
 {
 	use ApiResponser;
 	/**
@@ -16,9 +14,17 @@ class FixedTurnController extends Controller
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		return $this->success(FixedTurn::all(["id as value", "name as text"]));
+		//
+		return $this->success(
+			FixedTurnHour::where(
+				"fixed_turn_id",
+				$request->get("fixed_turn_id")
+			)
+				->orderBy("id")
+				->get()
+		);
 	}
 
 	/**
@@ -26,9 +32,10 @@ class FixedTurnController extends Controller
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function create(Request $req)
+	public function create()
 	{
 		//
+
 	}
 
 	/**
@@ -37,19 +44,9 @@ class FixedTurnController extends Controller
 	 * @param  \Illuminate\Http\Request  $request
 	 * @return \Illuminate\Http\Response
 	 */
-	public function store(Request $req)
+	public function store(Request $request)
 	{
 		//
-
-		$fixedTurnData = $req->except("days");
-		$fixed = FixedTurn::create($fixedTurnData);
-		$hours = $req->get("days");
-		$fixed->horariosTurnoFijo()->createMany($hours);
-		return $this->success("creado con éxito");
-		try {
-		} catch (\Throwable $err) {
-			return $this->error($err->getMessage(), 500);
-		}
 	}
 
 	/**
@@ -61,11 +58,6 @@ class FixedTurnController extends Controller
 	public function show($id)
 	{
 		//
-		try {
-			return $this->success(FixedTurn::where('id', $id)->with("horariosTurnoFijo")->first());
-		} catch (\Throwable $err) {
-			return $this->error($err->getMessage(), 500);
-		}
 	}
 
 	/**
