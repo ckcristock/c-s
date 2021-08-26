@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bonifications;
+use App\Models\CompensationFund;
 use App\Models\Eps;
 use App\Models\FixedTurn;
 use App\Models\Person;
@@ -108,19 +110,9 @@ class PersonController extends Controller
                 ->join('positions as pos', 'pos.id', '=', 'w.position_id')
                 ->join('dependencies as d', 'd.id', '=', 'pos.dependency_id')
                 ->where('p.status','Activo')
-               /*  ->when($data['name'], function ($q, $fill) {
-                    $q->where('p.identifier', 'like', '%' . $fill . '%')
-                        ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');
-                })
- */
                 ->when($data['dependencies'], function ($q, $fill) {
                     $q->where('d.id', $fill);
                 })
-
-               /*  ->when($data['status'], function ($q, $fill) {
-                    $q->whereIn('p.status', $fill);
-                }) */
-
                 ->get()
         );
     }
@@ -287,10 +279,29 @@ class PersonController extends Controller
                     ->select(
                         'p.eps_id',
                         'e.name as eps_name',
-                        'e.id'
+                        'p.compensation_fund_id',
+                        'c.name as compensation_fund_name',
+                        'p.severance_fund_id',
+                        's.name as severance_fund_name',
+                        'p.pension_fund_id',
+                        'pf.name as pension_fund_name',
+                        'a.id as arl_id',
+                        'a.name as arl_name'
                     )
                     ->join('epss as e', function ($join) {
                         $join->on('e.id', '=', 'p.eps_id');
+                    })
+                    ->join('arl as a', function ($join) {
+                        $join->on('a.id', '=', 'p.arl_id');
+                    })
+                    ->join('compensation_funds as c', function ($join) {
+                        $join->on('c.id', '=', 'p.compensation_fund_id');
+                    })
+                    ->join('severance_funds as s', function ($join) {
+                        $join->on('s.id', '=', 'p.severance_fund_id');
+                    })
+                    ->join('pension_funds as pf', function ($join) {
+                        $join->on('pf.id', '=', 'p.pension_fund_id');
                     })
                     ->where('p.id', '=', $id)
                     ->first()
@@ -323,6 +334,17 @@ class PersonController extends Controller
         }
     }
 
+    public function epss()
+    {
+        try {
+            return $this->success(
+                EPS::all(['name as text', 'id as value'])
+            );
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -333,16 +355,6 @@ class PersonController extends Controller
         //
     }
 
-    public function epss()
-    {
-        try {
-            return $this->success(
-                EPS::all()
-            );
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
-    }
 
     public function updateBasicData( Request $request, $id )
     {

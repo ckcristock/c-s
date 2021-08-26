@@ -30,8 +30,7 @@ class ZonesController extends Controller
     public function store( Request $request )
     {
         try {
-            
-            Zones::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            Zones::updateOrCreate( [ 'id'=> $request->get('id') ], $request->all() );
             return $this->success('creacion exitosa');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 200);
