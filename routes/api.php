@@ -31,6 +31,7 @@ use App\Http\Controllers\RotatingTurnController;
 use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
+use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
 use App\Http\Controllers\ZonesController;
@@ -152,8 +153,8 @@ Route::group(
 		Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
 		Route::get('salary/{id}', [PersonController::class, 'salary']);
 		Route::post('salary', [PersonController::class, 'updateSalaryInfo']);
-		Route::get('enterpriseData/{id}', [PersonController::class, 'enterpriseData']);
-		Route::post('enterpriseData', [PersonController::class, 'updateEnterpriseData']);
+		Route::get('enterpriseData/{id}', [WorkContractController::class, 'show']);
+		Route::post('enterpriseData', [WorkContractController::class, 'updateEnterpriseData']);
 		Route::get('afiliation/{id}', [PersonController::class, 'afiliation']);
 		Route::post('updateAfiliation/{id}', [PersonController::class, 'updateAfiliation']);
 		

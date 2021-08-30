@@ -115,7 +115,7 @@ class PersonController extends Controller
         );
     }
 
-    public function basicData($id)
+    public function basicData($id) 
     {
         return $this->success(
             DB::table('people as p')
@@ -176,16 +176,7 @@ class PersonController extends Controller
         );
     }
 
-    public function updateEnterpriseData(Request $request)
-    {
-        try {
-            $work_contract = WorkContract::find($request->get('id'));
-                $work_contract->update($request->all());
-                return response()->json(['message' => 'Se ha actualizado con éxito']);
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
-    }
+  
 
     
     public function salary($id)
@@ -241,19 +232,19 @@ class PersonController extends Controller
                         'a.id as arl_id',
                         'a.name as arl_name'
                     )
-                    ->join('epss as e', function ($join) {
+                    ->leftJoin('epss as e', function ($join) {
                         $join->on('e.id', '=', 'p.eps_id');
                     })
-                    ->join('arl as a', function ($join) {
+                    ->leftJoin('arl as a', function ($join) {
                         $join->on('a.id', '=', 'p.arl_id');
                     })
-                    ->join('compensation_funds as c', function ($join) {
+                    ->leftJoin('compensation_funds as c', function ($join) {
                         $join->on('c.id', '=', 'p.compensation_fund_id');
                     })
-                    ->join('severance_funds as s', function ($join) {
+                    ->leftJoin('severance_funds as s', function ($join) {
                         $join->on('s.id', '=', 'p.severance_fund_id');
                     })
-                    ->join('pension_funds as pf', function ($join) {
+                    ->leftJoin('pension_funds as pf', function ($join) {
                         $join->on('pf.id', '=', 'p.pension_fund_id');
                     })
                     ->where('p.id', '=', $id)
