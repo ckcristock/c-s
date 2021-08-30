@@ -38,15 +38,15 @@ class DotationController extends Controller
                 DB::raw('GROUP_CONCAT( PD.inventary_dotation_id ) AS IID'),
                 DB::raw('GROUP_CONCAT( PD.quantity ) AS quantity'),
                 DB::raw(' SUM(PD.quantity * PD.cost) AS total'),
-                DB::raw(' CONCAT(p.first_name," ",p.first_surname) as recibe '),
-                DB::raw(' CONCAT(pf.first_name," ",pf.first_surname) as entrega '),
+                DB::raw(' CONCAT(P.first_name," ",P.first_surname) as recibe '),
+                DB::raw(' CONCAT(PF.first_name," ",PF.first_surname) as entrega '),
                 'D.created_at',
                 'D.id',
                 'D.description',
                 'D.state',
             )
             ->groupBy('D.id')
-            ->orderBy('d.created_at', 'DESC')
+            ->orderBy('D.created_at', 'DESC')
             ->paginate($pageSize, '*', 'page', $page);
 
         return $this->success($d);

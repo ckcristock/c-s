@@ -149,10 +149,10 @@ Route::group(
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
 		Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
-		Route::get('enterpriseData/{id}', [PersonController::class, 'enterpriseData']);
 		Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
 		Route::get('salary/{id}', [PersonController::class, 'salary']);
 		Route::post('salary', [PersonController::class, 'updateSalaryInfo']);
+		Route::get('enterpriseData/{id}', [PersonController::class, 'enterpriseData']);
 		Route::post('enterpriseData', [PersonController::class, 'updateEnterpriseData']);
 		Route::get('afiliation/{id}', [PersonController::class, 'afiliation']);
 		Route::post('updateAfiliation/{id}', [PersonController::class, 'updateAfiliation']);
