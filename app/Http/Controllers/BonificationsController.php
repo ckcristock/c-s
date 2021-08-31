@@ -40,7 +40,7 @@ class BonificationsController extends Controller
     public function countable_income( Request $request )
     {
         return $this->success(
-            Countable_income::when($request->get('type'), function ($q, $p) {
+            Countable_income::when($request->get('bonusType'), function ($q, $p) {
                 $q->where('type', $p);
             })->get(['id as value', 'concept as text'])
         );

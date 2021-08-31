@@ -16,6 +16,7 @@ class Person extends Model
         'date_of_birth',
         'degree',
         'direction',
+        'address',
         'email',
         'eps_id',
         'first_name',

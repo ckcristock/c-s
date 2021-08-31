@@ -157,7 +157,7 @@ class PersonController extends Controller
                 'p.date_of_birth',
                 'p.gener',
                 'p.marital_status',
-                'p.direction',
+                'p.address',
                 'p.cell_phone',
                 'p.first_name',
                 'p.first_surname',

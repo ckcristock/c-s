@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompensationFundController;
+use App\Http\Controllers\Countable_incomeController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DisabilityLeaveController;
@@ -36,6 +37,7 @@ use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
 use App\Http\Controllers\ZonesController;
 use App\Models\Countable_income;
+use App\Models\WorkContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -135,9 +137,9 @@ Route::group(
 		Route::resource('late-arrivals', LateArrivalController::class);
 		Route::resource('zones', ZonesController::class);
 		Route::resource('bonifications', BonificationsController::class);
-		Route::resource('countable_incomes', Countable_income::class);
+		Route::resource('countable_incomes', Countable_incomeController::class);
 		Route::resource('arl', ArlController::class);
-		
+		/* Route::resource('work_contracts', [WorkContractController::class]); */
 		/* Route::resource('inventary-dotation-group', ProductDotationType::class); */
 		Route::resource('zones', ZonesController::class);
 
@@ -153,15 +155,13 @@ Route::group(
 		Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
 		Route::get('salary/{id}', [PersonController::class, 'salary']);
 		Route::post('salary', [PersonController::class, 'updateSalaryInfo']);
-		Route::get('enterpriseData/{id}', [WorkContractController::class, 'show']);
-		Route::post('enterpriseData', [WorkContractController::class, 'updateEnterpriseData']);
 		Route::get('afiliation/{id}', [PersonController::class, 'afiliation']);
 		Route::post('updateAfiliation/{id}', [PersonController::class, 'updateAfiliation']);
-		
-		Route::get('countable_income', [BonificationsController::class, 'countable_income']);
-		
 		Route::get('epss', [PersonController::class, 'epss']);
 		Route::get('fixed_turn', [PersonController::class, 'fixed_turn']);
+		Route::post('enterpriseData', [WorkContractController::class, 'updateEnterpriseData']);
+		Route::get('enterpriseData/{id}', [WorkContractController::class, 'show']);
+		Route::get('countable_income', [BonificationsController::class, 'countable_income']);
 /* 		Route::resource('bonusData', [BonificationsController::class]); */
 	}
 );

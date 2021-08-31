@@ -35,8 +35,6 @@ class EpsController extends Controller
     public function store( Request $request )
     {
         try {
-            
-            
             $validate =  Eps::where('nit', $request->get('nit'))->first();
             if ($validate) {
                 return $this->error('El nit ya está registrado', 423); 

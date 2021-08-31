@@ -29,7 +29,7 @@ class MunicipalityController extends Controller
     {
         $data = Request()->all();
         $page = key_exists('page', $data) ? $data['page'] : 1;
-        $pageSize = key_exists('pageSize', $data) ? $data['pageSize'] : 5;
+        $pageSize = key_exists('pageSize', $data) ? $data['pageSize'] : 10;
         return $this->success(
             Municipality::orderBy('name')
             ->with([

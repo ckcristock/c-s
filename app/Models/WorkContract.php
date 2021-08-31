@@ -10,7 +10,6 @@ class WorkContract extends Model
 
     use HasFactory;
     protected $fillable = [
-        'date_of_admission',
         'position_id',
         'date_end',
         'position_id',
