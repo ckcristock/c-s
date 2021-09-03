@@ -109,7 +109,8 @@ Route::group(
 
 		Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'statistics']);
 		Route::get('/fixed-turn-hours', [FixedTurnHourController::class, 'index']);
-
+		Route::post('/rotating-turns/change-state/{id}', [RotatingTurnController::class, 'changeState']);
+		Route::post('/fixed-turns/change-state/{id}', [FixedTurnController::class, 'changeState']);
 		/** Resources */
 
 		Route::resource('dependencies', DependencyController::class);
@@ -147,7 +148,7 @@ Route::group(
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 
 		/* Paginations */
-		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);		
+		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -162,6 +163,6 @@ Route::group(
 		Route::post('enterpriseData', [WorkContractController::class, 'updateEnterpriseData']);
 		Route::get('enterpriseData/{id}', [WorkContractController::class, 'show']);
 		Route::get('countable_income', [BonificationsController::class, 'countable_income']);
-/* 		Route::resource('bonusData', [BonificationsController::class]); */
+		/* 		Route::resource('bonusData', [BonificationsController::class]); */
 	}
 );

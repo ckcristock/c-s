@@ -16,6 +16,6 @@ class DiarioTurnoFijo extends Model
 
     public function turnoFijo()
     {
-        return $this->belongsTo(FixedTurn::class, 'turno_fijo_id');
+        return $this->belongsTo(FixedTurn::class);
     }
 }

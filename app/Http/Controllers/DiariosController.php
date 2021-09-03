@@ -34,7 +34,7 @@ class DiariosController extends Controller
         $atributos = request()->validate([
             'funcionario_id' => 'required',
             'fecha' => 'required',
-            'turno_fijo_id' => 'required',
+            'fixed_turn_id' => 'required',
             'hora_entrada_uno' => 'required',
             'hora_salida_uno' => 'required',
             'hora_entrada_dos' => 'required',

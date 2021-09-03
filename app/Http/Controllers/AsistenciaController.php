@@ -319,7 +319,7 @@ class AsistenciaController extends Controller
                 $datos = array(
                     'person_id' => $func->id,
                     'fecha' => $hoy,
-                    'turno_fijo_id' => $hora->fixed_turn_id,
+                    'fixed_turn_id' => $hora->fixed_turn_id,
                     'hora_entrada_uno' => $hactual,
                     'img_uno' => $fully,
                     'temp_uno' => $temperatura
