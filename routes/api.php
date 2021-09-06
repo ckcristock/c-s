@@ -12,6 +12,7 @@ use App\Http\Controllers\Countable_incomeController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DisabilityLeaveController;
+use App\Http\Controllers\Disciplinary_processController;
 use App\Http\Controllers\DotationController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FixedTurnController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\InventaryDotationController;
 use App\Http\Controllers\InventaryDotationGroupController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LateArrivalController;
+use App\Http\Controllers\MemorandumController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\PayrollFactorController;
@@ -33,12 +35,16 @@ use App\Http\Controllers\RotatingTurnController;
 use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
+use App\Http\Controllers\MemorandumTypesController;
+use App\Http\Controllers\SalaryTypesController;
+use App\Http\Controllers\TypeContractController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
 use App\Http\Controllers\ZonesController;
 use App\Models\Countable_income;
 use App\Models\WorkContract;
+use App\Models\WorkContractType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -149,16 +155,21 @@ Route::group(
 		Route::resource('bonifications', BonificationsController::class);
 		Route::resource('countable_incomes', Countable_incomeController::class);
 		Route::resource('arl', ArlController::class);
-		/* Route::resource('work_contracts', [WorkContractController::class]); */
 		/* Route::resource('inventary-dotation-group', ProductDotationType::class); */
+		Route::resource('work_contracts', WorkContractController::class);
 		Route::resource('zones', ZonesController::class);
+		Route::resource('memorandum', MemorandumController::class);
+		Route::resource('type_memorandum', MemorandumTypesController::class);
+		Route::resource('disciplinary_process', Disciplinary_processController::class);
+		Route::resource('salaryTypes', SalaryTypesController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
-
-		/* Paginations */
-		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
+		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);		
 		Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
+		Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
+		Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
+		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
 		Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
@@ -170,8 +181,13 @@ Route::group(
 		Route::get('epss', [PersonController::class, 'epss']);
 		Route::get('fixed_turn', [PersonController::class, 'fixed_turn']);
 		Route::post('enterpriseData', [WorkContractController::class, 'updateEnterpriseData']);
-		Route::get('enterpriseData/{id}', [WorkContractController::class, 'show']);
 		Route::get('countable_income', [BonificationsController::class, 'countable_income']);
-		/* 		Route::resource('bonusData', [BonificationsController::class]); */
+		Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
+		Route::get('preLiquidado', [WorkContractController::class, 'getPreliquidated']);
+		Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
+		Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
+		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
+		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
+		Route::get('process/{id}', [Disciplinary_processController::class, 'process']);
 	}
 );

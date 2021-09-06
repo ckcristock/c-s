@@ -35,6 +35,7 @@ class Person extends Model
         'severance_fund_id',
         'shirt_size',
         'title',
+        'arl_id'
     ];
     
     public function getFullNameAttribute()
