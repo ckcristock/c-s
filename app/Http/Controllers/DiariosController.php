@@ -32,15 +32,15 @@ class DiariosController extends Controller
         $diario = DiarioTurnoFijo::findOrFail($id);
 
         $atributos = request()->validate([
-            'funcionario_id' => 'required',
-            'fecha' => 'required',
+            'person_id' => 'required',
+            'date' => 'required',
             'fixed_turn_id' => 'required',
-            'hora_entrada_uno' => 'required',
-            'hora_salida_uno' => 'required',
-            'hora_entrada_dos' => 'required',
-            'hora_salida_dos' => 'required',
-            'img_uno' => '',
-            'img_dos' => '',
+            'entry_time_one' => 'required',
+            'leave_time_one' => 'required',
+            'entry_time_two' => 'required',
+            'leave_time_two' => 'required',
+            'img_one' => '',
+            'img_two' => '',
         ]);
 
         $diario->update($atributos);

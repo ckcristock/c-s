@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DiarioTurnoFijo extends Model
 {
-    protected $table = 'diario_turno_fijo';
+    protected $table = 'fixed_turn_diaries';
     protected $guarded = ['id'];
 
     public function funcionario()
