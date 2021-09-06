@@ -53,10 +53,17 @@ class ReporteHorariosController extends Controller
 					}
 
 					foreach ($dependency->people as &$person) {
-						$person->diaries = DiaryService::getDiaries(
-							$person->id,
-							$dates
-						);
+						if (Request()->get('turn_type') == 'Rotativo') {
+							$person->diaries = DiaryService::getDiariesRotative(
+								$person->id,
+								$dates
+							);
+						} else {
+							$person->diaries = DiaryService::getDiaries(
+								$person->id,
+								$dates
+							);
+						}
 					}
 				}
 				if ($group->dependencies->isEmpty()) {
