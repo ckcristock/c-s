@@ -42,8 +42,8 @@ class MemorandumController extends Controller
             ->join('memorandum as m', function($join) {
                 $join->on('m.person_id', '=', 'p.id');
             })
-            ->join('type_of_memorandum as t', function($join) {
-                $join->on('t.id', '=', 'm.type_of_memorandum_id');
+            ->join('memorandum_Types as t', function($join) {
+                $join->on('t.id', '=', 'm.memorandum_type_id');
             })
             ->orderBy('m.created_at', 'desc')
             ->paginate($pageSize, ['*'],'page', $page)

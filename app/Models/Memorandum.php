@@ -10,7 +10,7 @@ class Memorandum extends Model
     use HasFactory;
     protected $fillable = [
         'person_id',
-        'type_of_memorandum_id',
+        'memorandum_type_id',
         'details',
         'file'
     ];
