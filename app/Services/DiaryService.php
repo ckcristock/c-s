@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
 
 class DiaryService
@@ -9,6 +10,7 @@ class DiaryService
 	/**Funciones de estadisticas */
 	public static function getPeople($id, $dates, $company_id)
 	{
+		$compare = Request()->get('turn_type') == 'Rotativo' ? 'fixed_turn_diaries' : 'fixed_turn_diaries';
 		return DB::table("people as p")
 			->join("work_contracts as w", function ($join) {
 				$join->on(
@@ -21,10 +23,10 @@ class DiaryService
 			->join("positions as ps", "ps.id", "=", "w.position_id")
 			->where("ps.dependency_id", $id)
 			->where("w.company_id", $company_id)
-			->whereExists(function ($query) use ($dates) {
+			->whereExists(function ($query) use ($dates,$compare) {
 				$query
 					->select(DB::raw(1))
-					->from("fixed_turn_diaries as la")
+					->from("$compare as la")
 					->whereColumn("la.person_id", "p.id")
 					->whereBetween(DB::raw("DATE(la.date)"), $dates);
 			})
@@ -32,6 +34,19 @@ class DiaryService
 			->get();
 	}
 	public static function getDiaries($personId, $dates)
+	{
+		return DB::table("fixed_turn_diaries as la")
+			->select("*")
+			->selectRaw('(IF(FORMAT((TIME_TO_SEC(leave_time_one) - TIME_TO_SEC(entry_time_one))/3600,2)>=0,FORMAT((TIME_TO_SEC(leave_time_one) - TIME_TO_SEC(entry_time_one))/3600,2),0) +(IF(FORMAT((TIME_TO_SEC(leave_time_two) - TIME_TO_SEC(entry_time_two))/3600,2)>=0,FORMAT((TIME_TO_SEC(leave_time_two) - TIME_TO_SEC(entry_time_two))/3600,2),0))) as working_hours')
+			->where("la.person_id", $personId)
+			->whereBetween(DB::raw("DATE(la.date)"), $dates)
+			->get();
+	}
+
+
+	//Consulta Turnos rotativos
+
+	public static function getDiariesRotative($personId, $dates)
 	{
 		return DB::table("fixed_turn_diaries as la")
 			->select("*")
