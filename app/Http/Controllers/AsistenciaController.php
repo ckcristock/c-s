@@ -34,8 +34,6 @@ class AsistenciaController extends Controller
     public function validar()
     {
         try {
-            //code...
-
             $dias = array(
                 0 => "Domingo",
                 1 => "Lunes",
@@ -260,19 +258,19 @@ class AsistenciaController extends Controller
     {
         if (count($func->diariosTurnoFijo) != 0) {
 
-            if ($func->diariosTurnoFijo[0]['hora_salida_uno'] == null) {
+            if ($func->diariosTurnoFijo[0]['leave_time_one'] == null) {
                 if (!$this->comprobarAccesoInstantaneo($func, 'entrada_uno')) {
                     return $this->responseAccesoInstantaneo($func);
                 }
             }
 
-            if ($func->diariosTurnoFijo[0]['hora_salida_dos'] == null && $func->diariosTurnoFijo[0]['hora_entrada_dos'] != null) {
+            if ($func->diariosTurnoFijo[0]['leave_time_two'] == null && $func->diariosTurnoFijo[0]['entry_time_two'] != null) {
                 if (!$this->comprobarAccesoInstantaneo($func, 'entrada_dos')) {
                     return $this->responseAccesoInstantaneo($func);
                 }
             }
 
-            if ($func->diariosTurnoFijo[0]['hora_entrada_dos'] == null && $func->diariosTurnoFijo[0]['hora_salida_uno'] != null) {
+            if ($func->diariosTurnoFijo[0]['entry_time_two'] == null && $func->diariosTurnoFijo[0]['leave_time_one'] != null) {
                 if (!$this->comprobarAccesoInstantaneo($func, 'salida_uno')) {
                     return $this->responseAccesoInstantaneo($func);
                 }
@@ -319,10 +317,10 @@ class AsistenciaController extends Controller
                 $datos = array(
                     'person_id' => $func->id,
                     'fecha' => $hoy,
-                    'turno_fijo_id' => $hora->fixed_turn_id,
-                    'hora_entrada_uno' => $hactual,
-                    'img_uno' => $fully,
-                    'temp_uno' => $temperatura
+                    'fixed_turn_id' => $hora->fixed_turn_id,
+                    'entry_time_one' => $hactual,
+                    'img_one' => $fully,
+                    'temp_one' => $temperatura
                 );
                 Diarios::guardarDiarioTurnoFijo($datos);
                 /** FIN DEL GUARDAR */
@@ -413,7 +411,7 @@ class AsistenciaController extends Controller
             }
         } else {
             $diario = $func->diariosTurnoFijo[0];
-            if ($diario->hora_salida_uno == null) {
+            if ($diario->leave_time_one == null) {
                 if ($func->email != '') {
                     $obj = new \stdClass();
                     $obj->nombre = $func->nombres . " " . $func->apellidos;
@@ -434,9 +432,9 @@ class AsistenciaController extends Controller
 
                 /** VALIDO LA SALIDA */
                 $datos = array(
-                    'hora_salida_uno' => $hactual,
-                    'img_dos' => $fully,
-                    'temp_dos' => $temperatura
+                    'leave_time_one' => $hactual,
+                    'img_two' => $fully,
+                    'temp_two' => $temperatura
                 );
                 Diarios::actualizaDiarioTurnoFijo($datos, $diario->id);
                 $respuesta = array(
@@ -445,15 +443,15 @@ class AsistenciaController extends Controller
                     'icon' => 'success'
                 );
                 return $respuesta;
-            } elseif ($diario->hora_entrada_dos == null) {
+            } elseif ($diario->entry_time_two == null) {
 
                 $hora = $func->contractultimate->fixedTurn->horariosTurnoFijo[0];
 
                 //$hora = $func->turnoFijo->horariosTurnoFijo[0];
                 $datos = array(
-                    'hora_entrada_dos' => $hactual,
-                    'img_tres' => $fully,
-                    'temp_tres' => $temperatura
+                    'entry_time_two' => $hactual,
+                    'img_three' => $fully,
+                    'temp_three' => $temperatura
                 );
                 Diarios::actualizaDiarioTurnoFijo($datos, $diario->id);
 
@@ -470,10 +468,10 @@ class AsistenciaController extends Controller
                 if ($diff >= $tol_ent) {
                     $datos_llegada = array(
                         'person_id' => $func->id,
-                        'fecha' => $hoy,
-                        'tiempo' => $diff,
-                        'entrada_real' => $hactual,
-                        'entrada_turno' => $hora->entry_time_two
+                        'date' => $hoy,
+                        'time' => $diff,
+                        'real_entry' => $hactual,
+                        'entry' => $hora->entry_time_two
                     );
 
                     Llegadas::guardarLlegadaTarde($datos_llegada);
@@ -483,7 +481,7 @@ class AsistenciaController extends Controller
 
                     if ($func->email != '') {
                         $obj = new \stdClass();
-                        $obj->nombre = $func->nombres . " " . $func->apellidos;
+                        $obj->nombre = $func->first_name . " " . $func->first_surname;
                         $obj->imagen = $fully;
                         $obj->tipo = 'Ingreso';
                         $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
@@ -530,7 +528,7 @@ class AsistenciaController extends Controller
                     );
                     return $respuesta;
                 }
-            } elseif ($diario->hora_salida_dos == null) {
+            } elseif ($diario->leave_time_two == null) {
                 if ($func->email != '') {
                     $obj = new \stdClass();
                     $obj->nombre = $func->nombres . " " . $func->apellidos;
@@ -550,9 +548,9 @@ class AsistenciaController extends Controller
                 }
 
                 $datos = array(
-                    'hora_salida_dos' => $hactual,
-                    'img_cuatro' => $fully,
-                    'temp_cuatro' => $temperatura
+                    'leave_time_two' => $hactual,
+                    'img_four' => $fully,
+                    'temp_four' => $temperatura
                 );
                 Diarios::actualizaDiarioTurnoFijo($datos, $diario->id);
                 $respuesta = array(
@@ -565,9 +563,9 @@ class AsistenciaController extends Controller
                 Marcation::create([
                     'type' => 'error',
                     'img' => $fully,
-                    'description' => $func->id,
-                    'dateles' => 'El funcionario ya había reportado Turno',
-                    'fecha' => date("Y-m-d H:i:s")
+                    'person_id' => $func->id,
+                    'description' => 'El funcionario ya había reportado Turno',
+                    'date' => date("Y-m-d H:i:s")
                 ]);
 
                 $respuesta = array(
@@ -610,10 +608,10 @@ class AsistenciaController extends Controller
                 }
 
                 $datos = array(
-                    'fecha_salida' => $hoy,
-                    'hora_salida_uno' => $hactual,
-                    'img_dos' => $fully,
-                    'temp_dos' => $temperatura
+                    'leave_date' => $hoy,
+                    'leave_time_one' => $hactual,
+                    'img_two' => $fully,
+                    'temp_two' => $temperatura
                 );
                 Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_ayer->id);
                 $respuesta = array(
@@ -628,11 +626,11 @@ class AsistenciaController extends Controller
             $rotativo_hoy = $func->diariosTurnoRotativoHoy[0];
 
             $startTime = Carbon::parse($hoy . " " . $hactual);
-            $finishTime = Carbon::parse($rotativo_hoy->fecha . " " . $rotativo_hoy->hora_entrada_uno);
+            $finishTime = Carbon::parse($rotativo_hoy->date . " " . $rotativo_hoy->entry_time_one);
             $totalDuration = $finishTime->diffInSeconds($startTime);
 
             if ($totalDuration > 600) {
-                if ($rotativo_hoy->hora_salida_uno == null) {
+                if ($rotativo_hoy->leave_time_one == null) {
 
                     if ($func->email != '') {
                         $obj = new \stdClass();
@@ -653,10 +651,10 @@ class AsistenciaController extends Controller
                     }
 
                     $datos = array(
-                        'fecha_salida' => $hoy,
-                        'hora_salida_uno' => $hactual,
-                        'img_dos' => $fully,
-                        'temp_dos' => $temperatura
+                        'leave_date' => $hoy,
+                        'leave_time_one' => $hactual,
+                        'img_two' => $fully,
+                        'temp_two' => $temperatura
                     );
                     Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
                     $respuesta = array(
@@ -700,7 +698,7 @@ class AsistenciaController extends Controller
         } else {
             if (count($func->horariosTurnoRotativo) > 0) {
 
-                if ($func->horariosTurnoRotativo[0]->turno_rotativo_id == 0) {
+                if ($func->horariosTurnoRotativo[0]->rotating_turn_id == 0) {
                     Marcation::create([
                         'type' => 'error',
                         'img' => $fully,
@@ -724,11 +722,11 @@ class AsistenciaController extends Controller
 
                     $datos = array(
                         'person_id' => $func->id,
-                        'fecha' => $hoy,
-                        'turno_rotativo_id' => $turno_asignado->id,
-                        'hora_entrada_uno' => $hactual,
-                        'img_uno' => $fully,
-                        'temp_uno' => $temperatura
+                        'date' => $hoy,
+                        'rotating_turn_id' => $turno_asignado->id,
+                        'entry_time_one' => $hactual,
+                        'img_one' => $fully,
+                        'temp_one' => $temperatura
                     );
 
                     if ($totalDuration > ($turno_asignado->leave_tolerance * 60)) {
@@ -737,12 +735,12 @@ class AsistenciaController extends Controller
 
                         $datos_llegada = array(
                             'person_id' => $func->id,
-                            'fecha' => $hoy,
-                            'tiempo' => $totalDuration,
-                            'entrada_real' => $hactual,
-                            'entrada_turno' => $turno_asignado->hora_inicio_uno
+                            'date' => $hoy,
+                            'time' => $totalDuration,
+                            'real_entry' => $hactual,
+                            'entry' => $turno_asignado->hora_inicio_uno
                         );
-
+                      
                         Llegadas::guardarLlegadaTarde($datos_llegada);
                         /** FIN GUARDAR LLEGADA */
 

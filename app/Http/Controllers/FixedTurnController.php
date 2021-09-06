@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\FixedTurn;
-use App\Models\FixedTurnHour;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class FixedTurnController extends Controller
 {
@@ -18,7 +16,7 @@ class FixedTurnController extends Controller
 	 */
 	public function index()
 	{
-		return $this->success(FixedTurn::all(["id as value", "name as text"]));
+		return $this->success(FixedTurn::all(["id as value", "name as text", "state"]));
 	}
 
 	/**
@@ -62,7 +60,11 @@ class FixedTurnController extends Controller
 	{
 		//
 		try {
-			return $this->success(FixedTurn::where('id', $id)->with("horariosTurnoFijo")->first());
+			return $this->success(
+				FixedTurn::where("id", $id)
+					->with("horariosTurnoFijo")
+					->first()
+			);
 		} catch (\Throwable $err) {
 			return $this->error($err->getMessage(), 500);
 		}
@@ -100,5 +102,13 @@ class FixedTurnController extends Controller
 	public function destroy($id)
 	{
 		//
+	}
+	public function changeState($id)
+	{
+		$turno = FixedTurn::find($id);
+
+		$turno->state = $turno->state == "Activo" ? "Inactivo" : "Activo";
+		$turno->save();
+		return $this->success("Turno Actualizado Correctamente");
 	}
 }

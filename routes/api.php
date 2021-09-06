@@ -30,6 +30,7 @@ use App\Http\Controllers\PensionFundController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProductDotationTypeController;
+use App\Http\Controllers\ReporteHorariosController;
 use App\Http\Controllers\RotatingTurnController;
 use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
@@ -104,7 +105,15 @@ Route::group(
 		Route::post('/rrhh-activity-types/set',  [RrhhActivityTypeController::class, 'setState']);
 		/** end*/
 
-
+		/** Rutas del módulo de reporte de horarios */
+		Route::get('/reporte/horarios/{fechaInicio}/{fechaFin}/turno_rotativo', [ReporteHorariosController::class, 'getDatosTurnoRotativo'])->where([
+			'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+		]);
+		Route::get('/reporte/horarios/{fechaInicio}/{fechaFin}/turno_fijo', [ReporteHorariosController::class, 'fixed_turn_diaries'])->where([
+			'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+		]);
 
 		/** Rutas del módulo de llegadas tarde */
 		Route::get('/late_arrivals/data/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'getData'])->where([
@@ -114,7 +123,8 @@ Route::group(
 
 		Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'statistics']);
 		Route::get('/fixed-turn-hours', [FixedTurnHourController::class, 'index']);
-
+		Route::post('/rotating-turns/change-state/{id}', [RotatingTurnController::class, 'changeState']);
+		Route::post('/fixed-turns/change-state/{id}', [FixedTurnController::class, 'changeState']);
 		/** Resources */
 
 		Route::resource('dependencies', DependencyController::class);
