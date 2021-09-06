@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\WorkContractType;
 use App\Traits\ApiResponser;
+use App\Models\TypeDocument;
 use Illuminate\Http\Request;
-use Illuminate\Http\ResponseTrait;
 
-class WorkContractTypeController extends Controller
+class TypeDocumentController extends Controller
 {
     use ApiResponser;
     /**
@@ -15,24 +14,9 @@ class WorkContractTypeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        return $this->success(
-           WorkContractType::all(['id as value','name as text','conclude'])
-         );
-    }
-
-    public function paginate()
-    {
-        $data = Request()->all();
-        $page = key_exists('page', $data) ? $data['page'] : 1;
-        $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 10;
-        return $this->success(
-            WorkContractType::when( Request()->get('name') , function($q, $fill)
-            {
-                $q->where('id','like','%'.$fill.'%');
-            })
-            ->paginate($pageSize, ['*'],'page', $page));
+        return $this->success(TypeDocument::get(['name As text', 'id As value']));
     }
 
     /**
@@ -54,8 +38,8 @@ class WorkContractTypeController extends Controller
     public function store(Request $request)
     {
         try {
-            $typeContract  = WorkContractType::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return $this->success(['message' => 'Tipo de contrato creado correctamente', 'model' => $typeContract]);
+            $typeDocument = TypeDocument::create($request->all());
+            return $this->success(['message' => 'Documento creado correctamente', 'model' => $typeDocument]);
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
         }
@@ -64,10 +48,10 @@ class WorkContractTypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\TypeDocument  $typeDocument
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(TypeDocument $typeDocument)
     {
         //
     }
@@ -75,10 +59,10 @@ class WorkContractTypeController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\TypeDocument  $typeDocument
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(TypeDocument $typeDocument)
     {
         //
     }
@@ -87,22 +71,34 @@ class WorkContractTypeController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\TypeDocument  $typeDocument
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, TypeDocument $typeDocument)
     {
-        //
+        try {
+            $typeDocument = TypeDocument::find(request()->get('id'));
+            $typeDocument->update(request()->all());
+            return $this->success('Documento actualizado correctamente');
+        } catch (\Throwable $th) {
+            return response()->json([$th->getMessage(), $th->getLine()]);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\TypeDocument  $typeDocument
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        //
+        try {
+            $typeDocument = TypeDocument::findOrFail($id);
+            $typeDocument->delete();
+            return $this->success('Documento eliminado correctamente', 204);
+        } catch (\Throwable $th) {
+            return response()->json([$th->getMessage(), $th->getLine()]);
+        }
     }
 }

@@ -34,13 +34,17 @@ use App\Http\Controllers\RotatingTurnController;
 use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
-use App\Http\Controllers\Type_of_memorandumController;
+use App\Http\Controllers\memorandumTypesController;
+use App\Http\Controllers\MemorandumTypesController as ControllersMemorandumTypesController;
+use App\Http\Controllers\SalaryTypesController;
+use App\Http\Controllers\TypeContractController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
 use App\Http\Controllers\ZonesController;
 use App\Models\Countable_income;
 use App\Models\WorkContract;
+use App\Models\WorkContractType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -146,13 +150,16 @@ Route::group(
 		Route::resource('work_contracts', WorkContractController::class);
 		Route::resource('zones', ZonesController::class);
 		Route::resource('memorandum', MemorandumController::class);
-		Route::resource('type_memorandum', Type_of_memorandumController::class);
+		Route::resource('type_memorandum', MemorandumTypesController::class);
 		Route::resource('disciplinary_process', Disciplinary_processController::class);
+		Route::resource('salaryTypes', SalaryTypesController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);		
 		Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
+		Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
+		Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -171,7 +178,7 @@ Route::group(
 		Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
 		Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
 		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
-		Route::get('ListLimitated', [Type_of_memorandumController::class, 'getListLimitated']);
+		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
 		Route::get('process/{id}', [Disciplinary_processController::class, 'process']);
 	}
 );
