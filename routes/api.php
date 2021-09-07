@@ -9,10 +9,12 @@ use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\Countable_incomeController;
+use App\Http\Controllers\CountriesController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\Disciplinary_processController;
+use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FixedTurnController;
@@ -42,6 +44,7 @@ use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
 use App\Http\Controllers\ZonesController;
 use App\Models\Countable_income;
+use App\Models\DocumentTypes;
 use App\Models\WorkContract;
 use App\Models\WorkContractType;
 use Illuminate\Http\Request;
@@ -161,6 +164,8 @@ Route::group(
 		Route::resource('type_memorandum', MemorandumTypesController::class);
 		Route::resource('disciplinary_process', Disciplinary_processController::class);
 		Route::resource('salaryTypes', SalaryTypesController::class);
+		Route::resource('documentTypes', DocumentTypesController::class);
+		Route::resource('countries', CountriesController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -168,6 +173,11 @@ Route::group(
 		Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
 		Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
 		Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
+		Route::get('paginateDocumentType', [DocumentTypesController::class, 'paginate']);
+		Route::get('paginateCountries', [CountriesController::class, 'paginate']);
+		Route::get('paginateArl', [ArlController::class, 'paginate']);
+		Route::get('paginatePensionFun', [PensionFundController::class, 'paginate']);
+		Route::get('paginateCompensationFund', [CompensationFundController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);

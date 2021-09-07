@@ -31,8 +31,8 @@ class ZonesController extends Controller
     {
         try {
             
-            Zones::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return $this->success('creacion exitosa');
+            $zones = Zones::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($zones->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 200);
         }

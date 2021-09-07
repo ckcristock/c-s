@@ -19,20 +19,16 @@ class DepartmentController extends Controller
 
     public function paginate()
     {
-        $data = Request()->all();
-        $page = key_exists('page', $data) ? $data['page'] : 1;
-        $pageSize = key_exists('pageSize', $data) ? $data['pageSize'] : 10;
         return $this->success(
             Department::orderBy('name')
-            ->when( Request()->get('name') , function($q, $fill)
-            {
-                $q->where('name','like','%'.$fill.'%');
-            })
-            ->paginate($pageSize, ['*'],'page', $page)
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
-    public function store( Request $request )
+    public function store(Request $request)
     {
         try {
             Department::create($request->all());
@@ -40,5 +36,4 @@ class DepartmentController extends Controller
             return $this->error($th->getMessage(), 200);
         }
     }
-
 }

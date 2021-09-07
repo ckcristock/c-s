@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DocumentTypes;
 use App\Traits\ApiResponser;
 use App\Models\TypeDocument;
 use Illuminate\Http\Request;
 
-class TypeDocumentController extends Controller
+class DocumentTypesController extends Controller
 {
     use ApiResponser;
     /**
@@ -16,7 +17,20 @@ class TypeDocumentController extends Controller
      */
     public function index()
     {
-        return $this->success(TypeDocument::get(['name As text', 'id As value']));
+        return $this->success(DocumentTypes::get(['name As text', 'id As value']));
+    }
+
+    public function paginate()
+    {
+        $data = Request()->all();
+        $page = key_exists('page', $data) ? $data['page'] : 1;
+        $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 10;
+        return $this->success(
+            DocumentTypes::when( Request()->get('name') , function($q, $fill)
+            {
+                $q->where('name','like','%'.$fill.'%');
+            })
+            ->paginate($pageSize, ['*'],'page', $page));
     }
 
     /**
@@ -38,8 +52,8 @@ class TypeDocumentController extends Controller
     public function store(Request $request)
     {
         try {
-            $typeDocument = TypeDocument::create($request->all());
-            return $this->success(['message' => 'Documento creado correctamente', 'model' => $typeDocument]);
+            $typeDocument = DocumentTypes::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($typeDocument->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
         }
@@ -51,7 +65,7 @@ class TypeDocumentController extends Controller
      * @param  \App\TypeDocument  $typeDocument
      * @return \Illuminate\Http\Response
      */
-    public function show(TypeDocument $typeDocument)
+    public function show(DocumentTypes $typeDocument)
     {
         //
     }
@@ -62,7 +76,7 @@ class TypeDocumentController extends Controller
      * @param  \App\TypeDocument  $typeDocument
      * @return \Illuminate\Http\Response
      */
-    public function edit(TypeDocument $typeDocument)
+    public function edit(DocumentTypes $typeDocument)
     {
         //
     }
@@ -74,10 +88,10 @@ class TypeDocumentController extends Controller
      * @param  \App\TypeDocument  $typeDocument
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, TypeDocument $typeDocument)
+    public function update(Request $request, DocumentTypes $typeDocument)
     {
         try {
-            $typeDocument = TypeDocument::find(request()->get('id'));
+            $typeDocument = DocumentTypes::find(request()->get('id'));
             $typeDocument->update(request()->all());
             return $this->success('Documento actualizado correctamente');
         } catch (\Throwable $th) {
@@ -94,7 +108,7 @@ class TypeDocumentController extends Controller
     public function destroy($id)
     {
         try {
-            $typeDocument = TypeDocument::findOrFail($id);
+            $typeDocument = DocumentTypes::findOrFail($id);
             $typeDocument->delete();
             return $this->success('Documento eliminado correctamente', 204);
         } catch (\Throwable $th) {

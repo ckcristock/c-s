@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PensionFund extends Model
+class Countries extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'nit', 'code', 'status'];
-    protected $table = 'pension_funds';
+    protected $fillable = ['id','name'];
+    protected $table = 'countries';
 }

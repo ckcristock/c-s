@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Arl;
-use Illuminate\Http\Request;
+use App\Models\Countries;
 use App\Traits\ApiResponser;
+use Illuminate\Http\Request;
 
-
-class ArlController extends Controller
+class CountriesController extends Controller
 {
     use ApiResponser;
     /**
@@ -19,7 +18,7 @@ class ArlController extends Controller
     {
         try {
             return $this->success(
-                Arl::all(['id as value', 'name as text'])
+                Countries::all(['name as text', 'id as value'])
             );
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 400);
@@ -29,7 +28,7 @@ class ArlController extends Controller
     public function paginate()
     {
         return $this->success(
-            Arl::orderBy('name')
+            Countries::orderBy('name')
                 ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
                 })
@@ -56,16 +55,9 @@ class ArlController extends Controller
     public function store(Request $request)
     {
         try {
-            $validate =  Arl::where('nit', $request->get('nit'))->first();
-            if ($validate) {
-                return $this->error('El nit ya está registrado', 423); 
-            }
-            $v = Arl::where('accounting_account', $request->get('accounting_account'))->first();
-            if ($v) {
-                return $this->error('El código ya existe', 423);
-            }
-            $arl = Arl::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($arl->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            
+            $countries = Countries::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($countries->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 200);
         }
