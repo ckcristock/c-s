@@ -43,8 +43,8 @@ class EpsController extends Controller
             if ($v) {
                 return $this->error('El código de la EPS ya existe', 423);
             }
-            Eps::updateOrCreate( [ 'id'=> $request->get('id')], $request->all());
-            return $this->success('creacion exitosa');
+            $eps = Eps::updateOrCreate( [ 'id'=> $request->get('id')], $request->all());
+            return ($eps->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 200);
         }

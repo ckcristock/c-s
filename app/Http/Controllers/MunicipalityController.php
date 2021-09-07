@@ -27,9 +27,6 @@ class MunicipalityController extends Controller
 
     public function paginate()
     {
-        $data = Request()->all();
-        $page = key_exists('page', $data) ? $data['page'] : 1;
-        $pageSize = key_exists('pageSize', $data) ? $data['pageSize'] : 10;
         return $this->success(
             Municipality::orderBy('name')
             ->with([
@@ -40,7 +37,7 @@ class MunicipalityController extends Controller
                 }
             ])
             ->whereHas('department',function($q){
-                $q->when( Request()->get('department'), function($q, $fill){
+                $q->when( request()->get('department'), function($q, $fill){
                 
                     $q->where('name', 'like','%'.$fill.'%');
                 });
@@ -53,8 +50,7 @@ class MunicipalityController extends Controller
             {
                 $q->where('name','like','%'.$fill.'%');
             })
-            ->paginate($pageSize, ['*'],'page', $page)
-
+            ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
         );
     }
 

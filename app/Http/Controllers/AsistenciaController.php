@@ -53,7 +53,7 @@ class AsistenciaController extends Controller
 
             $fully = Storage::disk('public')->url($file_path);
             //return $fully;
-            $fully = 'https://cms.modumb.com/storage/magazine/_800x422/guia-practica-para-identificar-el-rostro-de-un-cliente-8282.jpg';
+            //$fully = 'https://cms.modumb.com/storage/magazine/_800x422/guia-practica-para-identificar-el-rostro-de-un-cliente-8282.jpg';
 
             $empresa = Company::where('id', 1)->get();
             /*$ cliente = Cliente::with('face')->where('documento', $empresa[0]["numero_documento"])->get(); */

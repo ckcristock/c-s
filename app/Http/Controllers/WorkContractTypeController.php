@@ -24,15 +24,13 @@ class WorkContractTypeController extends Controller
 
     public function paginate()
     {
-        $data = Request()->all();
-        $page = key_exists('page', $data) ? $data['page'] : 1;
-        $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 10;
         return $this->success(
             WorkContractType::when( Request()->get('name') , function($q, $fill)
             {
-                $q->where('id','like','%'.$fill.'%');
+                $q->where('name','like','%'.$fill.'%');
             })
-            ->paginate($pageSize, ['*'],'page', $page));
+            ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
+        );
     }
 
     /**
@@ -55,7 +53,7 @@ class WorkContractTypeController extends Controller
     {
         try {
             $typeContract  = WorkContractType::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return $this->success(['message' => 'Tipo de contrato creado correctamente', 'model' => $typeContract]);
+            return ($typeContract->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
         }

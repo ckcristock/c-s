@@ -10,6 +10,6 @@ class Arl extends Model
     use HasFactory;
     protected $table = 'arl';
     protected $fillable = [
-        'name', 'nit', 'accounting_account'
+        'name', 'nit', 'accounting_account', 'status'
     ];
 }

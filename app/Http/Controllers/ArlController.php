@@ -17,8 +17,23 @@ class ArlController extends Controller
      */
     public function index()
     {
+        try {
+            return $this->success(
+                Arl::all(['id as value', 'name as text'])
+            );
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 400);
+        }
+    }
+
+    public function paginate()
+    {
         return $this->success(
-            Arl::all(['id as value', 'name as text'])
+            Arl::orderBy('name')
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -40,7 +55,20 @@ class ArlController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $validate =  Arl::where('nit', $request->get('nit'))->first();
+            if ($validate) {
+                return $this->error('El nit ya está registrado', 423); 
+            }
+            $v = Arl::where('accounting_account', $request->get('accounting_account'))->first();
+            if ($v) {
+                return $this->error('El código ya existe', 423);
+            }
+            $arl = Arl::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($arl->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 200);
+        }
     }
 
     /**

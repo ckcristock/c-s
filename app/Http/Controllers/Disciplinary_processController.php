@@ -99,8 +99,8 @@ class Disciplinary_processController extends Controller
             ->join('people as p', function($join) {
                 $join->on('p.id', '=', 'm.person_id');
             })
-            ->join('type_of_memorandum as t', function($join) {
-                $join->on('t.id', '=', 'm.type_of_memorandum_id');
+            ->join('memorandum_type as t', function($join) {
+                $join->on('t.id', '=', 'm.memorandum_type_id');
             })
             ->where('p.id', '=', $id)
             ->get()

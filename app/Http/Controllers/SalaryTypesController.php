@@ -54,8 +54,7 @@ class SalaryTypesController extends Controller
     {
         try {
             $typeSalary  = SalaryTypes::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return $this->success(['message' => 'Tipo de salario creado correctamente', 'model' => $typeSalary]);
-            // return response()->json('Sede creada correctamente');
+            return ($typeSalary->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
         }

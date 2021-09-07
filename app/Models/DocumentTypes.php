@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TypeDocument extends Model
+class DocumentTypes extends Model
 {
     protected $fillable = [
         'code',
         'dian_code',
-        'name'
-
+        'name',
+        'status'
     ];
+    protected $table = 'document_types';
 }
