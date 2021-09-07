@@ -63,16 +63,16 @@ class PersonService
             ->with('contractultimate.fixedTurn')
             ->with('contractultimate.fixedTurn.horariosTurnoFijo')
             ->with(['diariosTurnoFijo' => function ($query) use ($hoy) {
-                $query->where('fecha', '=', $hoy);
+                $query->where('date', '=', $hoy);
             }])->with(['turnoFijo.horariosTurnoFijo' => function ($query) use ($dia) {
-                $query->where('dia', '=', $dia);
+                $query->where('day', '=', $dia);
             }])->with(['diariosTurnoRotativoAyer' => function ($query) use ($ayer) {
-                $query->with('turnoRotativo')->where('fecha', '=', $ayer)->whereNull('fecha_salida');
+                $query->with('turnoRotativo')->where('date', '=', $ayer)->whereNull('leave_date');
             }])->with(['diariosTurnoRotativoHoy' => function ($query) use ($hoy) {
-                $query->with('turnoRotativo')->where('fecha', '=', $hoy);
+                $query->with('turnoRotativo')->where('date', '=', $hoy);
             }])->with(
                 ['horariosTurnoRotativo' => function ($query) use ($hoy) {
-                    $query->with('turnoRotativo')->where('fecha', '=', $hoy);
+                    $query->with('turnoRotativo')->where('date', '=', $hoy);
                 }]
             )->first();
 

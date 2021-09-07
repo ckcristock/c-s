@@ -11,11 +11,16 @@ use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-
-use function PHPSTORM_META\map;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PersonController extends Controller
 {
+    public $ocpApimSubscriptionKey = 'df2f7a1cb9a14c66b11a7a2253999da5';
+    public $azure_grupo = 'personalnuevo';
+    public $uriBase = 'https://facemaqymon2021.cognitiveservices.azure.com/face/v1.0';
     use ApiResponser;
     /**
      * Display a listing of the resource.
@@ -66,7 +71,7 @@ class PersonController extends Controller
                     $q->where('p.identifier', 'like', '%' . $fill . '%')
                         ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');
                 })
-                ->when( $data ['dependencies'], function ($q, $fill) {
+                ->when($data['dependencies'], function ($q, $fill) {
                     $q->whereIn('d.id', $fill);
                 })
 
@@ -74,7 +79,7 @@ class PersonController extends Controller
                     $q->whereIn('p.status', $fill);
                 })
 
-                ->paginate($pageSize, ['*'],'page', $page)
+                ->paginate($pageSize, ['*'], 'page', $page)
         );
     }
 
@@ -107,7 +112,7 @@ class PersonController extends Controller
                 ->join('companies as c', 'c.id', '=', 'w.company_id')
                 ->join('positions as pos', 'pos.id', '=', 'w.position_id')
                 ->join('dependencies as d', 'd.id', '=', 'pos.dependency_id')
-                ->where('p.status','Activo')
+                ->where('p.status', 'Activo')
                 ->when($data['dependencies'], function ($q, $fill) {
                     $q->where('d.id', $fill);
                 })
@@ -115,29 +120,29 @@ class PersonController extends Controller
         );
     }
 
-    public function basicData($id) 
+    public function basicData($id)
     {
         return $this->success(
             DB::table('people as p')
-            ->select(
-                'p.first_name',
-                'p.first_surname',
-                'p.id',
-                'p.image',
-                'p.second_name',
-                'p.second_surname',
-                'w.salary',
-                'w.id as work_contract_id',
-                'p.signature',
-                'p.title'
-            )
-            ->join('work_contracts as w', function ($join) {
-                $join->on('p.id', '=', 'w.person_id')
-                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                ->select(
+                    'p.first_name',
+                    'p.first_surname',
+                    'p.id',
+                    'p.image',
+                    'p.second_name',
+                    'p.second_surname',
+                    'w.salary',
+                    'w.id as work_contract_id',
+                    'p.signature',
+                    'p.title'
+                )
+                ->join('work_contracts as w', function ($join) {
+                    $join->on('p.id', '=', 'w.person_id')
+                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
                             join people as u2 on u2.id = a2.person_id group by u2.id)');
-            })
-            ->where('p.id', '=', $id)
-            ->first()
+                })
+                ->where('p.id', '=', $id)
+                ->first()
         );
     }
 
@@ -145,55 +150,55 @@ class PersonController extends Controller
     {
         return $this->success(
             DB::table('people as p')
-            ->select(
-                'p.first_name',
-                'p.first_surname',
-                'p.second_name',
-                'p.second_surname',
-                'p.identifier',
-                'p.image',
-                'p.email',
-                'p.degree',
-                'p.date_of_birth',
-                'p.gener',
-                'p.marital_status',
-                'p.address',
-                'p.cell_phone',
-                'p.first_name',
-                'p.first_surname',
-                'p.id',
-                'p.image',
-                'p.second_name',
-                'p.second_surname',
-            )
-            ->join('work_contracts as w', function ($join) {
-                $join->on('p.id', '=', 'w.person_id')
-                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                ->select(
+                    'p.first_name',
+                    'p.first_surname',
+                    'p.second_name',
+                    'p.second_surname',
+                    'p.identifier',
+                    'p.image',
+                    'p.email',
+                    'p.degree',
+                    'p.date_of_birth',
+                    'p.gener',
+                    'p.marital_status',
+                    'p.address',
+                    'p.cell_phone',
+                    'p.first_name',
+                    'p.first_surname',
+                    'p.id',
+                    'p.image',
+                    'p.second_name',
+                    'p.second_surname',
+                )
+                ->join('work_contracts as w', function ($join) {
+                    $join->on('p.id', '=', 'w.person_id')
+                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
                             join people as u2 on u2.id = a2.person_id group by u2.id)');
-            })
-            ->where('p.id', '=', $id)
-            ->first()
+                })
+                ->where('p.id', '=', $id)
+                ->first()
         );
     }
 
-  
 
-    
+
+
     public function salary($id)
     {
         return $this->success(
             DB::table('people as p')
-            ->select(
-                'w.date_of_admission',
-                'w.date_end', 
-                'w.salary',
-                'wc.name as contract_type',
-                'w.work_contract_type_id',
-                'w.id'
+                ->select(
+                    'w.date_of_admission',
+                    'w.date_end',
+                    'w.salary',
+                    'wc.name as contract_type',
+                    'w.work_contract_type_id',
+                    'w.id'
                 )
                 ->join('work_contracts as w', function ($join) {
                     $join->on('w.person_id', '=', 'p.id')
-                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
                     join people as u2 on u2.id = a2.person_id group by u2.id)');
                 })
                 ->join('work_contract_types as wc', function ($join) {
@@ -201,10 +206,10 @@ class PersonController extends Controller
                 })
                 ->where('p.id', '=', $id)
                 ->first()
-            );
-        }
-        
-    public function updateSalaryInfo( Request $request )
+        );
+    }
+
+    public function updateSalaryInfo(Request $request)
     {
         try {
             $salary = WorkContract::find($request->get('id'));
@@ -219,7 +224,7 @@ class PersonController extends Controller
     {
         try {
             return $this->success(
-                    DB::table('people as p')
+                DB::table('people as p')
                     ->select(
                         'p.eps_id',
                         'e.name as eps_name',
@@ -249,14 +254,14 @@ class PersonController extends Controller
                     })
                     ->where('p.id', '=', $id)
                     ->first()
-                    /* ->get() */
+                /* ->get() */
             );
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
     }
 
-    public function updateAfiliation( Request $request, $id )
+    public function updateAfiliation(Request $request, $id)
     {
         try {
             $afiliation = Person::find($id);
@@ -300,7 +305,7 @@ class PersonController extends Controller
     }
 
 
-    public function updateBasicData( Request $request, $id )
+    public function updateBasicData(Request $request, $id)
     {
         try {
             $person = Person::find($id);
@@ -321,10 +326,43 @@ class PersonController extends Controller
     {
         try {
             $personData = $request->get('person');
+
+            $image = $personData['image'];  // your base64 encoded
+            $image = str_replace('data:image/png;base64,', '', $image);
+            $image = str_replace(' ', '+', $image);
+            $imageName = Str::random(10) . '.' . 'jpg';
+            /*   return response(base64_decode($image)); */
+            $image = base64_decode($image);
+
+
+
+
+            /*   $img = $image->store('funcionarios', 's3', 'public'); */
+            /*   $fully =  Storage::disk('s3')->url($image); */
+            /* Storage::put(
+                'funcionarios',
+                file_get_contents($image)->getRealPath()
+            ); */
+            /*  $upload = Storage::disk('s3')->put('funcionarios/tes.jpg' , $image, 'public');
+            $fully =  Storage::disk('s3')->url($upload);
+            return response($upload);
+ */
+            $file_path = 'people/' . Str::random(30) . time() . '.png';
+            Storage::disk('public')->put($file_path, $image, 'public');
+
+            $fully = Storage::disk('public')->url($file_path);
+            //return response('http://backend.sigmaqmo.com/storage/app/public/'.$file_path); 
+
+            $personData['image'] = 'https://backend.sigmaqmo.com/storage/app/public/' . $file_path;
+            $personData['personId'] = null;
+            $personData = $this->asure($personData['image'], $personData);
+            return response($personData);
+
             $person = Person::create($personData);
             $contractData = $personData['workContract'];
             $contractData['person_id'] = $person->id;
             WorkContract::create($contractData);
+
 
             User::create([
                 'person_id' => $person->id,
@@ -336,6 +374,156 @@ class PersonController extends Controller
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
+    }
+
+    public function asure($fully, $atributos)
+    {
+        if ($fully != '') {
+
+            $atributos['image'] = $fully;
+            /** SI LA PERSONA NO TIENE PERSON ID SE CREA EL REGISTRO EN MICROSOFT */
+            if ($atributos["personId"] == "0" || $atributos["personId"] == "null"  || $atributos["personId"] == null) {
+                /*$request = new \Http_Request2($this->uriBase . '/persongroups/' . $this->azure_grupo . '/persons');
+                $url = $request->getUrl();
+                $headers = array(
+                    'Content-Type' => 'application/json',
+                    'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey,
+                );
+                $request->setHeader($headers);
+                $parameters = array();
+                $body = array(
+                    "name" => $atributos["first_name"] . " " . $atributos["first_surname"],
+                    "userData" => $atributos["identifier"]
+                );
+                $url->setQueryVariables($parameters);
+                $request->setMethod(\HTTP_Request2::METHOD_POST);
+                $request->setBody(json_encode($body));*/
+                try {
+                    /****** */
+                    $parameters = array();
+                    $response = Http::accept('application/json')->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey
+                    ])->post($this->uriBase . '/persongroups/' . $this->azure_grupo . '/persons' . http_build_query($parameters), [
+                        "name" => $atributos["first_name"] . " " . $atributos["first_surname"],
+                        "userData" => $atributos["identifier"]
+                    ]);
+                    $res = $response->json();
+                    /* return ($res); */
+                    /****** */
+
+                    /* 
+                    $response = $request->send();
+                    $resp = $response->getBody();
+                    $resp = json_decode($resp); */
+                    /* */
+                    $atributos["personId"] = $res->personId;
+                } catch (HttpException $ex) {
+                    echo "error: " . $ex;
+                }
+            }
+            /** VALIDA SI YA TIENE UN ROSTO LO ELIMINA PARA PODER CREAR EL NUEVO */
+            if ($atributos["persistedFaceId"] != "0") {
+                /* $request = new \Http_Request2($this->uriBase . '/persongroups/' . $this->azure_grupo . '/persons/' . $atributos["personId"] . '/persistedFaces/' . $atributos["persistedFaceId"]);
+                $url = $request->getUrl();
+                $headers = array(
+                    'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey,
+                );
+                $request->setHeader($headers);
+                $parameters = array();
+                $url->setQueryVariables($parameters);
+                $request->setMethod(\HTTP_Request2::METHOD_DELETE);
+                $request->setBody("");
+                try {
+                    $response = $request->send();
+                } catch (HttpException $ex) {
+                    echo $ex;
+                }*/
+
+                $parameters = array();
+                $response = Http::accept('application/json')->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey
+                ])->post($this->uriBase . '/persongroups/' . $this->azure_grupo . '/persons/' . $atributos["personId"] . '/persistedFaces/' . $atributos["persistedFaceId"] . http_build_query($parameters), [
+                    'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey,
+                ]);
+                $res = $response->json();
+            }
+
+
+
+            // CREA LOS PUNTOS FACIALES PROPIOS DEL FUNCIONARIO
+            $ruta_guardada = $fully;
+            /*$request = new \Http_Request2($this->uriBase . '/persongroups/' . $this->azure_grupo . '/persons/' . $atributos["personId"] . '/persistedFaces');
+            $url = $request->getUrl();
+
+            $headers = array(
+                'Content-Type' => 'application/json',
+                'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey,
+            );
+
+            $request->setHeader($headers);
+            $parameters = array(
+                "detectionModel" => "detection_02"
+            );
+            $body = array(
+                "url" => $ruta_guardada
+            );
+            $url->setQueryVariables($parameters);
+            $request->setMethod(\HTTP_Request2::METHOD_POST);
+            $request->setBody(json_encode($body));
+*/
+            try {
+                $parameters = array(
+                    "detectionModel" => "detection_02"
+                );
+                $response = Http::accept('application/json')->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey,
+                ])->post($this->uriBase . '/persongroups/' . $this->azure_grupo . '/persons/' . $atributos["personId"] . '/persistedFaces' . http_build_query($parameters), [
+                    "url" => $ruta_guardada
+                ]);
+                $resp = $response->json();
+                return ($res);
+
+               
+
+                if (isset($resp->persistedFaceId) && $resp->persistedFaceId != '') {
+                    $persistedFaceId = $resp->persistedFaceId;
+                    $atributos["persistedFaceId"] = $persistedFaceId;
+                } else {
+                    //  if (Storage::disk('s3')->exists($img)) {
+                    //  Storage::disk('s3')->delete($img);
+                    //} 
+                    if ($resp->error->code == 'InvalidImage') {
+                        return response()->json(['message' => 'No se ha encontrado un rostro en la imagen, revise e intente nuevamente'], 400);
+                    }
+                    return response()->json(['message' => 'Ha ocurrido un error inisperado'], 400);
+                }
+            } catch (HttpException $ex) {
+                echo $ex;
+            }
+            /*
+            // ENTRENA EL GRUPO PARA QUE IDENTIICQUE EL ROSTRO 
+            $request = new \Http_Request2($this->uriBase . '/persongroups/' . $this->azure_grupo . '/train');
+            $url = $request->getUrl();
+
+            $headers = array(
+                'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey,
+            );
+            $request->setHeader($headers);
+            $parameters = array();
+            $url->setQueryVariables($parameters);
+            $request->setMethod(\HTTP_Request2::METHOD_POST);
+            $request->setBody("");
+            try {
+                $response = $request->send();
+                echo $response->getBody();
+            } catch (HttpException $ex) {
+                echo $ex;
+            }*/
+        }
+        return $atributos;
     }
 
     /**

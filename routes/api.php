@@ -36,6 +36,7 @@ use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
+use App\Http\Controllers\RotatingTurnHourController;
 use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\TypeContractController;
 use App\Http\Controllers\WorkContractController;
@@ -122,6 +123,9 @@ Route::group(
 			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
 		]);
 
+    	Route::get('/horarios/datos/generales/{semana}', [RotatingTurnHourController::class, 'getDatosGenerales']);
+
+
 		Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'statistics']);
 		Route::get('/fixed-turn-hours', [FixedTurnHourController::class, 'index']);
 		Route::post('/rotating-turns/change-state/{id}', [RotatingTurnController::class, 'changeState']);
@@ -162,6 +166,7 @@ Route::group(
 		Route::resource('type_memorandum', MemorandumTypesController::class);
 		Route::resource('disciplinary_process', Disciplinary_processController::class);
 		Route::resource('salaryTypes', SalaryTypesController::class);
+		Route::resource('rotating-hour', RotatingTurnHourController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);

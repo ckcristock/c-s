@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Controllers\LateArrivalController;
+use App\Services\RotatingHourService;
 use Illuminate\Database\Eloquent\Model;
 
 class Person extends Model
@@ -35,6 +36,8 @@ class Person extends Model
         'severance_fund_id',
         'shirt_size',
         'title',
+        'personId',
+        'persistedFaceId',
         'arl_id'
     ];
     
@@ -105,7 +108,7 @@ class Person extends Model
 
     public function horariosTurnoRotativo()
     {
-        return $this->hasMany(HorarioTurnoRotativo::class);
+        return $this->hasMany(RotatingTurnHour::class);
     }
 
 }
