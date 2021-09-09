@@ -112,7 +112,7 @@ class LateArrivalService
                     ->whereColumn('la.person_id', 'p.id')
                     ->whereBetween(DB::raw('DATE(la.created_at)'), $dates);
             })
-            ->select('p.first_name', 'p.first_surname', 'p.id')
+            ->select('p.first_name', 'p.first_surname', 'p.id','p.image')
             ->get();
     }
 

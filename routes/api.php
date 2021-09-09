@@ -133,6 +133,7 @@ Route::group(
 		Route::post('/rotating-turns/change-state/{id}', [RotatingTurnController::class, 'changeState']);
 		Route::post('/fixed-turns/change-state/{id}', [FixedTurnController::class, 'changeState']);
 		/** Resources */
+				Route::get('person/train', [PersonController::class, 'train']);
 
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
@@ -186,6 +187,7 @@ Route::group(
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
+
 		Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
 		Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
 		Route::get('salary/{id}', [PersonController::class, 'salary']);
