@@ -48,7 +48,11 @@ trait ApiResponser
             'err' => $message
         ])->header('Content-Type', 'application/json');
     }
-
+    
+    public function errorResponse($message, $code = 400)
+    {
+        return response()->json($message, $code)->header('Content-Type', 'application/json');
+    }
     /**
      * Return an error in JSON format
      * @param  string $message

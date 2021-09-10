@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SeveranceFund extends Model
+class NoveltyTypes extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'name',
-        'nit',
+        'novelty_type',
+        'novelty',
+        'modality',
         'status'
     ];
+    protected $table = 'novelty_types';
 }

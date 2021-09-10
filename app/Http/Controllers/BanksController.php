@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Memorandum;
+use App\Models\Banks;
 use App\Traits\ApiResponser;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class MemorandumController extends Controller
+class BanksController extends Controller
 {
     use ApiResponser;
     /**
@@ -18,35 +16,18 @@ class MemorandumController extends Controller
      */
     public function index()
     {
-        return $this->success(
-            Memorandum::all()
-        );
+        return $this->success(Banks::all(['name As text', 'id As value']));
     }
 
-    public function getMemorandum(){
-        $data = Request()->all();
-        $page = key_exists('page', $data) ? $data['page'] : 1;
-        $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 5;
+    public function paginate()
+    {
         return $this->success(
-            DB::table('people as p')
-            ->select(
-                'p.image',
-                'p.first_name',
-                'p.second_name',
-                'p.first_surname',
-                'p.second_surname',
-                'm.details',
-                't.name as memorandumType',
-                'm.created_at'
-            )
-            ->join('memorandum as m', function($join) {
-                $join->on('m.person_id', '=', 'p.id');
-            })
-            ->join('memorandum_types as t', function($join) {
-                $join->on('t.id', '=', 'm.memorandum_type_id');
-            })
-            ->orderBy('m.created_at', 'desc')
-            ->paginate($pageSize, ['*'],'page', $page)
+            Banks::when( Request()->get('name') , function($q, $fill)
+            {
+                $q->where('name','like','%'.$fill.'%');
+            }
+        )
+        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -69,10 +50,10 @@ class MemorandumController extends Controller
     public function store(Request $request)
     {
         try {
-            Memorandum::create( $request->all() );
-            return $this->success('Creado Con Éxito');
+            $banks  = Banks::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($banks->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
+            return response()->json([$th->getMessage(), $th->getLine()]);
         }
     }
 

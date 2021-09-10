@@ -18,7 +18,8 @@ class WorkContract extends Model
         'work_contract_type_id',
         'rotating_turn_id',
         'company_id',
-        'person_id'
+        'person_id',
+        'fixed_turn_id'
     ];
     public function position()
     {

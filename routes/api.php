@@ -5,6 +5,8 @@
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BankAccountsController;
+use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompensationFundController;
@@ -16,10 +18,12 @@ use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\Disciplinary_processController;
 use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
+use App\Http\Controllers\EgressTypesController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FixedTurnController;
 use App\Http\Controllers\FixedTurnHourController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\IngressTypesController;
 use App\Http\Controllers\InventaryDotationController;
 use App\Http\Controllers\InventaryDotationGroupController;
 use App\Http\Controllers\JobController;
@@ -38,6 +42,8 @@ use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
+use App\Http\Controllers\NoveltyTypesController;
+use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnHourController;
 use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\WorkContractController;
@@ -171,6 +177,12 @@ Route::group(
 		Route::resource('rotating-hour', RotatingTurnHourController::class);
 		Route::resource('documentTypes', DocumentTypesController::class);
 		Route::resource('countries', CountriesController::class);
+		Route::resource('novelty', NoveltyTypesController::class);
+		Route::resource('risk', RiskTypesController::class);
+		Route::resource('egress_types', EgressTypesController::class);
+		Route::resource('ingress_types', IngressTypesController::class);
+		Route::resource('banks', BanksController::class);
+		Route::resource('banksAccount', BankAccountsController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -183,6 +195,13 @@ Route::group(
 		Route::get('paginateArl', [ArlController::class, 'paginate']);
 		Route::get('paginatePensionFun', [PensionFundController::class, 'paginate']);
 		Route::get('paginateCompensationFund', [CompensationFundController::class, 'paginate']);
+		Route::get('paginateNoveltyTypes', [NoveltyTypesController::class, 'paginate']);
+		Route::get('paginateRiskTypes', [RiskTypesController::class, 'paginate']);
+		Route::get('paginateSeveranceFunds', [SeveranceFundController::class, 'paginate']);
+		Route::get('paginateEgressTypes', [EgressTypesController::class, 'paginate']);
+		Route::get('paginateIngressTypes', [IngressTypesController::class, 'paginate']);
+		Route::get('paginateBanks', [BanksController::class, 'paginate']);
+		Route::get('paginateBankAccount', [BankAccountsController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);

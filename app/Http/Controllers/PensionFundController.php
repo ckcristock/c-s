@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PensionFundRequest;
 use App\Models\PensionFund;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -31,21 +32,13 @@ class PensionFundController extends Controller
         );
     }
 
-    public function store(Request $request)
+    public function store(PensionFundRequest $request)
     {
         try {
-            $validate =  PensionFund::where('nit', $request->get('nit'))->first();
-            if ($validate) {
-                return $this->error('El nit ya está registrado', 423); 
-            }
-            $v = PensionFund::where('code', $request->get('code'))->first();
-            if ($v) {
-                return $this->error('El código de la EPS ya existe', 423);
-            }
-            $pensionFund = PensionFund::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            $pensionFund = PensionFund::updateOrCreate( [ 'id'=> $request->get('id') ], $request->all() );
             return ($pensionFund->wasRecentlyCreated) ? $this->success('creado con exito') : $this->success('actualizado con exito');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 200);
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
         }
     }
 }

@@ -5,12 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SeveranceFund extends Model
+class BankAccounts extends Model
 {
     use HasFactory;
     protected $fillable = [
         'name',
-        'nit',
-        'status'
+        'associated_account',
+        'account_number',
+        'balance',
+        'status',
+        'type',
+        'description'
     ];
 }
