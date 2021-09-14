@@ -2,12 +2,14 @@
 
 /* use App\Http\Controllers\AuthController; */
 
+use App\Http\Controllers\AccountPlanController;
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BonificationsController;
+use App\Http\Controllers\Center_costController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\Countable_incomeController;
@@ -183,6 +185,8 @@ Route::group(
 		Route::resource('ingress_types', IngressTypesController::class);
 		Route::resource('banks', BanksController::class);
 		Route::resource('banksAccount', BankAccountsController::class);
+		Route::resource('account_plan', AccountPlanController::class);
+		Route::resource('center_cost', Center_costController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
