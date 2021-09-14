@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 /* require_once $path = base_path('vendor/pear/http_request2/HTTP/Request2.php'); */
 
@@ -51,7 +52,8 @@ class AsistenciaController extends Controller
             $file_path = 'temporales/' . Str::random(30) . time() . '.png';
             Storage::disk('public')->put($file_path, $image, 'public');
 
-            $tem = Storage::disk('public')->url($file_path);
+            $tem = URL::to('/') .'/api/image?path='.$file_path;
+	  
             
             //return $fully;
             //$fully = 'https://backend.sigmaqmo.com/storage/app/public/people/Arb9cDfbiLFpCUCDeVA6uvujh82ynL1631109731.png';

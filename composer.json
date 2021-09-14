@@ -34,7 +34,8 @@
             "app/helpers/createTable.php",
             "app/helpers/customSnakeCase.php",
             "app/helpers/handlerTableCreate.php",
-            "app/helpers/normalize.php"
+            "app/helpers/normalize.php",
+            "app/helpers/image.php"
         ]
     },
     "autoload-dev": {

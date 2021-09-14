@@ -38,6 +38,7 @@ use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
+use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\RotatingTurnHourController;
 use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\WorkContractController;
@@ -50,6 +51,8 @@ use App\Models\WorkContract;
 use App\Models\WorkContractType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +64,24 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('/', function () {
+
+	$exitCode = Artisan::call('config:clear');
+ 
+	$exitCode = Artisan::call('cache:clear');
+ 
+	$exitCode = Artisan::call('config:cache');
+ 
+	return 'DONE'; //Return anything
+ 
+  });
+Route::get('/image/{path}',function($path){
+	/* return response()->json( URL::to('/') ) ; */
+
+	/* return response()->file(Storage::disk('public')->url('people/W2d3uspaCP8Vffk6v49oLRp9ilLgqX1631379051'))	; */
+
+    return response()->file($path);
+});
 
 Route::post('/asistencia/validar', [AsistenciaController::class, 'validar']);
 
@@ -86,6 +107,7 @@ Route::group(
 		"middleware" => ["api"],
 	],
 	function ($router) {
+		Route::get("payroll-nex-mouths", [PayrollController::class, "nextMonths"]);
 		Route::get("people-paginate", [PersonController::class, "indexPaginate"]);
 		Route::get("people-all", [PersonController::class, "getAll"]);
 

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PersonController extends Controller
@@ -131,7 +132,7 @@ class PersonController extends Controller
 				->join("positions as pos", "pos.id", "=", "w.position_id")
 				->join("dependencies as d", "d.id", "=", "pos.dependency_id")
 				->where("p.status", "Activo")
-				->when($data["dependencies"], function ($q, $fill) {
+				->when( $request->get('dependencies') , function ($q, $fill) {
 					$q->where("d.id", $fill);
 				})
 				->get()
@@ -335,25 +336,19 @@ class PersonController extends Controller
 		try {
 			$person = Person::find($id);
 			$personData = $request->all();
+			$cognitive = new CognitiveService();
+			if(!$person->personId){
+				return '0';
+				$person->personId = $cognitive->createPerson($person);
+				$person->save();
+				$cognitive->deleteFace($person);
+			}
+			return '1';
 			if (request()->get("image")) {
-				if (Storage::disk("s3")->exists($person->image)) {
-					Storage::disk("s3")->delete($person->image);
-				}
-				$image = base64_decode(
-					preg_replace(
-						"#^data:image/\w+;base64,#i",
-						"",
-						$personData["image"]
-					)
-				);
-				$file_path = "people/" . Str::random(30) . time() . ".png";
-				Storage::disk("public")->put($file_path, $image, "public");
-				$personData["image"] = asset("storage/" . $file_path);
-				//"https://backend.sigmaqmo.com/storage/app/public/" . $file_path;
 
+				$personData["image"] = URL::to('/').'/api/image?path='. saveBase64($personData["image"],'people/');
 				$person->update($personData);
 
-				$cognitive = new CognitiveService();
 				$cognitive->deleteFace($person);
 				$person->persistedFaceId = $cognitive->createFacePoints($person);
 				$person->save();
@@ -381,20 +376,8 @@ class PersonController extends Controller
 
 			$personData = $request->get("person");
 
-			$image = base64_decode(
-				preg_replace(
-					"#^data:image/\w+;base64,#i",
-					"",
-					$personData["image"]
-				)
-			);
-			$file_path = "people/" . Str::random(30) . time() . ".png";
-			Storage::disk("public")->put($file_path, $image, "public");
+			$personData["image"] = URL::to('/').'/api/image?path='. saveBase64($personData["image"],'people/');
 
-			/*$personData["image"] =
-				"https://backend.sigmaqmo.com/storage/app/public/" . $file_path;
-			 */
-			$personData["image"] = asset("storage/" . $file_path);
 			$personData["personId"] = null;
 
 			$per = $person = Person::create($personData);
@@ -412,6 +395,7 @@ class PersonController extends Controller
 				$cognitive = new CognitiveService();
 				$person->personId = $cognitive->createPerson($person);
 				$cognitive->deleteFace($person);
+				
 				$person->persistedFaceId = $cognitive->createFacePoints(
 					$person
 				);

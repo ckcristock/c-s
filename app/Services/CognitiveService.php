@@ -10,6 +10,7 @@ class CognitiveService
 	public $ocpApimSubscriptionKey;
 	public $azure_grupo;
 	public $uriBase;
+	public $endPoint;
 
 	public function __construct()
 	{
@@ -17,6 +18,7 @@ class CognitiveService
 		$this->azure_grupo = "personalnuevo";
 		$this->uriBase =
 			"https://facemaqymon2021.cognitiveservices.azure.com/face/v1.0";
+		$this->endPoint =  url();
 	}
 	/** SI LA PERSONA NO TIENE PERSON ID SE CREA EL REGISTRO EN MICROSOFT */
 	public function createPerson($person)
@@ -81,6 +83,7 @@ class CognitiveService
 	}
 	public function createFacePoints($person)
 	{
+		
 		$parameters = [
 			"detectionModel" => "detection_02",
 		];
