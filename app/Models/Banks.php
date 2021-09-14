@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TypeRisk extends Model
+class Banks extends Model
 {
     use HasFactory;
-    protected $fillable=[
-
+    protected $fillable = [
         'name',
-        'description'
+        'code',
+        'status'
     ];
+    protected $table = 'banks';
 }

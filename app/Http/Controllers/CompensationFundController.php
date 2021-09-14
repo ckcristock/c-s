@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CompensationFundRequest;
 use App\Models\CompensationFund;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -30,21 +31,13 @@ class CompensationFundController extends Controller
         );
     }
 
-    public function store(Request $request)
+    public function store(CompensationFundRequest $request)
     {
         try {
-            $validate =  CompensationFund::where('nit', $request->get('nit'))->first();
-            if ($validate) {
-                return $this->error('El nit ya está registrado', 423); 
-            }
-            $v = CompensationFund::where('code', $request->get('code'))->first();
-            if ($v) {
-                return $this->error('El código ya existe', 423);
-            }
             $pensionFund = CompensationFund::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
             return ($pensionFund->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 400);
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
         }
     }
 }

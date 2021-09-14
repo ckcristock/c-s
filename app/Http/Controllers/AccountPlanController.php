@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Memorandum;
+use App\Models\AccountPlan;
 use App\Traits\ApiResponser;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class MemorandumController extends Controller
+class AccountPlanController extends Controller
 {
     use ApiResponser;
     /**
@@ -19,34 +17,22 @@ class MemorandumController extends Controller
     public function index()
     {
         return $this->success(
-            Memorandum::all()
-        );
-    }
-
-    public function getMemorandum(){
-        $data = Request()->all();
-        $page = key_exists('page', $data) ? $data['page'] : 1;
-        $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 5;
-        return $this->success(
-            DB::table('people as p')
-            ->select(
-                'p.image',
-                'p.first_name',
-                'p.second_name',
-                'p.first_surname',
-                'p.second_surname',
-                'm.details',
-                't.name as memorandumType',
-                'm.created_at'
-            )
-            ->join('memorandum as m', function($join) {
-                $join->on('m.person_id', '=', 'p.id');
-            })
-            ->join('memorandum_types as t', function($join) {
-                $join->on('t.id', '=', 'm.memorandum_type_id');
-            })
-            ->orderBy('m.created_at', 'desc')
-            ->paginate($pageSize, ['*'],'page', $page)
+            AccountPlan::when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get('code'), function ($q, $fill) {
+                    $q->where('code', 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get('niif_code'), function ($q, $fill) {
+                    $q->where('niif_code', 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get('niif_name'), function ($q, $fill) {
+                    $q->where('niif_name', 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get('status'), function ($q, $fill) {
+                    $q->where('status', 'like', '%' . $fill . '%');
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -69,10 +55,10 @@ class MemorandumController extends Controller
     public function store(Request $request)
     {
         try {
-            Memorandum::create( $request->all() );
-            return $this->success('Creado Con Éxito');
+            $accountPlan  = AccountPlan::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($accountPlan->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
+            return response()->json([$th->getMessage(), $th->getLine()]);
         }
     }
 

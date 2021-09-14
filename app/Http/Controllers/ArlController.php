@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ArlRequest;
 use App\Models\Arl;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
@@ -53,21 +54,13 @@ class ArlController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ArlRequest $request)
     {
         try {
-            $validate =  Arl::where('nit', $request->get('nit'))->first();
-            if ($validate) {
-                return $this->error('El nit ya está registrado', 423); 
-            }
-            $v = Arl::where('accounting_account', $request->get('accounting_account'))->first();
-            if ($v) {
-                return $this->error('El código ya existe', 423);
-            }
             $arl = Arl::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
             return ($arl->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 200);
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
         }
     }
 
