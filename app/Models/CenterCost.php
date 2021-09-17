@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Center_cost extends Model
+class CenterCost extends Model
 {
     use HasFactory;
 }

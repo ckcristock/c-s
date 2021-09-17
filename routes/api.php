@@ -9,7 +9,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BonificationsController;
-use App\Http\Controllers\Center_costController;
+use App\Http\Controllers\CenterCostController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\Countable_incomeController;
@@ -44,6 +44,7 @@ use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
+use App\Http\Controllers\NoveltyTypesController;
 use App\Http\Controllers\PayrollController;
 
 use App\Http\Controllers\RiskTypesController;
@@ -210,7 +211,7 @@ Route::group(
 		Route::resource('banks', BanksController::class);
 		Route::resource('banksAccount', BankAccountsController::class);
 		Route::resource('account_plan', AccountPlanController::class);
-		Route::resource('center_cost', Center_costController::class);
+		Route::resource('center_cost', CenterCostController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
