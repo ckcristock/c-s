@@ -8,5 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class DisabilityLeave extends Model
 {
     use HasFactory;
-    
+    protected $fillable = [
+        'concept',
+        'accounting_account',
+        'sum',
+        'state'
+    ];
 }

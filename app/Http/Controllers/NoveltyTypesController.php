@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\NoveltyTypes;
-use App\Models\TypeNovelty;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
