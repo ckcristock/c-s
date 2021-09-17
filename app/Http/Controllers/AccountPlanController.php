@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AccountPlan;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AccountPlanController extends Controller
 {
@@ -18,8 +19,8 @@ class AccountPlanController extends Controller
     {
         return $this->success(
             AccountPlan::when(request()->get('name'), function ($q, $fill) {
-                    $q->where('name', 'like', '%' . $fill . '%');
-                })
+                $q->where('name', 'like', '%' . $fill . '%');
+            })
                 ->when(request()->get('code'), function ($q, $fill) {
                     $q->where('code', 'like', '%' . $fill . '%');
                 })
@@ -55,7 +56,7 @@ class AccountPlanController extends Controller
     public function store(Request $request)
     {
         try {
-            $accountPlan  = AccountPlan::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            $accountPlan  = AccountPlan::updateOrCreate(['id' => $request->get('id')], $request->all());
             return ($accountPlan->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
@@ -105,5 +106,18 @@ class AccountPlanController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function list()
+    {
+        try {
+            $query = ' SELECT id, CONCAT(code," - ",name) as code, center_cost, percent
+                FROM account_plans WHERE CHAR_LENGTH( code ) > 5 ';
+            return $this->success(DB::select($query));
+            //code...
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $this->error( $th->getMessage(), 500 );
+        }
     }
 }

@@ -40,8 +40,8 @@ class RotatingTurnHourController extends Controller
                     continue;
                 }
 
+                $depLocal = [];
                 foreach ($dependencies as $key2 => &$dependency) {
-                    $depLocal = [];
                     $dependency->people = RotatingHourService::getPeople(
                         $dependency->id,
                         $company->id

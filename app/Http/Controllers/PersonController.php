@@ -343,10 +343,10 @@ class PersonController extends Controller
 				$person->save();
 				$cognitive->deleteFace($person);
 			}
-			return '1';
 			if (request()->get("image")) {
 
 				$personData["image"] = URL::to('/').'/api/image?path='. saveBase64($personData["image"],'people/');
+				$faceUri = URL::to('/').'/api/image?path='. saveBase64($personData["image"],'people/');
 				$person->update($personData);
 
 				$cognitive->deleteFace($person);

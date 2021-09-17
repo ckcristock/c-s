@@ -154,7 +154,7 @@ class AsistenciaController extends Controller
                                 $hoy = date('Y-m-d');
                                 $ayer = date("Y-m-d", strtotime(date("Y-m-d") . ' - 1 day'));
                                 $funcionario = PersonService::funcionario_turno($candidato, $dias[date("w", strtotime($hoy))], $hoy, $ayer);
-
+                                
                              
 
                                 if ($funcionario) {
@@ -591,13 +591,13 @@ class AsistenciaController extends Controller
             $turno_rotativo_ayer = $rotativo_ayer->RotatingTurn;
 
             $startTime = Carbon::parse($hoy . " " . $hactual);
-            $finishTime = Carbon::parse($ayer . " " . $turno_rotativo_ayer->hora_inicio_uno);
+            $finishTime = Carbon::parse($ayer . " " . $turno_rotativo_ayer->entry_time);
             $totalDuration = $finishTime->diffInSeconds($startTime) / 3600;
-
+            //finish
             if ($totalDuration < 24) {
                 if ($func->email != '') {
                     $obj = new \stdClass();
-                    $obj->nombre = $func->nombres . " " . $func->apellidos;
+                    $obj->nombre = $func->first_name . " " . $func->first_surname;
                     $obj->imagen = $fully;
                     $obj->tipo = 'Salida';
                     $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
@@ -622,7 +622,7 @@ class AsistenciaController extends Controller
                 Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_ayer->id);
                 $respuesta = array(
                     'title' => 'Hasta Mañana',
-                    'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Hasta Mañana</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
+                    'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Hasta Mañana</strong><br><strong>" . $func->first_name . " " . $func->first_name . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
                     'icon' => 'success'
                 );
                 return $respuesta;
@@ -630,17 +630,117 @@ class AsistenciaController extends Controller
         }
         if (count($func->diariosTurnoRotativoHoy) > 0) {
             $rotativo_hoy = $func->diariosTurnoRotativoHoy[0];
-
+            
             $startTime = Carbon::parse($hoy . " " . $hactual);
-            $finishTime = Carbon::parse($rotativo_hoy->date . " " . $rotativo_hoy->entry_time_one);
+            $finishTime = Carbon::parse($rotativo_hoy->date . " " . $rotativo_hoy->entry_time);
             $totalDuration = $finishTime->diffInSeconds($startTime);
-
+            
             if ($totalDuration > 600) {
+                //return $rotativo_hoy;
+                if($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_one == null ){
+                    //guardar entrada launch
+                    Marcation::create([
+                        'type' => 'success',
+                        'img' => $fully,
+                        'description' => $func->id,
+                        'dateles' => 'El funcionario Ingresa al lunch',
+                        'fecha' => date("Y-m-d H:i:s")
+                    ]);
+
+                    $respuesta = array(
+                        'title' => 'Disfrute su lunch',
+                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Es Hora de tomar el lunch</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
+                        'icon' => 'success'
+                    );
+                    $datos = array(
+                        'launch_one_date' => $hoy,
+                        'launch_time_one' => $hactual,
+                        'img_launch_one' => $fully,
+                        
+                    );
+                    Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
+                    return $respuesta;
+                   
+                }
+                
+                if($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_two == null ){
+                     Marcation::create([
+                        'type' => 'success',
+                        'img' => $fully,
+                        'description' => $func->id,
+                        'dateles' => 'El funcionario ingresa del lunch',
+                        'fecha' => date("Y-m-d H:i:s")
+                    ]);
+                    $datos = array(
+                        'launch_two_date' => $hoy,
+                        'launch_time_two' => $hactual,
+                        'img_launch_two' => $fully,
+                        
+                    );
+                    Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
+                    $respuesta = array(
+                        'title' => 'Bienvenido nuevamente',
+                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido nuevamente a su jornada</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
+                        'icon' => 'success'
+                    );
+                    return $respuesta;
+                }
+                
+                if($rotativo_hoy->turnoRotativo->breack == 1 && $rotativo_hoy->breack_time_one == null ){
+                    //guardar entrada launch
+                    Marcation::create([
+                        'type' => 'error',
+                        'img' => $fully,
+                        'description' => $func->id,
+                        'dateles' => 'El funcionario Ingresa al break',
+                        'fecha' => date("Y-m-d H:i:s")
+                    ]);
+                    
+                    $datos = array(
+                        'breack_one_date' => $hoy,
+                        'breack_time_one' => $hactual,
+                        'img_breack_one' => $fully,
+                        
+                    );
+                    Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
+
+                    $respuesta = array(
+                        'title' => 'Disfrute su break',
+                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Es Hora de tomar el break</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
+                        'icon' => 'success'
+                    );
+                    return $respuesta;
+                   
+                }
+                
+                if($rotativo_hoy->turnoRotativo->breack == 1 && $rotativo_hoy->breack_time_two == null ){
+                     Marcation::create([
+                        'type' => 'success',
+                        'img' => $fully,
+                        'description' => $func->id,
+                        'dateles' => 'El funcionario ingresa del break',
+                        'fecha' => date("Y-m-d H:i:s")
+                    ]);
+                    $datos = array(
+                        'breack_two_date' => $hoy,
+                        'breack_time_two' => $hactual,
+                        'img_breack_two' => $fully,
+                        );
+                    Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
+                    $respuesta = array(
+                        'title' => 'Bienvenido nuevamente',
+                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido nuevamente a su jornada</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
+                        'icon' => 'success'
+                    );
+                    return $respuesta;
+                }
+                
+               
                 if ($rotativo_hoy->leave_time_one == null) {
 
                     if ($func->email != '') {
                         $obj = new \stdClass();
-                        $obj->nombre = $func->nombres . " " . $func->apellidos;
+                        $obj->nombre = $func->first_name . " " . $func->first_surname;
                         $obj->imagen = $fully;
                         $obj->tipo = 'Salida';
                         $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
@@ -665,7 +765,7 @@ class AsistenciaController extends Controller
                     Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
                     $respuesta = array(
                         'title' => 'Hasta Mañana',
-                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Hasta Mañana</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
+                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Hasta Mañana</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
                         'icon' => 'success'
                     );
                     return $respuesta;
@@ -680,7 +780,7 @@ class AsistenciaController extends Controller
 
                     $respuesta = array(
                         'title' => 'Ya has reportado Turno',
-                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Ya reportaste entrada y salida del turno de hoy</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
+                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Ya reportaste entrada y salida del turno de hoy</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
                         'icon' => 'warning'
                     );
                     return $respuesta;
@@ -696,12 +796,13 @@ class AsistenciaController extends Controller
 
                 $respuesta = array(
                     'title' => 'Ya has reportado Ingreso',
-                    'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Ya marcaste ingreso en un rango de 10 minutos</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
+                    'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Ya marcaste ingreso en un rango de 10 minutos</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
                     'icon' => 'warning'
                 );
                 return $respuesta;
             }
         } else {
+            
             if (count($func->horariosTurnoRotativo) > 0) {
 
                 if ($func->horariosTurnoRotativo[0]->rotating_turn_id == 0) {
@@ -715,15 +816,15 @@ class AsistenciaController extends Controller
 
                     $respuesta = array(
                         'title' => 'Día de Descanso',
-                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>De acuerdo a la programación, hoy es su día libre</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
+                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>De acuerdo a la programación, hoy es su día libre</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
                         'icon' => 'warning'
                     );
-                    return $respuesta;
+                    
                 } else {
                     $turno_asignado = $func->horariosTurnoRotativo[0]->turnoRotativo;
-
+                   
                     $startTime = Carbon::parse($hoy . " " . $hactual);
-                    $finishTime = Carbon::parse($hoy . " " . $turno_asignado->hora_inicio_uno);
+                    $finishTime = Carbon::parse($hoy . " " . $turno_asignado->entry_time);
                     $totalDuration = $finishTime->diffInSeconds($startTime, false);
 
                     $datos = array(
@@ -736,15 +837,15 @@ class AsistenciaController extends Controller
                     );
 
                     if ($totalDuration > ($turno_asignado->leave_tolerance * 60)) {
-
                         Diarios::guardarDiarioTurnoRotativo($datos);
 
+                        
                         $datos_llegada = array(
                             'person_id' => $func->id,
                             'date' => $hoy,
                             'time' => $totalDuration,
                             'real_entry' => $hactual,
-                            'entry' => $turno_asignado->hora_inicio_uno
+                            'entry' => $turno_asignado->entry_time
                         );
                       
                         Llegadas::guardarLlegadaTarde($datos_llegada);
@@ -754,7 +855,7 @@ class AsistenciaController extends Controller
 
                         if ($func->email != '') {
                             $obj = new \stdClass();
-                            $obj->nombre = $func->nombres . " " . $func->apellidos;
+                            $obj->nombre = $func->first_name . " " . $func->first_surname;
                             $obj->imagen = $fully;
                             $obj->tipo = 'Ingreso';
                             $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
@@ -772,7 +873,7 @@ class AsistenciaController extends Controller
 
                         $respuesta = array(
                             'title' => 'Acceso Autorizado',
-                            'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br><strong style='color:red;'>" . $lleg . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
+                            'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong><br><strong style='color:red;'>" . $lleg . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
                             'icon' => 'success'
                         );
                         return $respuesta;
@@ -787,14 +888,14 @@ class AsistenciaController extends Controller
 
                         $respuesta = array(
                             'title' => 'Muy Temprano',
-                            'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Su turno asignado para hoy,<br> tiene hora de Ingreso a las " . $turno_asignado->hora_inicio_uno . "</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
+                            'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Su turno asignado para hoy,<br> tiene hora de Ingreso a las " . $turno_asignado->entry_time . "</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
                             'icon' => 'warning'
                         );
                         return $respuesta;
                     } else {
                         if ($func->email != '') {
                             $obj = new \stdClass();
-                            $obj->nombre = $func->nombres . " " . $func->apellidos;
+                            $obj->nombre = $func->first_name . " " . $func->first_surname;
                             $obj->imagen = $fully;
                             $obj->tipo = 'Ingreso';
                             $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
@@ -814,7 +915,7 @@ class AsistenciaController extends Controller
 
                         $respuesta = array(
                             'title' => 'Acceso Autorizado',
-                            'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido, Hoy ha llegado temprano</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
+                            'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido, Hoy ha llegado temprano</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong><br>" . date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual)),
                             'icon' => 'success'
                         );
                         return $respuesta;
@@ -831,7 +932,7 @@ class AsistenciaController extends Controller
 
                 $respuesta = array(
                     'title' => 'Sin Turno Asignado',
-                    'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>No tiene un turno asignado para este día, por favor comuníquese con su superior.</strong><br><strong>" . $func->nombres . " " . $func->apellidos . "</strong>",
+                    'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>No tiene un turno asignado para este día, por favor comuníquese con su superior.</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
                     'icon' => 'warning'
                 );
                 return $respuesta;

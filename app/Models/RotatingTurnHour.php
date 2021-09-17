@@ -8,11 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class RotatingTurnHour extends Model
 {
     use HasFactory;
-    protected $fillable= [
+    protected $fillable = [
         'person_id',
         'date',
         'weeks_number',
         'rotating_turn_id'
     ];
+    public function turnoRotativo()
+    {
+        return $this->belongsTo(RotatingTurn::class, 'rotating_turn_id');
+    }
 }
-

@@ -40,5 +40,5 @@ class AccountPlan extends Model
         'account',
         'annual_voucher'
     ];
-    protected $table = 'account_plan';
+    /* protected $table = 'account_plan'; */
 }

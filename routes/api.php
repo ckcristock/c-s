@@ -30,6 +30,7 @@ use App\Http\Controllers\InventaryDotationController;
 use App\Http\Controllers\InventaryDotationGroupController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LateArrivalController;
+use App\Http\Controllers\LoanController;
 use App\Http\Controllers\MemorandumController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MunicipalityController;
@@ -73,25 +74,29 @@ use Illuminate\Support\Facades\URL;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 Route::get('/', function () {
 
 	$exitCode = Artisan::call('config:clear');
- 
+
 	$exitCode = Artisan::call('cache:clear');
- 
+
 	$exitCode = Artisan::call('config:cache');
- 
+
 	return 'DONE'; //Return anything
- 
-  });
-Route::get('/image/{path}',function($path){
-	/* return response()->json( URL::to('/') ) ; */
 
-	/* return response()->file(Storage::disk('public')->url('people/W2d3uspaCP8Vffk6v49oLRp9ilLgqX1631379051'))	; */
-
-    return response()->file($path);
 });
 
+
+Route::get('/image', function () {
+
+	$path = Request()->get('path');
+	if ($path) {
+
+		return response()->file($path);
+	}
+	return 'path not found';
+});
 Route::post('/asistencia/validar', [AsistenciaController::class, 'validar']);
 
 
@@ -156,7 +161,7 @@ Route::group(
 			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
 		]);
 
-    	Route::get('/horarios/datos/generales/{semana}', [RotatingTurnHourController::class, 'getDatosGenerales']);
+		Route::get('/horarios/datos/generales/{semana}', [RotatingTurnHourController::class, 'getDatosGenerales']);
 
 
 		Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'statistics']);
@@ -164,7 +169,8 @@ Route::group(
 		Route::post('/rotating-turns/change-state/{id}', [RotatingTurnController::class, 'changeState']);
 		Route::post('/fixed-turns/change-state/{id}', [FixedTurnController::class, 'changeState']);
 		/** Resources */
-				Route::get('person/train', [PersonController::class, 'train']);
+		Route::get('person/train', [PersonController::class, 'train']);
+		Route::get('account-plan-list', [AccountPlanController::class, 'list']);
 
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
@@ -211,10 +217,11 @@ Route::group(
 		Route::resource('banksAccount', BankAccountsController::class);
 		Route::resource('account_plan', AccountPlanController::class);
 		Route::resource('center_cost', Center_costController::class);
+		Route::resource('loan', LoanController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
-		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);		
+		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
 		Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
 		Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);

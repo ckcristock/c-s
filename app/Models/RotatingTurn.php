@@ -17,7 +17,9 @@ class RotatingTurn extends Model
 		"leave_time",
 		"launch",
 		"launch_time",
+		"launch_time_two",
 		"breack",
 		"breack_time",
+		"breack_time_two",
 	];
 }
