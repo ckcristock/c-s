@@ -10,6 +10,7 @@ use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\CenterCostController;
+use App\Http\Controllers\CityController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\Countable_incomeController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FixedTurnController;
 use App\Http\Controllers\FixedTurnHourController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\HotelController;
 use App\Http\Controllers\IngressTypesController;
 use App\Http\Controllers\InventaryDotationController;
 use App\Http\Controllers\InventaryDotationGroupController;
@@ -50,7 +52,10 @@ use App\Http\Controllers\PayrollController;
 
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnHourController;
+use App\Http\Controllers\RouteTaxiController;
 use App\Http\Controllers\SalaryTypesController;
+use App\Http\Controllers\TaxiControlller;
+use App\Http\Controllers\TravelExpenseController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
@@ -218,6 +223,11 @@ Route::group(
 		Route::resource('banksAccount', BankAccountsController::class);
 		Route::resource('account_plan', AccountPlanController::class);
 		Route::resource('center_cost', CenterCostController::class);
+		Route::resource('hotels', HotelController::class);
+		Route::resource('taxis', TaxiControlller::class);
+		Route::resource('travel-expense', TravelExpenseController::class);
+		Route::resource('route-taxi', RouteTaxiController::class);
+		Route::resource('city', CityController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -258,5 +268,6 @@ Route::group(
 		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
 		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
 		Route::get('process/{id}', [Disciplinary_processController::class, 'process']);
+		Route::get('cities', [RouteTaxiController::class, 'cities']);
 	}
 );

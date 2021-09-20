@@ -116,6 +116,9 @@ class PersonController extends Controller
 					"pos.name as position",
 					"d.name as dependency",
 					"p.id as value",
+					"p.passport_number",
+					"p.visa",
+					"p.type",
 					DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '),
 					"c.name as company",
 					DB::raw("w.id AS work_contract_id")
