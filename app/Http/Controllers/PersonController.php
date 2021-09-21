@@ -118,10 +118,10 @@ class PersonController extends Controller
 					"p.id as value",
 					"p.passport_number",
 					"p.visa",
-					"p.type",
 					DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '),
 					"c.name as company",
-					DB::raw("w.id AS work_contract_id")
+					DB::raw("w.id AS work_contract_id"),
+					DB::raw("'Funcionario' AS type")
 				)
 				->join("work_contracts as w", function ($join) {
 					$join->on(
@@ -135,7 +135,7 @@ class PersonController extends Controller
 				->join("positions as pos", "pos.id", "=", "w.position_id")
 				->join("dependencies as d", "d.id", "=", "pos.dependency_id")
 				->where("p.status", "Activo")
-				->when( $request->get('dependencies') , function ($q, $fill) {
+				->when($request->get('dependencies'), function ($q, $fill) {
 					$q->where("d.id", $fill);
 				})
 				->get()
@@ -340,7 +340,7 @@ class PersonController extends Controller
 			$person = Person::find($id);
 			$personData = $request->all();
 			$cognitive = new CognitiveService();
-			if(!$person->personId){
+			if (!$person->personId) {
 				return '0';
 				$person->personId = $cognitive->createPerson($person);
 				$person->save();
@@ -348,8 +348,8 @@ class PersonController extends Controller
 			}
 			if (request()->get("image")) {
 
-				$personData["image"] = URL::to('/').'/api/image?path='. saveBase64($personData["image"],'people/');
-				$faceUri = URL::to('/').'/api/image?path='. saveBase64($personData["image"],'people/');
+				$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
+				$faceUri = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
 				$person->update($personData);
 
 				$cognitive->deleteFace($person);
@@ -379,7 +379,7 @@ class PersonController extends Controller
 
 			$personData = $request->get("person");
 
-			$personData["image"] = URL::to('/').'/api/image?path='. saveBase64($personData["image"],'people/');
+			$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
 
 			$personData["personId"] = null;
 
@@ -398,18 +398,18 @@ class PersonController extends Controller
 				$cognitive = new CognitiveService();
 				$person->personId = $cognitive->createPerson($person);
 				$cognitive->deleteFace($person);
-				
+
 				$person->persistedFaceId = $cognitive->createFacePoints(
 					$person
 				);
 				$person->save();
 				$cognitive->train();
 			}
-			
-			return $this->success(["id" => $person->id,'faceCreated'=>true]);
+
+			return $this->success(["id" => $person->id, 'faceCreated' => true]);
 		} catch (\Throwable $th) {
 			if ($per) {
-				return $this->success(["id" => $person->id,'faceCreated'=>false]);
+				return $this->success(["id" => $person->id, 'faceCreated' => false]);
 			}
 			return $this->error($th->getMessage(), 500);
 		}

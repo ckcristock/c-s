@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\City;
-use App\Models\TaxiCity;
+use App\Models\RouteTaxi;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class RouteTaxiController extends Controller
+class TaxiCityController extends Controller
 {
 	use ApiResponser;
 	/**
@@ -19,15 +19,15 @@ class RouteTaxiController extends Controller
 	public function index()
 	{
 		return $this->success(
-			TaxiCity::where('type', '=', 'Nacional')->get(),
-			TaxiCity::where('type', '=', 'Internacional')->get()
+			RouteTaxi::where('type', '=', 'Nacional')->get(),
+			RouteTaxi::where('type', '=', 'Internacional')->get()
 
 		);
 	}
 
 	public function cities()
 	{
-		$route = TaxiCity::find(1);
+		$route = RouteTaxi::find(1);
 		return $route->cities;
 	}
 

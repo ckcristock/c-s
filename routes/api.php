@@ -52,8 +52,8 @@ use App\Http\Controllers\PayrollController;
 
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnHourController;
-use App\Http\Controllers\RouteTaxiController;
 use App\Http\Controllers\SalaryTypesController;
+use App\Http\Controllers\TaxiCityController;
 use App\Http\Controllers\TaxiControlller;
 use App\Http\Controllers\TravelExpenseController;
 use App\Http\Controllers\WorkContractController;
@@ -226,7 +226,7 @@ Route::group(
 		Route::resource('hotels', HotelController::class);
 		Route::resource('taxis', TaxiControlller::class);
 		Route::resource('travel-expense', TravelExpenseController::class);
-		Route::resource('route-taxi', RouteTaxiController::class);
+		Route::resource('taxi-city', TaxiCityController::class);
 		Route::resource('city', CityController::class);
 
 		/* Paginations */

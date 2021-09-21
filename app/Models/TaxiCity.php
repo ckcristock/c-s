@@ -5,15 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Taxi extends Model
+class TaxiCity extends Model
 {
 	use HasFactory;
-	protected $fillable = [
-		'route'
-	];
-
-	public function taxiCities()
+	public function city()
 	{
-		return $this->hasMany(TaxiCity::class);
+		return $this->belongsTo(City::class);
 	}
 }
