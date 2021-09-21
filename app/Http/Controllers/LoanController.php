@@ -113,7 +113,7 @@ class LoanController extends Controller
 	public function loanpdf()
 	{
 		
-			return DB::table('loans as l')
+			$loan = DB::table('loans as l')
 			->select(
 				'l.person_id',
 				'p.first_name',
@@ -123,6 +123,7 @@ class LoanController extends Controller
 				'p.identifier',
 				'l.value',
 				'l.interest',
+				'l.monthly_fee',
 				'l.interest_type',
 				'l.number_fees',
 				'l.payment_type'
@@ -131,22 +132,38 @@ class LoanController extends Controller
 				$join->on('p.id', '=', 'l.person_id');
 			})
 			->first();
-	}
+			$proyecciones = $this->proyeccionAmortizacion($loan->value, $loan->monthly_fee,$loan->interest, $loan->payment_type);
+			/* $getTotalA = $this->getTotales($proyecciones['Proyecciones'], 'Amortizacion');
+			$getTotalI = $this->getTotales($proyecciones['Proyecciones'], 'Intereses');
+			$getTotalV = $this->getTotales($proyecciones['Proyecciones'], 'Valor_Cuota'); */
+			return view('pdf.loanpdf', ['proyecciones' => $proyecciones , 
+				'funcionario' => $loan,
+				/* 'getTotalA' => $getTotalA,
+				'getTotalI' => $getTotalI,
+				'getTotalV' => $getTotalV */
+			]);
 
-	function proyeccionAmortizacion($loan, $cuota_mensual, $interest,$mes="1",$first_pay='') {
-		$saldo = $loan;
+
+	}
+	public function getTotales($data, $tipo) {
+		$datos = array_column($data, $tipo);
+		$total = array_sum($datos);
+		return $total;
+	}
+	public function proyeccionAmortizacion($prestamo, $cuota_mensual, $porcentaje_interes,$tipo_descuento="Mensual",$primer_pago='') {
+		$saldo = $prestamo;
 		$total_cuotas = 0;
 		$proyeccion = [];
-		if($first_pay==''){
-			$first_pay = date("Y-m-d");
+		if($primer_pago==''){
+			$primer_pago = date("Y-m-d");
 		}
 		while ($saldo > 0) {
-			$interes = $saldo * ($interest/100);
+			$interes = $saldo * ($porcentaje_interes/100);
 			$cuota = $saldo >= $cuota_mensual ? $cuota_mensual : ($saldo+$interes);
 			$amortizacion = $saldo < $cuota ? $saldo : ($cuota-$interes);
 			$saldo = $saldo - $amortizacion;
 			$total_cuotas++;
-			$fecha = calcularFechaDescuento($first_pay,$total_cuotas,$mes);
+			$fecha = $this->calcularFechaDescuento($primer_pago,$total_cuotas,$tipo_descuento);
 			$data = [
 				"Cuota" => $total_cuotas,
 				"Amortizacion" => number_format($amortizacion,2,".",""),
@@ -163,7 +180,7 @@ class LoanController extends Controller
 	
 		return $response; 
 	}
-	function calcularFechaDescuento($fecha_descuento, $cuota, $tipo="Mensual") {
+	public function calcularFechaDescuento($fecha_descuento, $cuota, $tipo="Mensual") {
 		$mes = 0;
 		if($tipo=="Mensual"){
 			$suma="+$mes months";

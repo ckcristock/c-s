@@ -16,8 +16,29 @@
         margin-bottom: 0;
     }
 </style>
+    <table style="" >
+    <tbody>
+      <tr>
+        <td style="width:70px;">
+          <img src="../../../img/logo.png" style="width:60px;"/>
+        </td>
+        <td class="td-header" style="width:390px;font-weight:thin;font-size:14px;line-height:20px;">
+            MaqMo<br> 
+            N.I.T.: 10001<br> 
+            direccion<br> 
+            302323
+        </td>
+        <td style="width:170px;text-align:right">
+              11212
+        </td>
+        <td style="width:100px;">
+        <img src="" style="max-width:100%;margin-top:-10px;" />
+        </td>
+      </tr>
+    </tbody>
+  </table><hr style="border:1px dotted #ccc;width:730px;">';
      <h4 style="margin:5px 0 0 0;font-size:18px;line-height:22px;">AMORTIZACIÓN PRESTAMO</h4>
-     <h5 style="margin:5px 0 0 0;font-size:16px;line-height:16px;">'.fecha($data["Fecha"]).'</h5>
+     <h5 style="margin:5px 0 0 0;font-size:16px;line-height:16px;">fecha($data["Fecha"])</h5>
     <table style="background: #e6e6e6;">
         <tr style=" min-height: 200px; background: #e6e6e6;padding: 15px; border-radius: 10px; margin: 0;">
        
@@ -26,7 +47,7 @@
         </td>
 
         <td style="font-size:11px;width:510px;padding:5px">
-        '.number_format($data['Identificacion_Funcionario'],0,"",".").'
+        number_format($loan['identifier'],0,"",".")
         </td>
         
     </tr>
@@ -94,42 +115,41 @@
         </td>
     </tr>
 
-    foreach ($proyecciones['Proyeccion'] as $i => $value) {
+    @foreach ($proyecciones['Proyeccion'] as $i => $value)
 
-    $contenido .= '<tr>
+<tr>
     <td style="vertical-align:center;font-size:9px;width:50px;max-width:50px;text-align:center;border:1px solid #cccccc;">
-        '.($i+1).'
+        {{($i+1)}}
     </td>
     <td style="vertical-align:center;text-align:center;font-size:9px;width:90px;border:1px solid #cccccc;">
-        '.$value['Fecha'].'
+        {{$value['Fecha']}}
     </td>
     <td style="vertical-align:center;text-align:right;font-size:9px;word-break:break-all;width:60px;max-width:60px;border:1px solid #cccccc;">
-        $ '.number_format($value['Amortizacion'],2,",",".").'
+        $ {{number_format($value['Amortizacion'],2,",",".")}}
     </td>
     <td style="width:100px;max-width:100px;text-align:right;font-size:9px;word-break:break-all;border:1px solid #cccccc;">
-        $ '.number_format($value['Intereses'],2,",",".").'
+        $ {{number_format($value['Intereses'],2,",",".")}}
     </td>
     <td style="vertical-align:center;text-align:right;font-size:9px;text-align:right;width:75px;border:1px solid #cccccc;">
-        $ '.number_format($value['Valor_Cuota'],2,'.',',').'
+        $ {{number_format($value['Valor_Cuota'],2,'.',',')}}
     </td>
     <td style="vertical-align:center;text-align:right;font-size:9px;text-align:right;width:75px;border:1px solid #cccccc;">
-        $ '.number_format($value['Saldo'],2,'.',',').'
+        $ {{number_format($value['Saldo'],2,'.',',')}}
     </td>
-</tr>';
+</tr>   
 
-}
-
+    @endforeach
 
 <tr>
     <td colspan="2" style="padding:4px;text-align:right;border:1px solid #cccccc;font-weight:bold;font-size:12px">TOTALES:</td>
     <td style="padding:4px;text-align:right;border:1px solid #cccccc;">
-        $ '.number_format(getTotales($proyecciones['Proyeccion'], 'Amortizacion'),2,".",",").'
+        $ {{-- {{number_format($getTotalA),2,".",",")}} --}}
     </td>
     <td style="padding:4px;text-align:right;border:1px solid #cccccc;">
-        $ '.number_format(getTotales($proyecciones['Proyeccion'], 'Intereses'),2,".",",").'
+        $ {{-- {{number_format($getTotalI),2,".",",")}} --}}
     </td>
     <td style="padding:4px;text-align:right;border:1px solid #cccccc;">
-        $ '.number_format(getTotales($proyecciones['Proyeccion'], 'Valor_Cuota'),2,".",",").'
+        $ {{-- {{number_format($getTotalV),2,".",",")}} --}}
     </td>
     <td style="padding:4px;text-align:right;border:1px solid #cccccc;"></td>
 </tr>
