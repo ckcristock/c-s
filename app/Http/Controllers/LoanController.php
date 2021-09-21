@@ -26,7 +26,6 @@ class LoanController extends Controller
 			$datos = $request->all();
 			if ($datos["type"] != "Libranza") {
 				if ($datos["interest_type"] == "Prestamo") {
-					return response("asd");
 					$dataProyeccion = LoanService::proyeccionAmortizacionAPrestamo(
 						$datos["value"],
 						$datos["monthly_fee"],

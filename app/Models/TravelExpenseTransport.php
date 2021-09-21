@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class TravelExpenseTransport extends Model
 {
-    use HasFactory;
-    protected $fillable = [
-        'type', 'journey', 'company', 'ticket_payment', 'departure_date', 'ticket_value', 'travel_expense_id'
-    ];
+	use HasFactory;
+	protected $guarded = ['id'];
 }

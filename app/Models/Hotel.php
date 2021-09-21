@@ -19,4 +19,9 @@ class Hotel extends Model
 	{
 		return $this->belongsTo(city::class);
 	}
+	public function travelExpenses()
+	{
+
+		return $this->belongsToMany(TravelExpense::class);
+	}
 }
