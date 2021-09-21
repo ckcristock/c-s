@@ -12,6 +12,7 @@ use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\CenterCostController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\CompanyPaymentConfigurationController;
 use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\Countable_incomeController;
 use App\Http\Controllers\CountriesController;
@@ -60,6 +61,7 @@ use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
 use App\Http\Controllers\ZonesController;
+use App\Models\CompanyPaymentConfiguration;
 use App\Models\Countable_income;
 use App\Models\DocumentTypes;
 use App\Models\WorkContract;
@@ -228,6 +230,8 @@ Route::group(
 		Route::resource('travel-expense', TravelExpenseController::class);
 		Route::resource('route-taxi', RouteTaxiController::class);
 		Route::resource('city', CityController::class);
+		Route::resource('companyPayment', CompanyPaymentConfigurationController::class);
+		Route::resource('loan', LoanController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -269,5 +273,8 @@ Route::group(
 		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
 		Route::get('process/{id}', [Disciplinary_processController::class, 'process']);
 		Route::get('cities', [RouteTaxiController::class, 'cities']);
+		Route::get('companyData', [CompanyController::class, 'getBasicData']);
+		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
+		Route::get('loanpdf', [LoanController::class, 'loanpdf']);
 	}
 );

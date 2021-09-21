@@ -6,6 +6,7 @@ use App\Models\Loan;
 use App\Services\LoanService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LoanController extends Controller
 {
@@ -107,5 +108,84 @@ class LoanController extends Controller
 				401
 			);
 		}
+	}
+
+	public function loanpdf()
+	{
+		
+			return DB::table('loans as l')
+			->select(
+				'l.person_id',
+				'p.first_name',
+				'p.second_name',
+				'p.first_surname',
+				'p.second_surname',
+				'p.identifier',
+				'l.value',
+				'l.interest',
+				'l.interest_type',
+				'l.number_fees',
+				'l.payment_type'
+			)
+			->join('people as p', function($join) {
+				$join->on('p.id', '=', 'l.person_id');
+			})
+			->first();
+	}
+
+	function proyeccionAmortizacion($loan, $cuota_mensual, $interest,$mes="1",$first_pay='') {
+		$saldo = $loan;
+		$total_cuotas = 0;
+		$proyeccion = [];
+		if($first_pay==''){
+			$first_pay = date("Y-m-d");
+		}
+		while ($saldo > 0) {
+			$interes = $saldo * ($interest/100);
+			$cuota = $saldo >= $cuota_mensual ? $cuota_mensual : ($saldo+$interes);
+			$amortizacion = $saldo < $cuota ? $saldo : ($cuota-$interes);
+			$saldo = $saldo - $amortizacion;
+			$total_cuotas++;
+			$fecha = calcularFechaDescuento($first_pay,$total_cuotas,$mes);
+			$data = [
+				"Cuota" => $total_cuotas,
+				"Amortizacion" => number_format($amortizacion,2,".",""),
+				"Intereses" => number_format($interes,2,".",""),
+				"Valor_Cuota" => number_format($cuota,2,".",""),
+				"Saldo" => number_format($saldo,2,".",""),
+				"Fecha" => $fecha
+			];
+			$proyeccion[] = $data;
+		}
+	
+		$response['Proyeccion'] = $proyeccion;
+		$response['Total_Cuotas'] = $total_cuotas;
+	
+		return $response; 
+	}
+	function calcularFechaDescuento($fecha_descuento, $cuota, $tipo="Mensual") {
+		$mes = 0;
+		if($tipo=="Mensual"){
+			$suma="+$mes months";
+		}else{
+			$num=$mes*15;
+			$suma="+$num days";
+		}
+		if ($cuota == 1) {
+			$response = $fecha_descuento;
+		} else {        
+			$nueva_fecha = strtotime($suma,strtotime($fecha_descuento));
+			$response = date('Y-m-d', $nueva_fecha);
+		}
+		$f = explode("-",$response);
+		$nuevo_mes1 = strtotime($f[0]."-".$f[1]);
+		if($f[2]>15){
+			$response=date('Y-m-', $nuevo_mes1).date("d",(mktime(0,0,0,date("m", $nuevo_mes1)+1,1,date("Y", $nuevo_mes1))-1));
+		}else{
+			$response=date('Y-m-15', $nuevo_mes1);
+		}  
+	
+		return $response;
+		
 	}
 }
