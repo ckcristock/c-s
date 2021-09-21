@@ -6,6 +6,7 @@ use App\Models\Loan;
 use App\Services\LoanService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LoanController extends Controller
 {
@@ -106,5 +107,101 @@ class LoanController extends Controller
 				401
 			);
 		}
+	}
+
+	public function loanpdf()
+	{
+		
+			$loan = DB::table('loans as l')
+			->select(
+				'l.person_id',
+				'p.first_name',
+				'p.second_name',
+				'p.first_surname',
+				'p.second_surname',
+				'p.identifier',
+				'l.value',
+				'l.interest',
+				'l.monthly_fee',
+				'l.interest_type',
+				'l.number_fees',
+				'l.payment_type'
+			)
+			->join('people as p', function($join) {
+				$join->on('p.id', '=', 'l.person_id');
+			})
+			->first();
+			$proyecciones = $this->proyeccionAmortizacion($loan->value, $loan->monthly_fee,$loan->interest, $loan->payment_type);
+			/* $getTotalA = $this->getTotales($proyecciones['Proyecciones'], 'Amortizacion');
+			$getTotalI = $this->getTotales($proyecciones['Proyecciones'], 'Intereses');
+			$getTotalV = $this->getTotales($proyecciones['Proyecciones'], 'Valor_Cuota'); */
+			return view('pdf.loanpdf', ['proyecciones' => $proyecciones , 
+				'funcionario' => $loan,
+				/* 'getTotalA' => $getTotalA,
+				'getTotalI' => $getTotalI,
+				'getTotalV' => $getTotalV */
+			]);
+
+
+	}
+	public function getTotales($data, $tipo) {
+		$datos = array_column($data, $tipo);
+		$total = array_sum($datos);
+		return $total;
+	}
+	public function proyeccionAmortizacion($prestamo, $cuota_mensual, $porcentaje_interes,$tipo_descuento="Mensual",$primer_pago='') {
+		$saldo = $prestamo;
+		$total_cuotas = 0;
+		$proyeccion = [];
+		if($primer_pago==''){
+			$primer_pago = date("Y-m-d");
+		}
+		while ($saldo > 0) {
+			$interes = $saldo * ($porcentaje_interes/100);
+			$cuota = $saldo >= $cuota_mensual ? $cuota_mensual : ($saldo+$interes);
+			$amortizacion = $saldo < $cuota ? $saldo : ($cuota-$interes);
+			$saldo = $saldo - $amortizacion;
+			$total_cuotas++;
+			$fecha = $this->calcularFechaDescuento($primer_pago,$total_cuotas,$tipo_descuento);
+			$data = [
+				"Cuota" => $total_cuotas,
+				"Amortizacion" => number_format($amortizacion,2,".",""),
+				"Intereses" => number_format($interes,2,".",""),
+				"Valor_Cuota" => number_format($cuota,2,".",""),
+				"Saldo" => number_format($saldo,2,".",""),
+				"Fecha" => $fecha
+			];
+			$proyeccion[] = $data;
+		}
+	
+		$response['Proyeccion'] = $proyeccion;
+		$response['Total_Cuotas'] = $total_cuotas;
+	
+		return $response; 
+	}
+	public function calcularFechaDescuento($fecha_descuento, $cuota, $tipo="Mensual") {
+		$mes = 0;
+		if($tipo=="Mensual"){
+			$suma="+$mes months";
+		}else{
+			$num=$mes*15;
+			$suma="+$num days";
+		}
+		if ($cuota == 1) {
+			$response = $fecha_descuento;
+		} else {        
+			$nueva_fecha = strtotime($suma,strtotime($fecha_descuento));
+			$response = date('Y-m-d', $nueva_fecha);
+		}
+		$f = explode("-",$response);
+		$nuevo_mes1 = strtotime($f[0]."-".$f[1]);
+		if($f[2]>15){
+			$response=date('Y-m-', $nuevo_mes1).date("d",(mktime(0,0,0,date("m", $nuevo_mes1)+1,1,date("Y", $nuevo_mes1))-1));
+		}else{
+			$response=date('Y-m-15', $nuevo_mes1);
+		}  
+	
+		return $response;
+		
 	}
 }

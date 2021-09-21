@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
-use App\Models\WorkContract;
+use App\Models\CompanyPaymentConfiguration;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class CompanyController extends Controller
+class CompanyPaymentConfigurationController extends Controller
 {
     use ApiResponser;
     /**
@@ -19,22 +17,6 @@ class CompanyController extends Controller
     public function index()
     {
         //
-        return $this->success(Company::all(['id as value','name as text']));
-    }
-
-    public function getBasicData()
-    {
-        return $this->success(
-            Company::with('arl')->with('banks')->first()
-        );
-    }
-
-    public function saveCompanyData(Request $request) 
-    {
-        return $this->success(
-            $company = Company::findOrFail($request->get('id')),
-            $company->update($request->all())
-        );
     }
 
     /**
@@ -56,11 +38,11 @@ class CompanyController extends Controller
     public function store(Request $request)
     {
         try {
-            $work_contract = WorkContract::find($request->get('id'));
-                $work_contract->update($request->all());
-                return response()->json(['message' => 'Se ha actualizado con éxito']);
+            return $this->success(
+                CompanyPaymentConfiguration::create($request->all())
+            );
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
+            //throw $th;
         }
     }
 
@@ -72,7 +54,7 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-     
+        //
     }
 
     /**
