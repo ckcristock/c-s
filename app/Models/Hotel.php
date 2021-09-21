@@ -17,7 +17,7 @@ class Hotel extends Model
 	];
 	public function city()
 	{
-		return $this->belongsTo(city::class);
+		return $this->belongsTo(City::class);
 	}
 	public function travelExpenses()
 	{

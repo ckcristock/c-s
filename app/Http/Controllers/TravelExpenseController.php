@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TravelExpense;
 use App\Models\TravelExpenseFeeding;
 use App\Models\TravelExpenseHotel;
-use App\Models\TravelExpenseTaxi;
+use App\Models\TravelExpenseTaxiCity;
 use App\Models\TravelExpenseTransport;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -21,11 +21,13 @@ class TravelExpenseController extends Controller
 	public function index()
 	{
 		//
-		return $this->success(TravelExpense::with('destiny')
-			->with('origin')
-			->with('user')
-			->with('person')
-			->get());
+		return $this->success(
+			TravelExpense::with("destiny")
+				->with("origin")
+				->with("user")
+				->with("person")
+				->get()
+		);
 	}
 
 	/**
@@ -46,36 +48,41 @@ class TravelExpenseController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		$totals = $request->except(['hospedaje', 'taxi', 'feeding', 'transporte', 'travel']);
-		$hotels = request()->get('hospedaje');
-		$taxis = request()->get('taxi');
-		$feedings = request()->get('feeding');
-		$transports = request()->get('transporte');
-		$travelExpense = request()->get('travel');
-		$travelExpense['user_id'] =  auth()->user()->id;
+		$totals = $request->except([
+			"hospedaje",
+			"taxi",
+			"feeding",
+			"transporte",
+			"travel",
+		]);
+		$hotels = request()->get("hospedaje");
+		$taxis = request()->get("taxi");
+		$feedings = request()->get("feeding");
+		$transports = request()->get("transporte");
+		$travelExpense = request()->get("travel");
+		$travelExpense["user_id"] = auth()->user()->id;
 
-		$travelExpense =  array_merge($travelExpense, $totals);
+		$travelExpense = array_merge($travelExpense, $totals);
 		try {
 			$TravelExpenseDB = TravelExpense::create($travelExpense);
 			foreach ($hotels as $hotel) {
-				$hotel['travel_expense_id'] = $TravelExpenseDB->id;
+				$hotel["travel_expense_id"] = $TravelExpenseDB->id;
 				TravelExpenseHotel::create($hotel);
 			}
 			foreach ($taxis as $taxi) {
-
-				$taxi['travel_expense_id'] = $TravelExpenseDB->id;
-				TravelExpenseTaxi::create($taxi);
+				$taxi["travel_expense_id"] = $TravelExpenseDB->id;
+				TravelExpenseTaxiCity::create($taxi);
 			}
 			foreach ($feedings as $feeding) {
-				$feeding['travel_expense_id'] = $TravelExpenseDB->id;
+				$feeding["travel_expense_id"] = $TravelExpenseDB->id;
 				TravelExpenseFeeding::create($feeding);
 			}
 			foreach ($transports as $transport) {
-				$transport['travel_expense_id'] = $TravelExpenseDB->id;
+				$transport["travel_expense_id"] = $TravelExpenseDB->id;
 				TravelExpenseTransport::create($transport);
 			}
 
-			return $this->success('guardado con éxito');
+			return $this->success("guardado con éxito");
 		} catch (\Throwable $th) {
 			return $this->errorResponse($th->getMessage(), 500);
 		}
@@ -90,15 +97,29 @@ class TravelExpenseController extends Controller
 	public function show($id)
 	{
 		//
-		return $this->success(TravelExpense::with('destiny')
-			->with('origin')
-			->with('user')
-			->with('person')
-			->with('hotels')
-			->with('transports')
-			->with('feedings')
-			->where('id', $id)
-			->first());
+		return $this->success(
+			TravelExpense::with("destiny")
+				->with("origin")
+				->with("user")
+				->with("person")
+				->with("hotels")
+				->with("transports")
+				->with("feedings")
+				->with([
+					"expenseTaxiCities" => function ($q) {
+						$q->select("*")
+							->with("taxiCity")
+							->with("taxiCity.city")
+							->with("taxiCity.taxi");
+					},
+					/*	"expenseTaxiCities.taxiCity" =>
+			function ($q) {
+				$q->select("*");
+			},*/
+				])
+				->where("id", $id)
+				->first()
+		);
 	}
 
 	/**

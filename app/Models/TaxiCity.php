@@ -12,4 +12,8 @@ class TaxiCity extends Model
 	{
 		return $this->belongsTo(City::class);
 	}
+	public function taxi()
+	{
+		return $this->belongsTo(Taxi::class);
+	}
 }
