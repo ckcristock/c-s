@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Memorandum extends Model
+class AttentionCall extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'reason',
+        'number_call',
         'person_id',
-        'memorandum_type_id',
-        'details',
-        'file',
-        'level'
+        'user_id'
     ];
-    protected $table = 'memorandum';
 }

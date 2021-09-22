@@ -5,6 +5,7 @@
 use App\Http\Controllers\AccountPlanController;
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
+use App\Http\Controllers\AttencionCallController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\BanksController;
@@ -60,6 +61,7 @@ use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
 use App\Http\Controllers\ZonesController;
+use App\Models\AttentionCall;
 use App\Models\CompanyPaymentConfiguration;
 use App\Models\Countable_income;
 use App\Models\DisabilityLeave;
@@ -231,7 +233,7 @@ Route::group(
 		Route::resource('city', CityController::class);
 		Route::resource('companyPayment', CompanyPaymentConfigurationController::class);
 		Route::resource('loan', LoanController::class);
-
+		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -251,9 +253,9 @@ Route::group(
 		Route::get('paginateBanks', [BanksController::class, 'paginate']);
 		Route::get('paginateBankAccount', [BankAccountsController::class, 'paginate']);
 		/* Paginations */
-
+		
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
-
+		
 		Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
 		Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
 		Route::get('salary/{id}', [PersonController::class, 'salary']);
@@ -275,5 +277,6 @@ Route::group(
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
 		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
+		Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
 	}
 );
