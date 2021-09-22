@@ -275,6 +275,6 @@ Route::group(
 		Route::get('cities', [RouteTaxiController::class, 'cities']);
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
-		Route::get('loanpdf', [LoanController::class, 'loanpdf']);
+		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
 	}
 );

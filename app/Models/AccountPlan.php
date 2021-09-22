@@ -24,8 +24,6 @@ class AccountPlan extends Model
         'value',
         'percent',
         'center_cost',
-        'depreciation',
-        'amortization',
         'exogenous',
         'nature',
         'close_nit',
