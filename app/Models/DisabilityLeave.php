@@ -12,6 +12,8 @@ class DisabilityLeave extends Model
         'concept',
         'accounting_account',
         'sum',
-        'state'
+        'state',
+        'novelty',
+        'modality'
     ];
 }

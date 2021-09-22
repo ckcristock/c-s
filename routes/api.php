@@ -48,7 +48,6 @@ use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
-use App\Http\Controllers\NoveltyTypesController;
 use App\Http\Controllers\PayrollController;
 
 use App\Http\Controllers\RiskTypesController;
@@ -63,6 +62,7 @@ use App\Models\ProductDotationType;
 use App\Http\Controllers\ZonesController;
 use App\Models\CompanyPaymentConfiguration;
 use App\Models\Countable_income;
+use App\Models\DisabilityLeave;
 use App\Models\DocumentTypes;
 use App\Models\WorkContract;
 use App\Models\WorkContractType;
@@ -217,7 +217,6 @@ Route::group(
 		Route::resource('rotating-hour', RotatingTurnHourController::class);
 		Route::resource('documentTypes', DocumentTypesController::class);
 		Route::resource('countries', CountriesController::class);
-		Route::resource('novelty', NoveltyTypesController::class);
 		Route::resource('risk', RiskTypesController::class);
 		Route::resource('egress_types', EgressTypesController::class);
 		Route::resource('ingress_types', IngressTypesController::class);
@@ -244,7 +243,7 @@ Route::group(
 		Route::get('paginateArl', [ArlController::class, 'paginate']);
 		Route::get('paginatePensionFun', [PensionFundController::class, 'paginate']);
 		Route::get('paginateCompensationFund', [CompensationFundController::class, 'paginate']);
-		Route::get('paginateNoveltyTypes', [NoveltyTypesController::class, 'paginate']);
+		Route::get('paginateNoveltyTypes', [DisabilityLeaveController::class, 'paginate']);
 		Route::get('paginateRiskTypes', [RiskTypesController::class, 'paginate']);
 		Route::get('paginateSeveranceFunds', [SeveranceFundController::class, 'paginate']);
 		Route::get('paginateEgressTypes', [EgressTypesController::class, 'paginate']);
