@@ -50,7 +50,7 @@ use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
 use App\Http\Controllers\NoveltyTypesController;
 use App\Http\Controllers\PayrollController;
-
+use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnHourController;
 use App\Http\Controllers\SalaryTypesController;
@@ -178,8 +178,10 @@ Route::group(
 		Route::post('/fixed-turns/change-state/{id}', [FixedTurnController::class, 'changeState']);
 		/** Resources */
 		Route::get('person/train', [PersonController::class, 'train']);
+		Route::get('account-plan-balance', [AccountPlanController::class, 'listBalance']);
 		Route::get('account-plan-list', [AccountPlanController::class, 'list']);
 
+		Route::resource('pretty-cash', PrettyCashController::class);
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
 		Route::resource('positions', PositionController::class);

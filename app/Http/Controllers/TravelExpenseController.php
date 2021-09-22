@@ -25,6 +25,7 @@ class TravelExpenseController extends Controller
 			TravelExpense::with("destiny")
 				->with("origin")
 				->with("user")
+				->with("user.person")
 				->with("person")
 				->get()
 		);
