@@ -12,7 +12,8 @@ class Memorandum extends Model
         'person_id',
         'memorandum_type_id',
         'details',
-        'file'
+        'file',
+        'level'
     ];
     protected $table = 'memorandum';
 }

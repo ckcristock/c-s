@@ -7,6 +7,7 @@ use App\Services\LoanService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class LoanController extends Controller
 {
@@ -109,9 +110,8 @@ class LoanController extends Controller
 		}
 	}
 
-	public function loanpdf()
+	public function loanpdf($id)
 	{
-		
 			$loan = DB::table('loans as l')
 			->select(
 				'l.person_id',
@@ -125,23 +125,26 @@ class LoanController extends Controller
 				'l.monthly_fee',
 				'l.interest_type',
 				'l.number_fees',
-				'l.payment_type'
+				'l.payment_type',
+				'l.date'
 			)
 			->join('people as p', function($join) {
 				$join->on('p.id', '=', 'l.person_id');
 			})
+			->where('l.id', $id)
 			->first();
-			$proyecciones = $this->proyeccionAmortizacion($loan->value, $loan->monthly_fee,$loan->interest, $loan->payment_type);
-			/* $getTotalA = $this->getTotales($proyecciones['Proyecciones'], 'Amortizacion');
-			$getTotalI = $this->getTotales($proyecciones['Proyecciones'], 'Intereses');
-			$getTotalV = $this->getTotales($proyecciones['Proyecciones'], 'Valor_Cuota'); */
-			return view('pdf.loanpdf', ['proyecciones' => $proyecciones , 
+			$proyecciones = $this->proyeccionAmortizacion($loan->value, $loan->monthly_fee,$loan->interest, $loan->payment_type, $loan->date);
+			$getTotalA = $this->getTotales($proyecciones['Proyeccion'], 'Amortizacion');
+			$getTotalI = $this->getTotales($proyecciones['Proyeccion'], 'Intereses');
+			$getTotalV = $this->getTotales($proyecciones['Proyeccion'], 'Valor_Cuota');
+			$pdf = PDF::loadView('pdf.loanpdf', [
+				'proyecciones' => $proyecciones , 
 				'funcionario' => $loan,
-				/* 'getTotalA' => $getTotalA,
+				'getTotalA' => $getTotalA,
 				'getTotalI' => $getTotalI,
-				'getTotalV' => $getTotalV */
+				'getTotalV' => $getTotalV
 			]);
-
+			return $pdf->download('loanpdf.pdf');
 
 	}
 	public function getTotales($data, $tipo) {

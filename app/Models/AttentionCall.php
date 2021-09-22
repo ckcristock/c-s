@@ -5,14 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class NoveltyTypes extends Model
+class AttentionCall extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'novelty_type',
-        'novelty',
-        'modality',
-        'status'
+        'reason',
+        'number_call',
+        'person_id',
+        'user_id'
     ];
-    protected $table = 'novelty_types';
 }

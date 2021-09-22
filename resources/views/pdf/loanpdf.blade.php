@@ -16,29 +16,29 @@
         margin-bottom: 0;
     }
 </style>
-    <table style="" >
+    <table>
     <tbody>
       <tr>
-        <td style="width:70px;">
-          <img src="../../../img/logo.png" style="width:60px;"/>
+        <td style="">
         </td>
-        <td class="td-header" style="width:390px;font-weight:thin;font-size:14px;line-height:20px;">
+        <td class="td-header">
+            <img src="{{public_path('/assets/img/logo.png')}}" style="width:120px;"/>
             MaqMo<br> 
             N.I.T.: 10001<br> 
-            direccion<br> 
-            302323
+            Calle 12 #20-20<br> 
+            TEL: 302323
         </td>
-        <td style="width:170px;text-align:right">
-              11212
+        <td style="width: 350px;">  </td>
+        <td>
+            <h4 style="font-size:18px;line-height:22px;">AMORTIZACIÓN <br> PRESTAMO</h4> 
+            <h5 style="font-size:16px;line-height:16px;"> {{$funcionario->date}} </h5>
         </td>
-        <td style="width:100px;">
-        <img src="" style="max-width:100%;margin-top:-10px;" />
+        <td>
+            <img src="{{public_path('/assets/img/sinqr.png')}}"  style="width: 130px; max-width:100% margin-top:-10px;"/>
         </td>
       </tr>
     </tbody>
-  </table><hr style="border:1px dotted #ccc;width:730px;">';
-     <h4 style="margin:5px 0 0 0;font-size:18px;line-height:22px;">AMORTIZACIÓN PRESTAMO</h4>
-     <h5 style="margin:5px 0 0 0;font-size:16px;line-height:16px;">fecha($data["Fecha"])</h5>
+  </table><hr style="border:1px dotted #ccc;width:730px;">
     <table style="background: #e6e6e6;">
         <tr style=" min-height: 200px; background: #e6e6e6;padding: 15px; border-radius: 10px; margin: 0;">
        
@@ -47,7 +47,7 @@
         </td>
 
         <td style="font-size:11px;width:510px;padding:5px">
-        number_format($loan['identifier'],0,"",".")
+        {{number_format($funcionario->identifier,0,"",".")}}
         </td>
         
     </tr>
@@ -57,7 +57,7 @@
         Nombre Empleado:
         </td>
         <td style="font-size:11px;width:510px;padding:5px">
-        '.$funcionario['Nombres'].' '.$funcionario['Apellidos'].'
+        {{$funcionario->first_name ." ". $funcionario->second_name . " " . $funcionario->first_surname . " " . $funcionario->second_surname}}
         </td>
     </tr>
     <tr style=" min-height: 200px; background: #e6e6e6; padding: 15px; border-radius: 10px; margin: 0;">
@@ -65,7 +65,7 @@
         Valor Prestamo:
         </td>
         <td style="font-size:11px;width:510px;padding:5px">
-        $ '.number_format($data['Valor_Prestamo'],2,",",".").'
+        $ {{number_format($funcionario->value,2,",",".")}}
         </td>
     </tr>
     <tr style=" min-height: 200px; background: #e6e6e6; padding: 15px; border-radius: 10px; margin: 0;">
@@ -73,7 +73,7 @@
         Interes:
         </td>
         <td style="font-size:11px;width:510px;padding:5px">
-        '.number_format($data['Intereses'],2,",",".").'%
+        {{number_format($funcionario->interest,2,",",".")}}%
         </td>
     </tr>
     <tr style=" min-height: 200px; background: #e6e6e6; padding: 15px; border-radius: 10px; margin: 0;">
@@ -81,7 +81,7 @@
         Cuotas:
         </td>
         <td style="font-size:11px;width:510px;padding:5px">
-        '.$data['Nro_Cuotas'].'
+        {{$funcionario->number_fees}}
         </td>
     </tr>
     <tr style=" min-height: 200px; background: #e6e6e6; padding: 15px; border-radius: 10px; margin: 0;">
@@ -89,7 +89,7 @@
         Valor Cuota:
         </td>
         <td style="font-size:11px;width:510px;padding:5px">
-        $ '.number_format($data['Cuota_Mensual'],2,",",".").'
+        $ {{number_format($funcionario->monthly_fee,2,",",".")}}
         </td>
     </tr>
 </table>
@@ -143,13 +143,13 @@
 <tr>
     <td colspan="2" style="padding:4px;text-align:right;border:1px solid #cccccc;font-weight:bold;font-size:12px">TOTALES:</td>
     <td style="padding:4px;text-align:right;border:1px solid #cccccc;">
-        $ {{-- {{number_format($getTotalA),2,".",",")}} --}}
+        $ {{number_format($getTotalA),2,".",","}}
     </td>
     <td style="padding:4px;text-align:right;border:1px solid #cccccc;">
-        $ {{-- {{number_format($getTotalI),2,".",",")}} --}}
+        $ {{number_format($getTotalI),2,".",","}}
     </td>
     <td style="padding:4px;text-align:right;border:1px solid #cccccc;">
-        $ {{-- {{number_format($getTotalV),2,".",",")}} --}}
+        $ {{number_format($getTotalV),2,".",","}}
     </td>
     <td style="padding:4px;text-align:right;border:1px solid #cccccc;"></td>
 </tr>
@@ -160,12 +160,12 @@
         <td style="width:400px;padding-left:10px">
             <table>
                 <tr>
-                    <td style="width:300px;font-weight:bold; border-top:1px solid black; text-align:center;">'.$funcionario['Nombres']." ".$funcionario["Apellidos"].'</td>
+                    <td style="width:300px;font-weight:bold; border-top:1px solid black; text-align:center;">{{$funcionario->first_name." ".$funcionario->first_surname}}</td>
                     <td style="width:30px;"></td>
-                    <td style="width:300px;font-weight:bold; border-top:1px solid black; text-align:center;">'.$config["Representante_Legal"].'</td>
+                    <td style="width:300px;font-weight:bold; border-top:1px solid black; text-align:center;">Juan Manuel Araujo</td>
                 </tr>
                 <tr>
-                    <td style="width:300px;font-weight:bold; text-align:center;">C.C. '.number_format($funcionario['Identificacion_Funcionario'],0,",",".").' </td>    
+                    <td style="width:300px;font-weight:bold; text-align:center;">C.C. {{number_format($funcionario->identifier,0,",",".")}} </td>    
                     <td style="width:30px;"></td>    
                     <td style="width:300px;font-weight:bold; text-align:center;">Representante Legal</td>    
                 </tr>
