@@ -27,7 +27,27 @@ class TravelExpenseController extends Controller
 				->with("user")
 				->with("user.person")
 				->with("person")
-				->get()
+				->when( request()->get('person_id'), function($q, $fill)
+				{
+					$q->where('person_id','like','%'.$fill.'%');
+				})
+				->when( request()->get('creation_date'), function($q, $fill)
+				{
+					$q->where('created_at', 'like','%'.$fill.'%');
+				})
+				->when( request()->get('departure_date') , function($q, $fill)
+            	{
+                $q->where('departure_date','like','%'.$fill.'%');
+            	})
+				->when( request()->get('state'), function($q, $fill)
+				{
+					if (request()->get('state') == 'Todos') {
+						return null;
+					} else {
+						$q->where('state','like','%'.$fill.'%');
+					}
+				})
+				->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
 		);
 	}
 
@@ -65,6 +85,7 @@ class TravelExpenseController extends Controller
 
 		$travelExpense = array_merge($travelExpense, $totals);
 		try {
+			/* $TravelExpenseDB = TravelExpense::updateOrCreate(['id' => $request()->get('id')], $travelExpense); */
 			$TravelExpenseDB = TravelExpense::create($travelExpense);
 			foreach ($hotels as $hotel) {
 				$hotel["travel_expense_id"] = $TravelExpenseDB->id;
@@ -86,6 +107,20 @@ class TravelExpenseController extends Controller
 			return $this->success("guardado con éxito");
 		} catch (\Throwable $th) {
 			return $this->errorResponse($th->getMessage(), 500);
+		}
+	}
+
+	public function approve(Request $request, $id)
+	{
+		try {
+			$approve = TravelExpense::find($id);
+			$approve->update([
+				'state' => $request->state,
+				'approve_user_id' => auth()->user()->id
+			]);
+			return $this->success("Aprobado con éxito");
+		} catch (\Throwable $th) {
+			return $this->errorResponse($th->getMessage(), 500);	
 		}
 	}
 
@@ -143,7 +178,8 @@ class TravelExpenseController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		//
+	/* 	$travelUpdate = TravelExpense::find($id);
+		$travelUpdate->update($request->all()); */
 	}
 
 	/**

@@ -30,6 +30,7 @@ class MemorandumController extends Controller
         $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 5;
         $memorandum = DB::table('people as p')
         ->select(
+            'm.id',
             'p.image',
             'p.first_name',
             'p.second_name',
@@ -40,16 +41,34 @@ class MemorandumController extends Controller
             DB::raw('m.level'),
             DB::raw(' "Memorando" as type'),
             DB::raw(' "" as number_call'),
-            'm.created_at'
+            'm.created_at',
+            'm.state'
         )
-        ->join('memorandum as m', function($join) {
+        ->join('memorandums as m', function($join) {
             $join->on('m.person_id', '=', 'p.id');
         })
         ->join('memorandum_types as t', function($join) {
             $join->on('t.id', '=', 'm.memorandum_type_id');
+        })
+        ->when( Request()->get('person') , function($q, $fill)
+        {
+            $q->where(DB::raw('concat(p.first_name, " ",p.first_surname)'), 'like', '%' . $fill . '%');
+        })
+        ->when( Request()->get('date') , function($q, $fill)
+        {
+            $q->where('m.created_at','like','%'.$fill.'%');
+        })
+        ->when( Request()->get('state') , function($q, $fill)
+        {
+            if (Request()->get('state') == 'Todos') {
+                return null;
+            } else {
+                $q->where('m.state','like','%'.$fill.'%');
+            }
         });
         $attentionCall = DB::table('people as p')
         ->select(
+            DB::raw('"" as id'),
             'p.image',
             'p.first_name',
             'p.second_name',
@@ -60,7 +79,8 @@ class MemorandumController extends Controller
             DB::raw(' "" as level'),
             DB::raw('"Llamado de atención" as type'),
             'a.number_call',
-            'a.created_at'
+            'a.created_at',
+            DB::raw('"" as state'),
         )
         ->join('attention_calls as a', function($join) {
             $join->on('a.person_id', '=', 'p.id');
@@ -92,7 +112,10 @@ class MemorandumController extends Controller
     public function store(Request $request)
     {
         try {
-            Memorandum::create( $request->all() );
+            Memorandum::updateOrCreate([
+                'id' => $request->get('id'),
+                'approve_user_id' => auth()->user()->id
+            ], $request->all() );
             return $this->success('Creado Con Éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

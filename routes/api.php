@@ -66,6 +66,7 @@ use App\Models\CompanyPaymentConfiguration;
 use App\Models\Countable_income;
 use App\Models\DisabilityLeave;
 use App\Models\DocumentTypes;
+use App\Models\TravelExpense;
 use App\Models\WorkContract;
 use App\Models\WorkContractType;
 use Illuminate\Http\Request;
@@ -280,5 +281,6 @@ Route::group(
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
 		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
 		Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
+		Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
 	}
 );
