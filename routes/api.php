@@ -25,6 +25,8 @@ use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
 use App\Http\Controllers\EgressTypesController;
 use App\Http\Controllers\EpsController;
+use App\Http\Controllers\FixedAssetController;
+use App\Http\Controllers\FixedAssetTypeController;
 use App\Http\Controllers\FixedTurnController;
 use App\Http\Controllers\FixedTurnHourController;
 use App\Http\Controllers\GroupController;
@@ -236,6 +238,8 @@ Route::group(
 		Route::resource('city', CityController::class);
 		Route::resource('companyPayment', CompanyPaymentConfigurationController::class);
 		Route::resource('loan', LoanController::class);
+		Route::resource('fixed_asset', FixedAssetController::class);
+		Route::resource('fixed_asset_type', FixedAssetTypeController::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
