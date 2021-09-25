@@ -37,6 +37,7 @@ use App\Http\Controllers\InventaryDotationGroupController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LateArrivalController;
 use App\Http\Controllers\LoanController;
+use App\Http\Controllers\LunchControlller;
 use App\Http\Controllers\MemorandumController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MunicipalityController;
@@ -240,6 +241,7 @@ Route::group(
 		Route::resource('loan', LoanController::class);
 		Route::resource('fixed_asset', FixedAssetController::class);
 		Route::resource('fixed_asset_type', FixedAssetTypeController::class);
+		Route::resource('lunch', LunchControlller::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
