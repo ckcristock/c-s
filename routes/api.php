@@ -54,6 +54,7 @@ use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PrettyCashController;
+use App\Http\Controllers\ProfessionController;
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnHourController;
 use App\Http\Controllers\SalaryTypesController;
@@ -242,6 +243,7 @@ Route::group(
 		Route::resource('fixed_asset', FixedAssetController::class);
 		Route::resource('fixed_asset_type', FixedAssetTypeController::class);
 		Route::resource('lunch', LunchControlller::class);
+		Route::resource('professions', ProfessionController::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -261,6 +263,7 @@ Route::group(
 		Route::get('paginateIngressTypes', [IngressTypesController::class, 'paginate']);
 		Route::get('paginateBanks', [BanksController::class, 'paginate']);
 		Route::get('paginateBankAccount', [BankAccountsController::class, 'paginate']);
+		Route::get('paginateProfessions', [ProfessionController::class, 'paginate']);
 		/* Paginations */
 		
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
