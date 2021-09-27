@@ -69,7 +69,12 @@ class LunchControlller extends Controller
      */
     public function show($id)
     {
-        //
+        return $this->success(
+            Lunch::with('person')
+            ->with('lunchPerson')
+            ->where('id', '=', $id)
+            ->get()
+        );
     }
 
     /**

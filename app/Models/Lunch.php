@@ -15,7 +15,7 @@ class Lunch extends Model
 
     public function lunchPerson()
     {
-        return $this->hasMany(LunchPerson::class);
+        return $this->belongsTo(LunchPerson::class);
     }
 
     public function person(){
