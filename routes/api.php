@@ -11,7 +11,9 @@ use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\CenterCostController;
+use App\Http\Controllers\CiiuCodeController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyPaymentConfigurationController;
 use App\Http\Controllers\CompensationFundController;
@@ -19,6 +21,7 @@ use App\Http\Controllers\Countable_incomeController;
 use App\Http\Controllers\CountriesController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
+use App\Http\Controllers\DianAddressController;
 use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\Disciplinary_processController;
 use App\Http\Controllers\DocumentTypesController;
@@ -60,7 +63,9 @@ use App\Http\Controllers\RotatingTurnHourController;
 use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\TaxiCityController;
 use App\Http\Controllers\TaxiControlller;
+use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\TravelExpenseController;
+use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
@@ -244,6 +249,10 @@ Route::group(
 		Route::resource('fixed_asset_type', FixedAssetTypeController::class);
 		Route::resource('lunch', LunchControlller::class);
 		Route::resource('professions', ProfessionController::class);
+		Route::resource('third-party', ThirdPartyController::class);
+		Route::resource('winnings-list', WinningListController::class);
+		Route::resource('ciiu-code', CiiuCodeController::class);
+		Route::resource('dian-address', DianAddressController::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -285,11 +294,14 @@ Route::group(
 		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
 		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
 		Route::get('process/{id}', [Disciplinary_processController::class, 'process']);
-		Route::get('cities', [RouteTaxiController::class, 'cities']);
+		/* Route::get('cities', [RouteTaxiController::class, 'cities']); */
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
 		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
 		Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
 		Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
+		Route::get('all-zones', [ZonesController::class, 'allZones']);
+		Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
+		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
 	}
 );
