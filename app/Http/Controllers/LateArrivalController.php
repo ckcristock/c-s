@@ -19,20 +19,27 @@ class LateArrivalController extends Controller
     public function getData($fechaInicio, $fechaFin)
     {
         $dates = [$fechaInicio, $fechaFin];
-
+ 
         $companies = Company::when(Request()->get('company_id'), function ($q, $fill) {
             $q->where('id', $fill);
         })->get();
 
         foreach ($companies as $keyG => &$company) {
 
-            $groups = DB::table('groups')->get(['id', 'name']);
+            $groups = DB::table("groups")
+                ->when(Request()->get('group_id'), function ($q, $fill) {
+                    $q->where('id', $fill);
+                })->get(["id", "name"]);
             $groupsGlob = [];
             foreach ($groups as $key => &$group) {
 
-                $group->dependencies = DB::table('dependencies')->where('group_id', $group->id)->get();
+                $group->dependencies = DB::table('dependencies')
+                    ->when(Request()->get('dependency_id'), function ($q, $fill) {
+                        $q->where('id', $fill);
+                    })
+                    ->where('group_id', $group->id)->get();
 
-                   if ($group->dependencies->isEmpty()) {
+                if ($group->dependencies->isEmpty()) {
                     unset($groups[$key]);
                     continue;
                 }
@@ -84,8 +91,4 @@ class LateArrivalController extends Controller
         $res['lates'] =  LateArrivalService::getAllLinear($dates);
         return $this->success($res);
     }
-
-    
-
-    
 }

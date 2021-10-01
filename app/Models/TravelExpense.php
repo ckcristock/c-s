@@ -26,24 +26,18 @@ class TravelExpense extends Model
 	{
 		return $this->belongsTo(Person::class);
 	}
-
-
 	public function transports()
 	{
 		return $this->hasMany(TravelExpenseTransport::class);
 	}
-
 	public function feedings()
 	{
 		return $this->hasMany(TravelExpenseFeeding::class);
 	}
-
-
 	public function hotels()
 	{
 		return $this->belongsToMany(Hotel::class, 'travel_expense_hotels')->withPivot('who_cancels', 'n_night', 'breakfast', 'total', 'breakfast', 'rate', 'accommodation');
 	}
-
 	public function expenseTaxiCities()
 	{
 		return $this->hasMany(TravelExpenseTaxiCity::class);

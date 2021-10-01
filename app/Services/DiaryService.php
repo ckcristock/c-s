@@ -30,6 +30,8 @@ class DiaryService
 					->whereColumn("la.person_id", "p.id")
 					->whereBetween(DB::raw("DATE(la.date)"), $dates);
 			})
+            ->where('p.status', '!=', 'liquidado')
+
 			->select("p.first_name", "p.first_surname", "p.id", "p.image")
 			->get();
 	}
@@ -49,9 +51,14 @@ class DiaryService
 	public static function getDiariesRotative($personId, $dates)
 	{
 		return DB::table("rotating_turn_diaries as la")
-			->select("*")
+			->select("la.*")
+			->join('rotating_turns as r', 'r.id', '=', 'la.rotating_turn_id')
+			->selectRaw('r.entry_time as entry_time_real , r.leave_time as leave_time_real,
+			            r.launch_time as launch_time_real,  r.launch_time_two as launch_time_two_real,
+			            r.breack_time as breack_time_real , r.breack_time_two as breack_time_two_real')
 			->selectRaw('TIMESTAMPDIFF(SECOND,CONCAT(date," ",entry_time_one),CONCAT(leave_date," ",leave_time_one))/3600 as working_hours')
 			->where("la.person_id", $personId)
+			
 			->whereBetween(DB::raw("DATE(la.date)"), $dates)
 			->get();
 	}

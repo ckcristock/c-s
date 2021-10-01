@@ -110,4 +110,9 @@ class RotatingTurnHourController extends Controller
             return $this->error($th->getMessage(),401);
         }
     }
+
+
+    public function update($id){
+        dd($id);
+    }
 }

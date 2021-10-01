@@ -100,12 +100,6 @@ class TravelExpenseController extends Controller
 		//
 		return $this->success(
 			TravelExpense::with("destiny")
-				->with("origin")
-				->with("user")
-				->with("person")
-				->with("hotels")
-				->with("transports")
-				->with("feedings")
 				->with([
 					"expenseTaxiCities" => function ($q) {
 						$q->select("*")
@@ -113,11 +107,18 @@ class TravelExpenseController extends Controller
 							->with("taxiCity.city")
 							->with("taxiCity.taxi");
 					},
-					/*	"expenseTaxiCities.taxiCity" =>
-			function ($q) {
-				$q->select("*");
-			},*/
+					"person" => function ($q) {
+						$q->select("id", "first_name", "first_surname", 'passport_number', 'visa');
+					},
 				])
+				->with("origin")
+				/* ->with("user") */
+
+				->with("person.contractultimate")
+				->with("hotels")
+				->with("transports")
+				->with("feedings")
+
 				->where("id", $id)
 				->first()
 		);
@@ -143,7 +144,48 @@ class TravelExpenseController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		//
+
+		$totals = $request->except([
+			"hospedaje",
+			"taxi",
+			"feeding",
+			"transporte",
+			"travel",
+		]);
+		$hotels = request()->get("hospedaje");
+		$taxis = request()->get("taxi");
+		$feedings = request()->get("feeding");
+		$transports = request()->get("transporte");
+		$travelExpense = request()->get("travel");
+
+		$travelExpense = array_merge($travelExpense, $totals);
+		try {
+			TravelExpense::find($id)->update($travelExpense);
+			TravelExpenseHotel::where("travel_expense_id", $id)->delete();
+			TravelExpenseTaxiCity::where("travel_expense_id", $id)->delete();
+			TravelExpenseFeeding::where("travel_expense_id", $id)->delete();
+			TravelExpenseTransport::where("travel_expense_id", $id)->delete();
+			foreach ($hotels as $hotel) {
+				$hotel["travel_expense_id"] = $id;
+				TravelExpenseHotel::create($hotel);
+			}
+			foreach ($taxis as $taxi) {
+				$taxi["travel_expense_id"] = $id;
+				TravelExpenseTaxiCity::create($taxi);
+			}
+			foreach ($feedings as $feeding) {
+				$feeding["travel_expense_id"] = $id;
+				TravelExpenseFeeding::create($feeding);
+			}
+			foreach ($transports as $transport) {
+				$transport["travel_expense_id"] = $id;
+				TravelExpenseTransport::create($transport);
+			}
+
+			return $this->success("guardado con éxito");
+		} catch (\Throwable $th) {
+			return $this->errorResponse($th->getMessage() . ' ' . $th->getLine(), 500);
+		}
 	}
 
 	/**

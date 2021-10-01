@@ -106,6 +106,7 @@ class Person extends Model
         return $this->belongsTo(FixedTurn::class);
     }
 
+
     public function horariosTurnoRotativo()
     {
         return $this->hasMany(RotatingTurnHour::class);

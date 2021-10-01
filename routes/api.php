@@ -25,7 +25,9 @@ use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
 use App\Http\Controllers\EgressTypesController;
 use App\Http\Controllers\EpsController;
+use App\Http\Controllers\ExtraHoursController;
 use App\Http\Controllers\FixedTurnController;
+use App\Http\Controllers\FixedTurnDiaryController;
 use App\Http\Controllers\FixedTurnHourController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HotelController;
@@ -52,6 +54,7 @@ use App\Http\Controllers\MemorandumTypesController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\RiskTypesController;
+use App\Http\Controllers\RotatingTurnDiaryController;
 use App\Http\Controllers\RotatingTurnHourController;
 use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\TaxiCityController;
@@ -183,6 +186,22 @@ Route::group(
 		Route::get('account-plan-balance', [AccountPlanController::class, 'listBalance']);
 		Route::get('account-plan-list', [AccountPlanController::class, 'list']);
 
+		Route::post('travel-expense/update/{id}', [TravelExpenseController::class, 'update']);
+		/** ---------  horas extras */
+		Route::get('/horas_extras/turno_rotativo/{fechaInicio}/{fechaFin}/{tipo}', [ExtraHoursController::class, 'getDataRotative'])->where([
+			'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+		]);
+		Route::post('funcionario/getInfoTotal', [ExtraHoursController::class, 'getInfoTotal']);
+		Route::post('horas_extras/crear', [ExtraHoursController::class, 'store']);
+		Route::put('horas_extras/{id}/update', [ExtraHoursController::class, 'update']);
+		Route::get('horas_extras/datos/validados/{person_id}/{fecha}', [ExtraHoursController::class, 'getDataValid'])->where([
+			'fecha' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+		]);
+		
+			# Fijo	---
+
+		/**----- end horas extras */
 		Route::resource('pretty-cash', PrettyCashController::class);
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
@@ -219,6 +238,8 @@ Route::group(
 		Route::resource('disciplinary_process', Disciplinary_processController::class);
 		Route::resource('salaryTypes', SalaryTypesController::class);
 		Route::resource('rotating-hour', RotatingTurnHourController::class);
+		Route::resource('rotating-hour-diary', RotatingTurnDiaryController::class);
+		Route::resource('fixed-hour-diary', FixedTurnDiaryController::class);
 		Route::resource('documentTypes', DocumentTypesController::class);
 		Route::resource('countries', CountriesController::class);
 		Route::resource('risk', RiskTypesController::class);
@@ -235,7 +256,7 @@ Route::group(
 		Route::resource('city', CityController::class);
 		Route::resource('companyPayment', CompanyPaymentConfigurationController::class);
 		Route::resource('loan', LoanController::class);
-		
+
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -255,9 +276,9 @@ Route::group(
 		Route::get('paginateBanks', [BanksController::class, 'paginate']);
 		Route::get('paginateBankAccount', [BankAccountsController::class, 'paginate']);
 		/* Paginations */
-		
+
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
-		
+
 		Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
 		Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
 		Route::get('salary/{id}', [PersonController::class, 'salary']);

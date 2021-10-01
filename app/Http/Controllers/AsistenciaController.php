@@ -15,6 +15,7 @@ use App\Models\Correo;
 use App\Models\Empresa;
 use App\Models\Marcation;
 use App\Models\Person;
+use App\Services\MarcationService;
 use App\Services\PersonService;
 use Carbon\Carbon;
 use Facade\FlareClient\Http\Response;
@@ -52,13 +53,13 @@ class AsistenciaController extends Controller
             $file_path = 'temporales/' . Str::random(30) . time() . '.png';
             Storage::disk('public')->put($file_path, $image, 'public');
 
-            $tem = URL::to('/') .'/api/image?path='.$file_path;
-	  
-            
+            $tem = URL::to('/') . '/api/image?path=' . $file_path;
+
+
             //return $fully;
             //$fully = 'https://backend.sigmaqmo.com/storage/app/public/people/Arb9cDfbiLFpCUCDeVA6uvujh82ynL1631109731.png';
-            
-            $fully = str_replace('storage'  , 'storage/app/public', $tem);
+
+            $fully = str_replace('storage', 'storage/app/public', $tem);
 
             //return response($fully);
             $empresa = Company::where('id', 1)->get();
@@ -85,7 +86,7 @@ class AsistenciaController extends Controller
             $res = $response->json();
             $face_id = '';
             try {
-                if ( !key_exists('error',$res) && key_exists('faceId', $res[0]) && count($res) > 0) {
+                if (!key_exists('error', $res) && key_exists('faceId', $res[0]) && count($res) > 0) {
                     $face_id = $res[0]['faceId'];
                     /* dd($face_id); */
                 } else {
@@ -154,8 +155,8 @@ class AsistenciaController extends Controller
                                 $hoy = date('Y-m-d');
                                 $ayer = date("Y-m-d", strtotime(date("Y-m-d") . ' - 1 day'));
                                 $funcionario = PersonService::funcionario_turno($candidato, $dias[date("w", strtotime($hoy))], $hoy, $ayer);
-                                
-                             
+
+
 
                                 if ($funcionario) {
                                     $tipo_turno = $funcionario->contractultimate->turn_type;
@@ -232,7 +233,7 @@ class AsistenciaController extends Controller
             }
         } catch (\Throwable $th) {
             //throw $th;
-            return response($th->getMessage().$th->getLine().$th->getFile());
+            return response($th->getMessage() . $th->getLine() . $th->getFile());
         }
     }
 
@@ -341,7 +342,7 @@ class AsistenciaController extends Controller
                         $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                         $obj->ubicacion = 'entrada';
                         $obj->destino = $func->email;
-                       /*  $obj->cargo = $func->cargo->nombre; */
+                        /*  $obj->cargo = $func->cargo->nombre; */
                         /** Datos Empresa */
                         $obj->empresa = $empresa->razon_social;
                         $obj->nit = $empresa->numero_documento;
@@ -367,7 +368,7 @@ class AsistenciaController extends Controller
                         'real_entry' => $hactual,
                         'entry' => $h_inicio
                     );
-                    
+
                     Llegadas::guardarLlegadaTarde($datos_llegada);
                     /** FIN GUARDAR LLEGADA */
 
@@ -426,7 +427,7 @@ class AsistenciaController extends Controller
                     $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                     $obj->ubicacion = 'entrada';
                     $obj->destino = $func->email;
-                   /*  $obj->cargo = $func->cargo->nombre; */
+                    /*  $obj->cargo = $func->cargo->nombre; */
                     /** Datos Empresa */
                     $obj->empresa = $empresa->razon_social;
                     $obj->nit = $empresa->numero_documento;
@@ -543,7 +544,7 @@ class AsistenciaController extends Controller
                     $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                     $obj->ubicacion = 'entrada';
                     $obj->destino = $func->email;
-                   /*  $obj->cargo = $func->cargo->nombre; */
+                    /*  $obj->cargo = $func->cargo->nombre; */
                     /** Datos Empresa */
                     $obj->empresa = $empresa->razon_social;
                     $obj->nit = $empresa->numero_documento;
@@ -630,22 +631,15 @@ class AsistenciaController extends Controller
         }
         if (count($func->diariosTurnoRotativoHoy) > 0) {
             $rotativo_hoy = $func->diariosTurnoRotativoHoy[0];
-            
-            $startTime = Carbon::parse($hoy . " " . $hactual);
-            $finishTime = Carbon::parse($rotativo_hoy->date . " " . $rotativo_hoy->entry_time);
-            $totalDuration = $finishTime->diffInSeconds($startTime);
-            
+           
+            $totalDuration = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->entry_time);
+            $totalDuration = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->entry_time);
+
             if ($totalDuration > 600) {
                 //return $rotativo_hoy;
-                if($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_one == null ){
+                if ($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_one == null) {
                     //guardar entrada launch
-                    Marcation::create([
-                        'type' => 'success',
-                        'img' => $fully,
-                        'description' => $func->id,
-                        'dateles' => 'El funcionario Ingresa al lunch',
-                        'fecha' => date("Y-m-d H:i:s")
-                    ]);
+                    MarcationService::marcation('success',$fully,$func->id,'El funcionario Ingresa al lunch');
 
                     $respuesta = array(
                         'title' => 'Disfrute su lunch',
@@ -656,26 +650,27 @@ class AsistenciaController extends Controller
                         'launch_one_date' => $hoy,
                         'launch_time_one' => $hactual,
                         'img_launch_one' => $fully,
-                        
+
                     );
                     Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
                     return $respuesta;
-                   
                 }
-                
-                if($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_two == null ){
-                     Marcation::create([
-                        'type' => 'success',
-                        'img' => $fully,
-                        'description' => $func->id,
-                        'dateles' => 'El funcionario ingresa del lunch',
-                        'fecha' => date("Y-m-d H:i:s")
-                    ]);
+  //guardar LLEGADA launch
+                if ($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_two == null) {
+
+                    $durationLaunch = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->turnoRotativo->launch_time);
+                    
+                    if( $durationLaunch > 300 ){
+                        MarcationService::makeLateArrival($func->id, $hoy, $durationLaunch, $hactual, $rotativo_hoy->turnoRotativo->launch_time);
+                    }
+
+
+                    MarcationService::marcation('success', $fully, $func->id, 'El funcionario ingresa del lunch');
                     $datos = array(
                         'launch_two_date' => $hoy,
                         'launch_time_two' => $hactual,
                         'img_launch_two' => $fully,
-                        
+
                     );
                     Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
                     $respuesta = array(
@@ -685,22 +680,18 @@ class AsistenciaController extends Controller
                     );
                     return $respuesta;
                 }
-                
-                if($rotativo_hoy->turnoRotativo->breack == 1 && $rotativo_hoy->breack_time_one == null ){
+
+                if ($rotativo_hoy->turnoRotativo->breack == 1 && $rotativo_hoy->breack_time_one == null) {
                     //guardar entrada launch
-                    Marcation::create([
-                        'type' => 'error',
-                        'img' => $fully,
-                        'description' => $func->id,
-                        'dateles' => 'El funcionario Ingresa al break',
-                        'fecha' => date("Y-m-d H:i:s")
-                    ]);
-                    
+                    if( $totalDuration ){
+
+                    }
+                    MarcationService::marcation('success', $fully, $func->id, 'El funcionario Ingresa al break');
                     $datos = array(
                         'breack_one_date' => $hoy,
                         'breack_time_one' => $hactual,
                         'img_breack_one' => $fully,
-                        
+
                     );
                     Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
 
@@ -710,22 +701,22 @@ class AsistenciaController extends Controller
                         'icon' => 'success'
                     );
                     return $respuesta;
-                   
                 }
-                
-                if($rotativo_hoy->turnoRotativo->breack == 1 && $rotativo_hoy->breack_time_two == null ){
-                     Marcation::create([
-                        'type' => 'success',
-                        'img' => $fully,
-                        'description' => $func->id,
-                        'dateles' => 'El funcionario ingresa del break',
-                        'fecha' => date("Y-m-d H:i:s")
-                    ]);
+
+                if ($rotativo_hoy->turnoRotativo->breack == 1 && $rotativo_hoy->breack_time_one != null && $rotativo_hoy->breack_time_two == null) {
+                    MarcationService::marcation('success', $fully, $func->id, 'El funcionario ingresa del break');
+
+                    $durationLaunch = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->turnoRotativo->breack_time_two);
+                    
+                    if( $durationLaunch > 300 ){
+                        MarcationService::makeLateArrival($func->id, $hoy, $durationLaunch, $hactual, $rotativo_hoy->turnoRotativo->breack_time_two);
+                    }
+
                     $datos = array(
                         'breack_two_date' => $hoy,
                         'breack_time_two' => $hactual,
                         'img_breack_two' => $fully,
-                        );
+                    );
                     Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
                     $respuesta = array(
                         'title' => 'Bienvenido nuevamente',
@@ -734,8 +725,8 @@ class AsistenciaController extends Controller
                     );
                     return $respuesta;
                 }
-                
-               
+
+
                 if ($rotativo_hoy->leave_time_one == null) {
 
                     if ($func->email != '') {
@@ -746,7 +737,7 @@ class AsistenciaController extends Controller
                         $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
                         $obj->ubicacion = 'entrada';
                         $obj->destino = $func->email;
-                       /*  $obj->cargo = $func->cargo->nombre; */
+                        /*  $obj->cargo = $func->cargo->nombre; */
                         /** Datos Empresa */
                         $obj->empresa = $empresa->razon_social;
                         $obj->nit = $empresa->numero_documento;
@@ -802,31 +793,21 @@ class AsistenciaController extends Controller
                 return $respuesta;
             }
         } else {
-            
+
             if (count($func->horariosTurnoRotativo) > 0) {
 
                 if ($func->horariosTurnoRotativo[0]->rotating_turn_id == 0) {
-                    Marcation::create([
-                        'type' => 'error',
-                        'img' => $fully,
-                        'description' => $func->id,
-                        'dateles' => 'El funcionario tenía día de descanso',
-                        'fecha' => date("Y-m-d H:i:s")
-                    ]);
 
-                    $respuesta = array(
-                        'title' => 'Día de Descanso',
-                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>De acuerdo a la programación, hoy es su día libre</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
-                        'icon' => 'warning'
-                    );
-                    
+                    MarcationService::marcation('error', $fully, $func->id, 'El funcionario tenía día de descanso');
+                    $respuesta = MarcationService::response($func, 'Día Descanso', 'warning', 'De acuerdo a la programación, hoy es su día libre');
                 } else {
                     $turno_asignado = $func->horariosTurnoRotativo[0]->turnoRotativo;
-                   
+
                     $startTime = Carbon::parse($hoy . " " . $hactual);
                     $finishTime = Carbon::parse($hoy . " " . $turno_asignado->entry_time);
                     $totalDuration = $finishTime->diffInSeconds($startTime, false);
 
+                    MarcationService::marcation('error', $fully, $func->id, 'El funcionario tenía día de descanso');
                     $datos = array(
                         'person_id' => $func->id,
                         'date' => $hoy,
@@ -837,38 +818,15 @@ class AsistenciaController extends Controller
                     );
 
                     if ($totalDuration > ($turno_asignado->leave_tolerance * 60)) {
+
                         Diarios::guardarDiarioTurnoRotativo($datos);
+                        MarcationService::makeLateArrival($func->id, $hoy, $totalDuration, $hactual, $turno_asignado->entry_time);
 
-                        
-                        $datos_llegada = array(
-                            'person_id' => $func->id,
-                            'date' => $hoy,
-                            'time' => $totalDuration,
-                            'real_entry' => $hactual,
-                            'entry' => $turno_asignado->entry_time
-                        );
-                      
-                        Llegadas::guardarLlegadaTarde($datos_llegada);
                         /** FIN GUARDAR LLEGADA */
-
                         $lleg = 'Hoy ha Llegado tarde';
 
                         if ($func->email != '') {
-                            $obj = new \stdClass();
-                            $obj->nombre = $func->first_name . " " . $func->first_surname;
-                            $obj->imagen = $fully;
-                            $obj->tipo = 'Ingreso';
-                            $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
-                            $obj->ubicacion = 'entrada';
-                            $obj->destino = $func->email;
-                           /*  $obj->cargo = $func->cargo->nombre; */
-                            /** Datos Empresa */
-                            $obj->empresa = $empresa->razon_social;
-                            $obj->nit = $empresa->numero_documento;
-                            $obj->temperatura = $temperatura;
-                            $obj->tarde = $lleg;
-                            /** Fin Datos Empresa */
-                            // Mail::to($func->email)->send(new Correo($obj));
+                            MarcationService::sendEmail($func, $fully, 'Ingreso', $hoy, $hactual, $empresa, $temperatura, $lleg);
                         }
 
                         $respuesta = array(
@@ -878,13 +836,7 @@ class AsistenciaController extends Controller
                         );
                         return $respuesta;
                     } elseif ($totalDuration < (-3600)) {
-                        Marcation::create([
-                            'type' => 'error',
-                            'img' => $fully,
-                            'description' => $func->id,
-                            'dateles' => 'El funcionario estaba marcando turno muy temprano',
-                            'fecha' => date("Y-m-d H:i:s")
-                        ]);
+                        MarcationService::marcation('error', $fully, $func->id, 'El funcionario estaba marcando turno muy temprano');
 
                         $respuesta = array(
                             'title' => 'Muy Temprano',
@@ -894,21 +846,7 @@ class AsistenciaController extends Controller
                         return $respuesta;
                     } else {
                         if ($func->email != '') {
-                            $obj = new \stdClass();
-                            $obj->nombre = $func->first_name . " " . $func->first_surname;
-                            $obj->imagen = $fully;
-                            $obj->tipo = 'Ingreso';
-                            $obj->hora = date("d/m/Y H:i:s", strtotime($hoy . " " . $hactual));
-                            $obj->ubicacion = 'entrada';
-                            $obj->destino = $func->email;
-                           /*  $obj->cargo = $func->cargo->nombre; */
-                            /** Datos Empresa */
-                            $obj->empresa = $empresa->razon_social;
-                            $obj->nit = $empresa->numero_documento;
-                            $obj->temperatura = $temperatura;
-                            $obj->tarde = '';
-                            /** Fin Datos Empresa */
-                            // Mail::to($func->email)->send(new Correo($obj));
+                            MarcationService::sendEmail($func, $fully, 'Ingreso', $hoy, $hactual, $empresa, $temperatura);
                         }
 
                         Diarios::guardarDiarioTurnoRotativo($datos);
@@ -922,14 +860,7 @@ class AsistenciaController extends Controller
                     }
                 }
             } else {
-                Marcation::create([
-                    'type' => 'error',
-                    'img' => $fully,
-                    'description' => $func->id,
-                    'dateles' => 'El funcionario no tenía turno asignado',
-                    'fecha' => date("Y-m-d H:i:s")
-                ]);
-
+                MarcationService::marcation('error', $fully, $func->id, 'El funcionario no tenía turno asignado');
                 $respuesta = array(
                     'title' => 'Sin Turno Asignado',
                     'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>No tiene un turno asignado para este día, por favor comuníquese con su superior.</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
