@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FixedTurn;
+use App\Models\FixedTurnHour;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
@@ -88,9 +89,20 @@ class FixedTurnController extends Controller
 	 * @param  int  $id
 	 * @return \Illuminate\Http\Response
 	 */
-	public function update(Request $request, $id)
+	public function update(Request $req, $id)
 	{
-		//
+		$fixedTurnData = $req->except("days");
+		$fixed = FixedTurn::find($id);
+		$fixed->update($fixedTurnData);
+		$hours = $req->get("days");
+
+		FixedTurnHour::where('fixed_turn_id',$id)->delete();
+		$fixed->horariosTurnoFijo()->createMany($hours);
+		return $this->success("Actualizado con éxito");
+		try {
+		} catch (\Throwable $err) {
+			return $this->error($err->getMessage(), 500);
+		}
 	}
 
 	/**
