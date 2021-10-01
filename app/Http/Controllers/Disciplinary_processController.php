@@ -89,7 +89,7 @@ class Disciplinary_processController extends Controller
     public function show($id)
     {
         return $this->success(
-            DB::table('memorandum as m')
+            DB::table('memorandums as m')
             ->select(   
                 'm.created_at as created_at_memorandum',
                 't.name as memorandumType',

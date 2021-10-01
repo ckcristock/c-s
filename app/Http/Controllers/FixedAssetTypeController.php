@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CenterCost;
+use App\Models\FixedAssetType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class CenterCostController extends Controller
+class FixedAssetTypeController extends Controller
 {
     use ApiResponser;
     /**
@@ -15,9 +15,9 @@ class CenterCostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {   
+    {
         return $this->success(
-            CenterCost::all(['name as text', 'id as values'])
+            FixedAssetType::all(['name as text', 'id as value'])
         );
     }
 
@@ -39,7 +39,11 @@ class CenterCostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            //code...
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
     }
 
     /**

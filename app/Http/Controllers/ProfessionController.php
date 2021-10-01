@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CenterCost;
+use App\Models\Profession;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class CenterCostController extends Controller
+class ProfessionController extends Controller
 {
     use ApiResponser;
     /**
@@ -15,9 +15,17 @@ class CenterCostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {   
+    {
         return $this->success(
-            CenterCost::all(['name as text', 'id as values'])
+            Profession::all(['name as text', 'id as value'])
+        );
+    }
+
+    public function paginate()
+    {
+        return $this->success(
+            Profession::orderBy('name')
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -39,7 +47,13 @@ class CenterCostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            return $this->success(
+                Profession::updateOrCreate(['id' => $request->get('id')], $request->all())
+            );
+        } catch (\Throwable $th) {
+            return $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
+        }
     }
 
     /**

@@ -11,7 +11,9 @@ use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\CenterCostController;
+use App\Http\Controllers\CiiuCodeController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyPaymentConfigurationController;
 use App\Http\Controllers\CompensationFundController;
@@ -19,6 +21,7 @@ use App\Http\Controllers\Countable_incomeController;
 use App\Http\Controllers\CountriesController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
+use App\Http\Controllers\DianAddressController;
 use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\Disciplinary_processController;
 use App\Http\Controllers\DocumentTypesController;
@@ -26,6 +29,8 @@ use App\Http\Controllers\DotationController;
 use App\Http\Controllers\EgressTypesController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\ExtraHoursController;
+use App\Http\Controllers\FixedAssetController;
+use App\Http\Controllers\FixedAssetTypeController;
 use App\Http\Controllers\FixedTurnController;
 use App\Http\Controllers\FixedTurnDiaryController;
 use App\Http\Controllers\FixedTurnHourController;
@@ -37,6 +42,7 @@ use App\Http\Controllers\InventaryDotationGroupController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LateArrivalController;
 use App\Http\Controllers\LoanController;
+use App\Http\Controllers\LunchControlller;
 use App\Http\Controllers\MemorandumController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MunicipalityController;
@@ -52,14 +58,18 @@ use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
+use App\Http\Controllers\ProfessionController;
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnDiaryController;
 use App\Http\Controllers\RotatingTurnHourController;
 use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\TaxiCityController;
 use App\Http\Controllers\TaxiControlller;
+use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\TravelExpenseController;
+use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Models\ProductDotationType;
@@ -69,6 +79,7 @@ use App\Models\CompanyPaymentConfiguration;
 use App\Models\Countable_income;
 use App\Models\DisabilityLeave;
 use App\Models\DocumentTypes;
+use App\Models\TravelExpense;
 use App\Models\WorkContract;
 use App\Models\WorkContractType;
 use Illuminate\Http\Request;
@@ -232,7 +243,6 @@ Route::group(
 		Route::resource('arl', ArlController::class);
 		/* Route::resource('inventary-dotation-group', ProductDotationType::class); */
 		Route::resource('work_contracts', WorkContractController::class);
-		Route::resource('zones', ZonesController::class);
 		Route::resource('memorandum', MemorandumController::class);
 		Route::resource('type_memorandum', MemorandumTypesController::class);
 		Route::resource('disciplinary_process', Disciplinary_processController::class);
@@ -256,7 +266,16 @@ Route::group(
 		Route::resource('city', CityController::class);
 		Route::resource('companyPayment', CompanyPaymentConfigurationController::class);
 		Route::resource('loan', LoanController::class);
-
+		Route::resource('fixed_asset', FixedAssetController::class);
+		Route::resource('fixed_asset_type', FixedAssetTypeController::class);
+		Route::resource('lunch', LunchControlller::class);
+		Route::resource('professions', ProfessionController::class);
+		Route::resource('third-party', ThirdPartyController::class);
+		Route::resource('winnings-list', WinningListController::class);
+		Route::resource('ciiu-code', CiiuCodeController::class);
+		Route::resource('dian-address', DianAddressController::class);
+		Route::resource('pay-vacation', PayVacationController::class);
+		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -275,6 +294,7 @@ Route::group(
 		Route::get('paginateIngressTypes', [IngressTypesController::class, 'paginate']);
 		Route::get('paginateBanks', [BanksController::class, 'paginate']);
 		Route::get('paginateBankAccount', [BankAccountsController::class, 'paginate']);
+		Route::get('paginateProfessions', [ProfessionController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -296,10 +316,15 @@ Route::group(
 		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
 		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
 		Route::get('process/{id}', [Disciplinary_processController::class, 'process']);
-		Route::get('cities', [RouteTaxiController::class, 'cities']);
+		/* Route::get('cities', [RouteTaxiController::class, 'cities']); */
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
 		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
 		Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
+		Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
+		Route::get('all-zones', [ZonesController::class, 'allZones']);
+		Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
+		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
+		Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
 	}
 );

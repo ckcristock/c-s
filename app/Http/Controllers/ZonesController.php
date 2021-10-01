@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 class ZonesController extends Controller
 {
     use ApiResponser;
+
+    public function allZones(){
+        return $this->success(
+            Zones::all(['name as text', 'id as value'])
+        );    
+    }
+
     public function index()
     {
         $data = Request()->all();

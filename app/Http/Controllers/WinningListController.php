@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CenterCost;
+use App\Models\WinningList;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class CenterCostController extends Controller
+class WinningListController extends Controller
 {
     use ApiResponser;
     /**
@@ -15,9 +15,9 @@ class CenterCostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {   
+    {
         return $this->success(
-            CenterCost::all(['name as text', 'id as values'])
+            WinningList::all()
         );
     }
 

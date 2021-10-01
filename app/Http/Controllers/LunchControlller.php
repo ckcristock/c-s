@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CenterCost;
+use App\Models\Lunch;
+use App\Models\LunchPerson;
+use App\Models\Person;
 use App\Traits\ApiResponser;
+use Faker\Calculator\Luhn;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
-class CenterCostController extends Controller
+class LunchControlller extends Controller
 {
     use ApiResponser;
     /**
@@ -15,9 +19,9 @@ class CenterCostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {   
+    {
         return $this->success(
-            CenterCost::all(['name as text', 'id as values'])
+            Lunch::with('person')->get()
         );
     }
 
@@ -39,7 +43,22 @@ class CenterCostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $lunch = Lunch::create([
+                'person_id' => $request->person_id,
+                'value' => $request->value
+            ]);
+            $lunchPerson = LunchPerson::create([
+                'user_id' => auth()->user()->id,
+                'lunch_id' => $request->id
+            ]);
+            return $this->success([
+                'lunch' => $lunch,
+                'lunchPerson' => $lunchPerson
+            ]);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -50,7 +69,12 @@ class CenterCostController extends Controller
      */
     public function show($id)
     {
-        //
+        return $this->success(
+            Lunch::with('person')
+            ->with('lunchPerson')
+            ->where('id', '=', $id)
+            ->get()
+        );
     }
 
     /**

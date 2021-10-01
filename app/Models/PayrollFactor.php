@@ -17,7 +17,8 @@ class PayrollFactor extends Model
         'date_end',
         'modality',
         'observation',
-        'sum'
+        'sum',
+        'payback_date'
     ];
 
 

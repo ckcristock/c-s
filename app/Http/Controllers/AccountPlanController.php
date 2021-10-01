@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\AccountPlan;
 use App\Traits\ApiResponser;
+use Facade\FlareClient\Stacktrace\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AccountPlanController extends Controller
 {
@@ -34,6 +36,20 @@ class AccountPlanController extends Controller
 					$q->where('status', 'like', '%' . $fill . '%');
 				})
 				->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+		);
+	}
+
+	public function accountPlan()
+	{
+		return $this->success(
+			DB::table('account_plans as a')
+			->select(
+				'a.id',
+				'a.percent',
+				'a.center_cost',
+				DB::raw('concat(a.code," - ",a.name) as code')
+			)
+			->get()
 		);
 	}
 

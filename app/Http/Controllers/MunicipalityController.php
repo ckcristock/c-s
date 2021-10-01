@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 class MunicipalityController extends Controller
 {
     use ApiResponser;
+
+    public function allMunicipalities()
+    {
+        return $this->success(
+            Municipality::all(['name as text', 'id as value'])
+        );
+    }
     
     public function index()
     {
