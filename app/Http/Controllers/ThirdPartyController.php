@@ -32,6 +32,15 @@ class ThirdPartyController extends Controller
         );
     }
 
+    public function thirdParties(){
+        return $this->success(
+            ThirdParty::select(
+                DB::raw('concat(first_name," ",first_surname) as name')
+            )
+            ->get()
+        );
+    }
+
     /**
      * Show the form for creating a new resource.
      *

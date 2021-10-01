@@ -56,6 +56,7 @@ use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
 use App\Http\Controllers\RiskTypesController;
@@ -223,7 +224,6 @@ Route::group(
 		Route::resource('arl', ArlController::class);
 		/* Route::resource('inventary-dotation-group', ProductDotationType::class); */
 		Route::resource('work_contracts', WorkContractController::class);
-		Route::resource('zones', ZonesController::class);
 		Route::resource('memorandum', MemorandumController::class);
 		Route::resource('type_memorandum', MemorandumTypesController::class);
 		Route::resource('disciplinary_process', Disciplinary_processController::class);
@@ -253,6 +253,7 @@ Route::group(
 		Route::resource('winnings-list', WinningListController::class);
 		Route::resource('ciiu-code', CiiuCodeController::class);
 		Route::resource('dian-address', DianAddressController::class);
+		Route::resource('pay-vacation', PayVacationController::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -303,5 +304,6 @@ Route::group(
 		Route::get('all-zones', [ZonesController::class, 'allZones']);
 		Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
 		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
+		Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
 	}
 );
