@@ -61,6 +61,17 @@ class LunchControlller extends Controller
         }
     }
 
+    public function activateOrInactivate( Request $request )
+    {
+        try {
+            $state = Lunch::find($request->get('id'));
+            $state->update($request->all());
+            return $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
     /**
      * Display the specified resource.
      *

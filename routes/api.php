@@ -326,5 +326,6 @@ Route::group(
 		Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
 		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
 		Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
+		Route::put('state-change', [LunchControlller::class, 'activateOrInactivate']);
 	}
 );
