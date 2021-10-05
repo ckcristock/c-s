@@ -295,6 +295,7 @@ Route::group(
 		Route::get('paginateBanks', [BanksController::class, 'paginate']);
 		Route::get('paginateBankAccount', [BankAccountsController::class, 'paginate']);
 		Route::get('paginateProfessions', [ProfessionController::class, 'paginate']);
+		Route::get('paginateFixedAssetType', [FixedAssetTypeController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -327,6 +328,5 @@ Route::group(
 		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
 		Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
 		Route::put('state-change', [LunchControlller::class, 'activateOrInactivate']);
-		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
 	}
 );

@@ -21,6 +21,29 @@ class FixedAssetTypeController extends Controller
         );
     }
 
+    public function paginate()
+    {
+        return $this->success(
+            FixedAssetType::when( Request()->get('name') , function($q, $fill)
+            {
+                $q->where('name','like','%'.$fill.'%');
+            })
+            ->when( Request()->get('category') , function($q, $fill)
+            {
+                $q->where('category','like','%'.$fill.'%');
+            })
+            ->when( Request()->get('useful_life_niif') , function($q, $fill)
+            {
+                $q->where('useful_life_niif','like','%'.$fill.'%');
+            })
+            ->when( Request()->get('depreciation') , function($q, $fill)
+            {
+                $q->where('annual_depreciation_percentage_niif','like','%'.$fill.'%');
+            })
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -40,9 +63,11 @@ class FixedAssetTypeController extends Controller
     public function store(Request $request)
     {
         try {
-            //code...
+            return $this->success(
+                FixedAssetType::updateOrCreate(['id' => $request->get('id')], $request->all())
+            );
         } catch (\Throwable $th) {
-            //throw $th;
+            return $this->error($th->getMessage(), 500);
         }
     }
 
