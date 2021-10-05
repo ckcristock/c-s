@@ -53,6 +53,38 @@ class AccountPlanController extends Controller
 		);
 	}
 
+	public function accountPlanGlobal()
+	{
+		return $this->success(
+			DB::table('account_plans as a')
+			->select(
+				'a.id',
+				'a.name',
+				'a.code'
+			)
+			->when(request()->get('coincidencia'), function ($q, $fill) {
+				$q->where('name', 'like', '%' . $fill . '%');
+			})
+			->get()
+		);
+		/* $tipo = request()->get('tipo');
+		if ($tipo == 'pcga') {
+		} else {
+			return $this->success(
+				DB::table('account_plans as a')
+					->select(
+						'a.id',
+						'a.name',
+						'a.code'
+				)
+				->when(request()->get('coincidencia'), function ($q, $fill) {
+					$q->where('niif_name', 'like', '%' . $fill . '%');
+				})
+				->get()
+			);
+		} */
+	}
+
 	/**
 	 * Show the form for creating a new resource.
 	 *

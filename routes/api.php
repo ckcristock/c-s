@@ -328,5 +328,6 @@ Route::group(
 		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
 		Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
 		Route::put('state-change', [LunchControlller::class, 'activateOrInactivate']);
+		Route::get('account-plan-global', [AccountPlanController::class, 'accountPlanGlobal']);
 	}
 );
