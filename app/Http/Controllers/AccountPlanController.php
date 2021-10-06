@@ -47,42 +47,11 @@ class AccountPlanController extends Controller
 				'a.id',
 				'a.percent',
 				'a.center_cost',
-				DB::raw('concat(a.code," - ",a.name) as code')
+				DB::raw('concat(a.code," - ",a.name) as code'),
+				DB::raw('concat(a.niif_code," - ",a.niif_name) as niif_code')
 			)
 			->get()
 		);
-	}
-
-	public function accountPlanGlobal()
-	{
-		return $this->success(
-			DB::table('account_plans as a')
-			->select(
-				'a.id',
-				'a.name',
-				'a.code'
-			)
-			->when(request()->get('coincidencia'), function ($q, $fill) {
-				$q->where('name', 'like', '%' . $fill . '%');
-			})
-			->get()
-		);
-		/* $tipo = request()->get('tipo');
-		if ($tipo == 'pcga') {
-		} else {
-			return $this->success(
-				DB::table('account_plans as a')
-					->select(
-						'a.id',
-						'a.name',
-						'a.code'
-				)
-				->when(request()->get('coincidencia'), function ($q, $fill) {
-					$q->where('niif_name', 'like', '%' . $fill . '%');
-				})
-				->get()
-			);
-		} */
 	}
 
 	/**

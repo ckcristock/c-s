@@ -61,6 +61,7 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
+use App\Http\Controllers\RetentionTypeController;
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnDiaryController;
 use App\Http\Controllers\RotatingTurnHourController;
@@ -79,6 +80,7 @@ use App\Models\CompanyPaymentConfiguration;
 use App\Models\Countable_income;
 use App\Models\DisabilityLeave;
 use App\Models\DocumentTypes;
+use App\Models\RetentionType;
 use App\Models\TravelExpense;
 use App\Models\WorkContract;
 use App\Models\WorkContractType;
@@ -275,6 +277,7 @@ Route::group(
 		Route::resource('ciiu-code', CiiuCodeController::class);
 		Route::resource('dian-address', DianAddressController::class);
 		Route::resource('pay-vacation', PayVacationController::class);
+		Route::resource('retention-type', RetentionTypeController::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -296,6 +299,7 @@ Route::group(
 		Route::get('paginateBankAccount', [BankAccountsController::class, 'paginate']);
 		Route::get('paginateProfessions', [ProfessionController::class, 'paginate']);
 		Route::get('paginateFixedAssetType', [FixedAssetTypeController::class, 'paginate']);
+		Route::get('paginateRetentionType', [RetentionTypeController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -328,6 +332,5 @@ Route::group(
 		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
 		Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
 		Route::put('state-change', [LunchControlller::class, 'activateOrInactivate']);
-		Route::get('account-plan-global', [AccountPlanController::class, 'accountPlanGlobal']);
 	}
 );

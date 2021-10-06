@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FixedAssetType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FixedAssetTypeController extends Controller
 {
@@ -24,19 +25,42 @@ class FixedAssetTypeController extends Controller
     public function paginate()
     {
         return $this->success(
-            FixedAssetType::when( Request()->get('name') , function($q, $fill)
+            DB::table('fixed_asset_types as t')
+            ->select(
+                't.id',
+                't.category',
+                't.name',
+                't.useful_life_niif',
+                't.useful_life_pcga',
+                't.annual_depreciation_percentage_niif',
+                't.annual_depreciation_percentage_pcga',
+                't.state',
+                'o.niif_name as niif_account_plan',
+                'p.name as pcga_account_plan',
+                'c.name as pcga_account_plan_debit_depreciation',
+                'a.niif_name as niif_account_plan_debit_depreciation',
+                'n.niif_name as niif_account_plan_credit_depreciation',
+                'l.name as pcga_account_plan_credit_depreciation',
+            )
+            ->join('account_plans as a', 'a.id', '=', 't.niif_account_plan_debit_depreciation_id')
+            ->join('account_plans as c', 'c.id', '=', 't.pcga_account_plan_debit_depreciation_id')
+            ->join('account_plans as o', 'o.id', '=', 't.niif_account_plan_id')
+            ->join('account_plans as p', 'p.id', '=', 't.pcga_account_plan_id')
+            ->join('account_plans as n', 'n.id', '=', 't.niif_account_plan_credit_depreciation_id')
+            ->join('account_plans as l', 'l.id', '=', 't.pcga_account_plan_credit_depreciation_id')
+            ->when( request()->get('name') , function($q, $fill)
             {
                 $q->where('name','like','%'.$fill.'%');
             })
-            ->when( Request()->get('category') , function($q, $fill)
+            ->when( request()->get('category') , function($q, $fill)
             {
                 $q->where('category','like','%'.$fill.'%');
             })
-            ->when( Request()->get('useful_life_niif') , function($q, $fill)
+            ->when( request()->get('useful_life_niif') , function($q, $fill)
             {
                 $q->where('useful_life_niif','like','%'.$fill.'%');
             })
-            ->when( Request()->get('depreciation') , function($q, $fill)
+            ->when( request()->get('depreciation') , function($q, $fill)
             {
                 $q->where('annual_depreciation_percentage_niif','like','%'.$fill.'%');
             })

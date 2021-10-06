@@ -28,4 +28,6 @@ class FixedAssetType extends Model
         'mantis',
         'state'
     ];
+    
+  
 }
