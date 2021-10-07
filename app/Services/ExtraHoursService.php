@@ -160,22 +160,26 @@ class ExtraHoursService
                         //Asistencia
                         $turno = Request()->get('tipo');
                         $leaveTime = $turno === 'Fijo' ? 'leave_time_two' : 'leave_time_one';
-                        
+
+
                         [$asistencia, $salida, $fechaSalida] = $this->Asistencia($laborado['date'], $laborado['entry_time_one'], $laborado[$leaveTime]);
+
                         #dd($laborado['entry_time_one']);
                         //Tiempo Laborado
                         $tiempoLaborado = 0;
                         ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! aca mejorar con los horarios
                         $tiempoLaborado = $this->workedTime($laborado, $asistencia, $salida);
                         ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                     /*    if($day['id'] == 10){
+                        /*    if($day['id'] == 10){
                             dd($laborado);
                         } */
-                        
 
+                       /*  $fechaSalida = $this->getLeaveDate($laborado); */
+                        //dd($fechaSalida);
                         $FinTurnoOficcial =  $asistencia->copy()->addMinutes($tiempoAsignado);
                         $FinTurnoReal =  $asistencia->copy()->addMinutes($tiempoLaborado);
 
+                        
                         //Se arma el objecto que sera enviado como parametro
                         $argumentos = new stdObject();
                         $argumentos->tiempoAsignado = $tiempoAsignado;
@@ -197,20 +201,20 @@ class ExtraHoursService
                             $recargos = $this->getDataRecargoSinExtras($argumentos);
                         }
 
-                        $funcionario['daysWork'][$ky]['tiempoLaborado'] = round($tiempoLaborado / 60, 1);
-                        $funcionario['daysWork'][$ky]['tiempoAsignado'] = round($tiempoAsignado / 60);
-                        $funcionario['daysWork'][$ky]['horasRecargoDominicalNocturna'] = round($recargos->horasRecargoDominicalNocturna / 60);
-                        $funcionario['daysWork'][$ky]['horasRecargoNocturna'] = round($recargos->horasRecargoNocturna / 60);
-                        $funcionario['daysWork'][$ky]['horasRecargoFestivo'] = round($recargos->horasRecargoFestivo / 60);
+                        $funcionario['daysWork'][$ky]['tiempoLaborado'] = roundInHalf($tiempoLaborado / 60);
+                        $funcionario['daysWork'][$ky]['tiempoAsignado'] = roundInHalf($tiempoAsignado / 60);
+                        $funcionario['daysWork'][$ky]['horasRecargoDominicalNocturna'] = roundInHalf($recargos->horasRecargoDominicalNocturna / 60);
+                        $funcionario['daysWork'][$ky]['horasRecargoNocturna'] = roundInHalf($recargos->horasRecargoNocturna / 60);
+                        $funcionario['daysWork'][$ky]['horasRecargoFestivo'] = roundInHalf($recargos->horasRecargoFestivo / 60);
 
-                        $funcionario['daysWork'][$ky]['horasRecargoDominicalDiurno'] = round($recargos->horasRecargoDominicalDiurno / 60);
-                        $funcionario['daysWork'][$ky]['HorasExtrasNocturnas'] = round($extras->HorasExtrasNocturnas / 60);
-                        $funcionario['daysWork'][$ky]['HorasExtrasDiurnas'] = round($extras->HorasExtrasDiurnas / 60);
-                        $funcionario['daysWork'][$ky]['HorasExtrasNocturnasDominicales'] = round($extras->HorasExtrasNocturnasDominicales / 60);
-                        $funcionario['daysWork'][$ky]['HorasExtrasDiurnasDominicales'] = round($extras->HorasExtrasDiurnasDominicales / 60);
+                        $funcionario['daysWork'][$ky]['horasRecargoDominicalDiurno'] = roundInHalf($recargos->horasRecargoDominicalDiurno / 60);
+                        $funcionario['daysWork'][$ky]['HorasExtrasNocturnas'] = roundInHalf($extras->HorasExtrasNocturnas / 60);
+                        $funcionario['daysWork'][$ky]['HorasExtrasDiurnas'] = roundInHalf($extras->HorasExtrasDiurnas / 60);
+                        $funcionario['daysWork'][$ky]['HorasExtrasNocturnasDominicales'] = roundInHalf($extras->HorasExtrasNocturnasDominicales / 60);
+                        $funcionario['daysWork'][$ky]['HorasExtrasDiurnasDominicales'] = roundInHalf($extras->HorasExtrasDiurnasDominicales / 60);
 
-                        $funcionario['daysWork'][$ky]['horasExtrasDominicalesFestivasNocturnas'] = round($extras->horasExtrasDominicalesFestivasNocturnas / 60);
-                        $funcionario['daysWork'][$ky]['horasExtrasDominicalesFestivasDiurnas'] = round($extras->horasExtrasDominicalesFestivasDiurnas / 60);
+                        $funcionario['daysWork'][$ky]['horasExtrasDominicalesFestivasNocturnas'] = roundInHalf($extras->horasExtrasDominicalesFestivasNocturnas / 60);
+                        $funcionario['daysWork'][$ky]['horasExtrasDominicalesFestivasDiurnas'] = roundInHalf($extras->horasExtrasDominicalesFestivasDiurnas / 60);
                     } else {
 
                         // No trabajó
@@ -222,38 +226,64 @@ class ExtraHoursService
         return $funcionario;
     }
 
+    private function getLeaveDate($laborado)
+    {
+        $date = '';
+        if ($laborado['leave_time_one']) {
+
+            $date = $laborado['leave_date'] . $laborado['leave_time_one'];
+
+        } elseif ($laborado['breack_time_one'] && !$laborado['breack_time_two']) {
+
+            $date = $laborado['breack_one_date'] . $laborado['breack_time_one'];
+
+        } elseif (isset($laborado['launch_time_one']) && $laborado['launch_time_one']) {
+
+            $date = $laborado['launch_one_date'] . $laborado['launch_time_one'];
+        }
+
+        return  Carbon::parse($date);
+    }
     public function workedTime($laborado, $asistencia, $salida)
     {
-       /*  dd($laborado); */
+        /*  dd($laborado); */
         $diffTotal = 0;
-        if (isset($laborado['launch_time_one'] ) && $laborado['launch_time_one']) {
-            $launchEntry = Carbon::parse($laborado['launch_one_date'] . $laborado['launch_time_one']);
-            $launchLe = Carbon::parse($laborado['launch_two_date'] . $laborado['launch_time_two']);
-            $diffTotal = $launchEntry->diffInMinutes($launchLe);
-        }
-        if ( isset($laborado['breack_time_one']) && $laborado['breack_time_two']) {
+        //si tiene hora 1 de launch
+        if ($laborado['leave_time_one'] ) {
+            $diffTotal += $asistencia->diffInMinutes($salida);
+        } elseif  ($laborado['breack_time_one'] && !$laborado['breack_time_two'])  {
+
             $launchEntry = Carbon::parse($laborado['breack_one_date'] . $laborado['breack_time_one']);
-            $launchLe = Carbon::parse($laborado['breack_two_date'] . $laborado['breack_time_two']);
-            $diffTotal += $launchEntry->diffInMinutes($launchLe);
+
+            $diffTotal = $asistencia->diffInMinutes($launchEntry);
+
+        } elseif (isset($laborado['launch_time_one']) && $laborado['launch_time_one']) {
+
+            $launchEntry = Carbon::parse($laborado['launch_one_date'] . $laborado['launch_time_one']);
+
+            $diffTotal = $asistencia->diffInMinutes($launchEntry);
         }
-        /* "entry_time_one" => "08:00:00"
-        "leave_time_one" => null
-        "entry_time_two" => null
-        "leave_time_two" => "18:50:35" */
-        if (isset($laborado['entry_time_two'] ) && Request()->get('tipo') =='Fijo'  && $laborado['entry_time_two']) {
+
+        //si tiene hora 2 de launch
+        if (isset($laborado['launch_time_two']) && $laborado['launch_time_two']) {
+            $launchEntry = Carbon::parse($laborado['launch_two_date'] . $laborado['launch_time_two']);
+            $launchLe = Carbon::parse($laborado['breack_two_date'] . $laborado['breack_time_two']);
+            if ($salida) {
+                $diffTotal += $launchEntry->diffInMinutes($salida);
+            }
+        }
+
+
+        if (isset($laborado['entry_time_two']) && Request()->get('tipo') == 'Fijo'  && $laborado['entry_time_two']) {
             $launchEntry = Carbon::parse($laborado['date'] . $laborado['entry_time_two']);
             $launchLe = Carbon::parse($laborado['date'] . $laborado['leave_time_one']);
             $diffTotal = $launchEntry->diffInMinutes($launchLe);
-          /*   dd($diffTotal); */
         }
-       /*  if ( isset($laborado['breack_time_one']) && $laborado['breack_time_two']) {
-            $launchEntry = Carbon::parse($laborado['breack_one_date'] . $laborado['breack_time_one']);
-            $launchLe = Carbon::parse($laborado['breack_two_date'] . $laborado['breack_time_two']);
-            $diffTotal += $launchEntry->diffInMinutes($launchLe);
-        } */
-        /*  dd(  $asistencia->diffInMinutes($salida) - $diffTotal ); */
-        return $asistencia->diffInMinutes($salida) - $diffTotal;
+
+        return $diffTotal;
     }
+
+
 
     public function Asistencia($fecha, $horaEntrada, $horaSalida)
     {
@@ -301,7 +331,7 @@ class ExtraHoursService
 
             foreach ($funcionario['diarios_turno_fijo']  as  $diario) {
                 foreach ($funcionario['turno_fijo']['horarios_turno_fijo'] as $ky => $turno) {
-                    
+
                     if ($turno['day'] == $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek)) {
                         array_push($funcionario['daysWork'][$ky], ['day' => $diario]);
                     }

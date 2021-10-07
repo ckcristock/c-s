@@ -48,7 +48,6 @@ trait CalculateRotativoExtras
 
         //  Compruebo si Solo se le pagan horas nopturnas
         if ($argumentos->FinTurnoReal->hour > 21 ||  ($argumentos->FinTurnoReal->hour > 00 &&  $argumentos->FinTurnoReal->hour <= 06)) {
-
             if (Carbon::parse($argumentos->FinTurnoReal)->englishDayOfWeek == 'Sunday') {
                 $HorasExtrasNocturnasDominicales += $tiempoParaExtras;
                 $this->setTiempoExtra($tiempoParaExtras);
@@ -68,6 +67,7 @@ trait CalculateRotativoExtras
                 $tiempoParaInicioNocturno = $argumentos->FinTurnoReal->diffInMinutes($argumentos->fechaSalida->format('Y-m-d')  . '21:00:00');
             }
 
+            
             // Compruebo si sumandole lo que le falta para cotizar nocturno se le acaba el tiempo que gano extra
             if ($tiempoParaExtras - $argumentos->FinTurnoReal->diffInMinutes($argumentos->fechaSalida->format('Y-m-d')  . '21:00:00') <= 0) {
                 // Asigno todo el tiempo Extra como diurno

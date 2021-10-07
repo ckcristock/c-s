@@ -50,10 +50,10 @@ class MarcationService
         /** Fin Datos Empresa */
         // Mail::to($func->email)->send(new Correo($obj));
     }
-    static public function makeLateArrival($func,  $hoy, $totalDuration, $hactual, $entry)
+    static public function makeLateArrival($id,  $hoy, $totalDuration, $hactual, $entry)
     {
         $datos_llegada = array(
-            'person_id' => $func->id,
+            'person_id' => $id,
             'date' => $hoy,
             'time' => $totalDuration,
             'real_entry' => $hactual,

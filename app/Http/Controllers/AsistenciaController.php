@@ -631,61 +631,14 @@ class AsistenciaController extends Controller
         }
         if (count($func->diariosTurnoRotativoHoy) > 0) {
             $rotativo_hoy = $func->diariosTurnoRotativoHoy[0];
-           
+
             $totalDuration = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->entry_time);
             $totalDuration = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->entry_time);
 
             if ($totalDuration > 600) {
-                //return $rotativo_hoy;
-                if ($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_one == null) {
-                    //guardar entrada launch
-                    MarcationService::marcation('success',$fully,$func->id,'El funcionario Ingresa al lunch');
-
-                    $respuesta = array(
-                        'title' => 'Disfrute su lunch',
-                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Es Hora de tomar el lunch</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
-                        'icon' => 'success'
-                    );
-                    $datos = array(
-                        'launch_one_date' => $hoy,
-                        'launch_time_one' => $hactual,
-                        'img_launch_one' => $fully,
-
-                    );
-                    Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
-                    return $respuesta;
-                }
-  //guardar LLEGADA launch
-                if ($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_two == null) {
-
-                    $durationLaunch = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->turnoRotativo->launch_time);
-                    
-                    if( $durationLaunch > 300 ){
-                        MarcationService::makeLateArrival($func->id, $hoy, $durationLaunch, $hactual, $rotativo_hoy->turnoRotativo->launch_time);
-                    }
-
-
-                    MarcationService::marcation('success', $fully, $func->id, 'El funcionario ingresa del lunch');
-                    $datos = array(
-                        'launch_two_date' => $hoy,
-                        'launch_time_two' => $hactual,
-                        'img_launch_two' => $fully,
-
-                    );
-                    Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
-                    $respuesta = array(
-                        'title' => 'Bienvenido nuevamente',
-                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido nuevamente a su jornada</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
-                        'icon' => 'success'
-                    );
-                    return $respuesta;
-                }
-
                 if ($rotativo_hoy->turnoRotativo->breack == 1 && $rotativo_hoy->breack_time_one == null) {
                     //guardar entrada launch
-                    if( $totalDuration ){
-
-                    }
+                   
                     MarcationService::marcation('success', $fully, $func->id, 'El funcionario Ingresa al break');
                     $datos = array(
                         'breack_one_date' => $hoy,
@@ -707,8 +660,8 @@ class AsistenciaController extends Controller
                     MarcationService::marcation('success', $fully, $func->id, 'El funcionario ingresa del break');
 
                     $durationLaunch = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->turnoRotativo->breack_time_two);
-                    
-                    if( $durationLaunch > 300 ){
+
+                   /*  if ($durationLaunch > 300) { */
                         MarcationService::makeLateArrival($func->id, $hoy, $durationLaunch, $hactual, $rotativo_hoy->turnoRotativo->breack_time_two);
                     }
 
@@ -725,6 +678,52 @@ class AsistenciaController extends Controller
                     );
                     return $respuesta;
                 }
+                //return $rotativo_hoy;
+                if ($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_one == null) {
+                    //guardar entrada launch
+                    MarcationService::marcation('success', $fully, $func->id, 'El funcionario Ingresa al lunch');
+
+                    $respuesta = array(
+                        'title' => 'Disfrute su lunch',
+                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Es Hora de tomar el lunch</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
+                        'icon' => 'success'
+                    );
+                    $datos = array(
+                        'launch_one_date' => $hoy,
+                        'launch_time_one' => $hactual,
+                        'img_launch_one' => $fully,
+
+                    );
+                    Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
+                    return $respuesta;
+                }
+                //guardar LLEGADA launch
+                if ($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_two == null) {
+
+                    $durationLaunch = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->turnoRotativo->launch_time);
+
+                    if ($durationLaunch > 300) {
+                        MarcationService::makeLateArrival($func->id, $hoy, $durationLaunch, $hactual, $rotativo_hoy->turnoRotativo->launch_time);
+                    }
+
+
+                    MarcationService::marcation('success', $fully, $func->id, 'El funcionario ingresa del lunch');
+                    $datos = array(
+                        'launch_two_date' => $hoy,
+                        'launch_time_two' => $hactual,
+                        'img_launch_two' => $fully,
+
+                    );
+                    Diarios::actualizaDiarioTurnoRotativo($datos, $rotativo_hoy->id);
+                    $respuesta = array(
+                        'title' => 'Bienvenido nuevamente',
+                        'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Bienvenido nuevamente a su jornada</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
+                        'icon' => 'success'
+                    );
+                    return $respuesta;
+                }
+
+
 
 
                 if ($rotativo_hoy->leave_time_one == null) {
