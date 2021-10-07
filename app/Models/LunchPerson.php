@@ -9,11 +9,16 @@ class LunchPerson extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'user_id', 'lunch_id'
+        'person_id', 
+        'lunch_id'
     ];
 
     public function lunch()
     {
         return $this->hasMany(Lunch::class);
+    }
+
+    public function person(){
+        return $this->belongsTo(Person::class);
     }
 }

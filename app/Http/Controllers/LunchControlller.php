@@ -6,7 +6,6 @@ use App\Models\Lunch;
 use App\Models\LunchPerson;
 use App\Models\Person;
 use App\Traits\ApiResponser;
-use Faker\Calculator\Luhn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -21,7 +20,25 @@ class LunchControlller extends Controller
     public function index()
     {
         return $this->success(
-            Lunch::with('person')->get()
+            DB::table('lunch_people as lp')
+            ->select(
+                'l.id',
+                'l.value',
+                'p.first_name',
+                'p.first_surname',
+                'l.state',
+                'l.created_at',
+                DB::raw('concat(user.first_name," ",user.first_surname) as user')
+            )
+            ->when(request()->get('date'), function($q, $fill) 
+            {
+                $q->where('l.created_at', 'like', '%'.$fill.'%');
+            })
+            ->join('lunches as l', 'l.id', '=', 'lp.lunch_id')
+            ->join('people as p', 'p.id', '=', 'lp.person_id')
+            ->join('users as u', 'u.id', '=', 'l.user_id')
+            ->join('people as user', 'user.id', '=', 'u.person_id')
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -45,17 +62,15 @@ class LunchControlller extends Controller
     {
         try {
             $lunch = Lunch::create([
-                'person_id' => $request->person_id,
+                'user_id' => auth()->user()->id,
                 'value' => $request->value
             ]);
-            $lunchPerson = LunchPerson::create([
-                'user_id' => auth()->user()->id,
-                'lunch_id' => $request->id
-            ]);
-            return $this->success([
-                'lunch' => $lunch,
-                'lunchPerson' => $lunchPerson
-            ]);
+            $lunchPerson = request()->get('persons');
+            foreach ($lunchPerson as $person) {
+                $person["lunch_id"] = $lunch->id;
+                LunchPerson::create($person);
+            }
+            return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -80,12 +95,7 @@ class LunchControlller extends Controller
      */
     public function show($id)
     {
-        return $this->success(
-            Lunch::with('person')
-            ->with('lunchPerson')
-            ->where('id', '=', $id)
-            ->get()
-        );
+        //
     }
 
     /**
@@ -108,7 +118,11 @@ class LunchControlller extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        /* try {
+            $lunch = $request->get('')
+        } catch (\Throwable $th) {
+            //throw $th;
+        } */
     }
 
     /**

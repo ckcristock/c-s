@@ -9,7 +9,7 @@ class Lunch extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'person_id',
+        'user_id',
         'value',
         'state'
     ];
@@ -17,9 +17,5 @@ class Lunch extends Model
     public function lunchPerson()
     {
         return $this->belongsTo(LunchPerson::class);
-    }
-
-    public function person(){
-        return $this->belongsTo(Person::class);
     }
 }
