@@ -41,7 +41,7 @@ class Company extends Model
         return $this->belongsTo(Arl::class);
     }
 
-    public function banks()
+    public function bank()
     {
         return $this->belongsTo(Banks::class);
     }
