@@ -21,5 +21,6 @@ class RotatingTurn extends Model
 		"breack",
 		"breack_time",
 		"breack_time_two",
+		"color"
 	];
 }
