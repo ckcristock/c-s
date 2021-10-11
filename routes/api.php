@@ -23,7 +23,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DianAddressController;
 use App\Http\Controllers\DisabilityLeaveController;
-use App\Http\Controllers\Disciplinary_processController;
+use App\Http\Controllers\DisciplinaryProcessController;
 use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
 use App\Http\Controllers\EgressTypesController;
@@ -123,6 +123,16 @@ Route::get('/image', function () {
 	}
 	return 'path not found';
 });
+
+Route::get('/file', function () {
+	$path = Request()->get('path');
+	$download = storage_path('app/' . $path);
+	if ($path) {
+		return response()->download($download);
+	}
+	return 'path not found';
+});
+
 Route::post('/asistencia/validar', [AsistenciaController::class, 'validar']);
 
 
@@ -247,7 +257,7 @@ Route::group(
 		Route::resource('work_contracts', WorkContractController::class);
 		Route::resource('memorandum', MemorandumController::class);
 		Route::resource('type_memorandum', MemorandumTypesController::class);
-		Route::resource('disciplinary_process', Disciplinary_processController::class);
+		Route::resource('disciplinary_process', DisciplinaryProcessController::class);
 		Route::resource('salaryTypes', SalaryTypesController::class);
 		Route::resource('rotating-hour', RotatingTurnHourController::class);
 		Route::resource('rotating-hour-diary', RotatingTurnDiaryController::class);
@@ -320,7 +330,7 @@ Route::group(
 		Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
 		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
 		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
-		Route::get('process/{id}', [Disciplinary_processController::class, 'process']);
+		Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
 		/* Route::get('cities', [RouteTaxiController::class, 'cities']); */
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);

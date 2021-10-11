@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Disciplinary_process extends Model
+class DisciplinaryProcess extends Model
 {
     use HasFactory;
     protected $fillable  = [
@@ -13,7 +13,7 @@ class Disciplinary_process extends Model
         'process_description',
         'date_of_admission',
         'date_end',
-        'status'
+        'status',
+        'file'
     ];
-    protected $table = 'disciplinary_process';
 }

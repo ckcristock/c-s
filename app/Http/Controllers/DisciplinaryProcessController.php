@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Disciplinary_process;
+use App\Models\DisciplinaryProcess;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
+use Symfony\Component\Console\Input\Input;
 
-class Disciplinary_processController extends Controller
+class DisciplinaryProcessController extends Controller
 {
     use ApiResponser;
     /**
@@ -31,17 +34,22 @@ class Disciplinary_processController extends Controller
                 'd.status',
                 'd.date_of_admission',
                 'd.date_end',
-                'd.id'
+                'd.id',
+                'd.file'
             )
             ->when( Request()->get('person') , function($q, $fill)
             {
                 $q->where(DB::raw('concat(p.first_name, " ",p.first_surname)'), 'like', '%' . $fill . '%');
             })
-            ->join('disciplinary_process as d', function($join) {
+            ->join('disciplinary_processes as d', function($join) {
                 $join->on('d.person_id', '=', 'p.id');
             })
             ->when( Request()->get('status'), function($q, $fill) {
-                $q->where('d.status', 'like', '%' . $fill . '%');
+                if (request()->get('status') == 'Todos') {
+                    return null;
+                } else {
+                    $q->where('d.status', 'like', '%' . $fill . '%');
+                }
             })
             ->when( Request()->get('code'), function($q, $fill) {
                 $q->where('d.id', 'like', '%' . $fill . '%');
@@ -73,10 +81,20 @@ class Disciplinary_processController extends Controller
     public function store(Request $request)
     {
         try {
-            Disciplinary_process::create($request->all());
+            $data = $request->all();
+            $type = '.'. $request->type;
+            $base64 = saveBase64File( $data["file"], 'descargos/', false, $type);
+            $data["file"] = URL::to('/') . '/api/file?path=' . $base64;
+            DisciplinaryProcess::create([
+                'person_id' => $request->person_id,
+                'process_description' => $request->process_description,
+                'date_of_admission' => $request->date_of_admission,
+                'date_end' => $request->date_end,
+                'file' => $base64
+            ]);
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
+            return $this->error([$th->getMessage(), $th->getLine(), $th->getFile()], 500);
         }
     }
 
@@ -90,7 +108,7 @@ class Disciplinary_processController extends Controller
     {
         return $this->success(
             DB::table('memorandums as m')
-            ->select(   
+            ->select(
                 'm.created_at as created_at_memorandum',
                 't.name as memorandumType',
                 'p.first_name',
@@ -110,7 +128,7 @@ class Disciplinary_processController extends Controller
     public function process($id)
     {
         return $this->success(
-            DB::table('disciplinary_process as d')
+            DB::table('disciplinary_processes as d')
             ->select(
                 'd.process_description',
                 'd.created_at as created_at_process'
