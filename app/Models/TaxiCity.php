@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class TaxiCity extends Model
 {
 	use HasFactory;
+	protected $fillable = [
+		'type',
+		'taxi_id',
+		'city_id', 
+		'value'
+	];
 	public function city()
 	{
 		return $this->belongsTo(City::class);
