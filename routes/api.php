@@ -312,6 +312,7 @@ Route::group(
 		Route::get('paginateProfessions', [ProfessionController::class, 'paginate']);
 		Route::get('paginateFixedAssetType', [FixedAssetTypeController::class, 'paginate']);
 		Route::get('paginateRetentionType', [RetentionTypeController::class, 'paginate']);
+		Route::get('paginateHotels', [HotelController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);

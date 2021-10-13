@@ -13,7 +13,13 @@ class Hotel extends Model
 		'name',
 		'address',
 		'rate',
-		'phone'
+		'phone',
+		'landline',
+		'city_id',
+		'simple_rate',
+		'double_rate',
+		'breakfast',
+		'accommodation'
 	];
 	public function city()
 	{
