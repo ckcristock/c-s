@@ -15,4 +15,26 @@ class Bonifications extends Model
         'work_contract_id',
         'status'
     ];
+
+
+    public function ingreso()
+    {
+        return $this->belongsTo(Countable_income::class,  'countable_income_id', 'id');
+    }
+    public function contableIngreso()
+    {
+        return $this->belongsTo(Countable_income::class);
+    }
+
+    public function scopeObtener($query, Person $funcionario, $fechaInicio, $fechaFin)
+    {
+        $funcionario->load('contractultimate.bonifications.ingreso');
+        $bonificaciones = $funcionario['contractultimate']['bonifications'];
+        $data = [];
+        foreach ($bonificaciones as  $bono) {
+            array_push($data, (object)  $bono);
+        }
+
+        return  $funcionario['ingreso_prestacional'] = $data;
+    }
 }

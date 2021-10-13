@@ -7,7 +7,10 @@ use App\Models\TravelExpenseFeeding;
 use App\Models\TravelExpenseHotel;
 use App\Models\TravelExpenseTaxiCity;
 use App\Models\TravelExpenseTransport;
+use App\Services\TravelExpenseService;
 use App\Traits\ApiResponser;
+use Barryvdh\DomPDF\Facade as PDF;
+
 use Illuminate\Http\Request;
 
 class TravelExpenseController extends Controller
@@ -22,32 +25,7 @@ class TravelExpenseController extends Controller
 	{
 		//
 		return $this->success(
-			TravelExpense::with("destiny")
-				->with("origin")
-				->with("user")
-				->with("user.person")
-				->with("person")
-				->when( request()->get('person_id'), function($q, $fill)
-				{
-					$q->where('person_id','like','%'.$fill.'%');
-				})
-				->when( request()->get('creation_date'), function($q, $fill)
-				{
-					$q->where('created_at', 'like','%'.$fill.'%');
-				})
-				->when( request()->get('departure_date') , function($q, $fill)
-            	{
-                $q->where('departure_date','like','%'.$fill.'%');
-            	})
-				->when( request()->get('state'), function($q, $fill)
-				{
-					if (request()->get('state') == 'Todos') {
-						return null;
-					} else {
-						$q->where('state','like','%'.$fill.'%');
-					}
-				})
-				->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+			TravelExpenseService::paginate()
 		);
 	}
 
@@ -120,7 +98,7 @@ class TravelExpenseController extends Controller
 			]);
 			return $this->success("Aprobado con éxito");
 		} catch (\Throwable $th) {
-			return $this->errorResponse($th->getMessage(), 500);	
+			return $this->errorResponse($th->getMessage(), 500);
 		}
 	}
 
@@ -134,28 +112,7 @@ class TravelExpenseController extends Controller
 	{
 		//
 		return $this->success(
-			TravelExpense::with("destiny")
-				->with([
-					"expenseTaxiCities" => function ($q) {
-						$q->select("*")
-							->with("taxiCity")
-							->with("taxiCity.city")
-							->with("taxiCity.taxi");
-					},
-					"person" => function ($q) {
-						$q->select("id", "first_name", "first_surname", 'passport_number', 'visa');
-					},
-				])
-				->with("origin")
-				/* ->with("user") */
-
-				->with("person.contractultimate")
-				->with("hotels")
-				->with("transports")
-				->with("feedings")
-
-				->where("id", $id)
-				->first()
+			TravelExpenseService::show($id)
 		);
 	}
 
@@ -233,4 +190,19 @@ class TravelExpenseController extends Controller
 	{
 		//
 	}
+	/**
+	 * Remove the specified resource from storage.
+	 *
+	 * @param  int  $id
+	 *
+	 */
+	public function pdf($id)
+	{
+		//
+		$data = TravelExpenseService::show($id);
+		$pdf = PDF::loadView('pdf.travel_expense', ['data'=>$data]);
+		return $pdf->download('travel_expense.pdf');
+	}
+
+
 }

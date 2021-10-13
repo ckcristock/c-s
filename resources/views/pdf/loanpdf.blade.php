@@ -38,7 +38,8 @@
         </td>
       </tr>
     </tbody>
-  </table><hr style="border:1px dotted #ccc;width:730px;">
+  </table>
+  <hr style="border:1px dotted #ccc;width:730px;">
     <table style="background: #e6e6e6;">
         <tr style=" min-height: 200px; background: #e6e6e6;padding: 15px; border-radius: 10px; margin: 0;">
        

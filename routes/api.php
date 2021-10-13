@@ -198,6 +198,7 @@ Route::group(
 		Route::get('account-plan-list', [AccountPlanController::class, 'list']);
 
 		Route::post('travel-expense/update/{id}', [TravelExpenseController::class, 'update']);
+		Route::get('travel-expense/pdf/{id}', [TravelExpenseController::class, 'pdf']);
 		/** ---------  horas extras */
 		Route::get('/horas_extras/turno_rotativo/{fechaInicio}/{fechaFin}/{tipo}', [ExtraHoursController::class, 'getDataRotative'])->where([
 			'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
@@ -209,10 +210,14 @@ Route::group(
 		Route::get('horas_extras/datos/validados/{person_id}/{fecha}', [ExtraHoursController::class, 'getDataValid'])->where([
 			'fecha' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
 		]);
-		
-			# Fijo	---
+
+		# Fijo	---
 
 		/**----- end horas extras */
+		/**PayRoll */
+		Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
+
+		/**End */
 		Route::resource('pretty-cash', PrettyCashController::class);
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
@@ -275,7 +280,7 @@ Route::group(
 		Route::resource('ciiu-code', CiiuCodeController::class);
 		Route::resource('dian-address', DianAddressController::class);
 		Route::resource('pay-vacation', PayVacationController::class);
-		
+
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
