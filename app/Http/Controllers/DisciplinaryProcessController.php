@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\DisciplinaryProcess;
 use App\Traits\ApiResponser;
+use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Symfony\Component\Console\Input\Input;
 
 class DisciplinaryProcessController extends Controller
 {
@@ -96,6 +95,38 @@ class DisciplinaryProcessController extends Controller
         } catch (\Throwable $th) {
             return $this->error([$th->getMessage(), $th->getLine(), $th->getFile()], 500);
         }
+    }
+
+    public function descargoPdf($id)
+    {
+        $descargo = DB::table('disciplinary_processes as dp')
+			->select(
+				'dp.person_id',
+                'dp.id as descargo_id',
+				'p.first_name',
+				'p.second_name',
+				'p.first_surname',
+				'p.second_surname',
+				'p.identifier',
+				'dp.date_of_admission'
+			)
+			->join('people as p','p.id', '=', 'dp.person_id')
+			->where('dp.id', $id)
+			->first();
+        $company = DB::table('companies as c')
+            ->select(
+                'c.name as company_name',
+                'c.document_number as nit',
+                'c.phone',
+                'c.email_contact',
+                DB::raw('CURRENT_DATE() as fecha')
+            )
+            ->first();
+			$pdf = PDF::loadView('pdf.descargopdf', [
+				'funcionario' => $descargo,
+                'company' => $company
+			]);
+			return $pdf->download('descargopdf.pdf');
     }
 
     /**

@@ -288,6 +288,8 @@ Route::group(
 		Route::resource('dian-address', DianAddressController::class);
 		Route::resource('pay-vacation', PayVacationController::class);
 		Route::resource('retention-type', RetentionTypeController::class);
+		Route::resource('attention-call', AttencionCallController::class);
+		Route::resource('cities', CityController::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -331,7 +333,6 @@ Route::group(
 		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
 		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
 		Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
-		/* Route::get('cities', [RouteTaxiController::class, 'cities']); */
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
 		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
@@ -344,5 +345,7 @@ Route::group(
 		Route::put('state-change', [LunchControlller::class, 'activateOrInactivate']);
 		Route::get('filter-all-depencencies', [DependencyController::class, 'dependencies']);
 		Route::get('filter-all-positions', [PositionController::class, 'positions']);
+		Route::get('alert/{id}', [AttencionCallController::class, 'callAlert']);
+		Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
 	}
 );

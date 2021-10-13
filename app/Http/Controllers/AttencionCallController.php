@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AttentionCall;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AttencionCallController extends Controller
 {
@@ -16,7 +17,19 @@ class AttencionCallController extends Controller
      */
     public function index()
     {
-        //
+            
+    }
+
+    public function callAlert($id)
+    {
+        $call = DB::table('attention_calls')
+            ->select(DB::raw('person_id, count(*) as cantidad'))
+            ->whereRaw('month(created_at) = MONTH(CURRENT_DATE())')
+            ->groupBy('person_id')
+            ->havingRaw('COUNT(*) > 1')
+            ->where('person_id', $id)
+            ->first();
+        return $call;
     }
 
     /**
@@ -37,7 +50,17 @@ class AttencionCallController extends Controller
      */
     public function store(Request $request)
     {
-        
+        try {
+            AttentionCall::create([
+                'reason' => $request->reason,
+                'number_call' => $request->number_call,
+                'person_id' => $request->person_id,
+                'user_id' => auth()->user()->id
+            ]);
+            return $this->success('Creado Con Éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**

@@ -122,21 +122,6 @@ class MemorandumController extends Controller
         }
     }
 
-    public function attentionCall(Request $request)
-    {
-        try {
-            AttentionCall::create([
-                'reason' => $request->reason,
-                'number_call' => $request->number_call,
-                'person_id' => $request->person_id,
-                'user_id' => auth()->user()->id
-            ]);
-            return $this->success('Creado Con Éxito');
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
-    }
-
     /**
      * Display the specified resource.
      *
