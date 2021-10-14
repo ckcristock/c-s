@@ -71,6 +71,7 @@ use App\Http\Controllers\TaxiCityController;
 use App\Http\Controllers\TaxiControlller;
 use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\TravelExpenseController;
+use App\Http\Controllers\VisaTypeController;
 use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
@@ -292,6 +293,7 @@ Route::group(
 		Route::resource('attention-call', AttencionCallController::class);
 		Route::resource('cities', CityController::class);
 		Route::resource('drivingLicenses', DrivingLicenseController::class);
+		Route::resource('visa-types', VisaTypeController::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -318,6 +320,7 @@ Route::group(
 		Route::get('paginateTaxis', [TaxiControlller::class, 'paginate']);
 		Route::get('paginateCities', [CityController::class, 'paginate']);
 		Route::get('paginateDrivingLicences', [DrivingLicenseController::class, 'paginate']);
+		Route::get('paginateVisaTypes', [VisaTypeController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
