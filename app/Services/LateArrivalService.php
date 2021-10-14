@@ -20,6 +20,9 @@ class LateArrivalService
             ->when(Request()->get('company_id'), function ($q, $fill) {
                 $q->where('w.company_id', $fill);
             })
+            ->when(Request()->get('person_id'),function($q,$fill){
+                $q->where('p.id',$fill);
+            })
             ->selectRaw('count(*) as total')
             ->selectRaw('SEC_TO_TIME(SUM(TIME_TO_SEC(l.real_entry) - TIME_TO_SEC(l.entry))) AS time_diff_total')
             ->first();
@@ -40,6 +43,9 @@ class LateArrivalService
                 $q->where('w.company_id', $fill);
             })
             ->whereBetween(DB::raw('DATE(l.created_at)'), $dates)
+            ->when(Request()->get('person_id'),function($q,$fill){
+                $q->where('p.id',$fill);
+            })
             ->selectRaw('count(*) as total, d.name')
             ->groupBy('d.id')
             ->get();
@@ -56,6 +62,9 @@ class LateArrivalService
             })
             ->when(Request()->get('company_id'), function ($q, $fill) {
                 $q->where('w.company_id', $fill);
+            })
+            ->when(Request()->get('person_id'),function($q,$fill){
+                $q->where('p.id',$fill);
             })
             ->whereBetween(DB::raw('DATE(date)'), $dates)
             ->count();
@@ -74,6 +83,9 @@ class LateArrivalService
                 $q->where('w.company_id', $fill);
             })
             ->whereBetween(DB::raw('DATE(l.created_at)'), $dates)
+            ->when(Request()->get('person_id'),function($q,$fill){
+                $q->where('p.id',$fill);
+            })
             ->selectRaw('count(*) as total')
             ->selectRaw('DAY(l.created_at) as day ')
             ->groupBy(DB::raw('DATE(l.created_at) '))
@@ -92,6 +104,9 @@ class LateArrivalService
             ->selectRaw('TIMEDIFF(la.real_entry,la.entry) AS entry_diff')
             ->where('la.person_id', $personId)
             ->whereBetween(DB::raw('DATE(la.created_at)'), $dates)
+            ->when(Request()->get('person_id'),function($q,$fill){
+                $q->where('la.person_id',$fill);
+            })
             ->get();
     }
 
@@ -111,6 +126,9 @@ class LateArrivalService
                     ->from('late_arrivals as la')
                     ->whereColumn('la.person_id', 'p.id')
                     ->whereBetween(DB::raw('DATE(la.created_at)'), $dates);
+            })
+            ->when(Request()->get('person_id'),function($q,$fill){
+                $q->where('p.id',$fill);
             })
             ->select('p.first_name', 'p.first_surname', 'p.id','p.image')
             ->get();
