@@ -18,7 +18,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyPaymentConfigurationController;
 use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\Countable_incomeController;
-use App\Http\Controllers\CountriesController;
+use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DianAddressController;
@@ -263,7 +263,7 @@ Route::group(
 		Route::resource('rotating-hour-diary', RotatingTurnDiaryController::class);
 		Route::resource('fixed-hour-diary', FixedTurnDiaryController::class);
 		Route::resource('documentTypes', DocumentTypesController::class);
-		Route::resource('countries', CountriesController::class);
+		Route::resource('countries', CountryController::class);
 		Route::resource('risk', RiskTypesController::class);
 		Route::resource('egress_types', EgressTypesController::class);
 		Route::resource('ingress_types', IngressTypesController::class);
@@ -298,7 +298,7 @@ Route::group(
 		Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
 		Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
 		Route::get('paginateDocumentType', [DocumentTypesController::class, 'paginate']);
-		Route::get('paginateCountries', [CountriesController::class, 'paginate']);
+		Route::get('paginateCountries', [CountryController::class, 'paginate']);
 		Route::get('paginateArl', [ArlController::class, 'paginate']);
 		Route::get('paginatePensionFun', [PensionFundController::class, 'paginate']);
 		Route::get('paginateCompensationFund', [CompensationFundController::class, 'paginate']);
@@ -314,6 +314,7 @@ Route::group(
 		Route::get('paginateRetentionType', [RetentionTypeController::class, 'paginate']);
 		Route::get('paginateHotels', [HotelController::class, 'paginate']);
 		Route::get('paginateTaxis', [TaxiControlller::class, 'paginate']);
+		Route::get('paginateCities', [CityController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);

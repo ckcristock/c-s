@@ -9,7 +9,7 @@ class City extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'name', 'type', 'country_id'
+        'name', 'type', 'country_id', 'state'
     ];
 
     public function routeTaxi()

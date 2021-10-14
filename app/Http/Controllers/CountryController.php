@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Countries;
+use App\Models\Country;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class CountriesController extends Controller
+class CountryController extends Controller
 {
     use ApiResponser;
     /**
@@ -18,7 +18,8 @@ class CountriesController extends Controller
     {
         try {
             return $this->success(
-                Countries::all(['name as text', 'id as value'])
+                Country::where('state', '=', 'Activo')
+                ->get(['name as text', 'id as value'])
             );
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 400);
@@ -28,7 +29,7 @@ class CountriesController extends Controller
     public function paginate()
     {
         return $this->success(
-            Countries::orderBy('name')
+            Country::orderBy('name')
                 ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
                 })
@@ -56,7 +57,7 @@ class CountriesController extends Controller
     {
         try {
             
-            $countries = Countries::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            $countries = Country::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
             return ($countries->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 200);
