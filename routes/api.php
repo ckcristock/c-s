@@ -26,6 +26,7 @@ use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\DisciplinaryProcessController;
 use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
+use App\Http\Controllers\DrivingLicenseController;
 use App\Http\Controllers\EgressTypesController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\ExtraHoursController;
@@ -290,6 +291,7 @@ Route::group(
 		Route::resource('retention-type', RetentionTypeController::class);
 		Route::resource('attention-call', AttencionCallController::class);
 		Route::resource('cities', CityController::class);
+		Route::resource('drivingLicenses', DrivingLicenseController::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -315,6 +317,7 @@ Route::group(
 		Route::get('paginateHotels', [HotelController::class, 'paginate']);
 		Route::get('paginateTaxis', [TaxiControlller::class, 'paginate']);
 		Route::get('paginateCities', [CityController::class, 'paginate']);
+		Route::get('paginateDrivingLicences', [DrivingLicenseController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);

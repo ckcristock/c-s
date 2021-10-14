@@ -65,7 +65,7 @@ class CityController extends Controller
 	{
 		try {
 			$city = City::updateOrCreate(['id' => $request->get('id')],$request->all());
-			return ($$city->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+			return ($city->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
 		} catch (\Throwable $th) {
 			return $this->error($th->getMessage(), 500);
 		}
