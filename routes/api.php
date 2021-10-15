@@ -320,7 +320,6 @@ Route::group(
 		Route::get('paginateTaxis', [TaxiControlller::class, 'paginate']);
 		Route::get('paginateCities', [CityController::class, 'paginate']);
 		Route::get('paginateDrivingLicences', [DrivingLicenseController::class, 'paginate']);
-		Route::get('paginateVisaTypes', [VisaTypeController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
