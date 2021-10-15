@@ -27,6 +27,13 @@ class ThirdPartyController extends Controller
             ->when( Request()->get('name') , function($q, $fill)
             {
                 $q->where(DB::raw('concat(first_name," ",first_surname)'),'like','%'.$fill.'%');
+            })->when( Request()->get('third_party_type') , function($q, $fill)
+            {
+                if (request()->get('third_party_type') == 'Todos') {
+                    return null;
+                } else {
+                    $q->where('third_party_type','like','%'.$fill.'%');
+                }
             })
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );

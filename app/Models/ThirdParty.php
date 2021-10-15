@@ -11,6 +11,7 @@ class ThirdParty extends Model
     protected $fillable = [
         'nit',
         'person_type',
+        'third_party_type',
         'social_reason',
         'first_name',
         'second_name',

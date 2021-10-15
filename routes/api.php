@@ -70,6 +70,7 @@ use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\TaxiCityController;
 use App\Http\Controllers\TaxiControlller;
 use App\Http\Controllers\ThirdPartyController;
+use App\Http\Controllers\ThirdPartyPersonController;
 use App\Http\Controllers\TravelExpenseController;
 use App\Http\Controllers\VisaTypeController;
 use App\Http\Controllers\WinningListController;
@@ -290,6 +291,7 @@ Route::group(
 		Route::resource('lunch', LunchControlller::class);
 		Route::resource('professions', ProfessionController::class);
 		Route::resource('third-party', ThirdPartyController::class);
+		Route::resource('third-party-person', ThirdPartyPersonController::class);
 		Route::resource('winnings-list', WinningListController::class);
 		Route::resource('ciiu-code', CiiuCodeController::class);
 		Route::resource('dian-address', DianAddressController::class);
@@ -325,6 +327,7 @@ Route::group(
 		Route::get('paginateTaxis', [TaxiControlller::class, 'paginate']);
 		Route::get('paginateCities', [CityController::class, 'paginate']);
 		Route::get('paginateDrivingLicences', [DrivingLicenseController::class, 'paginate']);
+		Route::get('paginateVisaTypes', [VisaTypeController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -360,5 +363,6 @@ Route::group(
 		Route::get('filter-all-positions', [PositionController::class, 'positions']);
 		Route::get('alert/{id}', [AttencionCallController::class, 'callAlert']);
 		Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
+		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
 	}
 );
