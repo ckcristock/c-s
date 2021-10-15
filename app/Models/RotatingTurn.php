@@ -21,5 +21,16 @@ class RotatingTurn extends Model
 		"breack",
 		"breack_time",
 		"breack_time_two",
+		"sunday_id",
+		"saturday_id",
 	];
+
+	public function sunday()
+	{
+		return $this->belongsTo(RotatingTurn::class , 'sunday_id','id');
+	}
+	public function saturday()
+	{
+		return $this->belongsTo(RotatingTurn::class , 'saturday_id','id');
+	}
 }

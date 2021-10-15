@@ -19,7 +19,10 @@ class RotatingTurnController extends Controller
 	{
 		//
 		return $this->success(
-			RotatingTurn::all(["*","id as value", "name as text", "state"])
+			RotatingTurn::
+			 with('sunday')
+			 ->with('saturday')
+			->get(["*","id as value", "name as text", "state"])
 		);
 	}
 
