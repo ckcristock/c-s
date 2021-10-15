@@ -27,11 +27,11 @@ class Job extends Model
         'can_trip',
         'change_residence',
         'visa',
-        'visaType_id',
-        'salaryType_id',
-        'contractType_id',
+        'visa_type_id',
+        'salary_type_id',
+        'work_contract_type_id',
         'passport',
-        'documentType_id'
+        'document_type_id'
     ];
 
     public function position()
