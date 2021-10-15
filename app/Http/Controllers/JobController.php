@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DrivingLicenseJob;
 use App\Models\Job;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -61,11 +62,19 @@ class JobController extends Controller
      */
     public function store(Request $request)
     {
+        $job = $request->except(["drivingLicenseJob"]);
+        $drivingLincenseJob = request()->get('drivingLicenseJob');
         try {
-            Job::create($request->all());
+            $jobDB = Job::create($job);
+            foreach ($drivingLincenseJob as $driving) {
+                DrivingLicenseJob::create([
+                    'job_id' =>  $jobDB->id,
+                    'driving_license_id' => $driving
+                ]);
+            }
             return $this->success('creacion exitosa');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(),500);
+            return $this->error($th->getMessage(), $th->getLine(), $th->getFile(),500);
         }
     }
 

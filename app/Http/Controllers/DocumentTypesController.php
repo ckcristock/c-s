@@ -17,7 +17,8 @@ class DocumentTypesController extends Controller
      */
     public function index()
     {
-        return $this->success(DocumentTypes::get(['name As text', 'id As value']));
+        return $this->success(DocumentTypes::where('status', '=', 'Activo')
+        ->get(['name As text', 'id As value']));
     }
 
     public function paginate()

@@ -10,7 +10,7 @@ class CompanyPaymentConfiguration extends Model
     use HasFactory;
     protected $fillable = [
         'calculate_work_disability',
-        'pay_dedutions',
+        'pay_deductions',
         'recurring_payment',
         'payment_transport_subsidy',
         'affects_transportation_subsidy',

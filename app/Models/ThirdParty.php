@@ -11,6 +11,7 @@ class ThirdParty extends Model
     protected $fillable = [
         'nit',
         'person_type',
+        'social_reason',
         'first_name',
         'second_name',
         'first_surname',
@@ -38,10 +39,10 @@ class ThirdParty extends Model
         'withholding_agent',
         'withholding_oninvoice',
         'reteica_type',
-        'reteica_account',
-        'retefuente_account',
+        'reteica_account_id',
+        'retefuente_account_id',
         'g_contribut',
-        'reteiva_account',
+        'reteiva_account_id',
         'condition_payment',
         'assigned_space',
         'discount_prompt_payment',
@@ -59,5 +60,10 @@ class ThirdParty extends Model
     public function municipality()
     {
         return $this->belongsTo(Municipality::class);
+    }
+
+    public function accountPlan()
+    {
+        return $this->belongsTo(AccountPlan::class);
     }
 }

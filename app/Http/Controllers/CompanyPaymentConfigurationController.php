@@ -42,7 +42,7 @@ class CompanyPaymentConfigurationController extends Controller
                 CompanyPaymentConfiguration::create($request->all())
             );
         } catch (\Throwable $th) {
-            //throw $th;
+            return $this->error($th->getMessage(), 500);
         }
     }
 

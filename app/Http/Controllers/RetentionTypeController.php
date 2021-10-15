@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Lunch;
-use App\Models\LunchPerson;
-use App\Models\Person;
+use App\Models\RetentionType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class LunchControlller extends Controller
+class RetentionTypeController extends Controller
 {
     use ApiResponser;
     /**
@@ -20,24 +18,23 @@ class LunchControlller extends Controller
     public function index()
     {
         return $this->success(
-            DB::table('lunch_people as lp')
+            RetentionType::all(['name as text', 'id as value'])
+        );
+    }
+
+    public function paginate()
+    {
+        return $this->success(
+            DB::table('retention_types as r')
             ->select(
-                'l.id',
-                'l.value',
-                'p.first_name',
-                'p.first_surname',
-                'l.state',
-                'l.created_at',
-                DB::raw('concat(user.first_name," ",user.first_surname) as user')
+                'r.id',
+                'r.name',
+                'a.name as account_plan',
+                'r.percentage',
+                'r.state',
+                'r.description'
             )
-            ->when(request()->get('date'), function($q, $fill) 
-            {
-                $q->where('l.created_at', 'like', '%'.$fill.'%');
-            })
-            ->join('lunches as l', 'l.id', '=', 'lp.lunch_id')
-            ->join('people as p', 'p.id', '=', 'lp.person_id')
-            ->join('users as u', 'u.id', '=', 'l.user_id')
-            ->join('people as user', 'user.id', '=', 'u.person_id')
+            ->join('account_plans as a', 'a.id', '=', 'account_plan_id')
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
@@ -61,27 +58,8 @@ class LunchControlller extends Controller
     public function store(Request $request)
     {
         try {
-            $lunch = Lunch::create([
-                'user_id' => auth()->user()->id,
-                'value' => $request->value
-            ]);
-            $lunchPerson = request()->get('persons');
-            foreach ($lunchPerson as $person) {
-                $person["lunch_id"] = $lunch->id;
-                LunchPerson::create($person);
-            }
+            RetentionType::updateOrCreate( ['id' => $request->get('id')], $request->all());
             return $this->success('Creado con éxito');
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
-    }
-
-    public function activateOrInactivate( Request $request )
-    {
-        try {
-            $state = Lunch::find($request->get('id'));
-            $state->update($request->all());
-            return $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -118,11 +96,7 @@ class LunchControlller extends Controller
      */
     public function update(Request $request, $id)
     {
-        /* try {
-            $lunch = $request->get('')
-        } catch (\Throwable $th) {
-            //throw $th;
-        } */
+        //
     }
 
     /**

@@ -26,6 +26,12 @@ class Job extends Model
         'max_age',
         'can_trip',
         'change_residence',
+        'visa',
+        'visaType_id',
+        'salaryType_id',
+        'contractType_id',
+        'passport',
+        'documentType_id'
     ];
 
     public function position()

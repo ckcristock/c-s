@@ -47,7 +47,8 @@ class AccountPlanController extends Controller
 				'a.id',
 				'a.percent',
 				'a.center_cost',
-				DB::raw('concat(a.code," - ",a.name) as code')
+				DB::raw('concat(a.code," - ",a.name) as code'),
+				DB::raw('concat(a.niif_code," - ",a.niif_name) as niif_code')
 			)
 			->get()
 		);

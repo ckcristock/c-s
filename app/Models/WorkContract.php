@@ -19,7 +19,8 @@ class WorkContract extends Model
         'rotating_turn_id',
         'company_id',
         'fixed_turn_id',
-        'person_id'
+        'person_id',
+        'date_of_admission'
     ];
     public function position()
     {

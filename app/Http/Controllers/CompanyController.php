@@ -25,7 +25,7 @@ class CompanyController extends Controller
     public function getBasicData()
     {
         return $this->success(
-            Company::with('arl')->with('banks')->first()
+            Company::with('arl')->with('bank')->first()
         );
     }
 

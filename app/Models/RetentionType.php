@@ -5,17 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Lunch extends Model
+class RetentionType extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'user_id',
-        'value',
+        'name',
+        'account_plan_id',
+        'percentage',
+        'description',
         'state'
     ];
-
-    public function lunchPerson()
-    {
-        return $this->belongsTo(LunchPerson::class);
-    }
 }

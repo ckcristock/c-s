@@ -18,14 +18,15 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyPaymentConfigurationController;
 use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\Countable_incomeController;
-use App\Http\Controllers\CountriesController;
+use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DianAddressController;
 use App\Http\Controllers\DisabilityLeaveController;
-use App\Http\Controllers\Disciplinary_processController;
+use App\Http\Controllers\DisciplinaryProcessController;
 use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
+use App\Http\Controllers\DrivingLicenseController;
 use App\Http\Controllers\EgressTypesController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\ExtraHoursController;
@@ -61,6 +62,7 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
+use App\Http\Controllers\RetentionTypeController;
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnDiaryController;
 use App\Http\Controllers\RotatingTurnHourController;
@@ -69,6 +71,7 @@ use App\Http\Controllers\TaxiCityController;
 use App\Http\Controllers\TaxiControlller;
 use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\TravelExpenseController;
+use App\Http\Controllers\VisaTypeController;
 use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
@@ -79,6 +82,7 @@ use App\Models\CompanyPaymentConfiguration;
 use App\Models\Countable_income;
 use App\Models\DisabilityLeave;
 use App\Models\DocumentTypes;
+use App\Models\RetentionType;
 use App\Models\TravelExpense;
 use App\Models\WorkContract;
 use App\Models\WorkContractType;
@@ -121,6 +125,16 @@ Route::get('/image', function () {
 	}
 	return 'path not found';
 });
+
+Route::get('/file', function () {
+	$path = Request()->get('path');
+	$download = storage_path('app/' . $path);
+	if ($path) {
+		return response()->download($download);
+	}
+	return 'path not found';
+});
+
 Route::post('/asistencia/validar', [AsistenciaController::class, 'validar']);
 
 
@@ -250,13 +264,13 @@ Route::group(
 		Route::resource('work_contracts', WorkContractController::class);
 		Route::resource('memorandum', MemorandumController::class);
 		Route::resource('type_memorandum', MemorandumTypesController::class);
-		Route::resource('disciplinary_process', Disciplinary_processController::class);
+		Route::resource('disciplinary_process', DisciplinaryProcessController::class);
 		Route::resource('salaryTypes', SalaryTypesController::class);
 		Route::resource('rotating-hour', RotatingTurnHourController::class);
 		Route::resource('rotating-hour-diary', RotatingTurnDiaryController::class);
 		Route::resource('fixed-hour-diary', FixedTurnDiaryController::class);
 		Route::resource('documentTypes', DocumentTypesController::class);
-		Route::resource('countries', CountriesController::class);
+		Route::resource('countries', CountryController::class);
 		Route::resource('risk', RiskTypesController::class);
 		Route::resource('egress_types', EgressTypesController::class);
 		Route::resource('ingress_types', IngressTypesController::class);
@@ -280,7 +294,12 @@ Route::group(
 		Route::resource('ciiu-code', CiiuCodeController::class);
 		Route::resource('dian-address', DianAddressController::class);
 		Route::resource('pay-vacation', PayVacationController::class);
-
+		Route::resource('retention-type', RetentionTypeController::class);
+		Route::resource('attention-call', AttencionCallController::class);
+		Route::resource('cities', CityController::class);
+		Route::resource('drivingLicenses', DrivingLicenseController::class);
+		Route::resource('visa-types', VisaTypeController::class);
+		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -288,7 +307,7 @@ Route::group(
 		Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
 		Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
 		Route::get('paginateDocumentType', [DocumentTypesController::class, 'paginate']);
-		Route::get('paginateCountries', [CountriesController::class, 'paginate']);
+		Route::get('paginateCountries', [CountryController::class, 'paginate']);
 		Route::get('paginateArl', [ArlController::class, 'paginate']);
 		Route::get('paginatePensionFun', [PensionFundController::class, 'paginate']);
 		Route::get('paginateCompensationFund', [CompensationFundController::class, 'paginate']);
@@ -300,6 +319,12 @@ Route::group(
 		Route::get('paginateBanks', [BanksController::class, 'paginate']);
 		Route::get('paginateBankAccount', [BankAccountsController::class, 'paginate']);
 		Route::get('paginateProfessions', [ProfessionController::class, 'paginate']);
+		Route::get('paginateFixedAssetType', [FixedAssetTypeController::class, 'paginate']);
+		Route::get('paginateRetentionType', [RetentionTypeController::class, 'paginate']);
+		Route::get('paginateHotels', [HotelController::class, 'paginate']);
+		Route::get('paginateTaxis', [TaxiControlller::class, 'paginate']);
+		Route::get('paginateCities', [CityController::class, 'paginate']);
+		Route::get('paginateDrivingLicences', [DrivingLicenseController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -320,8 +345,7 @@ Route::group(
 		Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
 		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
 		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
-		Route::get('process/{id}', [Disciplinary_processController::class, 'process']);
-		/* Route::get('cities', [RouteTaxiController::class, 'cities']); */
+		Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
 		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
@@ -331,5 +355,10 @@ Route::group(
 		Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
 		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
 		Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
+		Route::put('state-change', [LunchControlller::class, 'activateOrInactivate']);
+		Route::get('filter-all-depencencies', [DependencyController::class, 'dependencies']);
+		Route::get('filter-all-positions', [PositionController::class, 'positions']);
+		Route::get('alert/{id}', [AttencionCallController::class, 'callAlert']);
+		Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
 	}
 );

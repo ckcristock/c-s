@@ -61,7 +61,7 @@ class ThirdPartyController extends Controller
     {
         $data = $request->except(["person"]);
         $people = request()->get('person');
-        $file = $request->file('rut')->store('public');
+        /* $file = $request->file('rut')->store('public'); */
         try {
             $thirdParty =  ThirdParty::create($data);
             foreach ($people as $person) {
@@ -71,6 +71,16 @@ class ThirdPartyController extends Controller
             return $this->success('Guardado con éxito');
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage(), 500);
+        }
+    }
+
+    public function changeState( Request $request ){
+        try {
+            $third = ThirdParty::find(request()->get('id'));
+            $third->update($request->all());
+            return $this->success('Proceso Correcto');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
         }
     }
 

@@ -23,6 +23,7 @@ class RotatingTurn extends Model
 		"breack_time_two",
 		"sunday_id",
 		"saturday_id",
+		"color"
 	];
 
 	public function sunday()

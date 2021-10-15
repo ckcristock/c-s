@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Disciplinary_process;
+use App\Models\DisciplinaryProcess;
 use App\Traits\ApiResponser;
+use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 
-class Disciplinary_processController extends Controller
+class DisciplinaryProcessController extends Controller
 {
     use ApiResponser;
     /**
@@ -31,17 +33,22 @@ class Disciplinary_processController extends Controller
                 'd.status',
                 'd.date_of_admission',
                 'd.date_end',
-                'd.id'
+                'd.id',
+                'd.file'
             )
             ->when( Request()->get('person') , function($q, $fill)
             {
                 $q->where(DB::raw('concat(p.first_name, " ",p.first_surname)'), 'like', '%' . $fill . '%');
             })
-            ->join('disciplinary_process as d', function($join) {
+            ->join('disciplinary_processes as d', function($join) {
                 $join->on('d.person_id', '=', 'p.id');
             })
             ->when( Request()->get('status'), function($q, $fill) {
-                $q->where('d.status', 'like', '%' . $fill . '%');
+                if (request()->get('status') == 'Todos') {
+                    return null;
+                } else {
+                    $q->where('d.status', 'like', '%' . $fill . '%');
+                }
             })
             ->when( Request()->get('code'), function($q, $fill) {
                 $q->where('d.id', 'like', '%' . $fill . '%');
@@ -73,11 +80,53 @@ class Disciplinary_processController extends Controller
     public function store(Request $request)
     {
         try {
-            Disciplinary_process::create($request->all());
+            $data = $request->all();
+            $type = '.'. $request->type;
+            $base64 = saveBase64File( $data["file"], 'descargos/', false, $type);
+            $data["file"] = URL::to('/') . '/api/file?path=' . $base64;
+            DisciplinaryProcess::create([
+                'person_id' => $request->person_id,
+                'process_description' => $request->process_description,
+                'date_of_admission' => $request->date_of_admission,
+                'date_end' => $request->date_end,
+                'file' => $base64
+            ]);
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
+            return $this->error([$th->getMessage(), $th->getLine(), $th->getFile()], 500);
         }
+    }
+
+    public function descargoPdf($id)
+    {
+        $descargo = DB::table('disciplinary_processes as dp')
+			->select(
+				'dp.person_id',
+                'dp.id as descargo_id',
+				'p.first_name',
+				'p.second_name',
+				'p.first_surname',
+				'p.second_surname',
+				'p.identifier',
+				'dp.date_of_admission'
+			)
+			->join('people as p','p.id', '=', 'dp.person_id')
+			->where('dp.id', $id)
+			->first();
+        $company = DB::table('companies as c')
+            ->select(
+                'c.name as company_name',
+                'c.document_number as nit',
+                'c.phone',
+                'c.email_contact',
+                DB::raw('CURRENT_DATE() as fecha')
+            )
+            ->first();
+			$pdf = PDF::loadView('pdf.descargopdf', [
+				'funcionario' => $descargo,
+                'company' => $company
+			]);
+			return $pdf->download('descargopdf.pdf');
     }
 
     /**
@@ -90,7 +139,7 @@ class Disciplinary_processController extends Controller
     {
         return $this->success(
             DB::table('memorandums as m')
-            ->select(   
+            ->select(
                 'm.created_at as created_at_memorandum',
                 't.name as memorandumType',
                 'p.first_name',
@@ -110,7 +159,7 @@ class Disciplinary_processController extends Controller
     public function process($id)
     {
         return $this->success(
-            DB::table('disciplinary_process as d')
+            DB::table('disciplinary_processes as d')
             ->select(
                 'd.process_description',
                 'd.created_at as created_at_process'

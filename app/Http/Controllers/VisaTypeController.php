@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Countries;
+use App\Models\VisaType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class CountriesController extends Controller
+class VisaTypeController extends Controller
 {
     use ApiResponser;
     /**
@@ -16,23 +16,17 @@ class CountriesController extends Controller
      */
     public function index()
     {
-        try {
-            return $this->success(
-                Countries::all(['name as text', 'id as value'])
-            );
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 400);
-        }
+        return $this->success(
+            VisaType::where('state', '=', 'Activo')
+            ->get(['id as value', 'name as text'])
+        );
     }
 
     public function paginate()
     {
         return $this->success(
-            Countries::orderBy('name')
-                ->when(request()->get('name'), function ($q, $fill) {
-                    $q->where('name', 'like', '%' . $fill . '%');
-                })
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            VisaType::orderBy('name')
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -55,11 +49,20 @@ class CountriesController extends Controller
     public function store(Request $request)
     {
         try {
-            
-            $countries = Countries::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($countries->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            $visa = VisaType::updateOrCreate(['id' => $request->get('id')], $request->all());
+            return ($visa->wasRecentlyCreated) 
+            ? 
+            $this->success([
+            'title' => '¡Creado con éxito!',
+            'text' => 'El Tipo de Visa ha sido creado satisfactoriamente'
+            ]) 
+            : 
+            $this->success([
+            'title' => '¡Actualizado con éxito!',
+            'text' => 'El Tipo de Visa ha sido Actualizado satisfactoriamente'
+            ]);
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 200);
+            return $this->error($th->getMessage(), 500);
         }
     }
 

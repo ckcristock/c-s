@@ -26,6 +26,19 @@ class HotelController extends Controller
 			return $this->error($th->getMessage(), 400);
 		}
 	}
+
+	public function paginate()
+	{
+		return $this->success(
+			Hotel::orderBy('type')
+			->when( request()->get('tipo') , function($q, $fill)
+			{
+				$q->where('type','like','%'.$fill.'%');
+			})
+			->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+		);
+	}
+
 	/**
 	 * Show the form for creating a new resource.
 	 *
@@ -44,7 +57,12 @@ class HotelController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		//
+		try {
+			Hotel::updateOrCreate(['id' => $request->get('id')],$request->all());
+			return $this->success('Creado con éxito');
+		} catch (\Throwable $th) {
+			return $this->error($th->getMessage(), 500);
+		}
 	}
 
 	/**

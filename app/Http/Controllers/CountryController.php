@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AttentionCall;
+use App\Models\Country;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class AttencionCallController extends Controller
+class CountryController extends Controller
 {
     use ApiResponser;
     /**
@@ -17,19 +16,25 @@ class AttencionCallController extends Controller
      */
     public function index()
     {
-            
+        try {
+            return $this->success(
+                Country::where('state', '=', 'Activo')
+                ->get(['name as text', 'id as value'])
+            );
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 400);
+        }
     }
 
-    public function callAlert($id)
+    public function paginate()
     {
-        $call = DB::table('attention_calls')
-            ->select(DB::raw('person_id, count(*) as cantidad'))
-            ->whereRaw('month(created_at) = MONTH(CURRENT_DATE())')
-            ->groupBy('person_id')
-            ->havingRaw('COUNT(*) > 1')
-            ->where('person_id', $id)
-            ->first();
-        return $call;
+        return $this->success(
+            Country::orderBy('name')
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
     }
 
     /**
@@ -51,15 +56,11 @@ class AttencionCallController extends Controller
     public function store(Request $request)
     {
         try {
-            AttentionCall::create([
-                'reason' => $request->reason,
-                'number_call' => $request->number_call,
-                'person_id' => $request->person_id,
-                'user_id' => auth()->user()->id
-            ]);
-            return $this->success('Creado Con Éxito');
+            
+            $countries = Country::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($countries->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
+            return $this->error($th->getMessage(), 200);
         }
     }
 
