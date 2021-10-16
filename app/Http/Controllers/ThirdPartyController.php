@@ -7,6 +7,7 @@ use App\Models\ThirdPartyPerson;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 
 class ThirdPartyController extends Controller
 {
@@ -67,8 +68,11 @@ class ThirdPartyController extends Controller
     public function store(Request $request)
     {
         $data = $request->except(["person"]);
+        $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/');
+        $type = '.'. $request->type;
+        $base64 = saveBase64File( $data["rut"], 'third_parties_rut/', false, $type);
+        $data["rut"] = URL::to('/') . '/api/file?path=' . $base64;
         $people = request()->get('person');
-        /* $file = $request->file('rut')->store('public'); */
         try {
             $thirdParty =  ThirdParty::create($data);
             foreach ($people as $person) {
@@ -126,6 +130,7 @@ class ThirdPartyController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->except(["person"]);
+        $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/');
         $people = request()->get('person');
         try {
             $thirdParty = ThirdParty::find($id)

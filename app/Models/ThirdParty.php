@@ -50,7 +50,8 @@ class ThirdParty extends Model
         'discount_days',
         'state',
         'rut',
-        'cod_dian_address'
+        'cod_dian_address',
+        'image'
     ];
 
     public function thirdPartyPerson()
