@@ -24,23 +24,26 @@ class JobController extends Controller
         $pageSize = Request()->get('pageSize');
         $pageSize = $pageSize ? $pageSize : 10;
 
-        return $this->success( 
+        return $this->success(
             Job::with([
-            'position'=>function($q){
-                $q->select('name','id','dependency_id');
-            },
-            'position.dependency'=>function($q){
-                $q->select('name','id');
-            },
-            'municipality'=>function($q){
-                $q->select('name','id','department_id');
-            },
-            'municipality.department'=>function($q){
-                $q->select('name','id');
-            }
+                'position' => function ($q) {
+                    $q->select('name', 'id', 'dependency_id');
+                },
+                'salary_type' => function ($q) {
+                    $q->select('id', 'name');
+                },
+                'position.dependency' => function ($q) {
+                    $q->select('name', 'id');
+                },
+                'municipality' => function ($q) {
+                    $q->select('name', 'id', 'department_id');
+                },
+                'municipality.department' => function ($q) {
+                    $q->select('name', 'id');
+                }
             ])
-            ->orderBy('id','DESC')
-            ->paginate($pageSize, '*', 'page', $page)
+                ->orderBy('id', 'DESC')
+                ->paginate($pageSize, '*', 'page', $page)
         );
     }
 
@@ -52,6 +55,61 @@ class JobController extends Controller
     public function create()
     {
         //
+    }
+
+    public function getPreview()
+    {
+        $page = Request()->get('page');
+        $page = $page ? $page : 1;
+
+        $pageSize = Request()->get('pageSize');
+        $pageSize = $pageSize ? $pageSize : 10;
+
+        return $this->success(
+            Job::with([
+                'position' => function ($q) {
+                    $q->select('name', 'id', 'dependency_id');
+                }, 'salary_type' => function ($q) {
+                    $q->select('id', 'name');
+                },
+                'position.dependency' => function ($q) {
+                    $q->select('name', 'id');
+                },
+                'municipality' => function ($q) {
+                    $q->select('name', 'id', 'department_id')
+                        ->when(request()->get('municipality_id'), function ($q, $fill) {
+                            $q->where('id', '=', $fill);
+                        });;
+                },
+                'work_contract_type' => function ($q) {
+                    $q->select('id', 'name');
+                },
+                'municipality.department' => function ($q) {
+                    $q->select('name', 'id');
+                }
+            ])->whereHas('municipality', function ($q) {
+                $q->when(request()->get('municipality_id'), function ($q, $fill) {
+                    $q->where('id', '=', $fill);
+                });
+                $q->when(request()->get('department_id'), function ($q, $fill) {
+                    $q->where('department_id', '=', $fill);
+                });
+            })
+       
+                ->whereHas('position', function ($q) {
+                    $q->when(request()->get('dependency_id'), function ($q, $fill) {
+                        $q->where('dependency_id', '=', $fill);
+                    });
+                })
+                ->when(request()->get('position'), function ($q, $fill) {
+                    $q->where('title', 'like', '%' . $fill . '%');
+                })
+                /*  ->when(request()->get('dependency_id'), function ($q, $fill) {
+                $q->where('id', '=', $fill);
+            }) */
+                ->orderBy('id', 'DESC')
+                ->simplePaginate($pageSize, '*', 'page', $page)
+        );
     }
 
     /**
@@ -74,7 +132,7 @@ class JobController extends Controller
             }
             return $this->success('creacion exitosa');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), $th->getLine(), $th->getFile(),500);
+            return $this->error($th->getMessage(), $th->getLine(), $th->getFile(), 500);
         }
     }
 
@@ -87,23 +145,23 @@ class JobController extends Controller
     public function show($id)
     {
         //
-        return $this->success( 
+        return $this->success(
             Job::with([
-            'position'=>function($q){
-                $q->select('name','id','dependency_id');
-            },
-            'position.dependency'=>function($q){
-                $q->select('name','id');
-            },
-            'municipality'=>function($q){
-                $q->select('name','id','department_id');
-            },
-            'municipality.department'=>function($q){
-                $q->select('name','id');
-            }
+                'position' => function ($q) {
+                    $q->select('name', 'id', 'dependency_id');
+                },
+                'position.dependency' => function ($q) {
+                    $q->select('name', 'id');
+                },
+                'municipality' => function ($q) {
+                    $q->select('name', 'id', 'department_id');
+                },
+                'municipality.department' => function ($q) {
+                    $q->select('name', 'id');
+                }
             ])
-            ->where('id',$id)
-            ->first()
+                ->where('id', $id)
+                ->first()
         );
     }
 
@@ -140,7 +198,7 @@ class JobController extends Controller
     {
         //
     }
-    public function setState( $id, Request $request )
+    public function setState($id, Request $request)
     {
         try {
             $job = Job::find($id);
@@ -148,9 +206,7 @@ class JobController extends Controller
             $job->save();
             return $this->success('actualizado exitosa');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(),500);
+            return $this->error($th->getMessage(), 500);
         }
-        
     }
-
 }

@@ -663,7 +663,6 @@ class AsistenciaController extends Controller
 
                    /*  if ($durationLaunch > 300) { */
                         MarcationService::makeLateArrival($func->id, $hoy, $durationLaunch, $hactual, $rotativo_hoy->turnoRotativo->breack_time_two);
-                    }
 
                     $datos = array(
                         'breack_two_date' => $hoy,
@@ -677,6 +676,7 @@ class AsistenciaController extends Controller
                         'icon' => 'success'
                     );
                     return $respuesta;
+
                 }
                 //return $rotativo_hoy;
                 if ($rotativo_hoy->turnoRotativo->launch == 1 && $rotativo_hoy->launch_time_one == null) {
