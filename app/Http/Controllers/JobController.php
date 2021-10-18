@@ -158,7 +158,13 @@ class JobController extends Controller
                 },
                 'municipality.department' => function ($q) {
                     $q->select('name', 'id');
-                }
+                },
+                'work_contract_type' => function ($q) {
+                    $q->select('id', 'name');
+                },
+                'salary_type' => function ($q) {
+                    $q->select('id', 'name');
+                },
             ])
                 ->where('id', $id)
                 ->first()
