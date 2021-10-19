@@ -3,6 +3,7 @@
 /* use App\Http\Controllers\AuthController; */
 
 use App\Http\Controllers\AccountPlanController;
+use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AttencionCallController;
@@ -203,6 +204,7 @@ Route::group(
 		]);
 
 		Route::get('/horarios/datos/generales/{semana}', [RotatingTurnHourController::class, 'getDatosGenerales']);
+		Route::get('download-applicants/{id}', [ApplicantController::class, 'donwloadCurriculum']);
 
 
 		Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'statistics']);
@@ -235,6 +237,7 @@ Route::group(
 		Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
 
 		/**End */
+		Route::resource('applicants', ApplicantController::class);
 		Route::resource('pretty-cash', PrettyCashController::class);
 		Route::resource('dependencies', DependencyController::class);
 		Route::resource('company', CompanyController::class);
