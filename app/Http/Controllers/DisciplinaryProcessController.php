@@ -108,7 +108,8 @@ class DisciplinaryProcessController extends Controller
 				'p.first_surname',
 				'p.second_surname',
 				'p.identifier',
-				'dp.date_of_admission'
+				'dp.date_of_admission',
+                'dp.created_at'
 			)
 			->join('people as p','p.id', '=', 'dp.person_id')
 			->where('dp.id', $id)
@@ -123,7 +124,7 @@ class DisciplinaryProcessController extends Controller
             )
             ->first();
 			$pdf = PDF::loadView('pdf.descargopdf', [
-				'funcionario' => $descargo,
+				'descargo' => $descargo,
                 'company' => $company
 			]);
 			return $pdf->download('descargopdf.pdf');

@@ -35,23 +35,6 @@ if (!function_exists('saveBase64File')) {
                 $file
             )
         );
-        /* if ($type) {
-            $file = base64_decode(
-            preg_replace(
-                "#^data:application/\w+;base64,#i",
-                "",
-                $file
-            )
-        );
-        } else if($type == ".png" || $type == ".jpge") {
-            $file = base64_decode(
-                preg_replace(
-                    "#^data:image/\w+;base64,#i",
-                    "",
-                    $file
-                )
-            );
-        } */
         $file_path = $path . Str::random(30) . time() . $type;
         if ($public) {
             Storage::disk('public')->put($file_path, $file, "public");

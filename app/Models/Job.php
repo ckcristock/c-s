@@ -31,7 +31,8 @@ class Job extends Model
         'salary_type_id',
         'work_contract_type_id',
         'passport',
-        'document_type_id'
+        'document_type_id',
+        'conveyance'
     ];
 
     public function position()
