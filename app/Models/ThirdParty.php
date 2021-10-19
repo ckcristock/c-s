@@ -11,6 +11,7 @@ class ThirdParty extends Model
     protected $fillable = [
         'nit',
         'person_type',
+        'third_party_type',
         'social_reason',
         'first_name',
         'second_name',
@@ -49,7 +50,8 @@ class ThirdParty extends Model
         'discount_days',
         'state',
         'rut',
-        'cod_dian_address'
+        'cod_dian_address',
+        'image'
     ];
 
     public function thirdPartyPerson()
