@@ -7,7 +7,7 @@ use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class AttencionCallController extends Controller
+class AttentionCallController extends Controller
 {
     use ApiResponser;
     /**
@@ -52,9 +52,9 @@ class AttencionCallController extends Controller
     {
         try {
             AttentionCall::create([
-                'reason' => $request->reason,
-                'number_call' => $request->number_call,
-                'person_id' => $request->person_id,
+                'reason' => $request->get('reason'),
+                'number_call' => $request->get('number_call'),
+                'person_id' => $request->get('person_id'),
                 'user_id' => auth()->user()->id
             ]);
             return $this->success('Creado Con Éxito');
