@@ -3,6 +3,7 @@
 /* use App\Http\Controllers\AuthController; */
 
 use App\Http\Controllers\AccountPlanController;
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
@@ -307,6 +308,7 @@ Route::group(
 		Route::resource('cities', CityController::class);
 		Route::resource('drivingLicenses', DrivingLicenseController::class);
 		Route::resource('visa-types', VisaTypeController::class);
+		Route::resource('alerts', AlertController::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);

@@ -7,6 +7,7 @@ use App\Models\RrhhActivity;
 use App\Models\RrhhActivityPerson;
 use App\Services\PersonService;
 use App\Traits\ApiResponser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -51,6 +52,10 @@ class RrhhActivityController extends Controller
         try {
 
             $data = $request->all();
+            $date1 = Carbon::parse($data['date_start'])->format('d M Y');
+            $date2 = Carbon::parse($data['date_end'])->format('d M Y');
+        
+
             $data['user_id'] = auth()->user()->id;
             $activity = RrhhActivity::updateOrCreate(
                 ['id' => $request->get('id')],
@@ -76,14 +81,17 @@ class RrhhActivityController extends Controller
                                 'user_id' => $data['user_id'],
                                 'type' => 'Actividad',
                                 'icon' => 'fa fa-calendar-day',
-                                'description' =>  $data['name'],
+                                'title' =>  $data['name'],
+                                'description' =>  'Fecha: ' . $date1 . ' - ' . $date2 . ' 
+                                / Actividad: ' . $data['description'],
+                                'modal' =>  1,
                                 'destination_id' => $activity->id
                             ]
                         );
                     }
                 }
             }
-            if ( count($data['people_id']) > 0 ||  !$idToUpdate  ) {
+            if (count($data['people_id']) > 0 ||  !$idToUpdate) {
                 if (!in_array('0', $data['people_id'])) {
 
                     foreach ($data['people_id'] as $person_id) {
@@ -93,7 +101,10 @@ class RrhhActivityController extends Controller
                                 'user_id' => $data['user_id'],
                                 'type' => 'Actividad',
                                 'icon' => 'fa fa-calendar-day',
-                                'description' =>  $data['name'],
+                                'title' =>  $data['name'],
+                                'description' =>  'Fecha: ' . $date1 . ' - ' . $date2 . ' 
+                                / Actividad: ' . $data['description'],
+                                'modal' =>  1,
                                 'destination_id' => $activity->id
                             ]
                         );
@@ -122,7 +133,10 @@ class RrhhActivityController extends Controller
                                 'user_id' => $data['user_id'],
                                 'type' => 'Actividad',
                                 'icon' => 'fa fa-calendar-day',
-                                'description' =>  $data['name'],
+                                'title' =>  $data['name'],
+                                'description' =>  'Fecha: ' . $date1 . ' - ' . $date2 . ' 
+                                / Actividad: ' . $data['description'],
+                                'modal' =>  1,
                                 'destination_id' => $activity->id
                             ]
                         );
@@ -133,7 +147,7 @@ class RrhhActivityController extends Controller
             return $this->success('Guardado con éxito');
         } catch (\Throwable $th) {
             //throw $th;
-            return $this->error($th->getMessage().$th->getLine().$th->getFile(), 500);
+            return $this->error($th->getMessage() . $th->getLine() . $th->getFile(), 500);
         }
     }
 

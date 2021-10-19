@@ -16,6 +16,8 @@ class Alert extends Model
         'description',
         'type',
         'url',
-        'destination_id'
+        'destination_id',
+        'modal',
+        'title'
     ];
 }
