@@ -16,21 +16,28 @@ class AlertController extends Controller
     {
         # code...
         $data = DB::table('alerts as a')
-        ->join('users as u', 'u.id','=','a.user_id')
-        ->join('people as pc', 'pc.id','=','u.person_id')
-        ->join('people as pr', 'pr.id','=','a.person_id')
-        ->select('a.type', 'a.icon', 'a.title', 'a.description', 'a.url', 'a.destination_id', 'a.created_at',
-                'pc.image', 
-                'pr.first_name' ,                
-                'pr.first_surname' ,                
-                )
-        ->when($req->get('person_id'),function($q, $fill){
-            $q->where('a.person_id',$fill);
-        })
-        ->orderBy('a.id','Desc')
-        ->get();
+            ->join('users as u', 'u.id', '=', 'a.user_id')
+            ->join('people as pc', 'pc.id', '=', 'u.person_id')
+            ->join('people as pr', 'pr.id', '=', 'a.person_id')
+            ->select(
+                'a.type',
+                'a.icon',
+                'a.title',
+                'a.description',
+                'a.url',
+                'a.destination_id',
+                'a.created_at',
+                'pc.image',
+                'pr.first_name',
+                'pr.first_surname',
+            )
+            ->when($req->get('person_id'), function ($q, $fill) {
+                $q->where('a.person_id', $fill);
+            })
+            ->orderBy('a.id', 'Desc')
+            ->get();
         return $this->success(
-           $data
+            $data
         );
     }
 }
