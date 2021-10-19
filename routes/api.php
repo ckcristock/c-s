@@ -7,7 +7,7 @@ use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
-use App\Http\Controllers\AttencionCallController;
+use App\Http\Controllers\AttentionCallController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\BanksController;
@@ -304,7 +304,7 @@ Route::group(
 		Route::resource('dian-address', DianAddressController::class);
 		Route::resource('pay-vacation', PayVacationController::class);
 		Route::resource('retention-type', RetentionTypeController::class);
-		Route::resource('attention-call', AttencionCallController::class);
+		Route::resource('attention-call', AttentionCallController::class);
 		Route::resource('cities', CityController::class);
 		Route::resource('drivingLicenses', DrivingLicenseController::class);
 		Route::resource('visa-types', VisaTypeController::class);
@@ -360,7 +360,7 @@ Route::group(
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
 		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
-		Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
+		// Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
 		Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
 		Route::get('all-zones', [ZonesController::class, 'allZones']);
 		Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
@@ -369,7 +369,7 @@ Route::group(
 		Route::put('state-change', [LunchControlller::class, 'activateOrInactivate']);
 		Route::get('filter-all-depencencies', [DependencyController::class, 'dependencies']);
 		Route::get('filter-all-positions', [PositionController::class, 'positions']);
-		Route::get('alert/{id}', [AttencionCallController::class, 'callAlert']);
+		Route::get('alert/{id}', [AttentionCallController::class, 'callAlert']);
 		Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
 		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
 	}
