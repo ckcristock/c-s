@@ -362,5 +362,6 @@ Route::group(
 		Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
 		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
 		Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
+		Route::put('liquidate/{id}', [PersonController::class, 'liquidate']);
 	}
 );
