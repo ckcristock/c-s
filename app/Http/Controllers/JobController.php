@@ -7,6 +7,7 @@ use App\Models\Job;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Http\ResponseTrait;
+use Illuminate\Support\Facades\DB;
 
 class JobController extends Controller
 {
