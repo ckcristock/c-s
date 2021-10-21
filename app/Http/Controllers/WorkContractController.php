@@ -25,7 +25,7 @@ class WorkContractController extends Controller
         return $this->success(
             DB::table('people as p')
                 ->select(
-                    DB::raw('concat("con", w.id) as code'),
+                    DB::raw('concat("CON", w.id) as code'),
                     'p.id',
                     'p.identifier',
                     'p.first_name',
