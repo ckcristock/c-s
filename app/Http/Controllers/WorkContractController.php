@@ -111,15 +111,15 @@ class WorkContractController extends Controller
     public function getPreliquidated()
     {
         return $this->success(
-            DB::table('people as p')
-                ->select(
-                    'p.id',
-                    'p.first_name',
-                    'p.second_name',
-                    'p.first_surname',
-                    'p.second_surname',
-                    'p.image',
-                    'posi.name'
+            $person = DB::table('people as p')
+            ->select(
+                'p.id',
+                'p.first_name',
+                'p.second_name',
+                'p.first_surname',
+                'p.second_surname',
+                'p.image',
+                'posi.name'
                 )
                 ->join('work_contracts as w', function ($join) {
                     $join->on('w.person_id', '=', 'p.id');
@@ -129,8 +129,12 @@ class WorkContractController extends Controller
                 })
                 ->where('status', 'Liquidado')
                 ->get()
-        );
-    }
+            );
+            /* $fechaLiquidacion = new Carbon($person->updated_at);
+            $fechaActual = Carbon::now();
+            $dias = $fechaLiquidacion->diffInDays($fechaActual);
+            dd($dias); */
+        }
 
     public function getLiquidated($id)
     {
