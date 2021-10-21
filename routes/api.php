@@ -72,28 +72,16 @@ use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\TaxiCityController;
 use App\Http\Controllers\TaxiControlller;
 use App\Http\Controllers\ThirdPartyController;
+use App\Http\Controllers\ThirdPartyFieldController;
 use App\Http\Controllers\ThirdPartyPersonController;
 use App\Http\Controllers\TravelExpenseController;
 use App\Http\Controllers\VisaTypeController;
 use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
-use App\Models\ProductDotationType;
 use App\Http\Controllers\ZonesController;
-use App\Models\AttentionCall;
-use App\Models\CompanyPaymentConfiguration;
-use App\Models\Countable_income;
-use App\Models\DisabilityLeave;
-use App\Models\DocumentTypes;
-use App\Models\RetentionType;
-use App\Models\TravelExpense;
-use App\Models\WorkContract;
-use App\Models\WorkContractType;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
 
 /*
 |--------------------------------------------------------------------------
@@ -309,6 +297,7 @@ Route::group(
 		Route::resource('drivingLicenses', DrivingLicenseController::class);
 		Route::resource('visa-types', VisaTypeController::class);
 		Route::resource('alerts', AlertController::class);
+		Route::resource('third-party-fields', ThirdPartyFieldController::class);
 		
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -372,5 +361,6 @@ Route::group(
 		Route::get('alert/{id}', [AttentionCallController::class, 'callAlert']);
 		Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
 		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
+		Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
 	}
 );

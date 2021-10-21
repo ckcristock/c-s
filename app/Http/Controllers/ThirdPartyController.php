@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ThirdParty;
+use App\Models\ThirdPartyField;
 use App\Models\ThirdPartyPerson;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -49,6 +50,14 @@ class ThirdPartyController extends Controller
         );
     }
 
+    public function getFields()
+    {
+        return $this->success(
+            ThirdPartyField::where('state', '=', 'Activo')
+            ->get()
+        );
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -68,9 +77,10 @@ class ThirdPartyController extends Controller
     public function store(Request $request)
     {
         $data = $request->except(["person"]);
-        $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/');
-        $type = '.'. $request->type;
-        $base64 = saveBase64File( $data["rut"], 'third_parties_rut/', false, $type);
+        $typeImage = '.' . $request->typeImage;
+        $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/', true, $typeImage);
+        $typeRut = '.'. $request->typeRut;
+        $base64 = saveBase64File( $data["rut"], 'thirdPartiesRut/', false, $typeRut);
         $data["rut"] = URL::to('/') . '/api/file?path=' . $base64;
         $people = request()->get('person');
         try {
@@ -81,7 +91,7 @@ class ThirdPartyController extends Controller
             }
             return $this->success('Guardado con éxito');
         } catch (\Throwable $th) {
-            return $this->errorResponse($th->getMessage(), 500);
+            return $this->errorResponse($th->getMessage(), $th->getLine(), $th->getFile(), 500);
         }
     }
 
@@ -130,7 +140,11 @@ class ThirdPartyController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->except(["person"]);
-        $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/');
+        $typeImage = '.' . $request->typeImage;
+        $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/', true, $typeImage);
+        $typeRut = '.'. $request->typeRut;
+        $base64 = saveBase64File( $data["rut"], 'thirdPartiesRut/', false, $typeRut);
+        $data["rut"] = URL::to('/') . '/api/file?path=' . $base64;
         $people = request()->get('person');
         try {
             $thirdParty = ThirdParty::find($id)
