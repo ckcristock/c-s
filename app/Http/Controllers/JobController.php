@@ -127,6 +127,8 @@ class JobController extends Controller
         $drivingLincenseJob = request()->get('drivingLicenseJob');
         try {
             $jobDB = Job::create($job);
+            $jobDB["code"] = "VAC".$jobDB->id;
+            $jobDB->save();
             foreach ($drivingLincenseJob as $driving) {
                 DrivingLicenseJob::create([
                     'job_id' =>  $jobDB->id,
