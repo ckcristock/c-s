@@ -72,13 +72,13 @@ use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\TaxiCityController;
 use App\Http\Controllers\TaxiControlller;
 use App\Http\Controllers\ThirdPartyController;
+use App\Http\Controllers\ThirdPartyFieldController;
 use App\Http\Controllers\ThirdPartyPersonController;
 use App\Http\Controllers\TravelExpenseController;
 use App\Http\Controllers\VisaTypeController;
 use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
-use App\Models\ProductDotationType;
 use App\Http\Controllers\ZonesController;
 use App\Models\AttentionCall;
 use App\Models\CompanyPaymentConfiguration;
@@ -95,8 +95,6 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
 
 /*
 |--------------------------------------------------------------------------
@@ -268,7 +266,7 @@ Route::group(
 		/**----- end horas extras */
 		/**PayRoll */
 		Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
-		
+		Route::resource('third-party-fields', ThirdPartyFieldController::class);
 
 		/**End */
 		Route::resource('applicants', ApplicantController::class);
@@ -341,7 +339,6 @@ Route::group(
 		Route::resource('drivingLicenses', DrivingLicenseController::class);
 		Route::resource('visa-types', VisaTypeController::class);
 		Route::resource('alerts', AlertController::class);
-
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -404,5 +401,7 @@ Route::group(
 		Route::get('alert/{id}', [AttentionCallController::class, 'callAlert']);
 		Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
 		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
+		Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
+		Route::put('liquidate/{id}', [PersonController::class, 'liquidate']);
 	}
 );

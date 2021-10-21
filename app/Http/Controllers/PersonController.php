@@ -315,6 +315,19 @@ class PersonController extends Controller
 		}
 	}
 
+	public function liquidate(Request $request, $id)
+	{
+		try {
+			$person = Person::find($id);
+			$person->update([
+				'status' => $request->status
+			]);
+			return $this->success('Liquidado con éxito');
+		} catch (\Throwable $th) {
+			return $this->error($th->getMessage(), 500);
+		}
+	}
+
 	public function epss()
 	{
 		try {

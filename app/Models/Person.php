@@ -38,7 +38,8 @@ class Person extends Model
         'title',
         'personId',
         'persistedFaceId',
-        'arl_id'
+        'arl_id',
+        'status'
     ];
     
     public function getFullNameAttribute()

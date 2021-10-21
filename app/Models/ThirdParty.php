@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class ThirdParty extends Model
 {
     use HasFactory;
-    protected $fillable = [
+    protected $guarded = ['id'];
+    /* protected $fillable = [
         'nit',
         'person_type',
         'third_party_type',
@@ -52,7 +53,7 @@ class ThirdParty extends Model
         'rut',
         'cod_dian_address',
         'image'
-    ];
+    ]; */
 
     public function thirdPartyPerson()
     {
