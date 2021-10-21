@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\FixedTurnDiaryExport;
+use App\Exports\RotatingTurnDiaryExport;
 use App\Models\Company;
 use App\Services\DiaryService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReporteHorariosController extends Controller
 {
@@ -79,5 +82,20 @@ class ReporteHorariosController extends Controller
 			$company->groups = $groupsGlob;
 		}
 		return $this->success($companies);
+	}
+
+	public function download($fechaInicio, $fechaFin)
+	{
+		# code...
+
+		$dates = [$fechaInicio, $fechaFin];
+		# code...
+
+
+		if ( Request()->get('turn_type')  == 'Rotativo') {
+			return Excel::download(new RotatingTurnDiaryExport($dates), 'users.xlsx');
+		}else{
+			return Excel::download(new FixedTurnDiaryExport($dates), 'users.xlsx');
+        }
 	}
 }

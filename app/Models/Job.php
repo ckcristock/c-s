@@ -45,11 +45,11 @@ class Job extends Model
     }
     public function salary_type()
     {
-        return $this->belongsTo(SalaryTypes::class,'salaryType_id','id');
+        return $this->belongsTo(SalaryTypes::class,'salary_type_id','id');
     }
     public function work_contract_type()
     {
-        return $this->belongsTo(WorkContractType::class,'contractType_id','id');
+        return $this->belongsTo(WorkContractType::class,'work_contract_type_id','id');
 
     }
 }

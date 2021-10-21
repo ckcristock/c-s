@@ -14,6 +14,6 @@ class Applicant extends Model
         return $this->belongsTo(VisaType::class,'visaType_id', 'id');
     }
     public function drivingLicense(){
-        return $this->belongsTo(drivingLicense::class);
+        return $this->belongsTo(DrivingLicense::class);
     }
 }

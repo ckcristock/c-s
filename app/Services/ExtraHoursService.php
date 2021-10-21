@@ -84,7 +84,10 @@ class ExtraHoursService
             ->where('ps.dependency_id', $id)
             ->where('w.company_id', $company_id)
             ->where('w.turn_type', $turn)
-            ->where('p.status', '!=', 'liquidado');
+            ->where('p.status', '!=', 'liquidado')
+            ->when(Request()->get('person_id'), function ($q, $fill) {
+                $q->where('p.id',$fill);
+            });
         if ($turn == 'rotativo') {
             $query->whereExists(function ($query) use ($dates) {
                 $query->select(DB::raw(1))
@@ -169,17 +172,18 @@ class ExtraHoursService
                         $tiempoLaborado = 0;
                         ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! aca mejorar con los horarios
                         $tiempoLaborado = $this->workedTime($laborado, $asistencia, $salida);
+
                         ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         /*    if($day['id'] == 10){
                             dd($laborado);
                         } */
 
-                       /*  $fechaSalida = $this->getLeaveDate($laborado); */
+                        /*  $fechaSalida = $this->getLeaveDate($laborado); */
                         //dd($fechaSalida);
                         $FinTurnoOficcial =  $asistencia->copy()->addMinutes($tiempoAsignado);
                         $FinTurnoReal =  $asistencia->copy()->addMinutes($tiempoLaborado);
 
-                        
+
                         //Se arma el objecto que sera enviado como parametro
                         $argumentos = new stdObject();
                         $argumentos->tiempoAsignado = $tiempoAsignado;
@@ -204,7 +208,9 @@ class ExtraHoursService
                         $funcionario['daysWork'][$ky]['tiempoLaborado'] = roundInHalf($tiempoLaborado / 60);
                         $funcionario['daysWork'][$ky]['tiempoAsignado'] = roundInHalf($tiempoAsignado / 60);
                         $funcionario['daysWork'][$ky]['horasRecargoDominicalNocturna'] = roundInHalf($recargos->horasRecargoDominicalNocturna / 60);
-                        $funcionario['daysWork'][$ky]['horasRecargoNocturna'] = roundInHalf($recargos->horasRecargoNocturna / 60);
+                        //se comenta por que no funciona
+                        //$funcionario['daysWork'][$ky]['horasRecargoNocturna'] = roundInHalf($recargos->horasRecargoNocturna / 60);
+                        $funcionario['daysWork'][$ky]['horasRecargoNocturna'] = 0;
                         $funcionario['daysWork'][$ky]['horasRecargoFestivo'] = roundInHalf($recargos->horasRecargoFestivo / 60);
 
                         $funcionario['daysWork'][$ky]['horasRecargoDominicalDiurno'] = roundInHalf($recargos->horasRecargoDominicalDiurno / 60);
@@ -232,11 +238,9 @@ class ExtraHoursService
         if ($laborado['leave_time_one']) {
 
             $date = $laborado['leave_date'] . $laborado['leave_time_one'];
-
         } elseif ($laborado['breack_time_one'] && !$laborado['breack_time_two']) {
 
             $date = $laborado['breack_one_date'] . $laborado['breack_time_one'];
-
         } elseif (isset($laborado['launch_time_one']) && $laborado['launch_time_one']) {
 
             $date = $laborado['launch_one_date'] . $laborado['launch_time_one'];
@@ -246,17 +250,18 @@ class ExtraHoursService
     }
     public function workedTime($laborado, $asistencia, $salida)
     {
-        /*  dd($laborado); */
+
         $diffTotal = 0;
         //si tiene hora 1 de launch
-        if ($laborado['leave_time_one'] ) {
+        if ($laborado['leave_time_one']) {
             $diffTotal += $asistencia->diffInMinutes($salida);
-        } elseif  ($laborado['breack_time_one'] && !$laborado['breack_time_two'])  {
+        } elseif ($laborado['breack_time_one'] && !$laborado['breack_time_two']) {
 
             $launchEntry = Carbon::parse($laborado['breack_one_date'] . $laborado['breack_time_one']);
 
-            $diffTotal = $asistencia->diffInMinutes($launchEntry);
 
+
+            $diffTotal = $asistencia->diffInMinutes($launchEntry);
         } elseif (isset($laborado['launch_time_one']) && $laborado['launch_time_one']) {
 
             $launchEntry = Carbon::parse($laborado['launch_one_date'] . $laborado['launch_time_one']);

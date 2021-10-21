@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\LateArrivalExport;
 use App\Models\Company;
 use App\Models\Group;
 use App\Services\LateArrivalService;
@@ -9,6 +10,7 @@ use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LateArrivalController extends Controller
 {
@@ -90,5 +92,13 @@ class LateArrivalController extends Controller
 
         $res['lates'] =  LateArrivalService::getAllLinear($dates);
         return $this->success($res);
+    }
+
+    public function download($fechaInicio, $fechaFin,Request $req)
+    {
+        $dates = [$fechaInicio,$fechaFin];
+        # code...
+        return Excel::download(new LateArrivalExport($dates), 'users.xlsx');
+        return 'asd';
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Job;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Http\ResponseTrait;
+use Illuminate\Support\Facades\DB;
 
 class JobController extends Controller
 {
@@ -107,6 +108,8 @@ class JobController extends Controller
                 /*  ->when(request()->get('dependency_id'), function ($q, $fill) {
                 $q->where('id', '=', $fill);
             }) */
+            ->where('state','Activo')
+            ->whereDate('date_end','>' , DB::raw('CURDATE()') )
                 ->orderBy('id', 'DESC')
                 ->simplePaginate($pageSize, '*', 'page', $page)
         );

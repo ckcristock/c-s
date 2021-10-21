@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
 
 class LateArrivalService
@@ -131,6 +132,40 @@ class LateArrivalService
                 $q->where('p.id',$fill);
             })
             ->select('p.first_name', 'p.first_surname', 'p.id','p.image')
+            ->get();
+    }
+
+    static public function getPeopleDownload($dates)
+    {
+      
+            return DB::table('late_arrivals as la')
+            ->join('people as p', 'p.id','la.person_id')
+            ->join('work_contracts as w', function ($join) {
+                $join->on('p.id', '=', 'w.person_id')
+                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
+                        join people as u2 on u2.id = a2.person_id group by u2.id)');
+            })
+            ->join('positions as ps', 'ps.id', '=', 'w.position_id')
+            ->join('dependencies as de', 'de.id', '=', 'ps.dependency_id')
+            ->select(
+                'ps.name',
+                DB::raw( 'CONCAT(p.first_name," ", p.first_surname)'),
+                DB::raw( 'DATE(la.date) as date'),
+                'la.entry', 'la.real_entry' )
+            ->selectRaw('TIMEDIFF(la.real_entry,la.entry) AS entry_diff')
+         
+            ->whereBetween(DB::raw('DATE(la.created_at)'), $dates)
+
+            ->when(Request()->get('person_id'),function($q,$fill){
+                $q->where('la.person_id',$fill);
+            })
+
+            ->when(Request()->get('dependency_id'),function($q,$fill){
+                $q->where('de.id',$fill);
+            })
+            ->when(Request()->get('group_id'),function($q,$fill){
+                $q->where('de.group_id',$fill);
+            })
             ->get();
     }
 

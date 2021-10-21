@@ -87,10 +87,13 @@ use App\Models\DisabilityLeave;
 use App\Models\DocumentTypes;
 use App\Models\RetentionType;
 use App\Models\TravelExpense;
+use App\Models\User;
 use App\Models\WorkContract;
 use App\Models\WorkContractType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -117,6 +120,29 @@ Route::get('/', function () {
 	return 'DONE'; //Return anything
 
 });
+Route::get('/generate-users', function () {
+
+	$people  = DB::select('SELECT p.* from people p 
+	where not EXISTS(
+	SELECT u.id from users u  where u.person_id = p.id
+	)');
+
+
+	foreach ($people as $person ) {
+		# code....
+		User::create([
+			"person_id" => $person->id,
+			"usuario" => $person->identifier,
+			"password" => Hash::make($person->identifier),
+			"change_password" => 1,
+		]);
+
+	}
+
+	return 'DONE'; //Return anything
+
+});
+
 
 
 Route::get('/image', function () {
@@ -165,7 +191,7 @@ Route::group(
 		Route::get("payroll-nex-mouths", [PayrollController::class, "nextMonths"]);
 		Route::get("people-paginate", [PersonController::class, "indexPaginate"]);
 		Route::get("people-all", [PersonController::class, "getAll"]);
-		
+
 		Route::get('/get-menu',  [MenuController::class, 'getByPerson']);
 		Route::post('/save-menu',  [MenuController::class, 'store']);
 
@@ -198,12 +224,17 @@ Route::group(
 			'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
 			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
 		]);
+		Route::get('/download/horarios/{fechaInicio}/{fechaFin}', [ReporteHorariosController::class, 'download'])->where([
+			'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+		]);
 
 		/** Rutas del módulo de llegadas tarde */
 		Route::get('/late_arrivals/data/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'getData'])->where([
 			'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
 			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
 		]);
+		Route::get('late-arrivals/download/{inicio?}/{fin?}', [LateArrivalController::class, 'download']);
 
 		Route::get('/horarios/datos/generales/{semana}', [RotatingTurnHourController::class, 'getDatosGenerales']);
 		Route::get('download-applicants/{id}', [ApplicantController::class, 'donwloadCurriculum']);
@@ -237,6 +268,7 @@ Route::group(
 		/**----- end horas extras */
 		/**PayRoll */
 		Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
+		
 
 		/**End */
 		Route::resource('applicants', ApplicantController::class);
@@ -309,7 +341,7 @@ Route::group(
 		Route::resource('drivingLicenses', DrivingLicenseController::class);
 		Route::resource('visa-types', VisaTypeController::class);
 		Route::resource('alerts', AlertController::class);
-		
+
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
