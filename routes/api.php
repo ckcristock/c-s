@@ -141,17 +141,16 @@ Route::get('/generate-users', function () {
 
 });
 
-
-
 Route::get('/image', function () {
 
 	$path = Request()->get('path');
 	if ($path) {
-
-		return response()->file($path);
+        
+		return response()->file('backend/public/'.$path);
 	}
 	return 'path not found';
 });
+
 
 Route::get('/file', function () {
 	$path = Request()->get('path');

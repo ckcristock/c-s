@@ -9,18 +9,20 @@ class RrhhActivity extends Model
 {
     use HasFactory;
 
-    protected $fillable= [
+    protected $fillable = [
         'name',
         'user_id',
-        'date_start'               		  ,
-        'date_end'                         ,
+        'date_start',
+        'date_end',
         'rrhh_activity_type_id',
-        'state' 							  ,
-        'description'                          ,
-        'dependency_id'					  ,
+        'state',
+        'description',
+        'dependency_id',
+        'hour_start',
+        'hour_end',
     ];
 
- 
+
     public function peopleActivity()
     {
         return $this->hasMany(RrhhActivityPerson::class);
