@@ -19,17 +19,11 @@ class JobController extends Controller
      */
     public function index()
     {
-        $page = Request()->get('page');
-        $page = $page ? $page : 1;
-
-        $pageSize = Request()->get('pageSize');
-        $pageSize = $pageSize ? $pageSize : 10;
-
         return $this->success(
             Job::with([
                 'position' => function ($q) {
                     $q->select('name', 'id', 'dependency_id');
-                },
+                }, 
                 'salary_type' => function ($q) {
                     $q->select('id', 'name');
                 },
@@ -39,12 +33,45 @@ class JobController extends Controller
                 'municipality' => function ($q) {
                     $q->select('name', 'id', 'department_id');
                 },
+                'work_contract_type' => function ($q) {
+                    $q->select('id', 'name');
+                },
                 'municipality.department' => function ($q) {
                     $q->select('name', 'id');
                 }
-            ])
-                ->orderBy('id', 'DESC')
-                ->paginate($pageSize, '*', 'page', $page)
+                ])
+                ->whereHas('position', function ($q) {
+                    $q->when(request()->get('dependencia'), function ($q, $fill) {
+                        $q->where('dependency_id', '=', $fill);
+                    });
+                })
+                ->whereHas('municipality', function ($q) {
+                    $q->when(request()->get('municipio'), function ($q, $fill) {
+                        $q->where('id', '=', $fill);
+                    });
+                    $q->when(request()->get('departamento'), function ($q, $fill) {
+                        $q->where('department_id', '=', $fill);
+                    });
+                })
+                ->when(request()->get('cargo'), function ($q, $fill) {
+                    $q->where('position_id', '=', $fill);
+                })
+                ->when(request()->get('fecha'), function ($q, $fill) {
+                    $q->where('created_at', 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get('fecha_Inicio'), function ($q, $fill) {
+                    $q->where('date_start', 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get('fecha_Fin'), function ($q, $fill) {
+                    $q->where('date_end', 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get('titulo'), function ($q, $fill) {
+                    $q->where('title', 'like', '%' . $fill . '%');
+                })
+                ->where('state','Activo')
+                ->whereDate('date_end','>' , DB::raw('CURDATE()') )
+                ->orderBy('id', 'ASC')
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -127,6 +154,8 @@ class JobController extends Controller
         $drivingLincenseJob = request()->get('drivingLicenseJob');
         try {
             $jobDB = Job::create($job);
+            $jobDB["code"] = "VAC".$jobDB->id;
+            $jobDB->save();
             foreach ($drivingLincenseJob as $driving) {
                 DrivingLicenseJob::create([
                     'job_id' =>  $jobDB->id,
