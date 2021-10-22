@@ -16,6 +16,20 @@ class Lunch extends Model
 
     public function lunchPerson()
     {
-        return $this->belongsTo(LunchPerson::class);
+        return $this->hasMany(LunchPerson::class)->with([
+            'person' => function($q){
+                $q->select('id', 'first_name', 'second_name', 'first_surname', 'second_surname');
+            }
+        ]);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class)->with([
+            'person' => function($q){
+                $q->select('id', 'first_name', 'second_name', 'first_surname', 'second_surname');
+            }
+        ]);
+    }
+
 }

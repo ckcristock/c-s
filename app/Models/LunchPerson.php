@@ -10,7 +10,8 @@ class LunchPerson extends Model
     use HasFactory;
     protected $fillable = [
         'person_id', 
-        'lunch_id'
+        'lunch_id',
+        'state'
     ];
 
     public function lunch()
