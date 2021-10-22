@@ -315,7 +315,7 @@ class PersonController extends Controller
 		}
 	}
 
-	public function liquidate(Request $request, $id)
+	public function liquidateOrActivate(Request $request, $id)
 	{
 		try {
 			$person = Person::find($id);
