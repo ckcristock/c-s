@@ -119,7 +119,8 @@ class WorkContractController extends Controller
             'p.second_surname',
             'p.image',
             'posi.name',
-            'p.updated_at'
+            'p.updated_at',
+            'posi.name as position'
             )
             ->join('work_contracts as w', function ($join) {
                 $join->on('w.person_id', '=', 'p.id');
@@ -129,10 +130,8 @@ class WorkContractController extends Controller
             })
             ->where('status', 'PreLiquidado')
             ->get();
-            /* foreach ($people as $person) {
-                $fechaLiquidacion = new Carbon($person->updated_at);
-                $fechaActual = Carbon::now();
-                $dias = $fechaLiquidacion->diffInDays($fechaActual);
+            /* for ($i = 0; $i < count($people); $i++) { 
+                $fecha = $people[$i]->updated_at;
             } */
             return $this->success($people);
         }
