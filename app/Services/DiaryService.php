@@ -98,7 +98,7 @@ class DiaryService
 
 			->selectRaw(
 				'
-						ps.name,
+						de.name,
 						CONCAT(p.first_name, " ", p.first_surname),
 						DATE(la.date) as date,
 
@@ -165,7 +165,7 @@ class DiaryService
 
 			->selectRaw(
 				'
-						ps.name,
+						de.name,
 						CONCAT(p.first_name, " ", p.first_surname),
 						DATE(la.date) as date,
 

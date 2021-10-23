@@ -148,7 +148,7 @@ class LateArrivalService
             ->join('positions as ps', 'ps.id', '=', 'w.position_id')
             ->join('dependencies as de', 'de.id', '=', 'ps.dependency_id')
             ->select(
-                'ps.name',
+                'de.name',
                 DB::raw( 'CONCAT(p.first_name," ", p.first_surname)'),
                 DB::raw( 'DATE(la.date) as date'),
                 'la.entry', 'la.real_entry' )
