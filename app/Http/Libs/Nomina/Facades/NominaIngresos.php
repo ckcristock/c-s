@@ -86,8 +86,8 @@ class NominaIngresos extends PeriodoPago
      */
     public function calculate()
     {
+  
         $this->calculoIngresos->registrarIngresos();
-        dd( $this->calculoIngresos->crearColeccion() );
     
         return $this->calculoIngresos->crearColeccion();
     }

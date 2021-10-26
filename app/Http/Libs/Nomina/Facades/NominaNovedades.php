@@ -70,6 +70,7 @@ class NominaNovedades extends PeriodoPago
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
         $this->calculoNovedades = new CalculoNovedades(self::$funcionario->contractultimate->salary, $this->fechaInicio, $this->fechaFin);
+      
         return $this;
     }
 
@@ -81,10 +82,11 @@ class NominaNovedades extends PeriodoPago
      */
     public function calculate()
     {
+
+       
         $this->calculoNovedades->existenVacaciones(
             PayrollFactor::vacations(self::$funcionario, $this->fechaInicio)
         );
-
      
         $this->calculoNovedades->existenNovedades(
             PayrollFactor::factors(self::$funcionario, $this->fechaFin)->get()

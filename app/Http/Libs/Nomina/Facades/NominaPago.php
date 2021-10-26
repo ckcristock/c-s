@@ -113,30 +113,39 @@ class NominaPago extends PeriodoPago
         $this->facadeNovedades = NominaNovedades::novedadesFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
-    
+
 
         $this->facadeIngresos = NominaIngresos::ingresosFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
-            dd(2);
- /*
+
+
         $this->facadeRetenciones = NominaRetenciones::retencionesFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
 
+
         $this->facadeDeducciones = NominaDeducciones::deduccionesFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
- */
+
         return $this;
     }
 
 
     public function calculate()
     {
-        $this->resumenPago =
-            new ResumenPago($this->facadeSalario['salario'], $this->facadeSalario['auxilio_transporte'], $this->facadeExtras['valor_total'], $this->facadeNovedades['valor_total'], $this->facadeIngresos['valor_total'], $this->facadeRetenciones['valor_total'], $this->facadeDeducciones['valor_total']);
 
+        $this->resumenPago =
+            new ResumenPago(
+                $this->facadeSalario['salary'],
+                $this->facadeSalario['transportation_assistance'],
+                $this->facadeExtras['valor_total'],
+                $this->facadeNovedades['valor_total'],
+                $this->facadeIngresos['valor_total'],
+                $this->facadeRetenciones['valor_total'],
+                $this->facadeDeducciones['valor_total']
+            );
         $this->resumenPago->calculo();
 
         return $this->resumenPago->crearColeccion();

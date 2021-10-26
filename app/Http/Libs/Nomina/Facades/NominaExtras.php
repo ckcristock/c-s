@@ -54,6 +54,7 @@ class NominaExtras extends PeriodoPago
         $calculoExtras->calcularTotalHoras();
         $calculoExtras->calcularValorTotalHoras();
 
+        dd($calculoExtras->crearColeccion());
         return $calculoExtras->crearColeccion();
     }
 }

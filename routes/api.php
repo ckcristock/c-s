@@ -263,8 +263,12 @@ Route::group(
 		# Fijo	---
 
 		/**----- end horas extras */
-		/**PayRoll */
+		/**                PayRoll */
+
 		Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
+		Route::get('nomina/pago/{inicio?}/{fin?}', [PayrollController::class, 'getPayrollPay']);
+
+		/**               End Payroll */
 		Route::resource('third-party-fields', ThirdPartyFieldController::class);
 
 		/**End */

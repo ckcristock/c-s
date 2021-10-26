@@ -216,8 +216,10 @@ class CalculoNovedades implements Coleccion
                         $dias = $diferencia;
                     }
                     //Si ya existe el concepto de la novedad en el array novedadesRegistradas, entonces solo se suma a la que existe los días de la entrante, ej: suspensión => 2 días, suspensión => 1 día igual a suspensión => 3 días
+                 
                     if (collect($this->novedadesRegistradas)->has($novedad->disability_leave->concept)) {
-                        $diferenciaTemporal = $this->novedadesRegistradas[$novedad->disability_leave->concept];
+                        $diferenciaTemporal = $this->novedadesRegistradas[$novedad->disability_leave->concept]['value'];
+                       
                         $dias += $diferenciaTemporal;
                     }
 

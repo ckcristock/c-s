@@ -85,6 +85,7 @@ class NominaSalario extends PeriodoPago
         $this->fechaFin = $fechaFin;
 
         $this->verifiyNovedadesFromTo($this->fechaInicio, $this->fechaFin);
+      
 
         $this->calculoSalario = new CalculoSalario(
             self::$funcionario->contractultimate->salary,
@@ -92,6 +93,7 @@ class NominaSalario extends PeriodoPago
             $this->fechaInicio,
             $this->fechaFin
         );
+   
 
         return $this;
     }

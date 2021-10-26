@@ -112,7 +112,7 @@ class CalculoIngresos implements Coleccion
      */
     public function calcularTotalIngresos()
     {
-        return $this->ingresos->keyBy('valor')->keys()->sum();
+        return $this->ingresos->keyBy('value')->keys()->sum();
     }
 
     /**
@@ -122,7 +122,7 @@ class CalculoIngresos implements Coleccion
      */
     public function crearColeccion()
     {
-        return new Collection([
+              return new Collection([
             'constitutivos' => $this->getConstitutivos(),
             'no_constitutivos' => $this->getNoConstitutivos(),
             'valor_constitutivos' => $this->calcularTotalConstitutivos(),
