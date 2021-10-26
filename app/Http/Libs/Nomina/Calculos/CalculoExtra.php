@@ -154,6 +154,7 @@ class CalculoExtra implements Coleccion
         foreach ($this->getPrefijos() as $indice) {
             $this->cantidadHoras[$indice] = $this->getReporte()->get([$indice])->sum([$indice]);
         }
+     
     }
 
     /**
@@ -163,9 +164,14 @@ class CalculoExtra implements Coleccion
      */
     public function calcularTotalHoras()
     {
+        
         foreach ($this->getPrefijos() as $indice) {
             $this->horasTotales[$indice] = round($this->getHorasReportadas()[$indice] * $this->getPorcentajes()[$indice] * $this->salario / (30 * 8));
         }
+
+      
+
+ 
     }
     /**
      * Calcular o sumar todo lo que se debe pagar al funcionario por el concepto de extras y recargos

@@ -88,7 +88,7 @@ class NominaProvisiones extends PeriodoPago
         $this->fechaFin = $fechaFin;
 
         $this->facadeExtras = NominaExtras::extrasFuncionarioWithId(self::$funcionario->id)->fromTo($this->fechaInicio, $this->fechaFin);
-        
+      
         $this->facadeSalario = NominaSalario::salarioFuncionarioWithId(self::$funcionario->id)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
 
         $this->facadeNovedades = NominaNovedades::novedadesFuncionarioWithId(self::$funcionario->id)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
@@ -102,7 +102,7 @@ class NominaProvisiones extends PeriodoPago
     public function calculate()
     {
         /* dd($this->facadeExtras['horas_extras_totales']); */
-  dd($this->facadeExtras);
+
         $this->calculoProvisiones = new CalculoProvisiones(
             $this->facadeSalario['salary'],
             $this->facadeExtras['valor_total'],
@@ -115,25 +115,25 @@ class NominaProvisiones extends PeriodoPago
         
         $this->calculoProvisiones->calcularDiasPeriodo($this->fechaInicio, $this->fechaFin);
         $this->calculoProvisiones->calcularBase()->calcularBaseVacaciones();
-      
-       
+        
+        
         $this->calculoProvisiones->calcularDiasBaseVac(
             $this->facadeNovedades['novedades']
         );
-
+        
         $this->calculoProvisiones->calcularDiasHabiles(
-            PayrollFactor::vacaciones(self::$funcionario, $this->fechaInicio)
+            PayrollFactor::vacations(self::$funcionario, $this->fechaInicio)
         );
-
+        
         $this->calculoProvisiones->calcularVacacionesPeriodo();
-
+        
         $this->calculoProvisiones
-            ->calcularCesantias()
-            ->calcularInteresesCesantias()
-            ->calcularVacaciones();
-
+        ->calcularCesantias()
+        ->calcularInteresesCesantias()
+        ->calcularVacaciones();
+        
         $this->calculoProvisiones->calcularTotalProvisiones();
-
+        
         return $this->calculoProvisiones->crearColeccion();
     }
 

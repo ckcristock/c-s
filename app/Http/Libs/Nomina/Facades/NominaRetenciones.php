@@ -94,14 +94,13 @@ class NominaRetenciones extends PeriodoPago
         $this->facadeSalario =  NominaSalario::salarioFuncionarioWithId(self::$funcionario->id)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
         
         $this->facadeExtras =  NominaExtras::extrasFuncionarioWithId(self::$funcionario->id)->fromTo($this->fechaInicio, $this->fechaFin);
-        
         $this->facadeNovedades =  NominaNovedades::novedadesFuncionarioWithId(self::$funcionario->id)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
       
 
         $this->facadeIngresos =  NominaIngresos::ingresosFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
-            
+         
         return $this;
     }
 

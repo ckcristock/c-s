@@ -77,10 +77,12 @@ class NominaSeguridad extends PeriodoPago
         $this->facadeRetenciones = NominaRetenciones::retencionesFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
-
+         
         $this->facadeNovedades = NominaNovedades::novedadesFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
+       
+
         return $this;
     }
 

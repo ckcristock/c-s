@@ -41,6 +41,7 @@ class PayrollController extends Controller
      */
     public function getPayrollPay($inicio = null, $fin = null)
     {
+
         $frecuenciaPago =  Company::get(['payment_method'])->first()['payment_method'];
         $pagoNomina = $nomina = $paga = $idNominaExistente = null;
 
@@ -101,72 +102,81 @@ class PayrollController extends Controller
             return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end');
         })->with(['payroll_factors' => $fechasNovedades])->get(['id', 'identifier', 'first_name', 'first_surname', 'image']);
 
-       
-        foreach ($funcionarios as $funcionario) {
+        try {
+            //code...
+           
+            foreach ($funcionarios as $funcionario) {
+              
+                $tempSeguridad = $this->getSeguridad($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
 
-            $tempSeguridad = $this->getSeguridad($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
-          
-            $seguridad = $tempSeguridad['valor_total_seguridad'];
-            $parafiscal = $tempSeguridad['valor_total_parafiscales'];
+                $seguridad = $tempSeguridad['valor_total_seguridad'];
+                $parafiscal = $tempSeguridad['valor_total_parafiscales'];
 
-            $tempExtras = $this->getExtrasTotales($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
-            $extras = $tempExtras['valor_total'];
+                $tempExtras = $this->getExtrasTotales($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
+                $extras = $tempExtras['valor_total'];
 
-            $salario = $this->getPagoNeto($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['total_valor_neto'];
-            $retencion = $this->getRetenciones($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
+                $salario = $this->getPagoNeto($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['total_valor_neto'];
+
+                $retencion = $this->getRetenciones($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
+                $provision = $this->getProvisiones($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
+
+
+                $temIngresos = $this->getIngresos($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
+
+
+                $totalSalarios +=  $salario;
+                $totalRetenciones += $retencion;
+                $totalSeguridadSocial += $seguridad;
+                $totalParafiscales += $parafiscal;
+                $totalProvisiones += $provision;
+                $totalExtras += $extras;
+                $totalIngresos += $temIngresos['valor_total'];
+
+                $funcionariosResponse[] = [
+                    'id' => $funcionario->id,
+                    'identidad' => $funcionario->identidad,
+                    'nombres' => $funcionario->nombres,
+                    'apellidos' => $funcionario->apellidos,
+                    'image' => $funcionario->image,
+                    'salario_neto' => $salario,
+                    'novedades' => [],
+                    'novedades' => $funcionario->novedades,
+                    'horas_extras' => $tempExtras['horas_reportadas'],
+                    'novedades' => $this->getNovedades($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['novedades'],
+                    'valor_ingresos_salariales' => ($temIngresos['valor_constitutivos'] +
+                        $this->getNovedades($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'] +
+                        $extras),
+                    'valor_ingresos_no_salariales' => $temIngresos['valor_no_constitutivos'],
+                    'valor_deducciones' => $this->getDeducciones($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total']
+                ];
+            }
+
+
+
+            $totalCostoEmpresa += $totalSalarios + $totalRetenciones +   $totalSeguridadSocial + $totalParafiscales + $totalProvisiones;
+
+
+            return response()->json([
+                'frecuencia_pago' => $frecuenciaPago,
+                'inicio_periodo' => $fechaInicioPeriodo,
+                'fin_periodo' => $fechaFinPeriodo,
+                'salarios' =>  $totalSalarios,
+                'seguridad_social' => $totalSeguridadSocial,
+                'parafiscales' => $totalParafiscales,
+                'provisiones' => $totalProvisiones,
+                'extras' => $totalExtras,
+                'ingresos' => $totalIngresos,
+                'retenciones' => $totalRetenciones,
+                'costo_total_empresa' => $totalCostoEmpresa,
+                'nomina_paga' => $paga,
+                'nomina_paga_id' => $idNominaExistente,
+                'funcionarios' => $funcionariosResponse
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return [ $th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()];
             
-            $provision = $this->getProvisiones($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
-            dd($provision);
-            $temIngresos = $this->getIngresos($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
-
-      
-            $totalSalarios +=  $salario;
-            $totalRetenciones += $retencion;
-            $totalSeguridadSocial += $seguridad;
-            $totalParafiscales += $parafiscal;
-            $totalProvisiones += $provision;
-            $totalExtras += $extras;
-            $totalIngresos += $temIngresos['valor_total'];
-        
-            $funcionariosResponse[] = [
-                'id' => $funcionario->id,
-                'identidad' => $funcionario->identidad,
-                'nombres' => $funcionario->nombres,
-                'apellidos' => $funcionario->apellidos,
-                'image' => $funcionario->image,
-                'salario_neto' => $salario,
-                'novedades' => [],
-                'novedades' => $funcionario->novedades,
-                'horas_extras' => $tempExtras['horas_reportadas'],
-                'novedades' => $this->getNovedades($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['novedades'],
-                'valor_ingresos_salariales' => ($temIngresos['valor_constitutivos'] +
-                    $this->getNovedades($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'] +
-                    $extras),
-                'valor_ingresos_no_salariales' => $temIngresos['valor_no_constitutivos'],
-                'valor_deducciones' => $this->getDeducciones($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total']
-            ];
         }
-
-
-        $totalCostoEmpresa += $totalSalarios + $totalRetenciones +   $totalSeguridadSocial + $totalParafiscales + $totalProvisiones;
-
-
-        return response()->json([
-            'frecuencia_pago' => $frecuenciaPago,
-            'inicio_periodo' => $fechaInicioPeriodo,
-            'fin_periodo' => $fechaFinPeriodo,
-            'salarios' =>  $totalSalarios,
-            'seguridad_social' => $totalSeguridadSocial,
-            'parafiscales' => $totalParafiscales,
-            'provisiones' => $totalProvisiones,
-            'extras' => $totalExtras,
-            'ingresos' => $totalIngresos,
-            'retenciones' => $totalRetenciones,
-            'costo_total_empresa' => $totalCostoEmpresa,
-            'nomina_paga' => $paga,
-            'nomina_paga_id' => $idNominaExistente,
-            'funcionarios' => $funcionariosResponse
-        ]);
     }
 
     public function payPeople($inicio = null, $fin = null)
@@ -205,12 +215,11 @@ class PayrollController extends Controller
             $fechasNovedades = function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
                 return $query->whereBetween('date_start', [$fechaInicioPeriodo, $fechaFinPeriodo])->whereBetween('date_end', [$fechaInicioPeriodo, $fechaFinPeriodo])->with('disability_leave');
             };
-            $person = [];
+           
             $funcionarios = Person::whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
                 return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end');
             })->with(['payroll_factors' => $fechasNovedades])->get();
             foreach ($funcionarios as $funcionario) {
-                $person = $funcionario;
 
                 $funcionariosResponse[] = response()->json([
                     'id' => $funcionario->id,
@@ -232,8 +241,8 @@ class PayrollController extends Controller
             }
             return $funcionariosResponse;
         } catch (\Throwable $th) {
-            //throw $th;
-            return [$person, $th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()];
+     
+            return [ $th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()];
         }
     }
 
@@ -292,11 +301,10 @@ class PayrollController extends Controller
 
     public function getSeguridad($id, $fechaInicio, $fechaFin)
     {
-      
+
         return NominaSeguridad::seguridadFuncionarioWithId($id)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
-
     }
 
     public function getRetenciones($id, $fechaInicio, $fechaFin)

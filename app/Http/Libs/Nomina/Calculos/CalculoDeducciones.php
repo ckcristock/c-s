@@ -94,6 +94,8 @@ class CalculoDeducciones implements Coleccion
 
     public function getDeduccionesCustom()
     {
+
+       
         foreach ($this->deducciones->groupBy('deduccion.concepto') as  $deduccion) {
             $this->suma = 0;
             foreach ($deduccion as  $concepto) {

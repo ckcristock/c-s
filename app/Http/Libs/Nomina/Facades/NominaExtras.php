@@ -41,20 +41,22 @@ class NominaExtras extends PeriodoPago
     public function fromTo($fechaInicio, $fechaFin)
     {
         $prefijos = PayrollOvertime::get(['prefix'])->keyBy('prefix')->keys();
+   
         $reporteExtras =  ExtraHourReport::where('person_id', self::$funcionario->id)->whereBetween('date', [$fechaInicio, $fechaFin]);
         $salarioPartial = Person::with('contractultimate')->where('id', self::$funcionario->id)->firstOrFail();
         $salario = $salarioPartial->contractultimate->salary;
 
         $calculoExtras = new CalculoExtra($prefijos, $reporteExtras, $salario);
         $calculoExtras->calcularCantidadHoras();
+       
         $calculoExtras->setHorasReportadas($calculoExtras->getCantidadHoras());
+      
         $calculoExtras->setPorcentajes(
             PayrollOvertime::enviarPorcentajes($calculoExtras->getPrefijos())
         );
+    
         $calculoExtras->calcularTotalHoras();
         $calculoExtras->calcularValorTotalHoras();
-
-        dd($calculoExtras->crearColeccion());
         return $calculoExtras->crearColeccion();
     }
 }

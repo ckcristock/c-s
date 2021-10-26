@@ -104,7 +104,7 @@ class NominaPago extends PeriodoPago
             ->calculate();
 
 
-        /**SE DESCONOCE EL USO DE LOS PREFIJOS */
+
         $this->facadeExtras = NominaExtras::extrasFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin);
 
@@ -113,7 +113,6 @@ class NominaPago extends PeriodoPago
         $this->facadeNovedades = NominaNovedades::novedadesFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
-
 
         $this->facadeIngresos = NominaIngresos::ingresosFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin)
@@ -128,6 +127,7 @@ class NominaPago extends PeriodoPago
         $this->facadeDeducciones = NominaDeducciones::deduccionesFuncionarioWithId(self::$funcionario->id)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
+
 
         return $this;
     }

@@ -15,15 +15,19 @@ class PayrollOvertime extends Model
 
     public function scopePrefijo($query, $indice)
     {
-        return $query->where('prefix', $indice)->first(['prefix'])['prefix'];
+   
+        return $query->where('prefix', $indice)->first(['prefix','percentage'])['percentage'];
+      
     }
 
     public static function enviarPorcentajes($indices = [])
     {
         $porcentajes = [];
         foreach ($indices as $indice) {
+          
             $porcentajes[$indice] = self::prefijo($indice);
         }
+      
         return $porcentajes;
     }
     /**
@@ -54,7 +58,7 @@ class PayrollOvertime extends Model
     public function fromTo($fechaInicio, $fechaFin)
     {
         $prefijos = PayrollOvertime::get(['prefix'])->keyBy('prefix')->keys();
-        $reporteExtras =  ExtraHourReport::where('person_id', self::$funcionario->id)->whereBetween('fecha', [$fechaInicio, $fechaFin]);
+        $reporteExtras =  ExtraHourReport::where('person_id', self::$funcionario->id)->whereBetween('date', [$fechaInicio, $fechaFin]);
         $salarioPartial = Person::with('contractultimate')->where('id', self::$funcionario->id)->firstOrFail();
         $salario = $salarioPartial->contractultimate->salario;
         

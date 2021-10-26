@@ -61,7 +61,7 @@ class NominaDeducciones extends PeriodoPago
         $this->calculoDeducciones = new CalculoDeducciones(
             Deduction::periodo(self::$funcionario, $this->fechaInicio, $this->fechaFin)
         );
-
+        
         return $this;
     }
 
@@ -69,6 +69,7 @@ class NominaDeducciones extends PeriodoPago
     {
 
         $this->calculoDeducciones->calcularTotalDeducciones();
+
 
         return $this->calculoDeducciones->crearColeccion();
     }
