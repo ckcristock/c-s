@@ -6,6 +6,7 @@ use App\Models\Lunch;
 use App\Models\LunchPerson;
 use App\Models\Person;
 use App\Traits\ApiResponser;
+use Faker\Calculator\Luhn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,20 +20,33 @@ class LunchControlller extends Controller
      */
     public function index()
     {
+        /* return $this->success(
+            Lunch::with('lunchPerson')->with([
+                'user' => function($q){
+                    $q->select('id', 'person_id');
+                }
+            ])->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        ); */
         return $this->success(
             DB::table('lunch_people as lp')
             ->select(
                 'l.id',
+                'lp.id as lunch_person_id',
                 'l.value',
                 'p.first_name',
                 'p.first_surname',
                 'l.state',
                 'l.created_at',
+                'lp.state as personState',
                 DB::raw('concat(user.first_name," ",user.first_surname) as user')
             )
             ->when(request()->get('date'), function($q, $fill) 
             {
                 $q->where('l.created_at', 'like', '%'.$fill.'%');
+            })
+            ->when(request()->get('person'), function($q, $fill) 
+            {
+                $q->where('lp.person_id', 'like', '%'.$fill.'%');
             })
             ->join('lunches as l', 'l.id', '=', 'lp.lunch_id')
             ->join('people as p', 'p.id', '=', 'lp.person_id')
@@ -79,7 +93,7 @@ class LunchControlller extends Controller
     public function activateOrInactivate( Request $request )
     {
         try {
-            $state = Lunch::find($request->get('id'));
+            $state = LunchPerson::find($request->get('id'));
             $state->update($request->all());
             return $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {

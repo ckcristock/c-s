@@ -110,30 +110,30 @@ class WorkContractController extends Controller
 
     public function getPreliquidated()
     {
-        return $this->success(
-            $person = DB::table('people as p')
-            ->select(
-                'p.id',
-                'p.first_name',
-                'p.second_name',
-                'p.first_surname',
-                'p.second_surname',
-                'p.image',
-                'posi.name'
-                )
-                ->join('work_contracts as w', function ($join) {
-                    $join->on('w.person_id', '=', 'p.id');
-                })
-                ->join('positions as posi', function ($join) {
-                    $join->on('posi.id', '=', 'w.position_id');
-                })
-                ->where('status', 'Liquidado')
-                ->get()
-            );
-            /* $fechaLiquidacion = new Carbon($person->updated_at);
-            $fechaActual = Carbon::now();
-            $dias = $fechaLiquidacion->diffInDays($fechaActual);
-            dd($dias); */
+        $people = DB::table('people as p')
+        ->select(
+            'p.id',
+            'p.first_name',
+            'p.second_name',
+            'p.first_surname',
+            'p.second_surname',
+            'p.image',
+            'posi.name',
+            'p.updated_at',
+            'posi.name as position'
+            )
+            ->join('work_contracts as w', function ($join) {
+                $join->on('w.person_id', '=', 'p.id');
+            })
+            ->join('positions as posi', function ($join) {
+                $join->on('posi.id', '=', 'w.position_id');
+            })
+            ->where('status', 'PreLiquidado')
+            ->get();
+            /* for ($i = 0; $i < count($people); $i++) { 
+                $fecha = $people[$i]->updated_at;
+            } */
+            return $this->success($people);
         }
 
     public function getLiquidated($id)
