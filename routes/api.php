@@ -48,6 +48,7 @@ use App\Http\Controllers\JobController;
 use App\Http\Controllers\LateArrivalController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\LunchControlller;
+use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MeasureController;
 use App\Http\Controllers\MemorandumController;
 use App\Http\Controllers\MenuController;
@@ -344,8 +345,8 @@ Route::group(
         Route::resource('geometry', GeometryController::class);
         Route::resource('measure', MeasureController::class);
         Route::resource('geometry-measure', GeometryMeasureController::class);
+        Route::resource('materials', MaterialController::class);
 
-		Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
 
 
 		/* Paginations */
@@ -412,6 +413,7 @@ Route::group(
 		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
 		Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
 		Route::put('liquidate/{id}', [PersonController::class, 'liquidate']);
+        Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
 
 
 	}

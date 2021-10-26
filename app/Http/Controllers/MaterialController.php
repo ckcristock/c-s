@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Geometry;
-use App\Models\GeometryMeasure;
-use App\Models\Measure;
+use App\Models\Material;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class GeometryController extends Controller
+class MaterialController extends Controller
 {
     use ApiResponser;
     /**
@@ -18,19 +16,7 @@ class GeometryController extends Controller
      */
     public function index()
     {
-        return $this->success(Geometry::with('measures')
-                                        ->get(['id','image','weight_formula','name As text', 'id As value']));
-    }
-
-    public function paginate()
-    {
-        return $this->success(
-            Geometry::orderBy('name')
-                ->when(request()->get('name'), function ($q, $fill) {
-                    $q->where('name', 'like', '%' . $fill . '%');
-                })
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
-        );
+        //
     }
 
     /**
@@ -52,19 +38,11 @@ class GeometryController extends Controller
     public function store(Request $request)
     {
         try {
-            $geometry = Geometry::create($request->all());
-            $measures = request()->get('measures');
-
-            foreach ($measures as $measure) {
-                GeometryMeasure::create([
-                    'geometry_id' => $geometry->id,
-                    'measure_id'  => $measure
-                ]);
-            }
+            $material = Material::create($request->all());
             return $this->success('creacion exitosa');
-
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), $th->getLine(), $th->getFile(), 500);
+
         }
     }
 
@@ -99,27 +77,7 @@ class GeometryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try {
-            $geometry = Geometry::find($id);
-            $measures = request()->get('measures');
-
-            $geometry->update($request->all());
-
-           GeometryMeasure::where('geometry_id', $geometry->id)->delete();
-
-            foreach ($measures as $measure) {
-                GeometryMeasure::create([
-                    'geometry_id' => $geometry->id,
-                    'measure_id'  => $measure
-                ]);
-            }
-            return response()->json([
-                "message" => "Se ha actualizado con éxito",
-            ]);
-
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
+        //
     }
 
     /**
