@@ -37,6 +37,8 @@ use App\Http\Controllers\FixedAssetTypeController;
 use App\Http\Controllers\FixedTurnController;
 use App\Http\Controllers\FixedTurnDiaryController;
 use App\Http\Controllers\FixedTurnHourController;
+use App\Http\Controllers\GeometryController;
+use App\Http\Controllers\GeometryMeasureController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\IngressTypesController;
@@ -46,6 +48,8 @@ use App\Http\Controllers\JobController;
 use App\Http\Controllers\LateArrivalController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\LunchControlller;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\MeasureController;
 use App\Http\Controllers\MemorandumController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MunicipalityController;
@@ -120,7 +124,7 @@ Route::get('/', function () {
 });
 Route::get('/generate-users', function () {
 
-	$people  = DB::select('SELECT p.* from people p 
+	$people  = DB::select('SELECT p.* from people p
 	where not EXISTS(
 	SELECT u.id from users u  where u.person_id = p.id
 	)');
@@ -145,7 +149,7 @@ Route::get('/image', function () {
 
 	$path = Request()->get('path');
 	if ($path) {
-        
+
 		return response()->file('backend/public/'.$path);
 	}
 	return 'path not found';
@@ -342,6 +346,13 @@ Route::group(
 		Route::resource('drivingLicenses', DrivingLicenseController::class);
 		Route::resource('visa-types', VisaTypeController::class);
 		Route::resource('alerts', AlertController::class);
+        Route::resource('geometry', GeometryController::class);
+        Route::resource('measure', MeasureController::class);
+        Route::resource('geometry-measure', GeometryMeasureController::class);
+        Route::resource('materials', MaterialController::class);
+
+
+
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -406,5 +417,8 @@ Route::group(
 		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
 		Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
 		Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
+        Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
+
+
 	}
 );
