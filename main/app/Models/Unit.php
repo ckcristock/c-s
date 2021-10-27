@@ -10,4 +10,14 @@ class Unit extends Model
     protected $fillable = [
         "name"
     ];
+
+    public function machine(){
+        return $this->hasMany(Machine::class);
+    }
+    public function internalProcess(){
+        return $this->hasMany(Machine::class);
+    }
+    public function externalProcess(){
+        return $this->hasMany(Machine::class);
+    }
 }

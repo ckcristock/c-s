@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Unit;
-use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class UnitController extends Controller
+class ExternalProcessController extends Controller
 {
-    use ApiResponser;
     /**
      * Display a listing of the resource.
      *
@@ -16,8 +13,7 @@ class UnitController extends Controller
      */
     public function index()
     {
-        return Unit::all();
-
+        //
     }
 
     /**
@@ -38,22 +34,7 @@ class UnitController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $unit = Unit::updateOrCreate(['id' => $request->get('id')], $request->all());
-            return ($unit->wasRecentlyCreated)
-            ?
-            $this->success([
-            'title' => '¡Creado con éxito!',
-            'text' => 'La unidad ha sido creado satisfactoriamente'
-            ])
-            :
-            $this->success([
-            'title' => '¡Actualizado con éxito!',
-            'text' => 'La unidad ha sido Actualizado satisfactoriamente'
-            ]);
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
+        //
     }
 
     /**
@@ -64,7 +45,7 @@ class UnitController extends Controller
      */
     public function show($id)
     {
-        return Unit::find($id,['name As text', 'id As value']);
+        //
     }
 
     /**

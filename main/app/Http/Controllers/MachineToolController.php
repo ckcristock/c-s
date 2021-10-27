@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Unit;
+use App\MOdels\MachineTool;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class UnitController extends Controller
+class MachineToolController extends Controller
 {
     use ApiResponser;
     /**
@@ -16,8 +16,15 @@ class UnitController extends Controller
      */
     public function index()
     {
-        return Unit::all();
+        return MachineTool::with(
+            [
+            'unit' => function($q){
+                $q->select('id', 'name');
 
+            },
+            ]
+
+        )->get(['id','name','unit_cost','unit_id','name As text', 'id As value']);
     }
 
     /**
@@ -39,17 +46,17 @@ class UnitController extends Controller
     public function store(Request $request)
     {
         try {
-            $unit = Unit::updateOrCreate(['id' => $request->get('id')], $request->all());
+            $unit = MachineTool::updateOrCreate(['id' => $request->get('id')], $request->all());
             return ($unit->wasRecentlyCreated)
             ?
             $this->success([
             'title' => '¡Creado con éxito!',
-            'text' => 'La unidad ha sido creado satisfactoriamente'
+            'text' => 'La maquina ha sido creado satisfactoriamente'
             ])
             :
             $this->success([
             'title' => '¡Actualizado con éxito!',
-            'text' => 'La unidad ha sido Actualizado satisfactoriamente'
+            'text' => 'La maquina ha sido Actualizado satisfactoriamente'
             ]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
@@ -64,7 +71,26 @@ class UnitController extends Controller
      */
     public function show($id)
     {
-        return Unit::find($id,['name As text', 'id As value']);
+        return MachineTool::with(
+            [
+            'unit' => function($q){
+                $q->select('id', 'name');
+
+            },
+            ]
+
+        )->find($id,['id','name','unit_cost','unit_id','name As text', 'id As value']);
+    }
+
+    public function paginate()
+    {
+        return $this->success(
+            MachineTool::orderBy('name')
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
     }
 
     /**
