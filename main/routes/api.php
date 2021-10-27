@@ -380,7 +380,7 @@ Route::group(
 		Route::get('paginateDrivingLicences', [DrivingLicenseController::class, 'paginate']);
 		Route::get('paginateVisaTypes', [VisaTypeController::class, 'paginate']);
         Route::get('paginateMaterial', [MaterialController::class, 'paginate']);
-
+		Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);

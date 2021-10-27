@@ -80,8 +80,10 @@ class GeometryController extends Controller
      */
     public function show($id)
     {
-        return Geometry::with('measures')
-                        ->find($id,['id','image','weight_formula','name As text', 'id As value']);
+        return $this->success(
+            Geometry::with('measures')
+                        ->find($id,['id','image','weight_formula','name As text', 'id As value'])
+        );
     }
 
     /**
