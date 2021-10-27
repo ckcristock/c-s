@@ -390,7 +390,8 @@ Route::group(
         Route::get('paginateMaterial', [MaterialController::class, 'paginate']);
 		Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
         Route::get('paginateMachines', [MachineToolController::class, 'paginate']);
-
+		Route::get('paginateInternalProcesses', [InternalProcessController::class, 'paginate']);
+		Route::get('paginateExternalProcesses', [ExternalProcessController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
