@@ -31,6 +31,7 @@ use App\Http\Controllers\DotationController;
 use App\Http\Controllers\DrivingLicenseController;
 use App\Http\Controllers\EgressTypesController;
 use App\Http\Controllers\EpsController;
+use App\Http\Controllers\ExternalProcessController;
 use App\Http\Controllers\ExtraHoursController;
 use App\Http\Controllers\FixedAssetController;
 use App\Http\Controllers\FixedAssetTypeController;
@@ -42,12 +43,14 @@ use App\Http\Controllers\GeometryMeasureController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\IngressTypesController;
+use App\Http\Controllers\InternalProcessController;
 use App\Http\Controllers\InventaryDotationController;
 use App\Http\Controllers\InventaryDotationGroupController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LateArrivalController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\LunchControlller;
+use App\Http\Controllers\MachineToolController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MeasureController;
 use App\Http\Controllers\MemorandumController;
@@ -79,6 +82,7 @@ use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\ThirdPartyFieldController;
 use App\Http\Controllers\ThirdPartyPersonController;
 use App\Http\Controllers\TravelExpenseController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\VisaTypeController;
 use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
@@ -350,6 +354,10 @@ Route::group(
         Route::resource('measure', MeasureController::class);
         Route::resource('geometry-measure', GeometryMeasureController::class);
         Route::resource('materials', MaterialController::class);
+        Route::resource('units', UnitController::class);
+        Route::resource('machinestools', MachineToolController::class);
+        Route::resource('internalprocesses', InternalProcessController::class);
+        Route::resource('externalprocesses', ExternalProcessController::class);
 
 
 
@@ -381,6 +389,8 @@ Route::group(
 		Route::get('paginateVisaTypes', [VisaTypeController::class, 'paginate']);
         Route::get('paginateMaterial', [MaterialController::class, 'paginate']);
 		Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
+        Route::get('paginateMachines', [MachineToolController::class, 'paginate']);
+
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
