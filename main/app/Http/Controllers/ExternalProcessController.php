@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExternalProcess;
+use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
 class ExternalProcessController extends Controller
 {
+    use ApiResponser;
+
     /**
      * Display a listing of the resource.
      *
@@ -13,7 +17,15 @@ class ExternalProcessController extends Controller
      */
     public function index()
     {
-        //
+        return ExternalProcess::with(
+            [
+            'unit' => function($q){
+                $q->select('id', 'name');
+
+            },
+            ]
+
+        )->get(['id','name','unit_cost','unit_id','name As text', 'id As value']);
     }
 
     /**
@@ -34,7 +46,22 @@ class ExternalProcessController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $unit = ExternalProcess::updateOrCreate(['id' => $request->get('id')], $request->all());
+            return ($unit->wasRecentlyCreated)
+            ?
+            $this->success([
+            'title' => '¡Creado con éxito!',
+            'text' => 'El proceso ha sido creado satisfactoriamente'
+            ])
+            :
+            $this->success([
+            'title' => '¡Actualizado con éxito!',
+            'text' => 'El proceso ha sido Actualizado satisfactoriamente'
+            ]);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -45,7 +72,27 @@ class ExternalProcessController extends Controller
      */
     public function show($id)
     {
-        //
+        return ExternalProcess::with(
+            [
+            'unit' => function($q){
+                $q->select('id', 'name');
+
+            },
+            ]
+
+        )->find($id,['id','name','unit_cost','unit_id','name As text', 'id As value']);
+    }
+
+
+    public function paginate()
+    {
+        return $this->success(
+            ExternalProcess::orderBy('name')
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
     }
 
     /**

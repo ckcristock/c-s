@@ -21,10 +21,8 @@ class InternalProcessController extends Controller
             [
             'unit' => function($q){
                 $q->select('id', 'name');
-
             },
             ]
-
         )->get(['id','name','unit_cost','unit_id','name As text', 'id As value']);
     }
 
