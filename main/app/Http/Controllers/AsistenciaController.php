@@ -60,7 +60,7 @@ class AsistenciaController extends Controller
             //$fully = 'https://backend.sigmaqmo.com/storage/app/public/people/Arb9cDfbiLFpCUCDeVA6uvujh82ynL1631109731.png';
 
             $fully = str_replace('storage', 'storage/app/public', $tem);
-            dd($tem);
+           
             //return response($fully);
             $empresa = Company::where('id', 1)->get();
             /*$ cliente = Cliente::with('face')->where('documento', $empresa[0]["numero_documento"])->get(); */

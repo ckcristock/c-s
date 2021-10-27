@@ -149,8 +149,8 @@ Route::get('/image', function () {
 
 	$path = Request()->get('path');
 	if ($path) {
-
-		return response()->file(''.$path);
+		$path = storage_path('app/public').'/'.$path;
+		return response()->file($path);
 	}
 	return 'path not found';
 });
