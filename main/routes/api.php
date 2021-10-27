@@ -79,6 +79,7 @@ use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\ThirdPartyFieldController;
 use App\Http\Controllers\ThirdPartyPersonController;
 use App\Http\Controllers\TravelExpenseController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\VisaTypeController;
 use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
@@ -350,6 +351,7 @@ Route::group(
         Route::resource('measure', MeasureController::class);
         Route::resource('geometry-measure', GeometryMeasureController::class);
         Route::resource('materials', MaterialController::class);
+        Route::resource('units', UnitController::class);
 
 
 
