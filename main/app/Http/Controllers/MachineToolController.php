@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\MOdels\MachineTool;
+use App\Models\MachineTool;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
