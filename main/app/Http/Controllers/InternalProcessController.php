@@ -84,7 +84,8 @@ class InternalProcessController extends Controller
     public function paginate()
     {
         return $this->success(
-            InternalProcess::orderBy('name')
+            InternalProcess::with('unit')
+            ->orderBy('name')
                 ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
                 })

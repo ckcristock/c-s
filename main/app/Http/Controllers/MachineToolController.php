@@ -16,7 +16,8 @@ class MachineToolController extends Controller
      */
     public function index()
     {
-        return MachineTool::with(
+        return $this->success(
+            MachineTool::with(
             [
             'unit' => function($q){
                 $q->select('id', 'name');
@@ -24,7 +25,8 @@ class MachineToolController extends Controller
             },
             ]
 
-        )->get(['id','name','unit_cost','unit_id','name As text', 'id As value']);
+        )->get(['id','name','unit_cost','unit_id','name As text', 'id As value'])
+        );
     }
 
     /**
@@ -85,7 +87,8 @@ class MachineToolController extends Controller
     public function paginate()
     {
         return $this->success(
-            MachineTool::orderBy('name')
+            MachineTool::with('unit')
+            ->orderBy('name')
                 ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
                 })

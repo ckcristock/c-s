@@ -87,7 +87,8 @@ class ExternalProcessController extends Controller
     public function paginate()
     {
         return $this->success(
-            ExternalProcess::orderBy('name')
+            ExternalProcess::with('unit')
+            ->orderBy('name')
                 ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
                 })

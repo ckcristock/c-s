@@ -16,8 +16,9 @@ class UnitController extends Controller
      */
     public function index()
     {
-        return Unit::all();
-
+        return $this->success(
+            Unit::all()
+        );
     }
 
     /**
