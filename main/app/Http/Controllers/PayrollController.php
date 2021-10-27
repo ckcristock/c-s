@@ -41,9 +41,8 @@ class PayrollController extends Controller
      */
     public function getPayrollPay($inicio = null, $fin = null)
     {
-        $frecuenciaPago =  Company::get(['payment_method'])->first()['payment_method'];
+        $frecuenciaPago =  Company::get(['payment_frequency'])->first()['payment_frequency'];
         $pagoNomina = $nomina = $paga = $idNominaExistente = null;
-
 
         $fechaInicioPeriodo = Carbon::now()->startOfMonth()->format("Y-m-d H:i:s");
         $fechaFinPeriodo = Carbon::now()->endOfMonth()->format("Y-m-d H:i:s");
@@ -133,9 +132,9 @@ class PayrollController extends Controller
 
                 $funcionariosResponse[] = [
                     'id' => $funcionario->id,
-                    'identidad' => $funcionario->identidad,
-                    'nombres' => $funcionario->nombres,
-                    'apellidos' => $funcionario->apellidos,
+                    'identifier' => $funcionario->identifier,
+                    'name' => $funcionario->first_name,
+                    'surname' => $funcionario->first_surname,
                     'image' => $funcionario->image,
                     'salario_neto' => $salario,
                     'novedades' => [],
@@ -155,7 +154,7 @@ class PayrollController extends Controller
             $totalCostoEmpresa += $totalSalarios + $totalRetenciones +   $totalSeguridadSocial + $totalParafiscales + $totalProvisiones;
 
 
-            return response()->json([
+            return $this->success([
                 'frecuencia_pago' => $frecuenciaPago,
                 'inicio_periodo' => $fechaInicioPeriodo,
                 'fin_periodo' => $fechaFinPeriodo,
@@ -220,7 +219,7 @@ class PayrollController extends Controller
             })->with(['payroll_factors' => $fechasNovedades])->get();
             foreach ($funcionarios as $funcionario) {
 
-                $funcionariosResponse[] = response()->json([
+                $funcionariosResponse[] = $this->success([
                     'id' => $funcionario->id,
                     'identifier' => $funcionario->identifier,
                     'first_name' => $funcionario->first_name,
