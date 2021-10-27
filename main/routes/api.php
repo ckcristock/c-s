@@ -380,7 +380,7 @@ Route::group(
 		Route::get('paginateDrivingLicences', [DrivingLicenseController::class, 'paginate']);
 		Route::get('paginateVisaTypes', [VisaTypeController::class, 'paginate']);
         Route::get('paginateMaterial', [MaterialController::class, 'paginate']);
-
+		Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -418,7 +418,8 @@ Route::group(
 		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
 		Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
 		Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
-
+		Route::get('users/{id}', [PersonController::class, 'user']);
+		Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
 
 
 	}
