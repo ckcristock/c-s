@@ -431,6 +431,7 @@ Route::group(
 		Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
 		Route::get('users/{id}', [PersonController::class, 'user']);
 		Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
+		Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
 
 
 	}
