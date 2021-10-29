@@ -20,6 +20,13 @@ class MeasureController extends Controller
         return $this->success(Measure::get(['measure','name As text', 'id As value']));
     }
 
+    public function paginate()
+    {
+        return $this->success(
+            Measure::paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -38,7 +45,22 @@ class MeasureController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $measure = Measure::updateOrCreate(['id' => $request->get('id')], $request->all());
+            return ($measure->wasRecentlyCreated)
+            ?
+            $this->success([
+            'title' => '¡Creado con éxito!',
+            'text' => 'La medida ha sido creada satisfactoriamente'
+            ])
+            :
+            $this->success([
+            'title' => '¡Actualizado con éxito!',
+            'text' => 'La medida ha sido actualizada satisfactoriamente'
+            ]);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**

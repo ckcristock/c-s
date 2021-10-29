@@ -392,6 +392,7 @@ Route::group(
         Route::get('paginateMachines', [MachineToolController::class, 'paginate']);
 		Route::get('paginateInternalProcesses', [InternalProcessController::class, 'paginate']);
 		Route::get('paginateExternalProcesses', [ExternalProcessController::class, 'paginate']);
+		Route::get('paginateMeasure', [MeasureController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
