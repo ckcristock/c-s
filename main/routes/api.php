@@ -42,6 +42,7 @@ use App\Http\Controllers\GeometryController;
 use App\Http\Controllers\GeometryMeasureController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HotelController;
+use App\Http\Controllers\IndirectCostController;
 use App\Http\Controllers\IngressTypesController;
 use App\Http\Controllers\InternalProcessController;
 use App\Http\Controllers\InventaryDotationController;
@@ -358,6 +359,7 @@ Route::group(
         Route::resource('machinestools', MachineToolController::class);
         Route::resource('internalprocesses', InternalProcessController::class);
         Route::resource('externalprocesses', ExternalProcessController::class);
+        Route::resource('indirect-cost', IndirectCostController::class);
 
 
 
@@ -393,6 +395,7 @@ Route::group(
 		Route::get('paginateInternalProcesses', [InternalProcessController::class, 'paginate']);
 		Route::get('paginateExternalProcesses', [ExternalProcessController::class, 'paginate']);
 		Route::get('paginateMeasure', [MeasureController::class, 'paginate']);
+		Route::get('paginateIndirectCost', [IndirectCostController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
