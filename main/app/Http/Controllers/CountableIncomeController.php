@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
-use App\Models\WorkContract;
+use App\Models\BenefitIncome;
+use App\Models\Countable_income;
+use App\Models\Person;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class CompanyController extends Controller
+class CountableIncomeController extends Controller
 {
     use ApiResponser;
     /**
@@ -16,24 +16,15 @@ class CompanyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        return $this->success(Company::all(['id as value','name as text']));
-    }
 
-    public function getBasicData()
-    {
         return $this->success(
-            Company::with('arl')->with('bank')->first()
-        );
-    }
-
-    public function saveCompanyData(Request $request) 
-    {
-        return $this->success(
-            $company = Company::findOrFail($request->get('id')),
-            $company->update($request->all())
+            Countable_income::when($request->get('type'), function ($q, $fill) {
+                $q->where('type', $fill);
+            })
+                ->where('state', 1)
+                ->get(['id', 'concept', 'type', 'state', 'editable', 'id as value', 'concept as text'])
         );
     }
 
@@ -55,13 +46,7 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $work_contract = WorkContract::find($request->get('id'));
-                $work_contract->update($request->all());
-                return response()->json(['message' => 'Se ha actualizado con éxito']);
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
+        //
     }
 
     /**
@@ -72,7 +57,7 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-     
+        //
     }
 
     /**
@@ -109,11 +94,5 @@ class CompanyController extends Controller
         //
     }
 
-    public function getGlobal()
-    {
-        return Company::with('payConfiguration')->with('arl')->first([
-            'id', 'arl_id', 'payment_frequency', 'social_reason', 'document_number',
-            'transportation_assistance', 'base_salary', 'law_1607'
-        ]);
-    }
+
 }

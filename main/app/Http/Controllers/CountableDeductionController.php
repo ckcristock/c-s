@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Countable_income;
+use App\Models\CountableDeduction;
+use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class Countable_incomeController extends Controller
+class CountableDeductionController extends Controller
 {
+    use ApiResponser;
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +16,11 @@ class Countable_incomeController extends Controller
      */
     public function index(Request $request)
     {
-        
+
+        return $this->success(
+            CountableDeduction::where('state', 1)
+                ->get(['id', 'concept', 'state', 'editable', 'id as value', 'concept as text'])
+        );
     }
 
     /**

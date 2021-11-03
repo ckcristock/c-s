@@ -11,16 +11,19 @@ use App\Http\Controllers\AttentionCallController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\BanksController;
+use App\Http\Controllers\BenefitIncomeController;
+use App\Http\Controllers\BenefitNotIncomeController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\CenterCostController;
 use App\Http\Controllers\CiiuCodeController;
 use App\Http\Controllers\CityController;
-use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyPaymentConfigurationController;
 use App\Http\Controllers\CompensationFundController;
-use App\Http\Controllers\Countable_incomeController;
+use App\Http\Controllers\CountableDeductionController;
+use App\Http\Controllers\CountableIncomeController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\DeductionController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DianAddressController;
@@ -68,6 +71,7 @@ use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\PayrollOvertimeController;
 use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
@@ -88,16 +92,9 @@ use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Http\Controllers\ZonesController;
-use App\Models\AttentionCall;
-use App\Models\CompanyPaymentConfiguration;
-use App\Models\Countable_income;
-use App\Models\DisabilityLeave;
-use App\Models\DocumentTypes;
-use App\Models\RetentionType;
-use App\Models\TravelExpense;
+
 use App\Models\User;
-use App\Models\WorkContract;
-use App\Models\WorkContractType;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -271,13 +268,33 @@ Route::group(
 		# Fijo	---
 
 		/**----- end horas extras */
-		/**                PayRoll */
+
+		/** Rutas PayRoll */
 
 		Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
 		Route::get('nomina/pago/{inicio?}/{fin?}', [PayrollController::class, 'getPayrollPay']);
+		Route::get('nomina/pago/funcionarios/{identidad}', [PayrollController::class, 'getFuncionario']);
 
-		/**               End Payroll */
+		Route::get('payroll/overtimes/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getExtrasTotales']);
+		
+		Route::get('payroll/salary/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getSalario']);
+		Route::get('payroll/factors/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getNovedades']);
+		Route::get('payroll/incomes/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getIngresos']);
+		Route::get('payroll/retentions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getRetenciones']);
+		Route::get('payroll/deductions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getDeducciones']);
+		Route::get('payroll/net-pay/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getPagoNeto']);
+		Route::get('payroll/social-security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getPorcentajes']);
+
+		Route::get('params/payroll/overtimes/percentages', [PayrollOvertimeController::class, 'horasExtrasPorcentajes']);
+
+
+
+
+		/** End Payroll */
 		Route::resource('third-party-fields', ThirdPartyFieldController::class);
+
+
+
 
 		/**End */
 		Route::resource('applicants', ApplicantController::class);
@@ -307,7 +324,7 @@ Route::group(
 		Route::resource('late-arrivals', LateArrivalController::class);
 		Route::resource('zones', ZonesController::class);
 		Route::resource('bonifications', BonificationsController::class);
-		Route::resource('countable_incomes', Countable_incomeController::class);
+		Route::resource('countable_incomes', CountableIncomeController::class);
 		Route::resource('arl', ArlController::class);
 		/* Route::resource('inventary-dotation-group', ProductDotationType::class); */
 		Route::resource('work_contracts', WorkContractController::class);
@@ -358,7 +375,10 @@ Route::group(
         Route::resource('machinestools', MachineToolController::class);
         Route::resource('internalprocesses', InternalProcessController::class);
         Route::resource('externalprocesses', ExternalProcessController::class);
-
+        Route::resource('countable-incomes', BenefitIncomeController::class);
+        Route::resource('countable-not-incomes', BenefitNotIncomeController::class);
+        Route::resource('deductions', DeductionController::class);
+        Route::resource('countable_deductions', CountableDeductionController::class);
 
 
 		/* Paginations */
@@ -412,8 +432,13 @@ Route::group(
 		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
 		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
 		Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
+
+		/** Tutas de Empresas  */
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
+		Route::get('/company-global', [CompanyController::class, 'getGlobal']);
+
+
 		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
 		// Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
 		Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);

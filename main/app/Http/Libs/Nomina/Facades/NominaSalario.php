@@ -83,7 +83,6 @@ class NominaSalario extends PeriodoPago
     {
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
-
         $this->verifiyNovedadesFromTo($this->fechaInicio, $this->fechaFin);
       
 
@@ -93,6 +92,7 @@ class NominaSalario extends PeriodoPago
             $this->fechaInicio,
             $this->fechaFin
         );
+     
    
 
         return $this;

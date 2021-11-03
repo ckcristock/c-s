@@ -60,7 +60,7 @@ class PayrollOvertime extends Model
         $prefijos = PayrollOvertime::get(['prefix'])->keyBy('prefix')->keys();
         $reporteExtras =  ExtraHourReport::where('person_id', self::$funcionario->id)->whereBetween('date', [$fechaInicio, $fechaFin]);
         $salarioPartial = Person::with('contractultimate')->where('id', self::$funcionario->id)->firstOrFail();
-        $salario = $salarioPartial->contractultimate->salario;
+        $salario = $salarioPartial->contractultimate->salary;
         
         $calculoExtras = new CalculoExtra($prefijos, $reporteExtras, $salario);
         $calculoExtras->calcularCantidadHoras();
@@ -70,7 +70,7 @@ class PayrollOvertime extends Model
         );
         $calculoExtras->calcularTotalHoras();
         $calculoExtras->calcularValorTotalHoras();
-
+       
         return $calculoExtras->crearColeccion();
     }
 }

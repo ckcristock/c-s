@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
-use App\Models\WorkContract;
+use App\Models\Deduction;
+use App\Models\Person;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class CompanyController extends Controller
+class DeductionController extends Controller
 {
     use ApiResponser;
     /**
@@ -16,27 +16,14 @@ class CompanyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        //
-        return $this->success(Company::all(['id as value','name as text']));
-    }
 
-    public function getBasicData()
+    public function index(Request $request)
     {
+        $person = Person::findOrFail( $request->get('person_id') );
         return $this->success(
-            Company::with('arl')->with('bank')->first()
+            Deduction::where('person_id', '=', $person->id)->with('deduccion')->get()
         );
     }
-
-    public function saveCompanyData(Request $request) 
-    {
-        return $this->success(
-            $company = Company::findOrFail($request->get('id')),
-            $company->update($request->all())
-        );
-    }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -55,12 +42,15 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
+        //
         try {
-            $work_contract = WorkContract::find($request->get('id'));
-                $work_contract->update($request->all());
-                return response()->json(['message' => 'Se ha actualizado con éxito']);
+            //code...
+            Deduction::create($request->all());
+            return $this->success('creado con éxito');
         } catch (\Throwable $th) {
+            //throw $th;
             return $this->error($th->getMessage(), 500);
+
         }
     }
 
@@ -72,7 +62,7 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-     
+        //
     }
 
     /**
@@ -106,14 +96,15 @@ class CompanyController extends Controller
      */
     public function destroy($id)
     {
-        //
-    }
+       
+        try {
+            //code...
+            DB::table('deductions')->where('id', '=', $id)->delete();
+            return $this->success('eliminado con éxito');
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $this->error($th->getMessage(), 500);
 
-    public function getGlobal()
-    {
-        return Company::with('payConfiguration')->with('arl')->first([
-            'id', 'arl_id', 'payment_frequency', 'social_reason', 'document_number',
-            'transportation_assistance', 'base_salary', 'law_1607'
-        ]);
+        }
     }
 }

@@ -69,6 +69,7 @@ class NominaDeducciones extends PeriodoPago
     {
 
         $this->calculoDeducciones->calcularTotalDeducciones();
+        
 
         return $this->calculoDeducciones->crearColeccion();
     }

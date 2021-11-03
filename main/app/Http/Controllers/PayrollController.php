@@ -8,11 +8,13 @@ use App\Http\Libs\Nomina\Facades\NominaNovedades;
 use App\Http\Libs\Nomina\Facades\NominaPago;
 use App\Http\Libs\Nomina\Facades\NominaProvisiones;
 use App\Http\Libs\Nomina\Facades\NominaRetenciones;
+use App\Http\Libs\Nomina\Facades\NominaSalario;
 use App\Http\Libs\Nomina\Facades\NominaSeguridad;
 use App\Models\Company;
 use App\Models\Payroll;
 use App\Models\PayrollOvertime;
 use App\Models\PayrollPayment;
+use App\Models\PayrollSocialSecurityPerson;
 use App\Models\Person;
 use App\Services\PayrollService;
 use App\Traits\ApiResponser;
@@ -98,7 +100,7 @@ class PayrollController extends Controller
 
         $funcionarios = Person::whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
             return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end');
-        })->with(['payroll_factors' => $fechasNovedades])->get(['id', 'identifier', 'first_name', 'first_surname', 'image']);
+        })->with(['payroll_factors' => $fechasNovedades])->take(2)->get(['id', 'identifier', 'first_name', 'first_surname', 'image']);
 
         try {
             //code...
@@ -129,7 +131,7 @@ class PayrollController extends Controller
                 $totalProvisiones += $provision;
                 $totalExtras += $extras;
                 $totalIngresos += $temIngresos['valor_total'];
-
+              
                 $funcionariosResponse[] = [
                     'id' => $funcionario->id,
                     'identifier' => $funcionario->identifier,
@@ -317,5 +319,18 @@ class PayrollController extends Controller
         return NominaProvisiones::provisionesFuncionarioWithId($id)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
+    }
+
+    public function getSalario($id, $fechaInicio, $fechaFin)
+    {
+       
+        return NominaSalario::salarioFuncionarioWithId($id)
+            ->fromTo($fechaInicio, $fechaFin)
+            ->calculate();
+    }
+
+    public function getPorcentajes()
+    {
+        return response(PayrollSocialSecurityPerson::select('concept', 'percentage')->cursor(), 200);
     }
 }

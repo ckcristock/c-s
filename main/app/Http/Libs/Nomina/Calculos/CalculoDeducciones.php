@@ -52,7 +52,7 @@ class CalculoDeducciones implements Coleccion
     public function calcularTotalDeducciones()
     {
         if ($this->deducciones->isNotEmpty()) {
-            $this->totalDeducciones = $this->deducciones->sum('valor');
+            $this->totalDeducciones = $this->deducciones->sum('value');
         }
     }
 
@@ -94,15 +94,17 @@ class CalculoDeducciones implements Coleccion
 
     public function getDeduccionesCustom()
     {
+     
 
-       
-        foreach ($this->deducciones->groupBy('deduccion.concepto') as  $deduccion) {
+
+        foreach ($this->deducciones->groupBy('deduccion.concept') as  $deduccion) {
             $this->suma = 0;
+           # dd($deduccion);
             foreach ($deduccion as  $concepto) {
-                $this->suma += $concepto->valor;
+                $this->suma += $concepto->value;
                 $this->conceptoAux = $concepto;
             }
-            $this->deduccionesRegistradas->put($this->conceptoAux->deduccion->concepto, $this->suma);
+            $this->deduccionesRegistradas->put($this->conceptoAux->deduccion->concept, $this->suma);
         }
     }
 }
