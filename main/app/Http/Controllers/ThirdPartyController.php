@@ -50,6 +50,19 @@ class ThirdPartyController extends Controller
         );
     }
 
+    public function thirdPartyClient()
+    {
+        return $this->success(
+            ThirdParty::select(
+                DB::raw('concat(first_name," ",first_surname) as text'),
+                'id as value'
+            )
+            // ->where('state', 'Activo')
+            ->where('third_party_type', 'Cliente')
+            ->get()
+        );
+    }
+
     public function getFields()
     {
         return $this->success(

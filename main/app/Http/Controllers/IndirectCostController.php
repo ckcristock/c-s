@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Measure;
+use App\Models\IndirectCost;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class MeasureController extends Controller
+class IndirectCostController extends Controller
 {
     use ApiResponser;
     /**
@@ -16,14 +16,18 @@ class MeasureController extends Controller
      */
     public function index()
     {
-
-        return $this->success(Measure::get(['measure','name As text', 'id As value']));
+        return $this->success(
+            IndirectCost::all(['name as text', 'id as value', 'percentage'])
+        );
     }
 
     public function paginate()
     {
         return $this->success(
-            Measure::paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            IndirectCost::when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+            })
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -46,17 +50,17 @@ class MeasureController extends Controller
     public function store(Request $request)
     {
         try {
-            $measure = Measure::updateOrCreate(['id' => $request->get('id')], $request->all());
-            return ($measure->wasRecentlyCreated)
+            $unit = IndirectCost::updateOrCreate(['id' => $request->get('id')], $request->all());
+            return ($unit->wasRecentlyCreated)
             ?
             $this->success([
             'title' => '¡Creado con éxito!',
-            'text' => 'La medida ha sido creada satisfactoriamente'
+            'text' => 'El costo indirecto ha sido creado satisfactoriamente'
             ])
             :
             $this->success([
             'title' => '¡Actualizado con éxito!',
-            'text' => 'La medida ha sido actualizada satisfactoriamente'
+            'text' => 'El costo indirecto ha sido actualizado satisfactoriamente'
             ]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

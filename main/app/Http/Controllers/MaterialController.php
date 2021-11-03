@@ -17,17 +17,7 @@ class MaterialController extends Controller
     public function index()
     {
         return $this->success(
-            Material::orderBy('name')
-                ->when(request()->get('type'), function ($q, $fill) {
-                    $q->where('type',  $fill );
-                })
-                ->when(request()->get('cut_water') == 1, function ($q) {
-                    $q->where('cut_water',1 );
-                })
-                ->when(request()->get('cut_laser')== 1, function ($q) {
-                    $q->where('cut_laser',  1 );
-                })
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            Material::all(['name As text', 'id As value'])
         );
     }
 

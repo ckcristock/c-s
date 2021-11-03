@@ -45,6 +45,7 @@ use App\Http\Controllers\GeometryController;
 use App\Http\Controllers\GeometryMeasureController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HotelController;
+use App\Http\Controllers\IndirectCostController;
 use App\Http\Controllers\IngressTypesController;
 use App\Http\Controllers\InternalProcessController;
 use App\Http\Controllers\InventaryDotationController;
@@ -379,6 +380,8 @@ Route::group(
         Route::resource('countable-not-incomes', BenefitNotIncomeController::class);
         Route::resource('deductions', DeductionController::class);
         Route::resource('countable_deductions', CountableDeductionController::class);
+        Route::resource('indirect-cost', IndirectCostController::class);
+
 
 
 		/* Paginations */
@@ -412,6 +415,8 @@ Route::group(
         Route::get('paginateMachines', [MachineToolController::class, 'paginate']);
 		Route::get('paginateInternalProcesses', [InternalProcessController::class, 'paginate']);
 		Route::get('paginateExternalProcesses', [ExternalProcessController::class, 'paginate']);
+		Route::get('paginateMeasure', [MeasureController::class, 'paginate']);
+		Route::get('paginateIndirectCost', [IndirectCostController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -456,6 +461,7 @@ Route::group(
 		Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
 		Route::get('users/{id}', [PersonController::class, 'user']);
 		Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
+		Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
 
 
 	}
