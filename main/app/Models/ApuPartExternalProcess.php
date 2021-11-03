@@ -8,4 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class ApuPartExternalProcess extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        "description",
+        "unit_id",
+        "apu_part_id",
+        "q_unit" ,
+        "q_total" ,
+        "unit_cost" ,
+        "total"
+    ];
+
+    public function apupart()
+	{
+		return $this->belongsTo(ApuPart::class);
+	}
 }

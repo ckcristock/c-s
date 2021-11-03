@@ -17,4 +17,9 @@ class Measure extends Model
 		return $this->belongsToMany(Geometry::class);
 	}
 
+    public function RawMaterial()
+	{
+		return $this->belongsToMany(ApuPartRawMaterial::class);
+	}
+
 }

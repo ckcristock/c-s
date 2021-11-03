@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class ApuPartRawMaterialMeasure extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        "measure_id",
+        "value",
+        "apu_part_raw_material_id"
+    ];
+
 }
+
+
+
