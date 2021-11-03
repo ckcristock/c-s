@@ -72,6 +72,7 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
+use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\RetentionTypeController;
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnDiaryController;
@@ -360,6 +361,7 @@ Route::group(
         Route::resource('internalprocesses', InternalProcessController::class);
         Route::resource('externalprocesses', ExternalProcessController::class);
         Route::resource('indirect-cost', IndirectCostController::class);
+        Route::resource('raw-materials', RawMaterialController::class);
 
 
 
