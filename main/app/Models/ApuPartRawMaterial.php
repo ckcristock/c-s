@@ -20,6 +20,10 @@ class ApuPartRawMaterial extends Model
         "total_value"
     ];
 
+    protected $hidden = [
+        "updated_at","created_at",
+    ];
+
     public function apupart()
 	{
 		return $this->belongsTo(ApuPart::class);
@@ -29,6 +33,18 @@ class ApuPartRawMaterial extends Model
 	{
 		return $this->belongsToMany(Measure::class, 'apu_part_raw_material_measures');
 	}
+
+    public function geometry()
+	{
+		return $this->belongsTo(Geometry::class);
+	}
+
+    public function material()
+	{
+		return $this->belongsTo(Material::class);
+	}
+
+
 }
 
 

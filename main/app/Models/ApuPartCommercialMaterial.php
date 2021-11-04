@@ -18,10 +18,20 @@ class ApuPartCommercialMaterial extends Model
         "total"
     ];
 
+    protected $hidden = [
+        "updated_at","created_at",
+    ];
+
     public function apupart()
 	{
 		return $this->belongsTo(ApuPart::class);
 	}
+    
+    public function material()
+	{
+		return $this->belongsTo(Material::class);
+	}
+
 }
 
 

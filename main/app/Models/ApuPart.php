@@ -49,6 +49,31 @@ class ApuPart extends Model
 
     ];
 
+    protected $hidden = [
+        "updated_at","created_at",
+    ];
+
+    public function city()
+	{
+		return $this->belongsTo(City::class);
+	}
+
+    public function person()
+	{
+		return $this->belongsTo(Person::class);
+	}
+
+    public function thirdParty()
+	{
+		return $this->belongsTo(ThirdParty::class);
+	}
+
+
+    public function files()
+	{
+		return $this->hasMany(ApuPartFile::class);
+	}
+
     public function rowmaterial()
 	{
 		return $this->hasMany(ApuPartRawMaterial::class);
@@ -66,7 +91,7 @@ class ApuPart extends Model
 
     public function cutlaser()
 	{
-		return $this->hasMany(ApuPartCommercialMaterial::class);
+		return $this->hasMany(ApuPartCutLaser::class);
 	}
 
     public function machine()
@@ -93,4 +118,5 @@ class ApuPart extends Model
 	{
 		return $this->hasMany(ApuPartIndirectCost::class);
 	}
+
 }

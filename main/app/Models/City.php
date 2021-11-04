@@ -12,6 +12,11 @@ class City extends Model
         'name', 'type', 'country_id', 'state'
     ];
 
+    protected $hidden = [
+        "updated_at","created_at",
+     ];
+
+
     public function routeTaxi()
     {
         return $this->hasMany(RouteTaxi::class);

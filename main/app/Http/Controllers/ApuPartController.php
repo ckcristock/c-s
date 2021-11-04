@@ -10,6 +10,7 @@ use App\Models\ApuPartCommercialMaterial;
 use App\Models\ApuPartCutLaser;
 use App\Models\ApuPartCutWater;
 use App\Models\ApuPartExternalProcess;
+use App\Models\ApuPartFile;
 use App\Models\ApuPartIndirectCost;
 use App\Models\ApuPartInternalProcess;
 use App\Models\ApuPartMachineTool;
@@ -47,6 +48,7 @@ class ApuPartController extends Controller
     public function store(Request $request)
     {
         $data = $request->except([
+			"files",
 			"materia_prima",
 			"commercial_materials",
 			"cut_water",
@@ -56,10 +58,9 @@ class ApuPartController extends Controller
 			"external_proccesses",
 			"others",
 			"indirect_cost",
-			"files",
 		]);
 
-        $material = request()->get("files");
+        $files = request()->get("files");
         $materia_prima = request()->get("materia_prima");
         $commercial_materials = request()->get("commercial_materials");
         $cut_water = request()->get("cut_water");
@@ -74,6 +75,11 @@ class ApuPartController extends Controller
 
             $apu = ApuPartService::saveApu($data);
             $id = $apu->id;
+
+            foreach ($files as $file){
+				$file["apu_part_id"] = $id;
+				ApuPartFile::create($file);
+			}
 
             RawMaterialService::SaveRawMaterial($materia_prima,$apu);
 
@@ -136,7 +142,9 @@ class ApuPartController extends Controller
      */
     public function show($id)
     {
-        //
+        return $this->success(
+			ApuPartService::show($id)
+		);
     }
 
     /**

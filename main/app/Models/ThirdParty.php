@@ -69,4 +69,5 @@ class ThirdParty extends Model
     {
         return $this->belongsTo(AccountPlan::class);
     }
+
 }
