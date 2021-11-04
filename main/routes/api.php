@@ -76,6 +76,7 @@ use App\Http\Controllers\PayrollOvertimeController;
 use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
+use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\RetentionTypeController;
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnDiaryController;
@@ -381,6 +382,7 @@ Route::group(
         Route::resource('deductions', DeductionController::class);
         Route::resource('countable_deductions', CountableDeductionController::class);
         Route::resource('indirect-cost', IndirectCostController::class);
+        Route::resource('raw-materials', RawMaterialController::class);
 
 
 
