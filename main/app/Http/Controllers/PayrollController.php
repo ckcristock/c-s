@@ -27,6 +27,15 @@ class PayrollController extends Controller
 
     use ApiResponser;
 
+    public function getFuncionario($identidad)
+    {
+        $funcionario = Person::where('id', '=', $identidad)->with('contractultimate')->first();
+        if (!$funcionario) {
+            return response()->json(['message' => 'Funcionario no encontrado'], 404);
+        }
+
+        return $funcionario;
+    }
 
     function nextMonths()
     {

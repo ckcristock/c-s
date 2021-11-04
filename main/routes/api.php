@@ -272,9 +272,9 @@ Route::group(
 
 		/** Rutas PayRoll */
 
+		Route::get('nomina/pago/funcionario/{identidad}', [PayrollController::class, 'getFuncionario']);
 		Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
 		Route::get('nomina/pago/{inicio?}/{fin?}', [PayrollController::class, 'getPayrollPay']);
-		Route::get('nomina/pago/funcionarios/{identidad}', [PayrollController::class, 'getFuncionario']);
 
 		Route::get('payroll/overtimes/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getExtrasTotales']);
 		
