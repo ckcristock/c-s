@@ -83,7 +83,7 @@ class ApuPart extends Model
 		return $this->hasMany(ApuPartFile::class);
 	}
 
-    public function rowmaterial()
+    public function rawmaterial()
 	{
 		return $this->hasMany(ApuPartRawMaterial::class);
 	}

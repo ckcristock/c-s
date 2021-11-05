@@ -58,14 +58,14 @@ class ApuPArtService
                                 },
                             ])
                             ->with([
-                                "rowmaterial" => function ($q) {
+                                "rawmaterial" => function ($q) {
                                     $q->select("*")
                                         ->with("geometry");
                                 },
-                                "rowmaterial.measures" => function ($q) {
+                                "rawmaterial.measures" => function ($q) {
                                     $q->select("*");
                                 },
-                                "rowmaterial.material" => function ($q) {
+                                "rawmaterial.material" => function ($q) {
                                     $q->select("*");
                                 },
                         ])
@@ -113,7 +113,7 @@ class ApuPArtService
                         {
                             $q->where('created_at', 'like','%'.$fill.'%');
                         })
-                     
+
                         // ->when( request()->get('state'), function($q, $fill)
                         // {
                         //     if (request()->get('state') == 'Todos') {

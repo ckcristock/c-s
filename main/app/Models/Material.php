@@ -21,7 +21,7 @@ class Material extends Model
     ];
 
 
-    public function rowmaterial()
+    public function rawmaterial()
 	{
 		return $this->hasOne(ApuPartRawMaterial::class);
 	}
