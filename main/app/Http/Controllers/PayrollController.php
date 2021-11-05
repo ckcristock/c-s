@@ -26,6 +26,73 @@ class PayrollController extends Controller
     //
 
     use ApiResponser;
+    /*  public function store(PagosNominaStoreRequest $pagosNominaStoreRequest) */
+    public function store()
+    {
+
+        try {
+          
+            $atributos = request()->all();
+
+            $atributos['start_period'] = Carbon::parse(request()->get('start_period'))->format('Y-m-d');
+            $atributos['end_period'] =  Carbon::parse(request()->get('end_period'))->format('Y-m-d');
+
+            $funcionarios = Person::whereHas('contractultimate', function ($query) use ($atributos) {
+                return $query->whereDate('date_of_admission', '<=', $atributos['end_period'])->whereDate('date_end', '>=', $atributos['start_period'])->orWhereNull('date_end');
+            })->where('status', '!=', 'Liquidado')->get();
+
+            $pagoNomina = PayrollPayment::create($atributos);
+
+            $funcionarios->each(function ($funcionario) use ($pagoNomina) {
+
+                $salario =  $this->getSalario($funcionario->id, $pagoNomina->start_period, $pagoNomina->end_period);
+                $pagoNomina->personPayrollPayment()->create([
+                    'person_id' => $funcionario->id,
+                    'payroll_payment_id' => $pagoNomina->id,
+                    'worked_days' => $salario['worked_days'],
+                    'salary' => $salario['salary'],
+                    'transportation_assistance' => $salario['transportation_assistance'],
+                    'retentions_deductions' => $this->getRetenciones($funcionario->id, $pagoNomina->start_period, $pagoNomina->end_period)['valor_total'],
+                    'net_salary' => $this->getPagoNeto($funcionario->id, $pagoNomina->start_period, $pagoNomina->end_period)['total_valor_neto'],
+                ]);
+
+                $previsiones =  $this->getProvisiones($funcionario->id, $pagoNomina->start_period, $pagoNomina->end_period);
+
+
+                $pagoNomina->provisionsPersonPayrollPayment()->create([
+                    'person_id' => $funcionario->id,
+                    'payroll_payment_id' => $pagoNomina->id,
+                    'severance' =>  $previsiones['resumen']['cesantias']['valor'],
+                    'severance_interest' =>  $previsiones['resumen']['intereses_cesantias']['valor'],
+                    'prima' =>  $previsiones['resumen']['prima']['valor'],
+                    'vacations' =>  $previsiones['resumen']['vacaciones']['valor'],
+                    'accumulated_vacations' =>   $previsiones['dias_vacaciones']['vacaciones_acumuladas_periodo'],
+                    'total_provisions' =>  $previsiones['valor_total']
+                ]);
+
+                $seguridad =  $this->getSeguridad($funcionario->id, $pagoNomina->start_period, $pagoNomina->end_period);
+
+                $pagoNomina->socialSecurityPersonPayrollPayment()->create([
+                    'person_id' => $funcionario->id,
+                    'payroll_payment_id' => $pagoNomina->id,
+                    'health' =>  $seguridad['seguridad_social']['Salud'],
+                    'pension' =>  $seguridad['seguridad_social']['Pensión'],
+                    'risks' =>  $seguridad['seguridad_social']['Riesgos'],
+                    'sena' => $seguridad['parafiscales']['Sena'],
+                    'icbf' => $seguridad['parafiscales']['Icbf'],
+                    'compensation_founds' => $seguridad['parafiscales']['Caja de compensación'],
+                    'total_social_security' => $seguridad['valor_total_seguridad'],
+                    'total_parafiscals' => $seguridad['valor_total_parafiscales'],
+                    'total_social_security_parafiscals' => $seguridad['valor_total'],
+                ]);
+            });
+
+            return $this->success( 'Nómina guardada correctamente',  $pagoNomina);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $this->errorResponse( $th->getMessage(),  500);
+        }
+    }
 
     public function getFuncionario($identidad)
     {
@@ -100,7 +167,7 @@ class PayrollController extends Controller
 
         if ($nomina) {
             $idNominaExistente = $nomina->id;
-            $paga = Carbon::now()->between($nomina->inicio_periodo, $nomina->fin_periodo);
+            $paga = Carbon::now()->between($nomina->start_period, $nomina->end_period);
         }
 
         $fechasNovedades = function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
@@ -113,9 +180,9 @@ class PayrollController extends Controller
 
         try {
             //code...
-           
+
             foreach ($funcionarios as $funcionario) {
-              
+
                 $tempSeguridad = $this->getSeguridad($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
 
                 $seguridad = $tempSeguridad['valor_total_seguridad'];
@@ -140,7 +207,7 @@ class PayrollController extends Controller
                 $totalProvisiones += $provision;
                 $totalExtras += $extras;
                 $totalIngresos += $temIngresos['valor_total'];
-              
+
                 $funcionariosResponse[] = [
                     'id' => $funcionario->id,
                     'identifier' => $funcionario->identifier,
@@ -183,8 +250,7 @@ class PayrollController extends Controller
             ]);
         } catch (\Throwable $th) {
             //throw $th;
-            return [ $th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()];
-            
+            return [$th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()];
         }
     }
 
@@ -224,7 +290,7 @@ class PayrollController extends Controller
             $fechasNovedades = function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
                 return $query->whereBetween('date_start', [$fechaInicioPeriodo, $fechaFinPeriodo])->whereBetween('date_end', [$fechaInicioPeriodo, $fechaFinPeriodo])->with('disability_leave');
             };
-           
+
             $funcionarios = Person::whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
                 return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end');
             })->with(['payroll_factors' => $fechasNovedades])->get();
@@ -250,8 +316,8 @@ class PayrollController extends Controller
             }
             return $funcionariosResponse;
         } catch (\Throwable $th) {
-     
-            return [ $th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()];
+
+            return [$th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()];
         }
     }
 
@@ -332,7 +398,7 @@ class PayrollController extends Controller
 
     public function getSalario($id, $fechaInicio, $fechaFin)
     {
-       
+
         return NominaSalario::salarioFuncionarioWithId($id)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();

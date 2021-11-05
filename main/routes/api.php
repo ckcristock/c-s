@@ -293,6 +293,7 @@ Route::group(
 		
 		Route::get('payroll/security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getSeguridad']);
 		Route::get('payroll/provisions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getProvisiones']);
+		Route::post('payroll/pay', [PayrollController::class, 'store']);
 		
 		
 
