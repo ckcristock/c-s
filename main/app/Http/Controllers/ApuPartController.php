@@ -29,7 +29,9 @@ class ApuPartController extends Controller
      */
     public function index()
     {
-        //
+        return $this->success(
+            ApuPartService::paginate()
+        );
     }
 
     /**
@@ -75,6 +77,7 @@ class ApuPartController extends Controller
         $indirect_cost = request()->get("indirect_cost");
 
         try {
+            // dd($data);
 
             $apu = ApuPartService::saveApu($data);
             $id = $apu->id;

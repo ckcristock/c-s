@@ -12,6 +12,8 @@ class ApuPArtService
 {
     static function saveApu($data)
 	{
+        $data["user_id"] = auth()->user()->id;
+        // dd($data);
 	   return ApuPart::create($data);
 	}
 
@@ -84,4 +86,42 @@ class ApuPArtService
 
 
 	}
+
+    static public function paginate(){
+
+        return ApuPart::select(["third_party_id","user_id","person_id","city_id","name", "line","amount","created_at"])
+                        ->with([
+                            'user' => function ($q) {
+                                $q->select("id","person_id");
+                            },
+                            'user.person' => function ($q) {
+                                $q->select("id", "first_name", "first_surname");
+                            },
+                            'thirdparty' => function ($q) {
+                                $q->select("id", "first_name", "first_surname");
+                            },
+                            'person' => function ($q) {
+                                $q->select("id", "first_name", "first_surname", 'passport_number', 'visa');
+                            }
+                        ])
+
+                        ->when( request()->get('name'), function($q, $fill)
+                        {
+                            $q->where('name','like','%'.$fill.'%');
+                        })
+                        ->when( request()->get('creation_date'), function($q, $fill)
+                        {
+                            $q->where('created_at', 'like','%'.$fill.'%');
+                        })
+                     
+                        // ->when( request()->get('state'), function($q, $fill)
+                        // {
+                        //     if (request()->get('state') == 'Todos') {
+                        //         return null;
+                        //     } else {
+                        //         $q->where('state','like','%'.$fill.'%');
+                        //     }
+                        // })
+        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+    }
 }

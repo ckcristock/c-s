@@ -8,10 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class ApuPart extends Model
 {
     use HasFactory;
+	protected $guarded = ['id'];
+
     protected $fillable = [
         'name',
         'city_id',
         'person_id',
+        'user_id',
         'third_party_id',
         'line',
         'amount',
@@ -50,9 +53,9 @@ class ApuPart extends Model
 
     ];
 
-    protected $hidden = [
-        "updated_at","created_at",
-    ];
+    // protected $hidden = [
+    //     "updated_at","created_at",
+    // ];
 
     public function city()
 	{
@@ -67,6 +70,11 @@ class ApuPart extends Model
     public function thirdParty()
 	{
 		return $this->belongsTo(ThirdParty::class);
+	}
+
+    public function user()
+	{
+		return $this->belongsTo(User::class)->with('person');
 	}
 
 
