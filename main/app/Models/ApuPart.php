@@ -13,6 +13,7 @@ class ApuPart extends Model
         'city_id',
         'person_id',
         'third_party_id',
+        'line',
         'amount',
         'observation',
         'subtotal_raw_material',

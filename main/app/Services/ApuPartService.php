@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\ApuPart;
+use App\Models\ApuPartRawMaterial;
+use App\Models\ApuPartRawMaterialMeasure;
 use Exception;
 use Illuminate\Support\Facades\Http;
 
@@ -56,4 +58,15 @@ class ApuPArtService
                     ->where("id", $id)
                     ->first();
     }
+
+    static function deleteMaterial($id)
+	{
+        $mat =  ApuPartRawMaterial::where("apu_part_id", $id)->get();
+        
+        foreach ($mat as $value) {
+
+            ApuPartRawMaterialMeasure::where("apu_part_raw_material_id",  $value["id"])->delete();
+        }
+
+	}
 }
