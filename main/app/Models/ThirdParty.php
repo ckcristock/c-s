@@ -55,6 +55,11 @@ class ThirdParty extends Model
         'image'
     ]; */
 
+    protected $hidden = [
+        "updated_at","created_at",
+    ];
+
+
     public function thirdPartyPerson()
     {
         return $this->hasMany(ThirdPartyPerson::class);

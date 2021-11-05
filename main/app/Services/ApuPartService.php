@@ -20,11 +20,23 @@ class ApuPArtService
         return ApuPart::with(["city",
                               "files",
                               "thirdparty",
-                              "machine",
-                              "external",
-                              "internal",
-                              "other",
                               "indirect",
+                              "machine" => function ($q) {
+                                $q->select("*")
+                                    ->with("unit");
+                              },
+                              "external"=> function ($q) {
+                                $q->select("*")
+                                    ->with("unit");
+                              },
+                              "internal"=> function ($q) {
+                                $q->select("*")
+                                    ->with("unit");
+                              },
+                              "other"=> function ($q) {
+                                $q->select("*")
+                                    ->with("unit");
+                              },
                               "cutwater"=> function ($q) {
                                 $q->select("*")
                                     ->with("material");
@@ -62,11 +74,14 @@ class ApuPArtService
     static function deleteMaterial($id)
 	{
         $mat =  ApuPartRawMaterial::where("apu_part_id", $id)->get();
-        
+
         foreach ($mat as $value) {
 
             ApuPartRawMaterialMeasure::where("apu_part_raw_material_id",  $value["id"])->delete();
         }
+
+        ApuPartRawMaterial::where("apu_part_id", $id)->delete();
+
 
 	}
 }

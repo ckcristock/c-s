@@ -12,6 +12,11 @@ class Measure extends Model
 		"measure",
 	];
 
+    protected $hidden = [
+        "updated_at","created_at",
+    ];
+
+
     public function GeometriesM()
 	{
 		return $this->belongsToMany(Geometry::class);

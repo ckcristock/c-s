@@ -11,6 +11,11 @@ class Unit extends Model
         "name"
     ];
 
+    protected $hidden = [
+        "updated_at","created_at",
+    ];
+
+
     public function machine(){
         return $this->hasMany(Machine::class);
     }
@@ -19,5 +24,8 @@ class Unit extends Model
     }
     public function externalProcess(){
         return $this->hasMany(Machine::class);
+    }
+    public function other(){
+        return $this->hasMany(Other::class);
     }
 }

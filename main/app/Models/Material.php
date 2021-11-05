@@ -16,6 +16,11 @@ class Material extends Model
         "type",
     ];
 
+    protected $hidden = [
+        "updated_at","created_at",
+    ];
+
+
     public function rowmaterial()
 	{
 		return $this->hasOne(ApuPartRawMaterial::class);

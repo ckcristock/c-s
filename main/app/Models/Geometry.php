@@ -13,6 +13,11 @@ class Geometry extends Model
 		"weight_formula",
 	];
 
+    protected $hidden = [
+        "updated_at","created_at",
+    ];
+
+
     public function measures()
 	{
 		return $this->belongsToMany(Measure::class, 'geometries_measures');
