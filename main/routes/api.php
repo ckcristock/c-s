@@ -73,6 +73,7 @@ use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PayrollOvertimeController;
+use App\Http\Controllers\PayrollParametersController;
 use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
@@ -285,16 +286,24 @@ Route::group(
 		Route::get('payroll/retentions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getRetenciones']);
 		Route::get('payroll/deductions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getDeducciones']);
 		Route::get('payroll/net-pay/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getPagoNeto']);
-		Route::get('payroll/social-security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getPorcentajes']);
+	/* 	Route::get('payroll/social-security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getPorcentajes']); */
+		Route::get('payroll/social-security/person', [PayrollController::class, 'getPorcentajes']);
 
-		Route::get('params/payroll/overtimes/percentages', [PayrollOvertimeController::class, 'horasExtrasPorcentajes']);
-
-
-
+		
+		Route::get('payroll/security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getSeguridad']);
+		
+		
+		
 
 		/** End Payroll */
 		Route::resource('third-party-fields', ThirdPartyFieldController::class);
 
+
+		/**
+		 * PARAMETRIZACION NOMINA
+		 */
+		Route::get('params/payroll/overtimes/percentages', [PayrollOvertimeController::class, 'horasExtrasPorcentajes']);
+		Route::get('parametrizacion/nomina/ssocial_empresa/porcentajes/{id}', [PayrollParametersController::class, 'porcentajesSeguridadRiesgos']);
 
 
 
