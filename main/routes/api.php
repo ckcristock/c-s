@@ -292,7 +292,7 @@ Route::group(
 
 		
 		Route::get('payroll/security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getSeguridad']);
-		
+		Route::get('payroll/provisions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getProvisiones']);
 		
 		
 
@@ -304,7 +304,7 @@ Route::group(
 		 * PARAMETRIZACION NOMINA
 		 */
 		Route::get('params/payroll/overtimes/percentages', [PayrollOvertimeController::class, 'horasExtrasPorcentajes']);
-		Route::get('parametrizacion/nomina/ssocial_empresa/porcentajes/{id}', [PayrollParametersController::class, 'porcentajesSeguridadRiesgos']);
+		Route::get('params/payroll/ssecurity_company/percentages/{id}', [PayrollParametersController::class, 'porcentajesSeguridadRiesgos']);
 
 
 
