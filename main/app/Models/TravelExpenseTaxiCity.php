@@ -15,3 +15,4 @@ class TravelExpenseTaxiCity extends Model
 		return $this->belongsTo(TaxiCity::class);
 	}
 }
+

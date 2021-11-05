@@ -5,20 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class City extends Model
+class ApuPartFile extends Model
 {
     use HasFactory;
+
     protected $fillable = [
-        'name', 'type', 'country_id', 'state'
+        "url",
+        "apu_part_id"
     ];
 
     protected $hidden = [
         "updated_at","created_at",
-     ];
+    ];
 
-
-    public function routeTaxi()
-    {
-        return $this->hasMany(RouteTaxi::class);
-    }
+    public function apupart()
+	{
+		return $this->belongsTo(ApuPart::class);
+	}
 }

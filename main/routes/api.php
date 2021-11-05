@@ -5,6 +5,7 @@
 use App\Http\Controllers\AccountPlanController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
+use App\Http\Controllers\ApuPartController;
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AttentionCallController;
@@ -279,7 +280,7 @@ Route::group(
 		Route::get('nomina/pago/{inicio?}/{fin?}', [PayrollController::class, 'getPayrollPay']);
 
 		Route::get('payroll/overtimes/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getExtrasTotales']);
-		
+
 		Route::get('payroll/salary/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getSalario']);
 		Route::get('payroll/factors/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getNovedades']);
 		Route::get('payroll/incomes/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getIngresos']);
@@ -392,6 +393,7 @@ Route::group(
         Route::resource('countable_deductions', CountableDeductionController::class);
         Route::resource('indirect-cost', IndirectCostController::class);
         Route::resource('raw-materials', RawMaterialController::class);
+        Route::resource('apu-parts', ApuPartController::class);
 
 
 
