@@ -31,6 +31,11 @@ class ApuPartCommercialMaterial extends Model
 	{
 		return $this->belongsTo(Material::class);
 	}
+        
+    public function unit()
+	{
+		return $this->belongsTo(Unit::class);
+	}
 
 }
 

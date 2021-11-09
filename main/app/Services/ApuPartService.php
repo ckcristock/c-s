@@ -13,8 +13,10 @@ class ApuPArtService
     static function saveApu($data)
 	{
         $data["user_id"] = auth()->user()->id;
-        // dd($data);
-	   return ApuPart::create($data);
+        $apuDB = ApuPart::create($data);
+        $apuDB["code"] = $apuDB->id;
+        $apuDB->save();
+	    return $apuDB;
 	}
 
     static function show($id){
@@ -49,6 +51,7 @@ class ApuPArtService
                               },
                               "commercial" => function ($q) {
                                 $q->select("*")
+                                    ->with('unit')
                                     ->with("material");
                               },
                             ])
@@ -89,7 +92,7 @@ class ApuPArtService
 
     static public function paginate(){
 
-        return ApuPart::select(["third_party_id","user_id","person_id","city_id","name", "line","amount","created_at"])
+        return ApuPart::select(["id","third_party_id","user_id","person_id","city_id","name", "code", "line","amount","created_at"])
                         ->with([
                             'user' => function ($q) {
                                 $q->select("id","person_id");

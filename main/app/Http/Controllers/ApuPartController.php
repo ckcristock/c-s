@@ -18,6 +18,7 @@ use App\Models\ApuPartMachineTool;
 use App\Models\ApuPartOther;
 use App\Models\ApuPartRawMaterial;
 use App\Models\ApuPartRawMaterialMeasure;
+use Illuminate\Support\Facades\URL;
 
 class ApuPartController extends Controller
 {
@@ -77,15 +78,13 @@ class ApuPartController extends Controller
         $indirect_cost = request()->get("indirect_cost");
 
         try {
-            // dd($data);
-
             $apu = ApuPartService::saveApu($data);
             $id = $apu->id;
 
-            foreach ($files as $file){
+            /* foreach ($files as $file){
 				$file["apu_part_id"] = $id;
 				ApuPartFile::create($file);
-			}
+			} */
 
             RawMaterialService::SaveRawMaterial($materia_prima,$apu);
 
@@ -219,17 +218,28 @@ class ApuPartController extends Controller
 
              ApuPartService::deleteMaterial($id);
 
+            //  echo json_encode($materia_prima);
             foreach ($materia_prima as $mprima) {
 
                 $mprima["apu_part_id"] = $id;
                 $rmaterial = ApuPartRawMaterial::create($mprima);
-
                 foreach ($mprima["measures"] as $value) {
                     $value["apu_part_raw_material_id"] =  $rmaterial["id"];
+                    // echo json_encode($value);
                     ApuPartRawMaterialMeasure::create($value);
                 }
             }
             }
+
+            // foreach ($materia_prima as $mprima) {
+            //     $mprima["apu_part_id"] = $apu->id;
+            //     $rmaterial = ApuPartRawMaterial::create($mprima);
+                
+            //     foreach ($mprima["measures"] as $value) {
+            //         $value["apu_part_raw_material_id"] =  $rmaterial["id"];
+            //         ApuPartRawMaterialMeasure::create($value);
+            //     }
+            //    }
 
             if($commercial_materials){
 
@@ -310,7 +320,7 @@ class ApuPartController extends Controller
 			return $this->success("guardado con éxito");
 
         } catch (\Throwable $th) {
-            return $this->errorResponse($th->getMessage() . ' ' . $th->getLine(), 500);
+            return $this->errorResponse($th->getMessage() . ' ' . $th->getLine(), $th->getFile(), 500);
 
         }
 
