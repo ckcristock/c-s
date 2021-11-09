@@ -326,6 +326,17 @@ class ApuPartController extends Controller
 
     }
 
+    public function activateOrInactivate(Request $request)
+    {
+        try {
+            $state = ApuPart::find($request->get('id'));
+            $state->update($request->all());
+            return $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      *
