@@ -23,8 +23,10 @@ class ApuPArtService
 
         return ApuPart::with(["city",
                               "files",
-                              "thirdparty",
                               "indirect",
+                              "thirdparty" => function ($q) {
+                                  $q->select('id', 'first_name', 'first_surname');
+                              },
                               "machine" => function ($q) {
                                 $q->select("*")
                                     ->with("unit");

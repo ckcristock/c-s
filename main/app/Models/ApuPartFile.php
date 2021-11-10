@@ -10,7 +10,7 @@ class ApuPartFile extends Model
     use HasFactory;
 
     protected $fillable = [
-        "url",
+        "file",
         "apu_part_id"
     ];
 

@@ -18,6 +18,7 @@ use App\Models\ApuPartMachineTool;
 use App\Models\ApuPartOther;
 use App\Models\ApuPartRawMaterial;
 use App\Models\ApuPartRawMaterialMeasure;
+use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Support\Facades\URL;
 
 class ApuPartController extends Controller
@@ -80,11 +81,11 @@ class ApuPartController extends Controller
         try {
             $apu = ApuPartService::saveApu($data);
             $id = $apu->id;
-
-            /* foreach ($files as $file){
-				$file["apu_part_id"] = $id;
-				ApuPartFile::create($file);
-			} */
+            foreach ($files as $file){
+                $base64 = saveBase64File($file, 'apu-parts/', false, '.pdf');
+                $file = URL::to('/') . '/api/file?path=' . $base64;
+                ApuPartFile::create(['apu_part_id' => $id, 'file' => $file]);
+			}
 
             RawMaterialService::SaveRawMaterial($materia_prima,$apu);
 
@@ -346,5 +347,12 @@ class ApuPartController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function pdf($id)
+    {
+        $data = ApuPartService::show($id);
+		$pdf = PDF::loadView('pdf.apu_pieza', ['data'=>$data]);
+		return $pdf->download('apu_pieza.pdf');
     }
 }

@@ -475,6 +475,10 @@ Route::group(
 		Route::get('users/{id}', [PersonController::class, 'user']);
 		Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
 		Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
+		
+		/****** Rutas del modulo APU PIEZA ******/
 		Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
+		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
+		/****** End Rutas del modulo APU PIEZA ******/
 	}
 );
