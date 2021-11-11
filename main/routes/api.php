@@ -75,6 +75,7 @@ use App\Http\Controllers\MemorandumTypesController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PayrollOvertimeController;
 use App\Http\Controllers\PayrollParametersController;
+use App\Http\Controllers\PayrollPaymentController;
 use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
@@ -289,11 +290,13 @@ Route::group(
 		Route::get('payroll/net-pay/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getPagoNeto']);
 	/* 	Route::get('payroll/social-security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getPorcentajes']); */
 		Route::get('payroll/social-security/person', [PayrollController::class, 'getPorcentajes']);
+		Route::get('payroll/history/payments', [PayrollPaymentController::class, 'getPagosNomina']);
 
 		
 		Route::get('payroll/security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getSeguridad']);
 		Route::get('payroll/provisions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getProvisiones']);
 		Route::post('payroll/pay', [PayrollController::class, 'store']);
+		Route::post('payroll/report/{id}', [PayrollController::class, 'reportDian']);
 		
 		
 

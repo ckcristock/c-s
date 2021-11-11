@@ -18,6 +18,7 @@ class PayrollPayment extends Model
     "total_retentions",
     "total_salaries",
     "total_social_secturity",
+    "payment_frequency"
    ];
        
 

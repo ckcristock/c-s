@@ -117,5 +117,9 @@ class Person extends Model
     {
         return $this->hasMany(RotatingTurnHour::class);
     }
+    public function documentType()
+    {
+        return $this->belongsTo(DocumentTypes::class,'type_document_id');
+    }
 
 }

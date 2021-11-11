@@ -17,4 +17,8 @@ class PersonPayrollPayment extends Model
         'net_salary' 
     ];
     use HasFactory;
+
+    public function person(){
+        return $this->belongsTo(Person::class);
+    }
 }
