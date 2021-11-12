@@ -18,6 +18,8 @@ use App\Models\ApuPartMachineTool;
 use App\Models\ApuPartOther;
 use App\Models\ApuPartRawMaterial;
 use App\Models\ApuPartRawMaterialMeasure;
+use Barryvdh\DomPDF\Facade as PDF;
+use Illuminate\Support\Facades\URL;
 
 class ApuPartController extends Controller
 {
@@ -77,14 +79,12 @@ class ApuPartController extends Controller
         $indirect_cost = request()->get("indirect_cost");
 
         try {
-            // dd($data);
-
             $apu = ApuPartService::saveApu($data);
             $id = $apu->id;
-
             foreach ($files as $file){
-				$file["apu_part_id"] = $id;
-				ApuPartFile::create($file);
+                $base64 = saveBase64File($file, 'apu-parts/', false, '.pdf');
+                $file = URL::to('/') . '/api/file?path=' . $base64;
+                ApuPartFile::create(['apu_part_id' => $id, 'file' => $file]);
 			}
 
             RawMaterialService::SaveRawMaterial($materia_prima,$apu);
@@ -219,17 +219,28 @@ class ApuPartController extends Controller
 
              ApuPartService::deleteMaterial($id);
 
+            //  echo json_encode($materia_prima);
             foreach ($materia_prima as $mprima) {
 
                 $mprima["apu_part_id"] = $id;
                 $rmaterial = ApuPartRawMaterial::create($mprima);
-
                 foreach ($mprima["measures"] as $value) {
                     $value["apu_part_raw_material_id"] =  $rmaterial["id"];
+                    // echo json_encode($value);
                     ApuPartRawMaterialMeasure::create($value);
                 }
             }
             }
+
+            // foreach ($materia_prima as $mprima) {
+            //     $mprima["apu_part_id"] = $apu->id;
+            //     $rmaterial = ApuPartRawMaterial::create($mprima);
+                
+            //     foreach ($mprima["measures"] as $value) {
+            //         $value["apu_part_raw_material_id"] =  $rmaterial["id"];
+            //         ApuPartRawMaterialMeasure::create($value);
+            //     }
+            //    }
 
             if($commercial_materials){
 
@@ -310,10 +321,21 @@ class ApuPartController extends Controller
 			return $this->success("guardado con éxito");
 
         } catch (\Throwable $th) {
-            return $this->errorResponse($th->getMessage() . ' ' . $th->getLine(), 500);
+            return $this->errorResponse($th->getMessage() . ' ' . $th->getLine(), $th->getFile(), 500);
 
         }
 
+    }
+
+    public function activateOrInactivate(Request $request)
+    {
+        try {
+            $state = ApuPart::find($request->get('id'));
+            $state->update($request->all());
+            return $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -325,5 +347,12 @@ class ApuPartController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function pdf($id)
+    {
+        $data = ApuPartService::show($id);
+		$pdf = PDF::loadView('pdf.apu_pieza', ['data'=>$data]);
+		return $pdf->download('apu_pieza.pdf');
     }
 }

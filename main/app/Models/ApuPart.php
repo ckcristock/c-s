@@ -34,23 +34,24 @@ class ApuPart extends Model
         'total_direct_cost',
         'unit_direct_cost',
         'indirect_cost_total',
-        'direct_Costs_Indirect_Costs_total',
-        'direct_Costs_Indirect_Costs_unit',
+        'direct_costs_indirect_costs_total',
+        'direct_costs_indirect_costs_unit',
         'administrative_percentage',
         'administrative_value',
         'unforeseen_percentage',
         'unforeseen_value',
-        'administrative_Unforeseen_subTotal',
-        'administrative_Unforeseen_unit',
+        'administrative_unforeseen_subtotal',
+        'administrative_unforeseen_unit',
         'utility_percentage',
-        'admin_unforeseen_utility_subTotal',
+        'admin_unforeseen_utility_subtotal',
         'admin_unforeseen_utility_unit',
         'sale_price_cop_withholding_total',
         'sale_value_cop_unit',
         'trm',
         'sale_price_usd_withholding_total',
-        'sale_value_usd_unit'
-
+        'sale_value_usd_unit',
+        'code',
+        'state'
     ];
 
     // protected $hidden = [

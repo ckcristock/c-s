@@ -13,16 +13,20 @@ class ApuPArtService
     static function saveApu($data)
 	{
         $data["user_id"] = auth()->user()->id;
-        // dd($data);
-	   return ApuPart::create($data);
+        $apuDB = ApuPart::create($data);
+        $apuDB["code"] = $apuDB->id;
+        $apuDB->save();
+	    return $apuDB;
 	}
 
     static function show($id){
 
         return ApuPart::with(["city",
                               "files",
-                              "thirdparty",
                               "indirect",
+                              "thirdparty" => function ($q) {
+                                  $q->select('id', 'first_name', 'first_surname');
+                              },
                               "machine" => function ($q) {
                                 $q->select("*")
                                     ->with("unit");
@@ -49,6 +53,7 @@ class ApuPArtService
                               },
                               "commercial" => function ($q) {
                                 $q->select("*")
+                                    ->with('unit')
                                     ->with("material");
                               },
                             ])
@@ -89,13 +94,16 @@ class ApuPArtService
 
     static public function paginate(){
 
-        return ApuPart::select(["third_party_id","user_id","person_id","city_id","name", "line","amount","created_at"])
+        return ApuPart::select(["id","third_party_id","user_id","person_id","city_id","name", "code", "line","amount","created_at", "state"])
                         ->with([
                             'user' => function ($q) {
                                 $q->select("id","person_id");
                             },
                             'user.person' => function ($q) {
                                 $q->select("id", "first_name", "first_surname");
+                            },
+                            'city' => function ($q) {
+                                $q->select("id", "name");
                             },
                             'thirdparty' => function ($q) {
                                 $q->select("id", "first_name", "first_surname");
