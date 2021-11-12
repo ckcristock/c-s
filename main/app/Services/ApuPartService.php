@@ -102,6 +102,9 @@ class ApuPArtService
                             'user.person' => function ($q) {
                                 $q->select("id", "first_name", "first_surname");
                             },
+                            'city' => function ($q) {
+                                $q->select("id", "name");
+                            },
                             'thirdparty' => function ($q) {
                                 $q->select("id", "first_name", "first_surname");
                             },
