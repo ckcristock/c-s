@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ApuSet;
+use Illuminate\Support\Facades\DB;
 
 class ApuSetService
 {
@@ -11,12 +12,15 @@ class ApuSetService
         return ApuSet::with(["city",
                               "files",
                               "thirdparty" => function ($q) {
-                                  $q->select('id', 'first_name', 'first_surname');
+                                  $q->select('id', DB::raw('concat(first_name, " ", first_surname) as name'));
                               },
                               "machine" => function ($q) {
                                 $q->select("*");
                               },
                               "setpartlist"=> function ($q) {
+                                $q->select("*");
+                              },
+                              "setpartlist.apuset"=> function ($q) {
                                 $q->select("*");
                               },
                               "internal"=> function ($q) {
@@ -34,7 +38,7 @@ class ApuSetService
                             ])
 
                             ->with(["person" => function ($q) {
-                                    $q->select("id", "first_name", "first_surname", 'passport_number', 'visa');
+                                    $q->select("id", DB::raw('concat(first_name, " ", first_surname) as name'), 'passport_number', 'visa');
                                 },
                         ])
                     ->where("id", $id)
@@ -43,28 +47,16 @@ class ApuSetService
 
     static public function paginate(){
 
-        return ApuSet::select(["id","name","city_id","third_party_id","person_id","name", "observation", "unit_direct_cost", "line","created_at"])
+        return ApuSet::select(["id","name","city_id","third_party_id","person_id","name", "observation", "unit_direct_cost", "line","created_at", "state"])
                         ->with([
                             'city' => function ($q) {
                                 $q->select("id", "name");
                             },
                             'thirdparty' => function ($q) {
-                                $q->select("id", "first_name", "first_surname");
+                                $q->select("id", DB::raw('concat(first_name, " ", first_surname) as name'));
                             },
                             'person' => function ($q) {
-                                $q->select("id", "first_name", "first_surname", "passport_number", "visa");
-                            },
-                            'internal' => function ($q) {
-                                $q->select("id","apu_set_id", "description", "unit", "amount", "unit_cost", "total");
-                            },
-                            'external' => function ($q) {
-                                $q->select("id","apu_set_id", "description", "unit", "amount", "unit_cost", "total");
-                            },
-                            'other' => function ($q) {
-                                $q->select("id","apu_set_id", "description", "unit", "amount", "unit_cost", "total");
-                            },
-                            'indirect' => function ($q) {
-                                $q->select("id","apu_set_id", "name", "percentage", "value");
+                                $q->select("id", DB::raw('concat(first_name, " ", first_surname) as name'), "passport_number", "visa");
                             }
                         ])
                         ->when( request()->get('name'), function($q, $fill)

@@ -485,5 +485,11 @@ Route::group(
 		Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
 		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
 		/****** End Rutas del modulo APU PIEZA ******/
+
+		/****** Rutas del modulo APU CONJUNTO ******/
+		Route::put('apu-set-activate-Inactive', [ApuSetController::class, 'activateOrInactivate']);
+		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
+		/****** End Rutas del modulo APU CONJUNTO ******/
+
 	}
 );

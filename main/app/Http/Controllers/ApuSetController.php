@@ -13,6 +13,7 @@ use App\Models\ApuSetMachineTool;
 use App\Models\ApuSetOther;
 use App\Models\ApuSetPartList;
 use App\Services\ApuSetService;
+use Barryvdh\DomPDF\Facade as PDF;
 
 use Illuminate\Support\Facades\URL;
 
@@ -61,7 +62,7 @@ class ApuSetController extends Controller
             "indirect_cost",
         ]);
 
-        $files = request()->get("file");
+        $files = request()->get("files");
         $list_pieces_sets = request()->get("list_pieces_sets");
         $machine_tools = request()->get("machine_tools");
         $internal_processes = request()->get("internal_processes");
@@ -73,6 +74,8 @@ class ApuSetController extends Controller
 
             $apuset = ApuSet::create($data);
             $id = $apuset->id;
+            $apuset["code"] = $id;
+            $apuset->save();
 
             foreach ($files as $file){
                 $base64 = saveBase64File($file, 'apu-sets/', false, '.pdf');
@@ -247,5 +250,24 @@ class ApuSetController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+
+    public function activateOrInactivate(Request $request)
+    {
+        try {
+            $state = ApuSet::find($request->get('id'));
+            $state->update($request->all());
+            return $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    public function pdf($id)
+    {
+        $data = ApuSetService::show($id);
+		$pdf = PDF::loadView('pdf.apu_conjunto', ['data'=>$data]);
+		return $pdf->download('apu_conjunto.pdf');
     }
 }

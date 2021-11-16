@@ -36,8 +36,9 @@ class ApuSet extends Model
         "admin_unforeseen_utility_subtotal" ,
         "sale_price_cop_withholding_total" ,
         "trm" ,
-        "sale_price_usd_withholding_total"
-
+        "sale_price_usd_withholding_total",
+        "code",
+        "state"
     ];
 
     public function city()
