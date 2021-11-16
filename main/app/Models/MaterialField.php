@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RawMaterialField extends Model
+class MaterialField extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'raw_material_id',
+        'material_id',
         'type',
         'property',
         'value'

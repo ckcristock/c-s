@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RawMaterial;
-use App\Models\RawMaterialField;
-use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class RawMaterialController extends Controller
-{   
-    use ApiResponser; 
+class MaterialFieldController extends Controller
+{
     /**
      * Display a listing of the resource.
      *
@@ -17,10 +13,7 @@ class RawMaterialController extends Controller
      */
     public function index()
     {
-        return $this->success(
-            RawMaterial::with('rawMaterialFild')
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
-        );
+        //
     }
 
     /**
@@ -41,18 +34,7 @@ class RawMaterialController extends Controller
      */
     public function store(Request $request)
     {
-        $rawMaterial = $request->except('fields');
-        $fields = $request->get('fields');
-        try {
-            $rawMaterialDB = RawMaterial::create($rawMaterial);
-            foreach ($fields as $field) {
-                $field["raw_material_id"] = $rawMaterialDB->id;
-                RawMaterialField::create($field);
-            }
-            return $this->success('Creado con éxtio');
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
+        //
     }
 
     /**
@@ -86,19 +68,7 @@ class RawMaterialController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $rawMaterial = $request->except('fields');
-        $fields = $request->get('fields');
-        try {
-            RawMaterial::find($id)->update($rawMaterial);
-            RawMaterialField::where("raw_material_id", $id)->delete();
-            foreach ($fields as $field) {
-                $field["raw_material_id"] = $id;
-                RawMaterialField::create($field);
-            }
-            return $this->success('Creado con éxtio');
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
+        //
     }
 
     /**

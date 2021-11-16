@@ -14,10 +14,7 @@ class Material extends Model
         "cut_water",
         "cut_laser",
         "type",
-    ];
-
-    protected $hidden = [
-        "updated_at","created_at",
+        "kg_value"
     ];
 
 
@@ -31,13 +28,8 @@ class Material extends Model
 		return $this->hasOne(ApuPartCommercialMaterial::class);
 	}
 
-    public function cutWater()
-	{
-		return $this->hasOne(ApuPartCutWater::class);
-	}
-
-    public function cutLaser()
-	{
-		return $this->hasOne(ApuPartCutLaser::class);
-	}
+    public function materialField()
+    {
+        return $this->hasMany(MaterialField::class);
+    }
 }
