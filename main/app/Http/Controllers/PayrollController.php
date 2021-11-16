@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+ini_set('max_execution_time', 180); //3 minutes
+
 use App\Http\Libs\Nomina\Facades\NominaDeducciones;
 use App\Http\Libs\Nomina\Facades\NominaIngresos;
 use App\Http\Libs\Nomina\Facades\NominaNovedades;
@@ -37,6 +39,7 @@ class PayrollController extends Controller
     {
         $payroll = PayrollPayment::findOrFail($id);
         $poplePay = $payroll->personPayrollPayment;
+
         $poplePay->each(function ($personPay) use ($payroll) {
 
 
@@ -137,7 +140,9 @@ class PayrollController extends Controller
             $atributos['payment_frequency'] = Company::get(['payment_frequency'])->first()['payment_frequency'];
 
             $funcionarios = Person::whereHas('contractultimate', function ($query) use ($atributos) {
-                return $query->whereDate('date_of_admission', '<=', $atributos['end_period'])->whereDate('date_end', '>=', $atributos['start_period'])->orWhereNull('date_end');
+                return $query->whereDate('date_of_admission', '<=', $atributos['end_period'])->whereDate('date_end', '>=', $atributos['start_period'])
+                    ->orWhereNull('date_end')
+                    ->where('liquidated', '0');;
             })->where('status', '!=', 'Liquidado')->get();
 
             $pagoNomina = PayrollPayment::create($atributos);
@@ -223,7 +228,6 @@ class PayrollController extends Controller
         $current = !$inicio ? true : false;
         $frecuenciaPago =  Company::get(['payment_frequency'])->first()['payment_frequency'];
         $pagoNomina = $nomina = $paga = $idNominaExistente = null;
-
         $fechaInicioPeriodo = Carbon::now()->startOfMonth()->format("Y-m-d H:i:s");
         $fechaFinPeriodo = Carbon::now()->endOfMonth()->format("Y-m-d H:i:s");
 
@@ -277,29 +281,33 @@ class PayrollController extends Controller
         if ($nomina) {
             $idNominaExistente = $nomina->id;
             $paga = $current ? Carbon::now()->between($nomina->start_period, $nomina->end_period) : true;
-           
         }
+
 
         $fechasNovedades = function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
             return $query->whereBetween('date_start', [$fechaInicioPeriodo, $fechaFinPeriodo])->whereBetween('date_end', [$fechaInicioPeriodo, $fechaFinPeriodo])->with('disability_leave');
         };
 
         $funcionarios = Person::whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
-            return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end');
-        })->with(['payroll_factors' => $fechasNovedades])->take(2)->get(['id', 'identifier', 'first_name', 'first_surname', 'image']);
+            return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
+                ->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end')
+                ->where('liquidated', '0');
+        })->with(['payroll_factors' => $fechasNovedades])->take(1)->get(['id', 'identifier', 'first_name', 'first_surname', 'image']);
 
+        dd([$fechaInicioPeriodo, $funcionarios]);
         try {
             //code...
 
             foreach ($funcionarios as $funcionario) {
 
                 $tempSeguridad = $this->getSeguridad($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
-
+                dd($tempSeguridad);
                 $seguridad = $tempSeguridad['valor_total_seguridad'];
                 $parafiscal = $tempSeguridad['valor_total_parafiscales'];
 
                 $tempExtras = $this->getExtrasTotales($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $extras = $tempExtras['valor_total'];
+
 
                 $salario = $this->getPagoNeto($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['total_valor_neto'];
 
@@ -400,9 +408,10 @@ class PayrollController extends Controller
             $fechasNovedades = function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
                 return $query->whereBetween('date_start', [$fechaInicioPeriodo, $fechaFinPeriodo])->whereBetween('date_end', [$fechaInicioPeriodo, $fechaFinPeriodo])->with('disability_leave');
             };
-
             $funcionarios = Person::whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
-                return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end');
+                return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
+                    ->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end')
+                    ->where('liquidated', '0');
             })->with(['payroll_factors' => $fechasNovedades])->get();
             foreach ($funcionarios as $funcionario) {
 
