@@ -18,7 +18,7 @@ class MaterialController extends Controller
     public function index()
     {
         return $this->success(
-            Material::all(['name As text', 'id As value'])
+            Material::all(['name As text', 'id As value', 'kg_value'])
         );
     }
 
