@@ -6,6 +6,7 @@ use App\Http\Controllers\AccountPlanController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\ApuPartController;
+use App\Http\Controllers\ApuSetController;
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AttentionCallController;
@@ -292,13 +293,13 @@ Route::group(
 		Route::get('payroll/social-security/person', [PayrollController::class, 'getPorcentajes']);
 		Route::get('payroll/history/payments', [PayrollPaymentController::class, 'getPagosNomina']);
 
-		
+
 		Route::get('payroll/security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getSeguridad']);
 		Route::get('payroll/provisions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getProvisiones']);
 		Route::post('payroll/pay', [PayrollController::class, 'store']);
 		Route::post('payroll/report/{id}', [PayrollController::class, 'reportDian']);
-		
-		
+
+
 
 		/** End Payroll */
 		Route::resource('third-party-fields', ThirdPartyFieldController::class);
@@ -398,7 +399,7 @@ Route::group(
         Route::resource('indirect-cost', IndirectCostController::class);
         Route::resource('raw-materials', RawMaterialController::class);
         Route::resource('apu-parts', ApuPartController::class);
-
+        Route::resource('apu-sets', ApuSetController::class);
 
 
 		/* Paginations */
@@ -479,7 +480,7 @@ Route::group(
 		Route::get('users/{id}', [PersonController::class, 'user']);
 		Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
 		Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
-		
+
 		/****** Rutas del modulo APU PIEZA ******/
 		Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
 		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
