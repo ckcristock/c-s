@@ -94,7 +94,7 @@ class ApuPArtService
 
     static public function paginate(){
 
-        return ApuPart::select(["id","third_party_id","user_id","person_id","city_id","name", "code", "line","amount","created_at", "state"])
+        return ApuPart::select(["id","third_party_id","user_id","person_id","city_id","name", "code", "unit_direct_cost", "line","amount","created_at", "state"])
                         ->with([
                             'user' => function ($q) {
                                 $q->select("id","person_id");
