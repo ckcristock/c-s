@@ -74,11 +74,11 @@ class ApuSetController extends Controller
             $apuset = ApuSet::create($data);
             $id = $apuset->id;
 
-            // foreach ($files as $file){
-            //     $base64 = saveBase64File($file, 'apu-sets/', false, '.pdf');
-            //     $file = URL::to('/') . '/api/file?path=' . $base64;
-            //     ApuSetFile::create(['apu_set_id' => $id, 'file' => $file]);
-			// }
+            foreach ($files as $file){
+                $base64 = saveBase64File($file, 'apu-sets/', false, '.pdf');
+                $file = URL::to('/') . '/api/file?path=' . $base64;
+                ApuSetFile::create(['apu_set_id' => $id, 'file' => $file]);
+			}
 
 
             foreach ($list_pieces_sets as $lps){
