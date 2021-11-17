@@ -47,7 +47,7 @@ class ApuSetService
 
     static public function paginate(){
 
-        return ApuSet::select(["id","name","city_id","third_party_id","person_id","name", "observation", "unit_direct_cost", "line","created_at", "state"])
+        return ApuSet::select(["id","name","city_id","third_party_id","person_id","name", "observation", "line","created_at", "state"])
                         ->with([
                             'city' => function ($q) {
                                 $q->select("id", "name");
@@ -62,6 +62,7 @@ class ApuSetService
                         ->when( request()->get('name'), function($q, $fill)
                         {
                             $q->where('name','like','%'.$fill.'%');
+                            dd($fill);
                         })
                         ->when( request()->get('creation_date'), function($q, $fill)
                         {

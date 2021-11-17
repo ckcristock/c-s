@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ApuPart;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use App\Models\ApuSet;
@@ -53,7 +54,7 @@ class ApuSetController extends Controller
     {
 
         $data = $request->except([
-            "file",
+            "files",
             "list_pieces_sets",
             "machine_tools",
             "internal_processes",
@@ -239,6 +240,34 @@ class ApuSetController extends Controller
 
         }
 
+    }
+
+    public function apuParts()
+    {
+        return $this->success(
+            ApuPart::select('name', 'unit_direct_cost', 'id')
+            ->when( request()->get('name'), function($q, $fill)
+            {
+                $q->where('name','like','%'.$fill.'%');
+                            
+            })
+            ->limit(100)
+            ->get()
+        );
+    }
+
+    public function apuSets()
+    {
+        return $this->success(
+            ApuSet::select('name', 'id')
+            ->when( request()->get('name'), function($q, $fill)
+            {
+                $q->where('name','like','%'.$fill.'%');
+                            
+            })
+            ->limit(100)
+            ->get()
+        );
     }
 
     /**
