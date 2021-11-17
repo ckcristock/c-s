@@ -55,7 +55,8 @@ class ThirdPartyController extends Controller
         return $this->success(
             ThirdParty::select(
                 DB::raw('concat(first_name," ",first_surname) as text'),
-                'id as value'
+                'id as value',
+                'retefuente_percentage'
             )
             // ->where('state', 'Activo')
             ->where('third_party_type', 'Cliente')
