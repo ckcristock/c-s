@@ -87,6 +87,7 @@ use App\Http\Controllers\RotatingTurnHourController;
 use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\TaxiCityController;
 use App\Http\Controllers\TaxiControlller;
+use App\Http\Controllers\ThicknessController;
 use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\ThirdPartyFieldController;
 use App\Http\Controllers\ThirdPartyPersonController;
@@ -398,6 +399,7 @@ Route::group(
         Route::resource('indirect-cost', IndirectCostController::class);
         Route::resource('apu-parts', ApuPartController::class);
         Route::resource('apu-sets', ApuSetController::class);
+        Route::resource('thicknesses', ThicknessController::class);
 
 
 		/* Paginations */
