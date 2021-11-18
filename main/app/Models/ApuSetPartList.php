@@ -21,6 +21,11 @@ class ApuSetPartList extends Model
 
     public function apuset()
 	{
-		return $this->belongsTo(ApuSet::class);
+		return $this->belongsTo(ApuSet::class, 'apu_id');
+	}
+
+    public function apupart()
+	{
+		return $this->belongsTo(ApuPart::class, 'apu_id');
 	}
 }

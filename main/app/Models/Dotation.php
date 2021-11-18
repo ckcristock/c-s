@@ -15,5 +15,6 @@ class Dotation extends Model
         'dispatched_at',
         'description',
         'cost',
+        'delivery_code',
     ];
 }

@@ -30,6 +30,21 @@ class InventaryDotationController extends Controller
     {
         $d = ProductDotationType::with('inventary')
             ->whereHas('inventary', function ($q) {
+            {
+                $q->where('type','Dotación');
+            }
+            })
+            ->get();
+        return $this->success($d);
+    }
+
+    public function getInventaryEpp()
+    {
+        $d = ProductDotationType::with('inventary')
+            ->whereHas('inventary', function ($q) {
+            {
+                $q->where('type','EPP');
+            }
             })
             ->get();
         return $this->success($d);

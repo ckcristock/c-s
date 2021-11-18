@@ -7,6 +7,8 @@ use App\Models\DotationProduct;
 use App\Models\InventaryDotation;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
 class DotationController extends Controller
@@ -22,7 +24,6 @@ class DotationController extends Controller
 
         $page = Request()->get('page');
         $page = $page ? $page : 1;
-
         $pageSize = Request()->get('pageSize');
         $pageSize = $pageSize ? $pageSize : 10;
 
@@ -42,9 +43,38 @@ class DotationController extends Controller
                 DB::raw(' CONCAT(PF.first_name," ",PF.first_surname) as entrega '),
                 'D.created_at',
                 'D.id',
+                'D.type',
+                'D.delivery_code',
                 'D.description',
                 'D.state',
             )
+            ->when(Request()->get('type'), function ($q, $fill) {
+                $q->where('D.type', 'like', '%' . $fill . '%');
+            })
+            ->when(Request()->get('name'), function ($q, $fill) {
+                $q->where('ID.name', 'like', '%' . $fill . '%');
+            })
+            ->when(Request()->get('cod'), function ($q, $fill) {
+                $q->where('D.delivery_code', 'like', '%' . $fill . '%');
+            })
+            ->when(Request()->get('description'), function ($q, $fill) {
+                $q->where('D.description', 'like', '%' . $fill . '%');
+            })
+            ->when(Request()->get('type'), function ($q, $fill) {
+                $q->where('D.type', 'like', '%' . $fill . '%');
+            })
+            ->when(Request()->get('recibe'), function ($q, $fill) {
+                $q->where('D.person_id', $fill);
+            })
+            ->when(Request()->get('entrega'), function ($q, $fill) {
+                $q->where('PF.id', $fill);
+            })
+            ->when(request()->get('fechaD'), function ($q) {
+                $fechaInicio = trim(explode(' - ', Request()->get('fechaD'))[0]);
+                $fechaFin = trim(explode(' - ', Request()->get('fechaD'))[1]);
+                $dates = [$fechaInicio, $fechaFin];
+			    $q->whereBetween(DB::raw("DATE(D.dispatched_at)"), $dates);
+            })
             ->groupBy('D.id')
             ->orderBy('D.created_at', 'DESC')
             ->paginate($pageSize, '*', 'page', $page);
@@ -70,17 +100,21 @@ class DotationController extends Controller
      */
     public function store(Request $request)
     {
-        //
 
         try {
-            //code...
+
             $entrega   = $request->get('entrega');
             $productos = $request->get('prods');
+
 
             $cost      = 0;
             $list_prods = '';
             $entrega['user_id'] = auth()->user()->id;
+
             $dotation = Dotation::create($entrega);
+            $dotation = Dotation::find($dotation["id"]);
+            $dotation->delivery_code = $entrega['type'] == 'Dotacion' ? 'ED-'.$dotation["id"]: 'EPP-'.$dotation["id"];
+            $dotation->save();
 
             foreach ($productos as $prod) {
 
