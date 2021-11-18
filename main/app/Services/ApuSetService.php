@@ -12,7 +12,7 @@ class ApuSetService
         return ApuSet::with(["city",
                               "files",
                               "thirdparty" => function ($q) {
-                                  $q->select('id', DB::raw('concat(first_name, " ", first_surname) as name'));
+                                $q->select('id', DB::raw('concat(first_name, " ", first_surname) as name'));
                               },
                               "machine" => function ($q) {
                                 $q->select("*");
@@ -21,6 +21,9 @@ class ApuSetService
                                 $q->select("*");
                               },
                               "setpartlist.apuset"=> function ($q) {
+                                $q->select("*");
+                              },
+                              "setpartlist.apupart"=> function ($q) {
                                 $q->select("*");
                               },
                               "internal"=> function ($q) {
@@ -36,18 +39,17 @@ class ApuSetService
                                 $q->select("*");
                               },
                             ])
-
                             ->with(["person" => function ($q) {
-                                    $q->select("id", DB::raw('concat(first_name, " ", first_surname) as name'), 'passport_number', 'visa');
-                                },
-                        ])
-                    ->where("id", $id)
-                    ->first();
+                                $q->select("id", DB::raw('concat(first_name, " ", first_surname) as name'), 'passport_number', 'visa');
+                            },
+                            ])
+                            ->where("id", $id)
+                            ->first();
     }
 
     static public function paginate(){
 
-        return ApuSet::select(["id","name","city_id","third_party_id","person_id","name", "observation", "line","created_at", "state"])
+        return ApuSet::select(["id","name","city_id","third_party_id","person_id","name", "observation", "line","created_at", "state", "code"])
                         ->with([
                             'city' => function ($q) {
                                 $q->select("id", "name");
