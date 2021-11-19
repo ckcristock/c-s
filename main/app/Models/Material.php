@@ -32,4 +32,9 @@ class Material extends Model
     {
         return $this->hasMany(MaterialField::class);
     }
+
+    public function materialThickness()
+    {
+        return $this->hasMany(MaterialThickness::class)->with('thickness');
+    }
 }

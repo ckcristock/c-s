@@ -15,7 +15,7 @@ class ApuPartCutWater extends Model
     protected $fillable = [
         "material_id",
         "apu_part_id",
-        "thickness",
+        "thickness_id",
         "amount",
         "long",
         "width",

@@ -484,6 +484,7 @@ Route::group(
 		/****** Rutas del modulo APU PIEZA ******/
 		Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
 		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
+		Route::get('material-thickness', [MaterialController::class, 'getMaterialThickness']);
 		/****** End Rutas del modulo APU PIEZA ******/
 
 		/****** Rutas del modulo APU CONJUNTO ******/

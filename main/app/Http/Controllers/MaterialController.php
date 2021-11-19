@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Material;
 use App\Models\MaterialField;
+use App\Models\MaterialThickness;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,8 @@ class MaterialController extends Controller
     public function index()
     {
         return $this->success(
-            Material::all(['name As text', 'id As value', 'kg_value'])
+                Material::with('materialThickness')
+                ->get(['name As text', 'id', 'kg_value'])
         );
     }
 
@@ -27,11 +29,17 @@ class MaterialController extends Controller
         return $this->success(
             Material::orderBy('name')
                 ->with('materialField')
+                ->with('materialThickness')
                 ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
                 })
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
+    }
+
+    public function getMaterialThickness()
+    {
+        return $this->success(MaterialThickness::all());
     }
 
 
@@ -55,11 +63,16 @@ class MaterialController extends Controller
     {
         $material = $request->except('fields');
         $fields = $request->get('fields');
+        $thicknesses = $request->get('thicknesses');
         try {
             $materialDB = Material::create($material);
             foreach ($fields as $field) {
                 $field["material_id"] = $materialDB->id;
                 MaterialField::create($field);
+            }
+            foreach ($thicknesses as $thickness) {
+                $thickness["material_id"] = $materialDB->id;
+                MaterialThickness::create($thickness);
             }
             return $this->success('Creado con éxtio');
         } catch (\Throwable $th) {
@@ -82,7 +95,7 @@ class MaterialController extends Controller
      */
     public function show($id)
     {
-        return Material::find($id,['id','unit','unit_price','cut_water','cut_laser','type', 'name As text', 'id As value']);
+        return Material::find($id, ['id','unit','unit_price','cut_water','cut_laser','type', 'name As text', 'id As value']);
     }
 
     /**
@@ -108,15 +121,21 @@ class MaterialController extends Controller
 
         $material = $request->except('fields');
         $fields = $request->get('fields');
+        $thicknesses = $request->get('thicknesses');
         if (!$material) {
             return response()->json(['message' => 'Material no encontrado'], 404);
         }
         try {
             Material::find($id)->update($material);
             MaterialField::where("material_id", $id)->delete();
+            MaterialThickness::where("material_id", $id)->delete();
             foreach ($fields as $field) {
                 $field["material_id"] = $id;
                 MaterialField::create($field);
+            }
+            foreach ($thicknesses as $thickness) {
+                $thickness["material_id"] = $id;
+                MaterialThickness::create($thickness);
             }
             return $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
