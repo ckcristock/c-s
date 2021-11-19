@@ -16,5 +16,6 @@ class Dotation extends Model
         'description',
         'cost',
         'delivery_code',
+        'delivery_state',
     ];
 }

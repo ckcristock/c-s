@@ -45,6 +45,7 @@ class DotationController extends Controller
                 'D.id',
                 'D.type',
                 'D.delivery_code',
+                'D.delivery_state',
                 'D.description',
                 'D.state',
             )
@@ -68,6 +69,9 @@ class DotationController extends Controller
             })
             ->when(Request()->get('entrega'), function ($q, $fill) {
                 $q->where('PF.id', $fill);
+            })
+            ->when(Request()->get('delivery'), function ($q, $fill) {
+                $q->where('D.delivery_state', $fill);
             })
             ->when(request()->get('fechaD'), function ($q) {
                 $fechaInicio = trim(explode(' - ', Request()->get('fechaD'))[0]);
@@ -110,6 +114,7 @@ class DotationController extends Controller
             $cost      = 0;
             $list_prods = '';
             $entrega['user_id'] = auth()->user()->id;
+            $entrega['delivery_state'] = 'Pendiente';
 
             $dotation = Dotation::create($entrega);
             $dotation = Dotation::find($dotation["id"]);
@@ -121,9 +126,9 @@ class DotationController extends Controller
                 $cost      += $prod["quantity"] * $prod["cost"];
                 $list_prods .= trim($prod["quantity"]) . ' x ' . trim($prod["name"]) . " | ";
 
-                $inventary = InventaryDotation::find($prod['id']);
-                $inventary->stock = $inventary->stock - (int)trim($prod["quantity"]);
-                $inventary->save();
+                // $inventary = InventaryDotation::find($prod['id']);
+                // $inventary->stock = $inventary->stock - (int)trim($prod["quantity"]);
+                // $inventary->save();
                 $prodSave = $prod;
 
                 $prodSave["inventary_dotation_id"] = $prodSave["id"];
