@@ -64,6 +64,7 @@ class ApuSet extends Model
     public function setpartlist()
 	{
 		return $this->hasMany(ApuSetPartList::class);
+        
 	}
 
     public function external()

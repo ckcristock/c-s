@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Material;
+use App\Models\MaterialField;
+use App\Models\MaterialThickness;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
@@ -17,7 +19,8 @@ class MaterialController extends Controller
     public function index()
     {
         return $this->success(
-            Material::all(['name As text', 'id As value'])
+                Material::with('materialThickness')
+                ->get(['name As text', 'id', 'kg_value'])
         );
     }
 
@@ -25,11 +28,18 @@ class MaterialController extends Controller
     {
         return $this->success(
             Material::orderBy('name')
+                ->with('materialField')
+                ->with('materialThickness')
                 ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
                 })
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
+    }
+
+    public function getMaterialThickness()
+    {
+        return $this->success(MaterialThickness::all());
     }
 
 
@@ -51,13 +61,30 @@ class MaterialController extends Controller
      */
     public function store(Request $request)
     {
+        $material = $request->except('fields');
+        $fields = $request->get('fields');
+        $thicknesses = $request->get('thicknesses');
         try {
+            $materialDB = Material::create($material);
+            foreach ($fields as $field) {
+                $field["material_id"] = $materialDB->id;
+                MaterialField::create($field);
+            }
+            foreach ($thicknesses as $thickness) {
+                $thickness["material_id"] = $materialDB->id;
+                MaterialThickness::create($thickness);
+            }
+            return $this->success('Creado con éxtio');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), $th->getLine(), $th->getFile(), 500);
+        }
+        /* try {
             $material = Material::create($request->all());
             return $this->success('creacion exitosa');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), $th->getLine(), $th->getFile(), 500);
 
-        }
+        } */
     }
 
     /**
@@ -68,7 +95,7 @@ class MaterialController extends Controller
      */
     public function show($id)
     {
-        return Material::find($id,['id','unit','unit_price','cut_water','cut_laser','type', 'name As text', 'id As value']);
+        return Material::find($id, ['id','unit','unit_price','cut_water','cut_laser','type', 'name As text', 'id As value']);
     }
 
     /**
@@ -89,19 +116,32 @@ class MaterialController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update($id)
+    public function update(Request $request, $id)
     {
-        $material = Material::find($id);
 
+        $material = $request->except('fields');
+        $fields = $request->get('fields');
+        $thicknesses = $request->get('thicknesses');
         if (!$material) {
             return response()->json(['message' => 'Material no encontrado'], 404);
         }
-
-        $atributos = request()->all();
-        $material->update($atributos);
-
-        return response()->json(["message" => "Se ha actualizado con éxito"], 200);
-
+        try {
+            Material::find($id)->update($material);
+            MaterialField::where("material_id", $id)->delete();
+            MaterialThickness::where("material_id", $id)->delete();
+            foreach ($fields as $field) {
+                $field["material_id"] = $id;
+                MaterialField::create($field);
+            }
+            foreach ($thicknesses as $thickness) {
+                $thickness["material_id"] = $id;
+                MaterialThickness::create($thickness);
+            }
+            return $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+        
     }
 
     /**

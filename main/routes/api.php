@@ -25,6 +25,7 @@ use App\Http\Controllers\CompensationFundController;
 use App\Http\Controllers\CountableDeductionController;
 use App\Http\Controllers\CountableIncomeController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\CutLaserMaterialController;
 use App\Http\Controllers\DeductionController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DependencyController;
@@ -80,7 +81,6 @@ use App\Http\Controllers\PayrollPaymentController;
 use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
-use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\RetentionTypeController;
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnDiaryController;
@@ -88,6 +88,7 @@ use App\Http\Controllers\RotatingTurnHourController;
 use App\Http\Controllers\SalaryTypesController;
 use App\Http\Controllers\TaxiCityController;
 use App\Http\Controllers\TaxiControlller;
+use App\Http\Controllers\ThicknessController;
 use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\ThirdPartyFieldController;
 use App\Http\Controllers\ThirdPartyPersonController;
@@ -398,9 +399,10 @@ Route::group(
         Route::resource('deductions', DeductionController::class);
         Route::resource('countable_deductions', CountableDeductionController::class);
         Route::resource('indirect-cost', IndirectCostController::class);
-        Route::resource('raw-materials', RawMaterialController::class);
         Route::resource('apu-parts', ApuPartController::class);
         Route::resource('apu-sets', ApuSetController::class);
+        Route::resource('thicknesses', ThicknessController::class);
+        Route::resource('cut-laser-material', CutLaserMaterialController::class);
 
 
 		/* Paginations */
@@ -436,6 +438,7 @@ Route::group(
 		Route::get('paginateExternalProcesses', [ExternalProcessController::class, 'paginate']);
 		Route::get('paginateMeasure', [MeasureController::class, 'paginate']);
 		Route::get('paginateIndirectCost', [IndirectCostController::class, 'paginate']);
+		Route::get('paginateCutLaserMaterial', [CutLaserMaterialController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -485,11 +488,14 @@ Route::group(
 		/****** Rutas del modulo APU PIEZA ******/
 		Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
 		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
+		Route::get('material-thickness', [MaterialController::class, 'getMaterialThickness']);
 		/****** End Rutas del modulo APU PIEZA ******/
 
 		/****** Rutas del modulo APU CONJUNTO ******/
 		Route::put('apu-set-activate-Inactive', [ApuSetController::class, 'activateOrInactivate']);
 		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
+		Route::get('apu-parts-list', [ApuSetController::class, 'apuParts']);
+		Route::get('apu-sets-list', [ApuSetController::class, 'apuSets']);
 		/****** End Rutas del modulo APU CONJUNTO ******/
 
 	}

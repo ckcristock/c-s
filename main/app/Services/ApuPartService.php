@@ -49,7 +49,7 @@ class ApuPArtService
                               },
                               "cutlaser"=> function ($q) {
                                 $q->select("*")
-                                    ->with("material");
+                                    ->with("cutLaserMaterialValue");
                               },
                               "commercial" => function ($q) {
                                 $q->select("*")

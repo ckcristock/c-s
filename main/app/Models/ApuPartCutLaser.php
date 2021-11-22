@@ -13,7 +13,7 @@ class ApuPartCutLaser extends Model
 
 
     protected $fillable = [
-        "material_id",
+        "cut_laser_material_id",
         "apu_part_id",
         "thickness",
         "amount",
@@ -38,8 +38,8 @@ class ApuPartCutLaser extends Model
 		return $this->belongsTo(ApuPart::class);
 	}
 
-    public function material()
+    public function cutLaserMaterialValue()
 	{
-		return $this->belongsTo(Material::class);
+		return $this->belongsTo(CutLaserMaterialValue::class)->with('cutLaserMaterial');
 	}
 }
