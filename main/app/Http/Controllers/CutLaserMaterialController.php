@@ -18,7 +18,7 @@ class CutLaserMaterialController extends Controller
     public function index()
     {
         return $this->success(
-            CutLaserMaterial::all()
+            CutLaserMaterial::with('cutLaserMaterialValue')->get()
         );
     }
 
