@@ -439,6 +439,7 @@ Route::group(
 		Route::get('paginateMeasure', [MeasureController::class, 'paginate']);
 		Route::get('paginateIndirectCost', [IndirectCostController::class, 'paginate']);
 		Route::get('paginateCutLaserMaterial', [CutLaserMaterialController::class, 'paginate']);
+		Route::get('paginateAlert', [AlertController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
