@@ -22,31 +22,29 @@ class ThirdPartyController extends Controller
     {
         return $this->success(
             ThirdParty::with('municipality')
-            ->when( Request()->get('nit') , function($q, $fill)
-            {
-                $q->where('nit','like','%'.$fill.'%');
-            })
-            ->when( Request()->get('name') , function($q, $fill)
-            {
-                $q->where(DB::raw('concat(first_name," ",first_surname)'),'like','%'.$fill.'%');
-            })->when( Request()->get('third_party_type') , function($q, $fill)
-            {
-                if (request()->get('third_party_type') == 'Todos') {
-                    return null;
-                } else {
-                    $q->where('third_party_type','like','%'.$fill.'%');
-                }
-            })
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->when(Request()->get('nit'), function ($q, $fill) {
+                    $q->where('nit', 'like', '%' . $fill . '%');
+                })
+                ->when(Request()->get('name'), function ($q, $fill) {
+                    $q->where(DB::raw('concat(social_reason, first_name," ",first_surname )'), 'like', '%' . $fill . '%');
+                })->when(Request()->get('third_party_type'), function ($q, $fill) {
+                    if (request()->get('third_party_type') == 'Todos') {
+                        return null;
+                    } else {
+                        $q->where('third_party_type', 'like', '%' . $fill . '%');
+                    }
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
-    public function thirdParties(){
+    public function thirdParties()
+    {
         return $this->success(
             ThirdParty::select(
-                DB::raw('concat(first_name," ",first_surname) as name')
+                DB::raw('ifnul(social_reason, concat(first_name," ",first_surname) ) as name')
             )
-            ->get()
+                ->get()
         );
     }
 
@@ -54,12 +52,14 @@ class ThirdPartyController extends Controller
     {
         return $this->success(
             ThirdParty::select(
-                DB::raw('concat(first_name," ",first_surname) as text'),
+                DB::raw('IFNULL(social_reason,concat(first_name," ",first_surname)) as text'),
                 'id as value'
-            )
-            // ->where('state', 'Activo')
-            ->where('third_party_type', 'Cliente')
-            ->get()
+            )->when(Request()->get('name'), function ($q, $fill) {
+                $q->where(DB::raw('concat(IFNULL(social_reason, " "), IFNULL(first_name,"")," ",IFNULL(first_surname,"") )'), 'like', '%' . $fill . '%');
+            })
+                // ->where('state', 'Activo')
+                ->where('third_party_type', 'Cliente')
+                ->get()
         );
     }
 
@@ -67,7 +67,7 @@ class ThirdPartyController extends Controller
     {
         return $this->success(
             ThirdPartyField::where('state', '=', 'Activo')
-            ->get()
+                ->get()
         );
     }
 
@@ -78,7 +78,6 @@ class ThirdPartyController extends Controller
      */
     public function create()
     {
-        
     }
 
     /**
@@ -92,8 +91,8 @@ class ThirdPartyController extends Controller
         $data = $request->except(["person"]);
         $typeImage = '.' . $request->typeImage;
         $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/', true, $typeImage);
-        $typeRut = '.'. $request->typeRut;
-        $base64 = saveBase64File( $data["rut"], 'thirdPartiesRut/', false, $typeRut);
+        $typeRut = '.' . $request->typeRut;
+        $base64 = saveBase64File($data["rut"], 'thirdPartiesRut/', false, $typeRut);
         $data["rut"] = URL::to('/') . '/api/file?path=' . $base64;
         $people = request()->get('person');
         try {
@@ -108,7 +107,8 @@ class ThirdPartyController extends Controller
         }
     }
 
-    public function changeState( Request $request ){
+    public function changeState(Request $request)
+    {
         try {
             $third = ThirdParty::find(request()->get('id'));
             $third->update($request->all());
@@ -128,7 +128,7 @@ class ThirdPartyController extends Controller
     {
         return $this->success(
             ThirdParty::with('thirdPartyPerson')
-            ->find($id)
+                ->find($id)
         );
     }
 
@@ -155,14 +155,14 @@ class ThirdPartyController extends Controller
         $data = $request->except(["person"]);
         $typeImage = '.' . $request->typeImage;
         $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/', true, $typeImage);
-        $typeRut = '.'. $request->typeRut;
-        $base64 = saveBase64File( $data["rut"], 'thirdPartiesRut/', false, $typeRut);
+        $typeRut = '.' . $request->typeRut;
+        $base64 = saveBase64File($data["rut"], 'thirdPartiesRut/', false, $typeRut);
         $data["rut"] = URL::to('/') . '/api/file?path=' . $base64;
         $people = request()->get('person');
         try {
             $thirdParty = ThirdParty::find($id)
-            ->update($data);
-            foreach ($people as $person) { 
+                ->update($data);
+            foreach ($people as $person) {
                 $thirdPerson = ThirdPartyPerson::find($person["id"]);
                 $thirdPerson->update($person);
             }
