@@ -17,6 +17,12 @@ class RrhhActivityTypeController extends Controller
             RrhhActivityType::paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
+    public function all()
+    {
+        return $this->success(
+            RrhhActivityType::get(['name As text', 'id As value'])
+        );
+    }
 
     public function store(Request $request)
     {

@@ -221,6 +221,7 @@ Route::group(
 		Route::get('/rrhh-activity-people/{id}',  [RrhhActivityController::class, 'getPeople']);
 		Route::get('/rrhh-activity/cancel/{id}',  [RrhhActivityController::class, 'cancel']);
 		Route::post('/rrhh-activity-types/set',  [RrhhActivityTypeController::class, 'setState']);
+		Route::get('/rrhh-activity-types-all',  [RrhhActivityTypeController::class, 'all']);
 		/** end*/
 
 		/** Rutas del módulo de reporte de horarios */
