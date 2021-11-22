@@ -9,4 +9,10 @@ class CutLaserMaterialValue extends Model
 {
     use HasFactory;
     protected $fillable = ['thickness', 'unit_value', 'actual_speed', 'seconds_percing', 'cut_laser_material_id'];
+
+    public function cutLaserMaterial()
+    {
+        return $this->belongsTo(CutLaserMaterial::class);
+    }
+
 }
