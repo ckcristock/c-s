@@ -259,7 +259,7 @@ class ApuSetController extends Controller
     public function apuSets()
     {
         return $this->success(
-            ApuSet::select('name', 'id')
+            ApuSet::select('name', 'id', 'total_direct_cost')
             ->when( request()->get('name'), function($q, $fill)
             {
                 $q->where('name','like','%'.$fill.'%');
