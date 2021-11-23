@@ -102,7 +102,6 @@ class PayrollController extends Controller
 
 
 
-            dd($people);
 
             /* 
                 "work_place": {
@@ -120,7 +119,6 @@ class PayrollController extends Controller
           */
 
 
-            dd($people);
             $data->people = $people;
         });
         return response($poplePay);
@@ -292,16 +290,14 @@ class PayrollController extends Controller
             return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
                 ->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end')
                 ->where('liquidated', '0');
-        })->with(['payroll_factors' => $fechasNovedades])->take(1)->get(['id', 'identifier', 'first_name', 'first_surname', 'image']);
+        })->with(['payroll_factors' => $fechasNovedades])->get(['id', 'identifier', 'first_name', 'first_surname', 'image']);
 
-        dd([$fechaInicioPeriodo, $funcionarios]);
         try {
             //code...
 
             foreach ($funcionarios as $funcionario) {
 
                 $tempSeguridad = $this->getSeguridad($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
-                dd($tempSeguridad);
                 $seguridad = $tempSeguridad['valor_total_seguridad'];
                 $parafiscal = $tempSeguridad['valor_total_parafiscales'];
 
