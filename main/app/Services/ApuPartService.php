@@ -45,7 +45,8 @@ class ApuPArtService
                               },
                               "cutwater"=> function ($q) {
                                 $q->select("*")
-                                    ->with("material");
+                                    ->with("material")
+                                    ->with('thickness');
                               },
                               "cutlaser"=> function ($q) {
                                 $q->select("*")
