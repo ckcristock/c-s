@@ -82,7 +82,7 @@
     </div>
     <div class="blocks">
         <strong>Cliente:</strong>
-        {{$data['thirdparty']['first_name']}} {{$data['thirdparty']['first_surname']}}
+        {{$data['thirdparty']['name']}}
     </div>
     <div class="blocks">
         <strong>Destino:</strong>
@@ -93,7 +93,7 @@
 <div style="width: 100%; font-size: 10px; ">
     <div class="blocks" style="width: 50%;">
         <strong>Quien elabora:</strong>
-        {{$data['person']['first_name']}} {{$data['person']['first_surname']}}
+        {{$data['person']['name']}}
     </div>
 
     <div class="blocks">

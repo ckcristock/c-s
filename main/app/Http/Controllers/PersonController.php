@@ -39,6 +39,20 @@ class PersonController extends Controller
 		);
 	}
 
+	public function peopleSelects()
+	{
+		return $this->success(
+			Person::select('id as value', DB::raw('CONCAT_WS(" ", first_name, first_surname) as text '))
+            ->when( request()->get('name'), function($q, $fill)
+            {
+                $q->where(DB::raw('concat(first_name," ",first_surname)'),'like','%'.$fill.'%');
+                            
+            })
+            ->limit(100)
+            ->get()
+		);
+	}
+
 	/**
 	 * Display a listing of the resource paginated.
 	 *

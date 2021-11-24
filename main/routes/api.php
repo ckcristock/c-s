@@ -485,6 +485,7 @@ Route::group(
 		Route::get('users/{id}', [PersonController::class, 'user']);
 		Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
 		Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
+		Route::get('peopleSelects', [PersonController::class, 'peopleSelects']);
 
 		/****** Rutas del modulo APU PIEZA ******/
 		Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
