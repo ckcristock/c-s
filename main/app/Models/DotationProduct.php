@@ -12,6 +12,7 @@ class DotationProduct extends Model
         'quantity',
         'inventary_dotation_id',
         'cost',
+        'code',
         'dotation_id',
     ];
 }

@@ -213,9 +213,13 @@ Route::group(
 		Route::get('/inventary-dotation-by-category',  [InventaryDotationController::class, 'indexGruopByCategory']);
 		Route::get('/inventary-dotation-statistics',  [InventaryDotationController::class, 'statistics']);
 		Route::get('/inventary-dotation-stock',  [InventaryDotationController::class, 'getInventary']);
+		Route::get('/get-selected',  [InventaryDotationController::class, 'getSelected']);
 		Route::get('/inventary-dotation-stock-epp',  [InventaryDotationController::class, 'getInventaryEpp']);
 		Route::post('/dotations-update/{id}',  [DotationController::class, 'update']);
+		Route::post('/dotations-approve/{id}',  [DotationController::class, 'approve']);
 		Route::get('/dotations-total-types',  [DotationController::class, 'getTotatlByTypes']);
+		Route::get('/dotations-list-product',  [DotationController::class, 'getListProductsDotation']);
+
 		/** end*/
 
 		/** Rutas actividades rrhh */

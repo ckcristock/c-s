@@ -23,7 +23,7 @@ class JobController extends Controller
             Job::with([
                 'position' => function ($q) {
                     $q->select('name', 'id', 'dependency_id');
-                }, 
+                },
                 'salary_type' => function ($q) {
                     $q->select('id', 'name');
                 },
@@ -123,7 +123,7 @@ class JobController extends Controller
                     $q->where('department_id', '=', $fill);
                 });
             })
-       
+
                 ->whereHas('position', function ($q) {
                     $q->when(request()->get('dependency_id'), function ($q, $fill) {
                         $q->where('dependency_id', '=', $fill);
