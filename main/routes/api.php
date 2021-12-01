@@ -6,6 +6,7 @@ use App\Http\Controllers\AccountPlanController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\ApuPartController;
+use App\Http\Controllers\ApuProfileController;
 use App\Http\Controllers\ApuSetController;
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
@@ -32,6 +33,7 @@ use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DianAddressController;
 use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\DisciplinaryProcessController;
+use App\Http\Controllers\DisplacementController;
 use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
 use App\Http\Controllers\DrivingLicenseController;
@@ -93,13 +95,19 @@ use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\ThirdPartyFieldController;
 use App\Http\Controllers\ThirdPartyPersonController;
 use App\Http\Controllers\TravelExpenseController;
+use App\Http\Controllers\TravelExpenseEstimationController;
+use App\Http\Controllers\TravelExpenseEstimationInternationalController;
+use App\Http\Controllers\TravelExpenseEstimationNationalController;
+use App\Http\Controllers\TravelExpenseEstimationValueController;
+use App\Http\Controllers\TravelExpenseEstimationValuesController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\VisaTypeController;
 use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Http\Controllers\ZonesController;
-
+use App\Models\TravelExpenseEstimationValue;
+use App\Models\TravelExpenseEstimationValues;
 use App\Models\User;
 
 use Illuminate\Http\Request;
@@ -403,6 +411,9 @@ Route::group(
         Route::resource('apu-sets', ApuSetController::class);
         Route::resource('thicknesses', ThicknessController::class);
         Route::resource('cut-laser-material', CutLaserMaterialController::class);
+        Route::resource('apu-profile', ApuProfileController::class);
+		Route::resource('travel-expense-estimation', TravelExpenseEstimationController::class);
+		Route::resource('travelExpenseEstimationValue', TravelExpenseEstimationValuesController::class);
 
 
 		/* Paginations */
@@ -440,6 +451,7 @@ Route::group(
 		Route::get('paginateIndirectCost', [IndirectCostController::class, 'paginate']);
 		Route::get('paginateCutLaserMaterial', [CutLaserMaterialController::class, 'paginate']);
 		Route::get('paginateAlert', [AlertController::class, 'paginate']);
+		Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
