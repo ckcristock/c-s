@@ -39,7 +39,12 @@ class TravelExpenseEstimationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $travelExpense = TravelExpenseEstimation::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($travelExpense->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+        } catch (\Throwable $th) {
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
+        }
     }
 
     /**

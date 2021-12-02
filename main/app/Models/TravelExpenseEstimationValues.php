@@ -15,4 +15,10 @@ class TravelExpenseEstimationValues extends Model
         'aerial_national_value',
         'aerial_international_value'
     ];
+
+    public function travelExpenseEstimation()
+    {
+        return $this->belongsTo(TravelExpenseEstimation::class);
+    }
+
 }

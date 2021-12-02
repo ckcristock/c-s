@@ -16,7 +16,12 @@ class TravelExpenseEstimationValuesController extends Controller
      */
     public function index()
     {
-       
+       return $this->success(
+           TravelExpenseEstimationValues::with([
+            "travelExpenseEstimation" => function ($q) {
+            $q->select("id", "description");
+            }])->get()
+       );
     }
 
     /**
@@ -37,7 +42,12 @@ class TravelExpenseEstimationValuesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $travelExpenseValues = TravelExpenseEstimationValues::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($travelExpenseValues->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+        } catch (\Throwable $th) {
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
+        }
     }
 
     /**
