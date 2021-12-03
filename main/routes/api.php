@@ -7,6 +7,7 @@ use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\ApuPartController;
 use App\Http\Controllers\ApuProfileController;
+use App\Http\Controllers\ApuServiceController;
 use App\Http\Controllers\ApuSetController;
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
@@ -414,6 +415,7 @@ Route::group(
         Route::resource('apu-profile', ApuProfileController::class);
 		Route::resource('travel-expense-estimation', TravelExpenseEstimationController::class);
 		Route::resource('travelExpenseEstimationValue', TravelExpenseEstimationValuesController::class);
+		Route::resource('apu-service', ApuServiceController::class);
 
 
 		/* Paginations */
@@ -452,6 +454,7 @@ Route::group(
 		Route::get('paginateCutLaserMaterial', [CutLaserMaterialController::class, 'paginate']);
 		Route::get('paginateAlert', [AlertController::class, 'paginate']);
 		Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
+		Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -511,6 +514,10 @@ Route::group(
 		Route::get('apu-parts-list', [ApuSetController::class, 'apuParts']);
 		Route::get('apu-sets-list', [ApuSetController::class, 'apuSets']);
 		/****** End Rutas del modulo APU CONJUNTO ******/
+
+		/****** Rutas del modulo APU Servicio ******/
+		Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
+		/****** End Rutas del modulo APU Servicio ******/
 
 	}
 );
