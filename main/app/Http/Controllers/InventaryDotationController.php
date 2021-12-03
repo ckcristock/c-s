@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DotationExport;
+use App\Exports\DownloaDeliveriesExport;
 use App\Models\InventaryDotation;
 use App\Models\ProductDotationType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\LateArrivalExport;
+
+
 
 class InventaryDotationController extends Controller
 {
@@ -62,6 +68,47 @@ class InventaryDotationController extends Controller
 
         return $this->success($d);
 
+    }
+
+    public function getTotatInventary(){
+        $d = DB::table('inventary_dotations as id')
+        ->selectRaw('pdt.name, SUM(id.stock) as value')
+        // ->join('dotation_products AS dp', 'dp.dotation_id', '=', 'D.id')
+        // ->join('inventary_dotations AS id', 'id.id', '=', 'dp.inventary_dotation_id')
+        ->join('product_dotation_types AS pdt', 'pdt.id', '=', 'id.product_dotation_type_id')
+
+
+        ->when(Request()->get('person'),  function ($q, $fill){
+            $q->where('D.user_id', $fill);
+                })
+        ->when(Request()->get('persontwo'), function ($q, $fill) {
+            $q->where('D.person_id', $fill);
+        })
+
+        ->when(Request()->get('cod'), function ($q, $fill) {
+            $q->where('D.delivery_code', 'like', '%' . $fill . '%');
+        })
+
+        ->when(Request()->get('type'), function ($q, $fill) {
+            $q->where('D.type', 'like', '%' . $fill . '%');
+        })
+
+        ->when(Request()->get('delivery'), function ($q, $fill) {
+            $q->where('D.delivery_state', $fill);
+        })
+
+
+        ->when(Request()->get('firstDay'), function ($q, $fill) {
+        $q->whereDate('D.dispatched_at', '>=' , $fill );
+            })
+
+        ->when(Request()->get('lastDay'), function ($q, $fill) {
+        $q->whereDate('D.dispatched_at', '<=', $fill );
+            })
+    ->groupBy('pdt.id')
+    ->get();
+
+      return $this->success($d);
     }
 
     public function getSelected(){
@@ -124,21 +171,15 @@ class InventaryDotationController extends Controller
     {
 
         $d = DB::table('dotations as D')
-        ->selectRaw('IFNULL(SUM(D.cost), 0) as totalCostoMes, IFNULL(count(*),0) as totalMes')
-        // ->join('dotation_products AS PD', 'PD.dotation_id', '=', 'D.id')
-        // ->join('inventary_dotations AS ID', 'ID.id', '=', 'PD.inventary_dotation_id')
+                ->selectRaw('IFNULL(SUM(D.cost), 0) as totalCostoMes, IFNULL(count(*),0) as totalMes')
 
                  ->when(Request()->get('delivery'), function ($q, $fill) {
                     $q->where('D.delivery_state', $fill );
                    })
 
-                //  ->when(Request()->get('art'), function ($q, $fill) {
-                //     $q->where('ID.name', 'like', '%' . $fill . '%');
-                //     })
-
                 ->when(Request()->get('cod'), function ($q, $fill) {
                     $q->where('D.delivery_code', 'like', '%' . $fill . '%');
-                })
+                   })
 
                 ->when(Request()->get('person'),  function ($q, $fill){
                 $q->where('D.user_id', $fill);
@@ -160,22 +201,12 @@ class InventaryDotationController extends Controller
                 })->get();
 
 
-
-
         $dyear = DB::table('dotations as D')
                 ->selectRaw('IFNULL(SUM(D.cost), 0) as totalCostoAnual, IFNULL(count(*),0) as totalAnual')
-
-                // ->join('dotation_products AS PD', 'PD.dotation_id', '=', 'D.id')
-                // ->join('inventary_dotations AS ID', 'ID.id', '=', 'PD.inventary_dotation_id')
-
 
                 ->when(Request()->get('delivery'), function ($q, $fill) {
                     $q->where('D.delivery_state', $fill );
                    })
-
-                //  ->when(Request()->get('art'), function ($q, $fill) {
-                //     $q->where('ID.name', 'like', '%' . $fill . '%');
-                //     })
 
                  ->when(Request()->get('cod'), function ($q, $fill) {
                     $q->where('D.delivery_code', 'like', '%' . $fill . '%');
@@ -202,7 +233,65 @@ class InventaryDotationController extends Controller
                 })->get();
 
 
-        return $this->success(['month' => $d[0], 'year' => $dyear[0]]);
+
+        $td = DB::table('dotations as D')
+                ->selectRaw(' IFNULL(count(*),0) as totalDotacion')
+
+                ->when(Request()->get('delivery'), function ($q, $fill) {
+                    $q->where('D.delivery_state', $fill );
+                   })
+
+                 ->when(Request()->get('cod'), function ($q, $fill) {
+                    $q->where('D.delivery_code', 'like', '%' . $fill . '%');
+                   })
+
+                ->when(Request()->get('person'),  function ($q, $fill){
+                $q->where('D.user_id', $fill);
+                    })
+
+                ->when(Request()->get('persontwo'),  function ($q, $fill){
+                    $q->where('D.person_id', $fill);
+                        })
+
+
+                ->when(Request()->get('type'),  function ($q, $fill){
+                $q->where('D.type', $fill);
+                })
+                ->where('D.type', 'Dotacion')
+                ->get();
+
+            $te = DB::table('dotations as D')
+                ->selectRaw(' IFNULL(count(*),0) as totalEpp')
+
+                ->when(Request()->get('delivery'), function ($q, $fill) {
+                    $q->where('D.delivery_state', $fill );
+                   })
+
+                 ->when(Request()->get('cod'), function ($q, $fill) {
+                    $q->where('D.delivery_code', 'like', '%' . $fill . '%');
+                   })
+
+                ->when(Request()->get('person'),  function ($q, $fill){
+                $q->where('D.user_id', $fill);
+                    })
+
+                ->when(Request()->get('persontwo'),  function ($q, $fill){
+                    $q->where('D.person_id', $fill);
+                        })
+
+
+                ->when(Request()->get('type'),  function ($q, $fill){
+                $q->where('D.type', $fill);
+                })
+                ->where('D.type', 'EPP')
+                ->get();
+
+
+
+
+
+
+        return $this->success(['month' => $d[0], 'year' => $dyear[0], 'td' => $td[0], 'te' => $te[0]]);
 
 
                // $date = explode('-', $request->get('cantMes'));
@@ -220,6 +309,22 @@ class InventaryDotationController extends Controller
         //  FROM dotations D
         //  where DATE(D.dispatched_at) BETWEEN "'.$firstDay.'" and "'.$lastDay.'"
         //         AND D.state = "Activa" or D.person_id = "'.$person.'" ');
+    }
+
+    public function download($fechaInicio, $fechaFin,Request $req)
+    {
+        $dates = [$fechaInicio,$fechaFin];
+
+        return Excel::download(new DotationExport($dates), 'inventario.xlsx');
+        return 'asd';
+    }
+
+    public function downloadeliveries($fechaInicio, $fechaFin,Request $req)
+    {
+        $dates = [$fechaInicio,$fechaFin];
+
+        return Excel::download(new DownloaDeliveriesExport($dates), 'downloadeliveries.xlsx');
+        return 'asd';
     }
 
 
