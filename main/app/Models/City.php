@@ -9,7 +9,7 @@ class City extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'name', 'type', 'country_id', 'state'
+        'name', 'type', 'country_id', 'percentage_product', 'percentage_service', 'state'
     ];
 
     protected $hidden = [

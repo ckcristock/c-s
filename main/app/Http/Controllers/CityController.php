@@ -33,6 +33,8 @@ class CityController extends Controller
 					'c.name',
 					'cs.id as country_id',
 					'cs.name as country',
+					'c.percentage_product',
+					'c.percentage_service',
 					'c.state'
 				)
 				->when(request()->get('name'), function ($q, $fill) {
