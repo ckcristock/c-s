@@ -23,7 +23,7 @@ class PayConfigurationCompany extends Model
     }
     public function percentage()
     {
-        return $this->belongsTo(DisabilityPercentage::class);
+        return $this->belongsTo(DisabilityPercentage::class,'disability_percentage_id','id');
     }
 
     public function scopeExclude($query, $value = [])

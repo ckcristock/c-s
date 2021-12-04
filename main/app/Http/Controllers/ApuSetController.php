@@ -144,6 +144,19 @@ class ApuSetController extends Controller
     {
         //
     }
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function find(Request $req)
+    {
+        //
+        return $this->success(
+			ApuSetService::find($req->get('name'))
+		);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -246,6 +259,7 @@ class ApuSetController extends Controller
     {
         return $this->success(
             ApuPart::select('name', 'unit_direct_cost', 'id')
+            ->selectRaw('name as text, id as value')
             ->when( request()->get('name'), function($q, $fill)
             {
                 $q->where('name','like','%'.$fill.'%');

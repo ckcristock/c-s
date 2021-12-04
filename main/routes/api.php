@@ -5,6 +5,7 @@
 use App\Http\Controllers\AccountPlanController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
+use App\Http\Controllers\ApuController;
 use App\Http\Controllers\ApuPartController;
 use App\Http\Controllers\ApuSetController;
 use App\Http\Controllers\ArlController;
@@ -16,6 +17,8 @@ use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BenefitIncomeController;
 use App\Http\Controllers\BenefitNotIncomeController;
 use App\Http\Controllers\BonificationsController;
+use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\CalculationBaseController;
 use App\Http\Controllers\CenterCostController;
 use App\Http\Controllers\CiiuCodeController;
 use App\Http\Controllers\CityController;
@@ -99,7 +102,7 @@ use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Http\Controllers\ZonesController;
-
+use App\Models\Budget;
 use App\Models\User;
 
 use Illuminate\Http\Request;
@@ -403,6 +406,9 @@ Route::group(
         Route::resource('apu-sets', ApuSetController::class);
         Route::resource('thicknesses', ThicknessController::class);
         Route::resource('cut-laser-material', CutLaserMaterialController::class);
+        Route::resource('calculation-bases', CalculationBaseController::class);
+        Route::resource('apu', ApuController::class);
+        Route::resource('budgets', BudgetController::class);
 
 
 		/* Paginations */
@@ -440,6 +446,7 @@ Route::group(
 		Route::get('paginateIndirectCost', [IndirectCostController::class, 'paginate']);
 		Route::get('paginateCutLaserMaterial', [CutLaserMaterialController::class, 'paginate']);
 		Route::get('paginateAlert', [AlertController::class, 'paginate']);
+		Route::get('budgets-paginate', [BudgetController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -496,8 +503,14 @@ Route::group(
 		Route::put('apu-set-activate-Inactive', [ApuSetController::class, 'activateOrInactivate']);
 		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
 		Route::get('apu-parts-list', [ApuSetController::class, 'apuParts']);
+		Route::get('apu-parts-find', [ApuPartController::class, 'find']);
+
 		Route::get('apu-sets-list', [ApuSetController::class, 'apuSets']);
+		Route::get('apu-sets-find', [ApuSetController::class, 'find']);
+		Route::post('calculation-bases-update', [CalculationBaseController::class, 'updateAll']);
 		/****** End Rutas del modulo APU CONJUNTO ******/
+
+		Route::get('budgets-download-client', [BudgetController::class, 'downloadClient']);
 
 	}
 );

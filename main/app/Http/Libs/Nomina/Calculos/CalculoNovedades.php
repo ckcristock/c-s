@@ -253,7 +253,7 @@ class CalculoNovedades implements Coleccion
             $objeParams->suma = $item['sum'];
 
             if (self::INCAPACIDADBYDEFAULT == $novedad) {
-                $objeParams->porcentaje = $configuracion->porcentaje->id;
+                $objeParams->porcentaje = $configuracion->percentage->id;
             } else {
                 $objeParams->porcentaje = self::PERCENTBYDEFAULF;
             }

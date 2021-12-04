@@ -152,6 +152,12 @@ class ApuPartController extends Controller
 			ApuPartService::show($id)
 		);
     }
+    public function find(Request $req)
+    {
+        return $this->success(
+			ApuPartService::find($req->get('name'))
+		);
+    }
 
     /**
      * Show the form for editing the specified resource.

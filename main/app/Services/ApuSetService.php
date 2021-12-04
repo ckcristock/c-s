@@ -46,6 +46,48 @@ class ApuSetService
                             ->where("id", $id)
                             ->first();
     }
+    static function find($name){
+
+        return ApuSet::with(["city",
+                              "files",
+                              "thirdparty" => function ($q) {
+                                $q->select('id', DB::raw('concat(first_name, " ", first_surname) as name'));
+                              },
+                              "machine" => function ($q) {
+                                $q->select("*");
+                              },
+                              "setpartlist"=> function ($q) {
+                                $q->select("*");
+                              },
+                              "setpartlist.apuset"=> function ($q) {
+                                $q->select("*");
+                              },
+                              "setpartlist.apupart"=> function ($q) {
+                                $q->select("*");
+                              },
+                              "internal"=> function ($q) {
+                                $q->select("*");
+                              },
+                              "external"=> function ($q) {
+                                $q->select("*");
+                              },
+                              "other"=> function ($q) {
+                                $q->select("*");
+                              },
+                              "indirect"=> function ($q) {
+                                $q->select("*");
+                              },
+                            ])
+                            ->with(["person" => function ($q) {
+                                $q->select("id", DB::raw('concat(first_name, " ", first_surname) as name'), 'passport_number', 'visa');
+                            },
+                            ])
+                            ->when($name, function($q,$fill)
+                            {
+                              $q->where(  'name', 'like', "%$fill%" );
+                            })
+                            ->get(['*','id as value', 'name as text']);
+    }
 
     static public function paginate(){
 

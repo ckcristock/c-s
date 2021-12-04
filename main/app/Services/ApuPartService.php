@@ -79,6 +79,69 @@ class ApuPArtService
                     ->where("id", $id)
                     ->first();
     }
+    static function find($name){
+
+        return ApuPart::with(["city",
+                              "files",
+                              "indirect",
+                              "thirdparty" => function ($q) {
+                                  $q->select('id', 'first_name', 'first_surname');
+                              },
+                              "machine" => function ($q) {
+                                $q->select("*")
+                                    ->with("unit");
+                              },
+                              "external"=> function ($q) {
+                                $q->select("*")
+                                    ->with("unit");
+                              },
+                              "internal"=> function ($q) {
+                                $q->select("*")
+                                    ->with("unit");
+                              },
+                              "other"=> function ($q) {
+                                $q->select("*")
+                                    ->with("unit");
+                              },
+                              "cutwater"=> function ($q) {
+                                $q->select("*")
+                                    ->with("material")
+                                    ->with('thickness');
+                              },
+                              "cutlaser"=> function ($q) {
+                                $q->select("*")
+                                    ->with("cutLaserMaterial")
+                                    ->with("cutLaserMaterialValue");
+                              },
+                              "commercial" => function ($q) {
+                                $q->select("*")
+                                    ->with('unit')
+                                    ->with("material");
+                              },
+                            ])
+
+                            ->with(["person" => function ($q) {
+                                    $q->select("id", "first_name", "first_surname", 'passport_number', 'visa');
+                                },
+                            ])
+                            ->with([
+                                "rawmaterial" => function ($q) {
+                                    $q->select("*")
+                                        ->with("geometry");
+                                },
+                                "rawmaterial.measures" => function ($q) {
+                                    $q->select("*");
+                                },
+                                "rawmaterial.material" => function ($q) {
+                                    $q->select("*");
+                                },
+                        ])
+                        ->when($name, function($q,$fill)
+                        {
+                          $q->where(  'name', 'like', "%$fill%" );
+                        })
+                        ->get(['*','id as value', 'name as text']);
+    }
 
     static function deleteMaterial($id)
 	{
