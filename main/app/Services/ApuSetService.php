@@ -18,7 +18,9 @@ class ApuSetService
                                 $q->select("*");
                               },
                               "setpartlist"=> function ($q) {
+
                                 $q->select("*");
+                                $q->with('apuset')->with('apupart');
                               },
                               "setpartlist.apuset"=> function ($q) {
                                 $q->select("*");

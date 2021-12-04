@@ -1,18 +1,17 @@
 <?php
 
 namespace App\Exports;
+
+use App\Services\DotationDownloadService;
 use Illuminate\Database\Eloquent\Collection;
 
-use App\Models\LateArrival;
-use App\Services\LateArrivalService;
-use GuzzleHttp\Psr7\Request;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class LateArrivalExport implements FromCollection,  WithHeadings, ShouldAutoSize, WithEvents
+class DotationExport implements FromCollection,  WithHeadings, ShouldAutoSize, WithEvents
 {
     private $dates ;
     public function __construct($dates)
@@ -22,7 +21,7 @@ class LateArrivalExport implements FromCollection,  WithHeadings, ShouldAutoSize
     public function headings(): array
     {
         return [
-          'Área', 'Funcionario', 'Fecha', 'Entrada Turno', 'Entrada real', 'Tiempo retraso'
+          'Nombre', 'Talla', 'Tipo', 'Estado', 'Cantidad'
         ];
     }
     /**
@@ -31,9 +30,7 @@ class LateArrivalExport implements FromCollection,  WithHeadings, ShouldAutoSize
     public function collection()
     {
 
-         return   new Collection(
-            LateArrivalService::getPeopleDownload($this->dates)
-            ) ;
+         return new Collection(DotationDownloadService::getDotation($this->dates));
 
     }
 

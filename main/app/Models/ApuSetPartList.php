@@ -23,6 +23,7 @@ class ApuSetPartList extends Model
     public function apuset()
 	{
 		return $this->belongsTo(ApuSet::class, 'apu_set_child_id');
+
 	}
 
     public function apupart()
