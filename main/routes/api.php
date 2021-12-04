@@ -7,6 +7,8 @@ use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\ApuController;
 use App\Http\Controllers\ApuPartController;
+use App\Http\Controllers\ApuProfileController;
+use App\Http\Controllers\ApuServiceController;
 use App\Http\Controllers\ApuSetController;
 use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
@@ -35,6 +37,7 @@ use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DianAddressController;
 use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\DisciplinaryProcessController;
+use App\Http\Controllers\DisplacementController;
 use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
 use App\Http\Controllers\DrivingLicenseController;
@@ -96,6 +99,11 @@ use App\Http\Controllers\ThirdPartyController;
 use App\Http\Controllers\ThirdPartyFieldController;
 use App\Http\Controllers\ThirdPartyPersonController;
 use App\Http\Controllers\TravelExpenseController;
+use App\Http\Controllers\TravelExpenseEstimationController;
+use App\Http\Controllers\TravelExpenseEstimationInternationalController;
+use App\Http\Controllers\TravelExpenseEstimationNationalController;
+use App\Http\Controllers\TravelExpenseEstimationValueController;
+use App\Http\Controllers\TravelExpenseEstimationValuesController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\VisaTypeController;
 use App\Http\Controllers\WinningListController;
@@ -103,6 +111,8 @@ use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Http\Controllers\ZonesController;
 use App\Models\Budget;
+use App\Models\TravelExpenseEstimationValue;
+use App\Models\TravelExpenseEstimationValues;
 use App\Models\User;
 
 use Illuminate\Http\Request;
@@ -409,6 +419,10 @@ Route::group(
         Route::resource('calculation-bases', CalculationBaseController::class);
         Route::resource('apu', ApuController::class);
         Route::resource('budgets', BudgetController::class);
+        Route::resource('apu-profile', ApuProfileController::class);
+		Route::resource('travel-expense-estimation', TravelExpenseEstimationController::class);
+		Route::resource('travelExpenseEstimationValue', TravelExpenseEstimationValuesController::class);
+		Route::resource('apu-service', ApuServiceController::class);
 
 
 		/* Paginations */
@@ -447,6 +461,8 @@ Route::group(
 		Route::get('paginateCutLaserMaterial', [CutLaserMaterialController::class, 'paginate']);
 		Route::get('paginateAlert', [AlertController::class, 'paginate']);
 		Route::get('budgets-paginate', [BudgetController::class, 'paginate']);
+		Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
+		Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -492,6 +508,7 @@ Route::group(
 		Route::get('users/{id}', [PersonController::class, 'user']);
 		Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
 		Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
+		Route::get('peopleSelects', [PersonController::class, 'peopleSelects']);
 
 		/****** Rutas del modulo APU PIEZA ******/
 		Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
@@ -501,7 +518,7 @@ Route::group(
 
 		/****** Rutas del modulo APU CONJUNTO ******/
 		Route::put('apu-set-activate-Inactive', [ApuSetController::class, 'activateOrInactivate']);
-		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
+		Route::get('apu-set/pdf/{id}', [ApuSetController::class, 'pdf']);
 		Route::get('apu-parts-list', [ApuSetController::class, 'apuParts']);
 		Route::get('apu-parts-find', [ApuPartController::class, 'find']);
 
@@ -511,6 +528,9 @@ Route::group(
 		/****** End Rutas del modulo APU CONJUNTO ******/
 
 		Route::get('budgets-download-client', [BudgetController::class, 'downloadClient']);
+		/****** Rutas del modulo APU Servicio ******/
+		Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
+		/****** End Rutas del modulo APU Servicio ******/
 
 	}
 );

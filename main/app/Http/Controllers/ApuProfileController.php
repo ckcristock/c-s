@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
-use App\Models\WorkContract;
+use App\Models\ApuProfile;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\URL;
 
-class CompanyController extends Controller
+class ApuProfileController extends Controller
 {
     use ApiResponser;
     /**
@@ -19,22 +16,15 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        //
-        return $this->success(Company::all(['id as value','name as text']));
-    }
-
-    public function getBasicData()
-    {
         return $this->success(
-            Company::with('arl')->with('bank')->first()
+            ApuProfile::where('state', 'Activo')->get()
         );
     }
 
-    public function saveCompanyData(Request $request) 
+    public function paginate()
     {
         return $this->success(
-            $company = Company::findOrFail($request->get('id')),
-            $company->update($request->all())
+            ApuProfile::paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -56,15 +46,11 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
-        $typeImage = '.' . $request->typeImage;
-        $data["logo"] = URL::to('/') . '/api/image?path=' . saveBase64($data['logo'], 'companies/', true, $typeImage);
-        dd($data);
         try {
-            WorkContract::find($request->get('id'))->update($data);
-            return response()->json(['message' => 'Se ha actualizado con éxito']);
+            $apuProfile = ApuProfile::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($apuProfile->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
         }
     }
 
@@ -76,7 +62,7 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-     
+        //
     }
 
     /**
@@ -111,13 +97,5 @@ class CompanyController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    public function getGlobal()
-    {
-        return Company::with('payConfiguration')->with('arl')->first([
-            'id', 'arl_id', 'payment_frequency', 'social_reason', 'document_number',
-            'transportation_assistance', 'base_salary', 'law_1607'
-        ]);
     }
 }

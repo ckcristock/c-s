@@ -41,11 +41,11 @@ class ApuPartCutLaser extends Model
 
     public function cutLaserMaterial()
 	{
-		return $this->belongsTo(CutLaserMaterial::class);
+		return $this->belongsTo(CutLaserMaterial::class)->with('cutLaserMaterialValue');
 	}
 
     public function cutLaserMaterialValue()
     {
-        return $this->belongsTo(cutLaserMaterialValue::class);
+        return $this->belongsTo(CutLaserMaterialValue::class);
     }
 }

@@ -310,7 +310,7 @@ class ApuSetController extends Controller
     public function pdf($id)
     {
         $data = ApuSetService::show($id);
-		$pdf = PDF::loadView('pdf.apu_conjunto', ['data'=>$data]);
-		return $pdf->download('apu_conjunto.pdf');
+		$pdf = PDF::loadView('pdf.apu_set', ['data' => $data]);
+		return $pdf->download('apu_set.pdf');
     }
 }

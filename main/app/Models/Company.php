@@ -33,7 +33,8 @@ class Company extends Model
       'arl_id',
       'bank_id',
       'account_number',
-      'account_type'
+      'account_type',
+      'logo'
     ];
 
     public function arl()
