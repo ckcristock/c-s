@@ -250,7 +250,7 @@
         @foreach ($data['cutwater'] as $cutwater )
         <tr>
             <td> {{ $cutwater['material']['name'] }} </td>
-            <td style="text-align: center;"> {{ $cutwater['thickness'] }} </td>
+            <td style="text-align: center;"> {{ $cutwater['thickness']['thickness'] }} </td>
             <td style="text-align: center;"> {{ $cutwater['amount'] }} </td>
             <td style="text-align: center;"> {{ $cutwater['long'] }} </td>
             <td style="text-align: right;"> {{ $cutwater['width'] }} </td>
@@ -310,7 +310,8 @@
     <tbody>
         @foreach ($data['cutlaser'] as $cutlaser )
         <tr>
-            <td> {{ $cutlaser['material']['name'] }} </td>
+            {{-- <td> {{ $cutlaser['cut_laser_material']['name'] }} </td> --}}
+            <td></td>
             <td style="text-align: center;"> {{ $cutlaser['thickness'] }} </td>
             <td style="text-align: center;"> {{ $cutlaser['sheets_amount'] }} </td>
             <td style="text-align: center;"> {{ $cutlaser['long'] }} </td>
