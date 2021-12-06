@@ -473,6 +473,7 @@ Route::group(
 		Route::get('budgets-paginate', [BudgetController::class, 'paginate']);
 		Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
 		Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
+		Route::get('paginateApus', [ApuController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
