@@ -42,6 +42,7 @@ use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
 use App\Http\Controllers\DrivingLicenseController;
 use App\Http\Controllers\EgressTypesController;
+use App\Http\Controllers\ElectronicPayrollController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\ExternalProcessController;
 use App\Http\Controllers\ExtraHoursController;
@@ -80,6 +81,7 @@ use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\MemorandumTypesController;
+use App\Http\Controllers\PayrollConfigController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PayrollOvertimeController;
 use App\Http\Controllers\PayrollParametersController;
@@ -221,6 +223,23 @@ Route::group(
 
 		Route::post('/jobs/set-state/{id}',  [JobController::class, 'setState']);
 		Route::get('/payroll-factor-people',  [PayrollFactorController::class, 'indexByPeople']);
+
+		Route::get('electronic-payroll/{id}',  [ElectronicPayrollController::class, 'getElectronicPayroll']);
+		Route::get('electronic-payroll-paginate/{id}',  [ElectronicPayrollController::class, 'paginate']);
+		Route::get('electronic-payroll-statistics/{id}',  [ElectronicPayrollController::class, 'statistics']);
+		Route::delete('electronic-payroll/{id}', [ElectronicPayrollController::class, 'deleteElectroincPayroll']);
+
+		/*CONFIG NOMINA*/
+		Route::get('parametrizacion/nomina/extras', [PayrollConfigController::class, 'horasExtrasDatos']);
+		Route::get('parametrizacion/nomina/incapacidades', [PayrollConfigController::class, 'incapacidadesDatos']);
+		Route::get('parametrizacion/nomina/parafiscales', [PayrollConfigController::class, 'parafiscalesDatos']);
+		Route::get('parametrizacion/nomina/riesgos', [PayrollConfigController::class, 'riesgosArlDatos']);
+		Route::get('parametrizacion/nomina/ssocial_empresa', [PayrollConfigController::class, 'sSocialEmpresaDatos']);
+		Route::get('parametrizacion/nomina/ssocial_funcionario', [PayrollConfigController::class, 'sSocialFuncionarioDatos']);
+
+
+		
+		/**/
 
 
 		/** Rutas inventario dotacion rrhh */
