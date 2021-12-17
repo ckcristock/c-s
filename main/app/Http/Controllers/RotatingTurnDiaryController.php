@@ -74,7 +74,8 @@ class RotatingTurnDiaryController extends Controller
     {
         //
         try {
-            DiarioTurnoRotativo::where('id', $id)->update($request->all());
+
+            DiarioTurnoRotativo::where('id', $id)->update($request->except('id'));
             return $this->success('actualizado');
         } catch (\Throwable $th) {
             //throw $th;
