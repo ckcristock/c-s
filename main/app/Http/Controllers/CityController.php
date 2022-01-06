@@ -18,8 +18,11 @@ class CityController extends Controller
 	public function index()
 	{
 		return $this->success(City::where('state', '=', 'Activo')
-			->when(Request()->get('mane'), function ($q, $fill) {
+			->when(Request()->get('name'), function ($q, $fill) {
 				$q->where('name', 'like', "%$fill%");
+			})
+			->when(Request()->get('country'), function ($q, $fill) {
+				$q->where('country_id', '=', "$fill");
 			})
 			->get(['*', 'id as value', 'name as text']));
 	}

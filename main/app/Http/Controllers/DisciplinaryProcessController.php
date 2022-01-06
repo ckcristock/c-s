@@ -24,41 +24,41 @@ class DisciplinaryProcessController extends Controller
         $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 5;
         return $this->success(
             DB::table('people as p')
-            ->select(
-                'p.first_name',
-                'p.second_name',
-                'p.first_surname',
-                'p.second_surname',
-                'd.process_description',
-                'd.status',
-                'd.date_of_admission',
-                'd.date_end',
-                'd.id',
-                'd.file'
-            )
-            ->when( Request()->get('person') , function($q, $fill)
-            {
-                $q->where(DB::raw('concat(p.first_name, " ",p.first_surname)'), 'like', '%' . $fill . '%');
-            })
-            ->join('disciplinary_processes as d', function($join) {
-                $join->on('d.person_id', '=', 'p.id');
-            })
-            ->when( Request()->get('status'), function($q, $fill) {
-                if (request()->get('status') == 'Todos') {
-                    return null;
-                } else {
-                    $q->where('d.status', 'like', '%' . $fill . '%');
-                }
-            })
-            ->when( Request()->get('code'), function($q, $fill) {
-                $q->where('d.id', 'like', '%' . $fill . '%');
-            })
-            ->paginate($pageSize, ['*'],'page', $page)
+                ->select(
+                    'p.first_name',
+                    'p.second_name',
+                    'p.first_surname',
+                    'p.second_surname',
+                    'd.process_description',
+                    'd.status',
+                    'd.date_of_admission',
+                    'd.date_end',
+                    'd.id',
+                    'd.file'
+                )
+                ->when( Request()->get('person') , function($q, $fill)
+                {
+                    $q->where(DB::raw('concat(p.first_name, " ",p.first_surname)'), 'like', '%' . $fill . '%');
+                })
+                ->join('disciplinary_processes as d', function($join) {
+                    $join->on('d.person_id', '=', 'p.id');
+                })
+                ->when( Request()->get('status'), function($q, $fill) {
+                    if (request()->get('status') == 'Todos') {
+                        return null;
+                    } else {
+                        $q->where('d.status', 'like', '%' . $fill . '%');
+                    }
+                })
+                ->when( Request()->get('code'), function($q, $fill) {
+                    $q->where('d.id', 'like', '%' . $fill . '%');
+                })
+                ->paginate($pageSize, ['*'],'page', $page)
         );
     }
 
     /* public function getHistory(){
-       
+
     } */
 
     /**
@@ -100,20 +100,20 @@ class DisciplinaryProcessController extends Controller
     public function descargoPdf($id)
     {
         $descargo = DB::table('disciplinary_processes as dp')
-			->select(
-				'dp.person_id',
+            ->select(
+                'dp.person_id',
                 'dp.id as descargo_id',
-				'p.first_name',
-				'p.second_name',
-				'p.first_surname',
-				'p.second_surname',
-				'p.identifier',
-				'dp.date_of_admission',
+                'p.first_name',
+                'p.second_name',
+                'p.first_surname',
+                'p.second_surname',
+                'p.identifier',
+                'dp.date_of_admission',
                 'dp.created_at'
-			)
-			->join('people as p','p.id', '=', 'dp.person_id')
-			->where('dp.id', $id)
-			->first();
+            )
+            ->join('people as p','p.id', '=', 'dp.person_id')
+            ->where('dp.id', $id)
+            ->first();
         $company = DB::table('companies as c')
             ->select(
                 'c.name as company_name',
@@ -123,11 +123,11 @@ class DisciplinaryProcessController extends Controller
                 DB::raw('CURRENT_DATE() as fecha')
             )
             ->first();
-			$pdf = PDF::loadView('pdf.descargopdf', [
-				'descargo' => $descargo,
-                'company' => $company
-			]);
-			return $pdf->download('descargopdf.pdf');
+        $pdf = PDF::loadView('pdf.descargopdf', [
+            'descargo' => $descargo,
+            'company' => $company
+        ]);
+        return $pdf->download('descargopdf.pdf');
     }
 
     /**
@@ -140,20 +140,21 @@ class DisciplinaryProcessController extends Controller
     {
         return $this->success(
             DB::table('memorandums as m')
-            ->select(
-                'm.created_at as created_at_memorandum',
-                't.name as memorandumType',
-                'p.first_name',
-                'm.details'
-            )
-            ->join('people as p', function($join) {
-                $join->on('p.id', '=', 'm.person_id');
-            })
-            ->join('memorandum_types as t', function($join) {
-                $join->on('t.id', '=', 'm.memorandum_type_id');
-            })
-            ->where('p.id', '=', $id)
-            ->get()
+                ->select(
+                    'm.id',
+                    'm.created_at as created_at_memorandum',
+                    't.name as memorandumType',
+                    'p.first_name',
+                    'm.details'
+                )
+                ->join('people as p', function($join) {
+                    $join->on('p.id', '=', 'm.person_id');
+                })
+                ->join('memorandum_types as t', function($join) {
+                    $join->on('t.id', '=', 'm.memorandum_type_id');
+                })
+                ->where('p.id', '=', $id)
+                ->get()
         );
     }
 
@@ -161,15 +162,16 @@ class DisciplinaryProcessController extends Controller
     {
         return $this->success(
             DB::table('disciplinary_processes as d')
-            ->select(
-                'd.process_description',
-                'd.created_at as created_at_process'
-            )
-            ->join('people as p', function($join) {
-                $join->on('p.id', '=', 'd.person_id');
-            })
-            ->where('p.id', '=', $id)
-            ->get()
+                ->select(
+                    'd.id',
+                    'd.process_description',
+                    'd.created_at as created_at_process'
+                )
+                ->join('people as p', function($join) {
+                    $join->on('p.id', '=', 'd.person_id');
+                })
+                ->where('p.id', '=', $id)
+                ->get()
         );
     }
 
@@ -181,7 +183,7 @@ class DisciplinaryProcessController extends Controller
      */
     public function edit($id)
     {
-        
+
     }
 
     /**
@@ -193,7 +195,17 @@ class DisciplinaryProcessController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // Conseguimos el objeto
+        $proceso = DisciplinaryProcess::where('id', '=', $id)->first();
+        try {
+            // Si existe
+            $proceso->fill($request->all());
+            $proceso->save();
+            return $this->success($proceso);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $this->error($proceso, 500);
+        }
     }
 
     /**
