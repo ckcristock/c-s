@@ -63,7 +63,6 @@ use App\Http\Controllers\InventaryDotationGroupController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LateArrivalController;
 use App\Http\Controllers\LoanController;
-use App\Http\Controllers\LunchControlller;
 use App\Http\Controllers\MachineToolController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MeasureController;
@@ -112,6 +111,9 @@ use App\Http\Controllers\WinningListController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Http\Controllers\ZonesController;
+use App\Http\Controllers\LunchValueController;
+use App\Http\Controllers\LunchController;
+
 use App\Models\Budget;
 use App\Models\TravelExpenseEstimationValue;
 use App\Models\TravelExpenseEstimationValues;
@@ -264,6 +266,7 @@ Route::group(
 		Route::get('/rrhh-activity-people/{id}',  [RrhhActivityController::class, 'getPeople']);
 		Route::get('/rrhh-activity/cancel/{id}',  [RrhhActivityController::class, 'cancel']);
 		Route::post('/rrhh-activity-types/set',  [RrhhActivityTypeController::class, 'setState']);
+		// Route::put('/rrhh-activity/{id}', [RrhhActivityController::class, 'update']);
 		Route::get('/rrhh-activity-types-all',  [RrhhActivityTypeController::class, 'all']);
 		/** end*/
 
@@ -414,7 +417,7 @@ Route::group(
 		Route::resource('loan', LoanController::class);
 		Route::resource('fixed_asset', FixedAssetController::class);
 		Route::resource('fixed_asset_type', FixedAssetTypeController::class);
-		Route::resource('lunch', LunchControlller::class);
+		Route::resource('lunch', LunchController::class);
 		Route::resource('professions', ProfessionController::class);
 		Route::resource('third-party', ThirdPartyController::class);
 		Route::resource('third-party-person', ThirdPartyPersonController::class);
@@ -452,7 +455,7 @@ Route::group(
 		Route::resource('travel-expense-estimation', TravelExpenseEstimationController::class);
 		Route::resource('travelExpenseEstimationValue', TravelExpenseEstimationValuesController::class);
 		Route::resource('apu-service', ApuServiceController::class);
-
+		Route::resource('lunch-value', LunchValueController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -560,6 +563,7 @@ Route::group(
 		/****** Rutas del modulo APU Servicio ******/
 		Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
 		/****** End Rutas del modulo APU Servicio ******/
+		Route::get('lunches/download', [LunchController::class, 'download']);
 
 	}
 );
