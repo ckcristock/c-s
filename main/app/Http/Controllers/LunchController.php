@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\LunchExport;
 use App\Models\Lunch;
 use App\Models\LunchPerson;
 use App\Models\Person;
+use App\Services\LunchDownloadService;
 use App\Traits\ApiResponser;
 use Faker\Calculator\Luhn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
-class LunchControlller extends Controller
+class LunchController extends Controller
 {
     use ApiResponser;
     /**
@@ -40,9 +43,17 @@ class LunchControlller extends Controller
                 'lp.state as personState',
                 DB::raw('concat(user.first_name," ",user.first_surname) as user')
             )
-            ->when(request()->get('date'), function($q, $fill) 
+            ->when(request()->get('date_end'), function($q, $fill) 
             {
-                $q->where('l.created_at', 'like', '%'.$fill.'%');
+                $q->where('l.created_at', '>=', request()->get('date_start'))
+                ->where('l.created_at', '<=', request()->get('date_end'));
+                // $q->where('l.created_at', 'like', '%'.$fill.'%');
+            })
+            ->when(request()->get('date_start'), function($q, $fill) 
+            {
+                $q->where('l.created_at', '>=', request()->get('date_start'))
+                ->where('l.created_at', '<=', request()->get('date_end'));
+                // $q->where('l.created_at', 'like', '%'.$fill.'%');
             })
             ->when(request()->get('person'), function($q, $fill) 
             {
@@ -149,4 +160,10 @@ class LunchControlller extends Controller
     {
         //
     }
+
+    public function download(Request $req)
+    {
+        return Excel::download(new LunchExport(),'reporte_almuerzos.xlsx');
+    }
+
 }

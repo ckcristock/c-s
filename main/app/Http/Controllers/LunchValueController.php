@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DiarioTurnoFijo;
-use App\Models\DiarioTurnoRotativo;
+use App\Models\LunchValue;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class RotatingTurnDiaryController extends Controller
+class LunchValueController extends Controller
 {
     use ApiResponser;
     /**
@@ -17,7 +16,7 @@ class RotatingTurnDiaryController extends Controller
      */
     public function index()
     {
-        //
+        return $this->success(LunchValue::first());
     }
 
     /**
@@ -38,7 +37,17 @@ class RotatingTurnDiaryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $value = $request->get('value');
+            $lunch = LunchValue::first();
+            $lunch->value = $value;
+            $lunch->save();
+            return $this->success('creado con éxito');
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $this->errorResponse( $th->getFile().$th->getMessage() );
+
+        }
     }
 
     /**
@@ -72,15 +81,7 @@ class RotatingTurnDiaryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-        try {
-
-            DiarioTurnoRotativo::where('id', $id)->update($request->except('id'));
-            return $this->success('actualizado');
-        } catch (\Throwable $th) {
-            //throw $th;
-            return $this->error($th->getMessage(), 401);
-        }
+        
     }
 
     /**

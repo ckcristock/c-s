@@ -17,7 +17,7 @@ class RrhhActivityController extends Controller
     use ApiResponser;
     public function index()
     {
-        $year = 2021;
+        $year = date("Y");
         return
             $this->success(
                 DB::table('rrhh_activities as a')
@@ -45,9 +45,10 @@ class RrhhActivityController extends Controller
                                 CONCAT(a.name," (ANULADA)" )
                                 ,t.name) 
                                 , "-",  IF (a.dependency_id = "0","Todos",d.name) )
-                                AS title'),
-                    )->whereYear('a.date_start', $year)
-                    ->where('a.state', '!=', 'Pendiente')
+                                AS title'),    
+                    )
+                    ->whereYear('a.date_start', $year)
+                    ->where('a.state', '!=', 'Anulada')
                     ->orderBy('a.date_start', 'DESC')
                     ->get()
             );
@@ -63,8 +64,9 @@ class RrhhActivityController extends Controller
             $fin = Carbon::parse($data['date_end']);
 
 
+            // $a =  RrhhActivity::where('id', $request->get('id'))->get();
             for ($i = $inicio; $i <= $fin; $i->addDay(1)) {
-                if (in_array($i->englishDayOfWeek, $data['days'])) {
+                if ($data['days']) {
 
                     $date1 = $i->format('d M Y');
 
@@ -77,23 +79,18 @@ class RrhhActivityController extends Controller
 
                     $description =  'Fecha: ' . $date1 . ' : ' . $data['hour_start'] . ' - '
                         . $date2 . ' : ' . $data['hour_end'] . ' Actividad: ' . $data['description'];
-
-                    $activity = RrhhActivity::updateOrCreate(
-                        ['id' => $request->get('id')],
-                        $data
-                    );
+                    $activity = RrhhActivity::updateOrCreate([ 'id' => $request->get('id') ], $data );
                     $idToUpdate =  $request->get('id');
-                    if ($idToUpdate) {
-                        DB::table('alerts')->where('type', 'Actividad')->where('destination_id', $idToUpdate)->delete();
+                    if ( $idToUpdate ) {
+                        Alert::where('type', 'Actividad')->where('destination_id', $idToUpdate)->delete();
 
                         if (count($data['people_id']) > 0) {
-                            DB::table('rrhh_activity_people')->where('rrhh_activity_id',  $idToUpdate)->delete();
+                            RrhhActivityPerson::where('rrhh_activity_id',  $idToUpdate)->delete();
                         } else {
 
 
-                            $peopleList = DB::table('rrhh_activity_people')
-                                ->where('rrhh_activity_id', $idToUpdate)
-                                ->get('id');
+                            $peopleList = RrhhActivityPerson::where('rrhh_activity_id', $idToUpdate)
+                                ->get();
 
                             foreach ($peopleList as $people) {
 
@@ -109,6 +106,7 @@ class RrhhActivityController extends Controller
                                         'destination_id' => $activity->id
                                     ]
                                 );
+                                RrhhActivityPerson::create(['rrhh_activity_id' => $activity->id, 'person_id' => $people->id]);
                             }
                         }
                     }
@@ -166,15 +164,13 @@ class RrhhActivityController extends Controller
                     }
                 }
             }
-
-
-
             return $this->success('Guardado con éxito');
         } catch (\Throwable $th) {
             //throw $th;
             return $this->error($th->getMessage() . $th->getLine() . $th->getFile(), 500);
         }
     }
+
 
     public function getPeople($id)
     {
@@ -189,7 +185,6 @@ class RrhhActivityController extends Controller
                 ->get(['id', 'person_id'])
         );
     }
-
 
     public function cancel($id)
     {

@@ -16,9 +16,18 @@ class PersonPayrollPayment extends Model
         'retentions_deductions',
         'net_salary' 
     ];
-    use HasFactory;
 
     public function person(){
         return $this->belongsTo(Person::class);
+    }
+
+    /**
+     * Get the user that owns the PersonPayrollPayment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function payrollPayment()
+    {
+        return $this->belongsTo(PayrollPayment::class);
     }
 }

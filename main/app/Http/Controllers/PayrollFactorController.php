@@ -26,14 +26,28 @@ class PayrollFactorController extends Controller
         return $this->error('El funcionario ya se encuentra con novedades registradas en este periodo', 422);
     }
 
-    public function indexByPeople(Request $request)
+    public function indexByPeople()
     {
         return $this->success(Person::with(
             [
-                'payroll_factors' => function ($q) use ($request) {
-               
-                    $q->where('date_start', '>=', $request->get('date_start'))
-                        ->where('date_end', '<=', $request->get('date_end'));
+                'payroll_factors' => function ($q) {
+                    $q->when(request()->get('personfill'), function($q, $fill) 
+                    {
+                        $q->where('person_id', 'like', '%'.$fill.'%');
+                    });
+                    $q->when(request()->get('date_end'), function($q, $fill) 
+                    {
+                        $q->where('date_start', '>=', request()->get('date_start'))
+                        ->where('date_end', '<=', request()->get('date_end'));
+                    });
+                    $q->when(request()->get('date_start'), function($q, $fill) 
+                    {
+                        $q->where('date_start', '>=', request()->get('date_start'))
+                        ->where('date_end', '<=', request()->get('date_end'));
+                    });
+                    // $q->where('person_id', '=', request()->get('personfill'));
+                    // $q->where('date_start', '>=', request()->get('date_start'))
+                    //     ->where('date_end', '<=', request()->get('date_end'));
                 },
                 'payroll_factors.disability_leave' => function ($q) {
                 },
@@ -41,11 +55,26 @@ class PayrollFactorController extends Controller
                 }
             ]
         )
-            ->whereHas('payroll_factors', function ($q) use ($request) {
-                $q->where('date_start', '>=', $request->get('date_start'))
-                    ->where('date_end', '<=', $request->get('date_end'));
-            })
-            ->get());
+        ->whereHas('payroll_factors', function ($q) {
+            $q->when(request()->get('personfill'), function($q, $fill) 
+            {
+                $q->where('person_id', 'like', '%'.$fill.'%');
+            });
+            $q->when(request()->get('date_end'), function($q, $fill) 
+                    {
+                        $q->where('date_start', '>=', request()->get('date_start'))
+                        ->where('date_end', '<=', request()->get('date_end'));
+                    });
+                    $q->when(request()->get('date_start'), function($q, $fill) 
+                    {
+                        $q->where('date_start', '>=', request()->get('date_start'))
+                        ->where('date_end', '<=', request()->get('date_end'));
+                    });
+        // $q->where('person_id', '=', request()->get('personfill'));
+                // $q->where('date_start', '>=', request()->get('date_start'))
+                //     ->where('date_end', '<=', request()->get('date_end'));
+        })
+        ->get());
     }
 
 
