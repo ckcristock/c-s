@@ -516,6 +516,8 @@ Route::group(
 		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
 		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
 		Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
+		Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
+		// !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
 		/** Tutas de Empresas  */
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);

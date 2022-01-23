@@ -20,7 +20,7 @@ class ThirdPartyPersonController extends Controller
         return $this->success(
             DB::table('third_party_people as tp')
             ->select(
-                'tp.name', 'tp.observation', 'tp.cell_phone', 'tp.email', 'tp.position',
+                'tp.id', 'tp.name', 'tp.observation', 'tp.cell_phone', 'tp.email', 'tp.position',
                 DB::raw('concat(t.first_name," ",t.first_surname) as third_party'),
             )
             ->when(request()->get('third'), function($q, $fill)
