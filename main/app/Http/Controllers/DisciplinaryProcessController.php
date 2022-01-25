@@ -222,6 +222,21 @@ class DisciplinaryProcessController extends Controller
         }
     }
 
+
+    public function approve(Request $request, $id)
+	{
+		try {
+			$approve = DisciplinaryProcess::find($id);
+			$approve->update([
+				'status' => $request->status,
+				'approve_user_id' => auth()->user()->id
+			]);
+			return $this->success("Aprobado con éxito");
+		} catch (\Throwable $th) {
+			return $this->errorResponse($th->getMessage(), 500);
+		}
+	}
+
     /**
      * Remove the specified resource from storage.
      *

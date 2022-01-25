@@ -8,6 +8,7 @@ use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 
 class MemorandumController extends Controller
 {
@@ -42,7 +43,8 @@ class MemorandumController extends Controller
             DB::raw(' "Memorando" as type'),
             DB::raw(' "" as number_call'),
             'm.created_at',
-            'm.state'
+            'm.state',
+            'm.file'
         )
         ->join('memorandums as m', function($join) {
             $join->on('m.person_id', '=', 'p.id');
@@ -81,6 +83,7 @@ class MemorandumController extends Controller
             'a.number_call',
             'a.created_at',
             DB::raw('"" as state'),
+            DB::raw('"" as file'),
         )
         ->join('attention_calls as a', function($join) {
             $join->on('a.person_id', '=', 'p.id');
@@ -112,10 +115,20 @@ class MemorandumController extends Controller
     public function store(Request $request)
     {
         try {
+            $base64 = saveBase64File($request->file, 'legal_documents/', false, '.pdf');
+            URL::to('/') . '/api/file?path=' . $base64;
             Memorandum::updateOrCreate([
                 'id' => $request->get('id'),
-                'approve_user_id' => auth()->user()->id
-            ], $request->all() );
+                'approve_user_id' => auth()->user()->id,
+            ],
+            [
+                'file' => $base64,
+                'level' => $request->level,
+                'details' => $request->details,
+                'memorandum_type_id' => $request->memorandum_type_id,
+                'person_id' => $request->person_id
+            ] 
+            );
             return $this->success('Creado Con Éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

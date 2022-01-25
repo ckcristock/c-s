@@ -570,5 +570,6 @@ Route::group(
 		/****** End Rutas del modulo APU Servicio ******/
 		Route::get('lunches/download', [LunchController::class, 'download']);
 		Route::get('legal_document/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'legalDocument']);
+		Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
 	}
 );

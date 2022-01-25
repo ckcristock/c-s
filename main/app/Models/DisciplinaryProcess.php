@@ -14,6 +14,7 @@ class DisciplinaryProcess extends Model
         'date_of_admission',
         'date_end',
         'status',
-        'file'
+        'file',
+        'approve_user_id'
     ];
 }
