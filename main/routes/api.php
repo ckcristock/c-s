@@ -101,6 +101,7 @@ use App\Http\Controllers\ThirdPartyFieldController;
 use App\Http\Controllers\ThirdPartyPersonController;
 use App\Http\Controllers\TravelExpenseController;
 use App\Http\Controllers\TravelExpenseEstimationController;
+use App\Http\Controllers\AnnotationController;
 use App\Http\Controllers\TravelExpenseEstimationInternationalController;
 use App\Http\Controllers\TravelExpenseEstimationNationalController;
 use App\Http\Controllers\TravelExpenseEstimationValueController;
@@ -456,6 +457,7 @@ Route::group(
 		Route::resource('travelExpenseEstimationValue', TravelExpenseEstimationValuesController::class);
 		Route::resource('apu-service', ApuServiceController::class);
 		Route::resource('lunch-value', LunchValueController::class);
+		Route::resource('annotation', AnnotationController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -567,6 +569,6 @@ Route::group(
 		Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
 		/****** End Rutas del modulo APU Servicio ******/
 		Route::get('lunches/download', [LunchController::class, 'download']);
-
+		Route::get('legal_document/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'legalDocument']);
 	}
 );

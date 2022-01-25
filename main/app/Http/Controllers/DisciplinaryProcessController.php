@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DisciplinaryProcess;
+use App\Models\LegalDocument;
 use App\Traits\ApiResponser;
 use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
@@ -186,6 +187,13 @@ class DisciplinaryProcessController extends Controller
 
     }
 
+    public function legalDocument($id)
+    {
+        return $this->success(
+            LegalDocument::where('disciplinary_process_id', $id)->first()
+        );
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -201,6 +209,12 @@ class DisciplinaryProcessController extends Controller
             // Si existe
             $proceso->fill($request->all());
             $proceso->save();
+            $base64 = saveBase64File($request->file, 'legal_documents/', false, '.pdf');
+            URL::to('/') . '/api/file?path=' . $base64;
+            LegalDocument::create([
+                'file' => $base64,
+                'disciplinary_process_id' => $id
+            ]);
             return $this->success($proceso);
         } catch (\Throwable $th) {
             //throw $th;
