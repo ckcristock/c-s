@@ -266,6 +266,7 @@ Route::group(
 		/** Rutas actividades rrhh */
 		Route::get('/rrhh-activity-people/{id}',  [RrhhActivityController::class, 'getPeople']);
 		Route::get('/rrhh-activity/cancel/{id}',  [RrhhActivityController::class, 'cancel']);
+		Route::post('/rrhh-activity/cancelCycle/{id}',  [RrhhActivityController::class, 'cancelCycle']);
 		Route::post('/rrhh-activity-types/set',  [RrhhActivityTypeController::class, 'setState']);
 		// Route::put('/rrhh-activity/{id}', [RrhhActivityController::class, 'update']);
 		Route::get('/rrhh-activity-types-all',  [RrhhActivityTypeController::class, 'all']);

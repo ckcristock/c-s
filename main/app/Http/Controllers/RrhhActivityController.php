@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Alert;
 use App\Models\RrhhActivity;
 use App\Models\RrhhActivityPerson;
+use App\Models\RrhhActivityCycle;
 use App\Services\PersonService;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
@@ -34,8 +35,8 @@ class RrhhActivityController extends Controller
                         'a.hour_end',
                         DB::raw(' IFNULL(g.id,0) as group_id'),
                         DB::raw(' 
-                        concat( Date(a.date_start)," " ,a.hour_start) as start,
-                        concat( Date(a.date_end)," " ,a.hour_end) as start
+                        concat( Date(a.date_end)," " ,a.hour_end) as start,
+                        concat( Date(a.date_start)," " ,a.hour_start) as start
                         '),
                
 
@@ -65,8 +66,8 @@ class RrhhActivityController extends Controller
 
 
             // $a =  RrhhActivity::where('id', $request->get('id'))->get();
+            if(!$request->get('id')){$cycle = RrhhActivityCycle::create();}
             for ($i = $inicio; $i <= $fin; $i->addDay(1)) {
-                if ($data['days']) {
 
                     $date1 = $i->format('d M Y');
 
@@ -79,6 +80,7 @@ class RrhhActivityController extends Controller
 
                     $description =  'Fecha: ' . $date1 . ' : ' . $data['hour_start'] . ' - '
                         . $date2 . ' : ' . $data['hour_end'] . ' Actividad: ' . $data['description'];
+                    if(!$request->get('id')){$data['rrhh_activity_cycle_id'] = $cycle->id;}    
                     $activity = RrhhActivity::updateOrCreate([ 'id' => $request->get('id') ], $data );
                     $idToUpdate =  $request->get('id');
                     if ( $idToUpdate ) {
@@ -86,11 +88,13 @@ class RrhhActivityController extends Controller
 
                         if (count($data['people_id']) > 0) {
                             RrhhActivityPerson::where('rrhh_activity_id',  $idToUpdate)->delete();
-                        } else {
-
-
+                        // } else {
+                            foreach ($data['people_id'] as $person_id) {
+                                RrhhActivityPerson::create(['rrhh_activity_id' => $idToUpdate, 'person_id' => $person_id]);
+                            }
+                            
                             $peopleList = RrhhActivityPerson::where('rrhh_activity_id', $idToUpdate)
-                                ->get();
+                            ->get();
 
                             foreach ($peopleList as $people) {
 
@@ -106,10 +110,11 @@ class RrhhActivityController extends Controller
                                         'destination_id' => $activity->id
                                     ]
                                 );
-                                RrhhActivityPerson::create(['rrhh_activity_id' => $activity->id, 'person_id' => $people->id]);
                             }
                         }
                     }
+                if (isset($data['days'])) {
+
                     if (count($data['people_id']) > 0 ||  !$idToUpdate) {
                         if (!in_array('0', $data['people_id'])) {
 
@@ -191,6 +196,15 @@ class RrhhActivityController extends Controller
         $activity = RrhhActivity::find($id);
         $activity->state = 'Anulada';
         $activity->save();
-        return  $this->success('Actualizado con éxito');
+        return  $this->success('Día anulado con éxito');
+    }
+
+    public function cancelCycle(Request $request, $rrhh_cycle_id)
+    {
+        $activity = RrhhActivity::where('rrhh_activity_cycle_id', $rrhh_cycle_id);
+        $activity->update($request->all());
+        /* $activity->state = 'Anulada';
+        $activity->save(); */
+        return  $this->success('Ciclo anulado con éxito');
     }
 }
