@@ -20,7 +20,7 @@ class RrhhActivity extends Model
         'dependency_id',
         'hour_start',
         'hour_end',
-        'rrhh_activity_cycle_id'
+        'code'
     ];
 
 

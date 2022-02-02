@@ -11,6 +11,7 @@ use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class RrhhActivityController extends Controller
 {
@@ -63,10 +64,8 @@ class RrhhActivityController extends Controller
 
             $inicio = Carbon::parse($data['date_start']);
             $fin = Carbon::parse($data['date_end']);
+            $code = Str::random(10);
 
-
-            // $a =  RrhhActivity::where('id', $request->get('id'))->get();
-            if(!$request->get('id')){$cycle = RrhhActivityCycle::create();}
             for ($i = $inicio; $i <= $fin; $i->addDay(1)) {
 
                     $date1 = $i->format('d M Y');
@@ -80,7 +79,7 @@ class RrhhActivityController extends Controller
 
                     $description =  'Fecha: ' . $date1 . ' : ' . $data['hour_start'] . ' - '
                         . $date2 . ' : ' . $data['hour_end'] . ' Actividad: ' . $data['description'];
-                    if(!$request->get('id')){$data['rrhh_activity_cycle_id'] = $cycle->id;}    
+                    !$request->get('id') ? $data['code'] = $code : null;
                     $activity = RrhhActivity::updateOrCreate([ 'id' => $request->get('id') ], $data );
                     $idToUpdate =  $request->get('id');
                     if ( $idToUpdate ) {
@@ -199,12 +198,10 @@ class RrhhActivityController extends Controller
         return  $this->success('Día anulado con éxito');
     }
 
-    public function cancelCycle(Request $request, $rrhh_cycle_id)
+    public function cancelCycle(Request $request, $code)
     {
-        $activity = RrhhActivity::where('rrhh_activity_cycle_id', $rrhh_cycle_id);
+        $activity = RrhhActivity::where('code', $code);
         $activity->update($request->all());
-        /* $activity->state = 'Anulada';
-        $activity->save(); */
         return  $this->success('Ciclo anulado con éxito');
     }
 }
