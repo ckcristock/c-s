@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MemorandumTypes;
+use App\Models\MemorandumType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class MemorandumTypesController extends Controller
+class MemorandumTypeController extends Controller
 {
     use ApiResponser;
     /**
@@ -20,7 +20,7 @@ class MemorandumTypesController extends Controller
         $page = key_exists('page', $data) ? $data['page'] : 1;
         $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 5;
         return $this->success(
-            MemorandumTypes::select(
+            MemorandumType::select(
                 'id as value',
                 'name as text',
                 'status'
@@ -32,7 +32,7 @@ class MemorandumTypesController extends Controller
     public function getListLimitated()
     {
         return $this->success(
-            MemorandumTypes::select(
+            MemorandumType::select(
                 'id as value',
                 'name as text',
                 'status'
@@ -61,7 +61,7 @@ class MemorandumTypesController extends Controller
     public function store(Request $request)
     {
         try {
-            MemorandumTypes::updateOrCreate([ 'id'=> $request->get('id') ], $request->all());
+            MemorandumType::updateOrCreate([ 'id'=> $request->get('id') ], $request->all());
             return $this->success('creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

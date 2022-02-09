@@ -18,4 +18,9 @@ class Memorandum extends Model
         'approve_user_id'
     ];
     protected $table = 'memorandums';
+
+    public function memorandumtype()
+    {
+        return $this->belongsTo(MemorandumType::class, 'memorandum_type_id');
+    }
 }

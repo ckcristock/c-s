@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Annotation;
+use App\Models\MemorandumInvolved;
+use App\Models\PersonInvolved;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 
-class AnnotationController extends Controller
+class PersonInvolvedController extends Controller
 {
     use ApiResponser;
     /**
@@ -38,14 +39,21 @@ class AnnotationController extends Controller
     public function store(Request $request)
     {
         try {
-            $base64 = saveBase64File($request->file, 'monitoring_disciplinary_process/', false, '.pdf');
-            URL::to('/') . '/api/file?path=' . $base64;
-            Annotation::create([
-                'user_id' => auth()->user()->id,
-                'description' => $request->description,
-                'file' => $base64,
-                'disciplinary_process_id' => $request->disciplinary_process_id
-            ]);
+            $base64 = saveBase64File($request->file, 'evidencia/', false, '.pdf');
+                URL::to('/') . '/api/file?path=' . $base64;
+                $annotation = PersonInvolved::create([
+                    'user_id' => auth()->user()->id,
+                    'observation' => $request->observation,
+                    'file' => $base64,
+                    'disciplinary_process_id' => $request->disciplinary_process_id,
+                    'person_id' => $request->person_id
+                ]);
+                foreach ($request->memorandums as $memorandum) {
+                   MemorandumInvolved::create([
+                     'person_involved_id' => $annotation['id'],
+                     'memorandum_id' => $memorandum['id']
+                   ]);
+                }
             return $this->success('Guardado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
@@ -61,11 +69,20 @@ class AnnotationController extends Controller
     public function show($id)
     {
         return $this->success(
-            Annotation::where('disciplinary_process_id', $id)->with([
+            PersonInvolved::where('disciplinary_process_id', $id)
+            ->where('state', 'Activo')
+            ->with([
                 'user' => function($q){
                     $q->select('id', 'person_id');
                 }
-            ])->get()
+            ])
+            ->with([
+                'person' => function($q){
+                    $q->select('id', 'first_name', 'second_name', 'first_surname', 'second_surname');
+                }
+            ])
+            ->with('memorandumInvolved')
+            ->get()
         );
     }
 
@@ -89,7 +106,14 @@ class AnnotationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            $annotation = PersonInvolved::where('id', '=', $id)->first();
+            $annotation->fill($request->all());
+            $annotation->save();
+            return $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**

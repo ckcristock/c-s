@@ -79,7 +79,7 @@ use App\Http\Controllers\RotatingTurnController;
 use App\Http\Controllers\RrhhActivityController;
 use App\Http\Controllers\RrhhActivityTypeController;
 use App\Http\Controllers\SeveranceFundController;
-use App\Http\Controllers\MemorandumTypesController;
+use App\Http\Controllers\MemorandumTypeController;
 use App\Http\Controllers\PayrollConfigController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PayrollOvertimeController;
@@ -101,7 +101,7 @@ use App\Http\Controllers\ThirdPartyFieldController;
 use App\Http\Controllers\ThirdPartyPersonController;
 use App\Http\Controllers\TravelExpenseController;
 use App\Http\Controllers\TravelExpenseEstimationController;
-use App\Http\Controllers\AnnotationController;
+use App\Http\Controllers\PersonInvolvedController;
 use App\Http\Controllers\TravelExpenseEstimationInternationalController;
 use App\Http\Controllers\TravelExpenseEstimationNationalController;
 use App\Http\Controllers\TravelExpenseEstimationValueController;
@@ -395,7 +395,7 @@ Route::group(
 		/* Route::resource('inventary-dotation-group', ProductDotationType::class); */
 		Route::resource('work_contracts', WorkContractController::class);
 		Route::resource('memorandum', MemorandumController::class);
-		Route::resource('type_memorandum', MemorandumTypesController::class);
+		Route::resource('type_memorandum', MemorandumTypeController::class);
 		Route::resource('disciplinary_process', DisciplinaryProcessController::class);
 		Route::resource('salaryTypes', SalaryTypesController::class);
 		Route::resource('rotating-hour', RotatingTurnHourController::class);
@@ -458,7 +458,7 @@ Route::group(
 		Route::resource('travelExpenseEstimationValue', TravelExpenseEstimationValuesController::class);
 		Route::resource('apu-service', ApuServiceController::class);
 		Route::resource('lunch-value', LunchValueController::class);
-		Route::resource('annotation', AnnotationController::class);
+		Route::resource('annotation', PersonInvolvedController::class);
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -517,7 +517,7 @@ Route::group(
 		Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
 		Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
 		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
-		Route::get('ListLimitated', [memorandumTypesController::class, 'getListLimitated']);
+		Route::get('ListLimitated', [memorandumTypeController::class, 'getListLimitated']);
 		Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
 		Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
 		// !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);

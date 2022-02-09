@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\DisciplinaryProcess;
 use App\Models\LegalDocument;
+use App\Models\MemorandumInvolved;
+use App\Models\PersonInvolved;
 use App\Traits\ApiResponser;
 use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
@@ -20,12 +22,43 @@ class DisciplinaryProcessController extends Controller
      */
     public function index()
     {
-        $data = Request()->all();
+        $query = DisciplinaryProcess::with([
+            'person' => function($q){ 
+                $q->select('id', 'first_name', 'second_name', 'first_surname', 'second_surname');
+            }
+        ])
+        ->with('personInvolved')
+        ->whereHas('personInvolved.person', function($q)
+        {
+            $q->when( request()->get('involved') , function($q, $fill)
+            {
+                $q->where(DB::raw('concat(first_name, " ",first_surname)'), 'like', '%' . $fill . '%');
+            });
+        })
+        ->orWhereDoesntHave('personInvolved.person')
+        ->whereHas('person', function($q) {
+            $q->when( request()->get('person') , function($q, $fill)
+                {
+                    $q->where(DB::raw('concat(first_name, " ",first_surname)'), 'like', '%' . $fill . '%');
+                });
+        })
+        ->when( request()->get('status'), function($q, $fill) {
+            if (request()->get('status') == 'Todos') {
+                return null;
+            } else {
+                $q->where('status', 'like', '%' . $fill . '%');
+            }
+            })
+            ->when( request()->get('code'), function($q, $fill) {
+                $q->where('code', 'like', '%' . $fill . '%');
+            })
+        /* $data = Request()->all();
         $page = key_exists('page', $data) ? $data['page'] : 1;
         $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 5;
         return $this->success(
             DB::table('people as p')
                 ->select(
+                    'd.code',
                     'p.first_name',
                     'p.second_name',
                     'p.first_surname',
@@ -49,13 +82,14 @@ class DisciplinaryProcessController extends Controller
                         return null;
                     } else {
                         $q->where('d.status', 'like', '%' . $fill . '%');
-                    }
+                    }il
                 })
                 ->when( Request()->get('code'), function($q, $fill) {
-                    $q->where('d.id', 'like', '%' . $fill . '%');
-                })
-                ->paginate($pageSize, ['*'],'page', $page)
-        );
+                    $q->where('d.code', 'like', '%' . $fill . '%');
+                }) */
+                ->orderBy('created_at', 'DESC')
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+        return $this->success($query);
     }
 
     /* public function getHistory(){
@@ -81,17 +115,40 @@ class DisciplinaryProcessController extends Controller
     public function store(Request $request)
     {
         try {
-            $data = $request->all();
+            $data = $request->except(['involved']);
+            $involves = request()->get('involved');
             $type = '.'. $request->type;
-            $base64 = saveBase64File( $data["file"], 'descargos/', false, $type);
+            $base64 = saveBase64File( $data["file"], 'evidencia/', false, $type);
             $data["file"] = URL::to('/') . '/api/file?path=' . $base64;
-            DisciplinaryProcess::create([
+            $dp = DisciplinaryProcess::create([
                 'person_id' => $request->person_id,
                 'process_description' => $request->process_description,
                 'date_of_admission' => $request->date_of_admission,
                 'date_end' => $request->date_end,
                 'file' => $base64
             ]);
+            $id = $dp->id;
+            $dp["code"] = 'P' . $id;
+            $dp->save();
+            foreach ($involves as $involved) {
+                $base64 = saveBase64File($involved['file'], 'evidencia/', false, '.pdf');
+                URL::to('/') . '/api/file?path=' . $base64;
+                $annotation = PersonInvolved::create([
+                    'user_id' => auth()->user()->id,
+                    'observation' => $involved['observation'],
+                    'file' => $base64,
+                    'disciplinary_process_id' => $dp->id,
+                    'person_id' => $involved['person_id']
+                ]);
+				/* $involved["disciplinary_process_id"] = $dp->id;
+                $annotation = Annotation::create($involved); */
+                foreach ($involved['memorandums'] as $memorandum) {
+                   MemorandumInvolved::create([
+                     'person_involved_id' => $annotation['id'],
+                     'memorandum_id' => $memorandum['id']
+                   ]);
+                }
+            }
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error([$th->getMessage(), $th->getLine(), $th->getFile()], 500);
@@ -209,12 +266,12 @@ class DisciplinaryProcessController extends Controller
             // Si existe
             $proceso->fill($request->all());
             $proceso->save();
-            $base64 = saveBase64File($request->file, 'legal_documents/', false, '.pdf');
-            URL::to('/') . '/api/file?path=' . $base64;
-            LegalDocument::create([
-                'file' => $base64,
-                'disciplinary_process_id' => $id
-            ]);
+            // $base64 = saveBase64File($request->file, 'legal_documents/', false, '.pdf');
+            // URL::to('/') . '/api/file?path=' . $base64;
+            // LegalDocument::create([
+            //     'file' => $base64,
+            //     'disciplinary_process_id' => $id
+            // ]);
             return $this->success($proceso);
         } catch (\Throwable $th) {
             //throw $th;
