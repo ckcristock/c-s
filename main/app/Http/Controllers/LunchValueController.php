@@ -16,7 +16,17 @@ class LunchValueController extends Controller
      */
     public function index()
     {
-        return $this->success(LunchValue::first());
+        return $this->success(
+            LunchValue::where('state', 'Activo')->get(['id', 'value'])
+        );
+    }
+
+    public function paginate()
+    {
+        return $this->success(
+            LunchValue::orderBy('created_at')
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
     }
 
     /**
@@ -38,11 +48,8 @@ class LunchValueController extends Controller
     public function store(Request $request)
     {
         try {
-            $value = $request->get('value');
-            $lunch = LunchValue::first();
-            $lunch->value = $value;
-            $lunch->save();
-            return $this->success('creado con éxito');
+            $value = LunchValue::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($value->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
         } catch (\Throwable $th) {
             //throw $th;
             return $this->errorResponse( $th->getFile().$th->getMessage() );

@@ -22,73 +22,38 @@ class DisciplinaryProcessController extends Controller
      */
     public function index()
     {
+        $involved = request()->get('involved');
         $query = DisciplinaryProcess::with([
             'person' => function($q){ 
                 $q->select('id', 'first_name', 'second_name', 'first_surname', 'second_surname');
-            }
+            },
+            'personInvolved',
+            'personInvolved.person'
         ])
-        ->with('personInvolved')
-        ->whereHas('personInvolved.person', function($q)
-        {
-            $q->when( request()->get('involved') , function($q, $fill)
+        ->whereHas('person', function($q) {
+            $q->when( request()->get('person') , function($q, $fill)
             {
                 $q->where(DB::raw('concat(first_name, " ",first_surname)'), 'like', '%' . $fill . '%');
             });
         })
-        ->orWhereDoesntHave('personInvolved.person')
-        ->whereHas('person', function($q) {
-            $q->when( request()->get('person') , function($q, $fill)
-                {
-                    $q->where(DB::raw('concat(first_name, " ",first_surname)'), 'like', '%' . $fill . '%');
-                });
-        })
         ->when( request()->get('status'), function($q, $fill) {
-            if (request()->get('status') == 'Todos') {
+            if (request()->get('status') == 'Todos') { 
                 return null;
-            } else {
-                $q->where('status', 'like', '%' . $fill . '%');
-            }
-            })
-            ->when( request()->get('code'), function($q, $fill) {
-                $q->where('code', 'like', '%' . $fill . '%');
-            })
-        /* $data = Request()->all();
-        $page = key_exists('page', $data) ? $data['page'] : 1;
-        $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 5;
-        return $this->success(
-            DB::table('people as p')
-                ->select(
-                    'd.code',
-                    'p.first_name',
-                    'p.second_name',
-                    'p.first_surname',
-                    'p.second_surname',
-                    'd.process_description',
-                    'd.status',
-                    'd.date_of_admission',
-                    'd.date_end',
-                    'd.id',
-                    'd.file'
-                )
-                ->when( Request()->get('person') , function($q, $fill)
-                {
-                    $q->where(DB::raw('concat(p.first_name, " ",p.first_surname)'), 'like', '%' . $fill . '%');
-                })
-                ->join('disciplinary_processes as d', function($join) {
-                    $join->on('d.person_id', '=', 'p.id');
-                })
-                ->when( Request()->get('status'), function($q, $fill) {
-                    if (request()->get('status') == 'Todos') {
-                        return null;
-                    } else {
-                        $q->where('d.status', 'like', '%' . $fill . '%');
-                    }il
-                })
-                ->when( Request()->get('code'), function($q, $fill) {
-                    $q->where('d.code', 'like', '%' . $fill . '%');
-                }) */
-                ->orderBy('created_at', 'DESC')
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+        } 
+        $q->where('status', 'like', '%' . $fill . '%');
+        })
+        ->when( request()->get('code'), function($q, $fill) {
+            $q->where('code', 'like', '%' . $fill . '%');
+        })
+        ->when($involved, function($q)
+        {
+            $q->whereHas('personInvolved.person', function($q)
+            {
+                $q->where(DB::raw('concat(first_name, " ",first_surname)'), 'like', '%' . request()->get('involved') . '%');
+            });
+        })
+        ->orderBy('created_at', 'DESC')
+        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
         return $this->success($query);
     }
 

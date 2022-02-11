@@ -7,6 +7,7 @@ use App\Models\Lunch;
 use App\Models\LunchPerson;
 use App\Models\Person;
 use App\Services\LunchDownloadService;
+use App\Services\PersonService;
 use App\Traits\ApiResponser;
 use Faker\Calculator\Luhn;
 use Illuminate\Http\Request;
@@ -23,46 +24,37 @@ class LunchController extends Controller
      */
     public function index()
     {
-        /* return $this->success(
-            Lunch::with('lunchPerson')->with([
-                'user' => function($q){
-                    $q->select('id', 'person_id');
-                }
-            ])->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
-        ); */
         return $this->success(
-            DB::table('lunch_people as lp')
+            DB::table('lunches as l')
             ->select(
                 'l.id',
-                'lp.id as lunch_person_id',
                 'l.value',
                 'p.first_name',
                 'p.first_surname',
                 'l.state',
                 'l.created_at',
-                'lp.state as personState',
+                'l.state',
                 DB::raw('concat(user.first_name," ",user.first_surname) as user')
             )
             ->when(request()->get('date_end'), function($q, $fill) 
             {
-                $q->where('l.created_at', '>=', request()->get('date_start'))
-                ->where('l.created_at', '<=', request()->get('date_end'));
-                // $q->where('l.created_at', 'like', '%'.$fill.'%');
+                $q->whereDate('l.created_at', '>=', request()->get('date_start'))
+                ->whereDate('l.created_at', '<=', request()->get('date_end'));
             })
             ->when(request()->get('date_start'), function($q, $fill) 
             {
-                $q->where('l.created_at', '>=', request()->get('date_start'))
-                ->where('l.created_at', '<=', request()->get('date_end'));
+                $q->whereDate('l.created_at', '>=', request()->get('date_start'))
+                ->whereDate('l.created_at', '<=', request()->get('date_end'));
                 // $q->where('l.created_at', 'like', '%'.$fill.'%');
             })
             ->when(request()->get('person'), function($q, $fill) 
             {
                 $q->where('lp.person_id', 'like', '%'.$fill.'%');
             })
-            ->join('lunches as l', 'l.id', '=', 'lp.lunch_id')
-            ->join('people as p', 'p.id', '=', 'lp.person_id')
+            ->join('people as p', 'p.id', '=', 'l.person_id')
             ->join('users as u', 'u.id', '=', 'l.user_id')
             ->join('people as user', 'user.id', '=', 'u.person_id')
+            ->orderByDesc('l.created_at')
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
@@ -86,14 +78,38 @@ class LunchController extends Controller
     public function store(Request $request)
     {
         try {
-            $lunch = Lunch::create([
-                'user_id' => auth()->user()->id,
-                'value' => $request->value
-            ]);
-            $lunchPerson = request()->get('persons');
-            foreach ($lunchPerson as $person) {
-                $person["lunch_id"] = $lunch->id;
-                LunchPerson::create($person);
+            $data = $request->except('people');
+            $lunches = $request->get('people');
+            // if (count($lunches) > 0) {}
+            if (!in_array('0', $data['people_id'])) {
+                foreach ($lunches as $lunch) {
+                    Lunch::create([
+                        'user_id' => auth()->user()->id,
+                        'value' => $lunch['value'],
+                        'person_id' => $lunch['person_id'],
+                        'dependency_id' => $data['dependency_id']
+                    ]);
+                }
+            } else {
+                $dataSe = [];
+                if ($data['group_id'] != '0' && $data['dependency_id'] != '0' && in_array('0', $data['people_id'])) {
+                    $dataSe = ['dependencies' => [$data['dependency_id']], 'groups' => [$data['group_id']]];
+                }
+                if ($data['group_id'] != '0' && $data['dependency_id'] == '0') {
+                    $dataSe = ['dependencies' => [$data['dependency_id']]];
+                }
+                if ($data['group_id'] == '0') {
+                    $dataSe = [];
+                }
+                $people =  PersonService::getPeople();
+                foreach ($people as $person) {
+                    Lunch::create([
+                        'user_id' => auth()->user()->id,
+                        'value' => $data['value'],
+                        'person_id' => $person->id,
+                        'dependency_id' => $data['dependency_id']
+                    ]);
+                }
             }
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
@@ -104,7 +120,7 @@ class LunchController extends Controller
     public function activateOrInactivate( Request $request )
     {
         try {
-            $state = LunchPerson::find($request->get('id'));
+            $state = Lunch::find($request->get('id'));
             $state->update($request->all());
             return $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
@@ -143,11 +159,12 @@ class LunchController extends Controller
      */
     public function update(Request $request, $id)
     {
-        /* try {
-            $lunch = $request->get('')
+        try {
+            Lunch::find($id)->update($request->all());
+            return $this->success('Valor editado con éxito');
         } catch (\Throwable $th) {
-            //throw $th;
-        } */
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -161,9 +178,10 @@ class LunchController extends Controller
         //
     }
 
-    public function download(Request $req)
+    public function download($fechaInicio, $fechaFin, Request $req)
     {
-        return Excel::download(new LunchExport(),'reporte_almuerzos.xlsx');
+        $dates = [$fechaInicio,$fechaFin];
+        return Excel::download(new LunchExport($dates),'reporte_almuerzos.xlsx');
     }
 
 }

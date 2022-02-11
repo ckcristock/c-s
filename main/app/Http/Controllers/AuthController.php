@@ -158,7 +158,7 @@ class AuthController extends Controller
 
     protected function respondWithToken($token)
     {
-        auth()->factory()->getTTL() * 525600;
+        auth()->factory()->getTTL() * 60;
 
         return $token;
         // return response()->json([

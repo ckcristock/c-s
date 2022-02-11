@@ -13,11 +13,15 @@ use Maatwebsite\Excel\Events\AfterSheet;
 
 class LunchExport implements FromCollection,  WithHeadings, ShouldAutoSize, WithEvents
 {
-
+    private $dates ;
+    public function __construct($dates)
+    {
+        $this->dates = $dates;
+    }
     public function headings(): array
     {
         return [
-          'Funcionario', 'Func. creó', 'Valor', 'Fecha', 'Estado'
+          'Funcionario', 'Func. creó', 'Valor', 'Fecha'
         ];
     }
     /**
@@ -26,7 +30,7 @@ class LunchExport implements FromCollection,  WithHeadings, ShouldAutoSize, With
     public function collection()
     {
 
-         return new Collection(LunchDownloadService::getLunches());
+         return new Collection(LunchDownloadService::getLunches($this->dates));
 
     }
 

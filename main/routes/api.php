@@ -499,6 +499,7 @@ Route::group(
 		Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
 		Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
 		Route::get('paginateApus', [ApuController::class, 'paginate']);
+		Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
 		/* Paginations */
 
 		Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -535,7 +536,7 @@ Route::group(
 		Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
 		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
 		Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
-		Route::put('state-change', [LunchControlller::class, 'activateOrInactivate']);
+		Route::put('state-change', [LunchController::class, 'activateOrInactivate']);
 		Route::get('filter-all-depencencies', [DependencyController::class, 'dependencies']);
 		Route::get('filter-all-positions', [PositionController::class, 'positions']);
 		Route::get('alert/{id}', [AttentionCallController::class, 'callAlert']);
@@ -569,7 +570,10 @@ Route::group(
 		/****** Rutas del modulo APU Servicio ******/
 		Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
 		/****** End Rutas del modulo APU Servicio ******/
-		Route::get('lunches/download', [LunchController::class, 'download']);
+		Route::get('lunches/download/{inicio?}/{fin?}', [LunchController::class, 'download'])->where([
+			'inicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+			'fin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+		]);
 		Route::get('legal_document/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'legalDocument']);
 		Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
 	}

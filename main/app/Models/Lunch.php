@@ -9,9 +9,11 @@ class Lunch extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'person_id',
         'user_id',
         'value',
-        'state'
+        'state',
+        'dependency_id'
     ];
 
     public function lunchPerson()
