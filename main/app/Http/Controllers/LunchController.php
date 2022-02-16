@@ -3,13 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Exports\LunchExport;
+use App\Models\ExtraHourReport;
 use App\Models\Lunch;
-use App\Models\LunchPerson;
-use App\Models\Person;
-use App\Services\LunchDownloadService;
 use App\Services\PersonService;
 use App\Traits\ApiResponser;
-use Faker\Calculator\Luhn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -24,39 +21,39 @@ class LunchController extends Controller
      */
     public function index()
     {
-        return $this->success(
-            DB::table('lunches as l')
-            ->select(
-                'l.id',
-                'l.value',
-                'p.first_name',
-                'p.first_surname',
-                'l.state',
-                'l.created_at',
-                'l.state',
-                DB::raw('concat(user.first_name," ",user.first_surname) as user')
-            )
-            ->when(request()->get('date_end'), function($q, $fill) 
-            {
+        $query = DB::table('lunches as l')
+        ->select(
+            'l.id',
+            'l.value',
+            'p.first_name',
+            'p.first_surname',
+            'l.state',
+            'l.created_at',
+            'l.state',
+            'l.person_id',
+            'l.apply',
+            DB::raw('concat(user.first_name," ",user.first_surname) as user')
+        )
+        ->when(request()->get('date_end'), function($q, $fill) 
+        {
                 $q->whereDate('l.created_at', '>=', request()->get('date_start'))
                 ->whereDate('l.created_at', '<=', request()->get('date_end'));
-            })
-            ->when(request()->get('date_start'), function($q, $fill) 
-            {
+        })
+        ->when(request()->get('date_start'), function($q, $fill) 
+        {
                 $q->whereDate('l.created_at', '>=', request()->get('date_start'))
                 ->whereDate('l.created_at', '<=', request()->get('date_end'));
-                // $q->where('l.created_at', 'like', '%'.$fill.'%');
-            })
-            ->when(request()->get('person'), function($q, $fill) 
-            {
-                $q->where('lp.person_id', 'like', '%'.$fill.'%');
-            })
-            ->join('people as p', 'p.id', '=', 'l.person_id')
-            ->join('users as u', 'u.id', '=', 'l.user_id')
-            ->join('people as user', 'user.id', '=', 'u.person_id')
-            ->orderByDesc('l.created_at')
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
-        );
+        })
+        ->when(request()->get('person'), function($q, $fill) 
+        {
+            $q->where('l.person_id', 'like', '%'.$fill.'%');
+        })
+        ->join('people as p', 'p.id', '=', 'l.person_id')
+        ->join('users as u', 'u.id', '=', 'l.user_id')
+        ->join('people as user', 'user.id', '=', 'u.person_id')
+        ->orderByDesc('l.created_at')
+        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+        return $this->success($query);
     }
 
     /**

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Deduction;
 use App\Models\ExtraHourReport;
+use App\Models\Lunch;
 use App\Services\ExtraHoursService;
 use App\Services\LateArrivalService;
 use App\Traits\ApiResponser;
@@ -130,8 +132,27 @@ class ExtraHoursController extends Controller
 				'rn_reales' => 'required',
 				'rf_reales' => 'required',
 			]);
-
 			ExtraHourReport::create($atributos);
+			$hed = request()->get('hed');
+			$hen = request()->get('hen');
+			$hedfd = request()->get('hedfd');
+			$hedfn = request()->get('hedfn');
+			$sum = ($hed + $hen + $hedfd + $hedfn);
+			$lunch = Lunch::where('person_id', request()->get('person_id'))->first();
+			if($sum >= 3.5){
+				if (isset($lunch)) {
+					Deduction::create([
+						'person_id' => request()->get('person_id'),
+						'countable_deduction_id' => 5,
+						'value' => $lunch->value
+					]);
+					$lunch->update(['apply' => ('Si')]);
+				}
+			} else {
+				if (isset($lunch)) {
+					$lunch->update(['apply' => ('No')]);
+				}
+			}
 			return response()->json(['message' => 'Horas extras validadas correctamente']);
 		} catch (\Throwable $th) {
 			//throw $th;
@@ -161,8 +182,27 @@ class ExtraHoursController extends Controller
 				'rn_reales' => 'required',
 				'rf_reales' => 'required',
 			]);
-
 			$validada->update($atributos);
+			$hed = request()->get('hed');
+			$hen = request()->get('hen');
+			$hedfd = request()->get('hedfd');
+			$hedfn = request()->get('hedfn');
+			$sum = ($hed + $hen + $hedfd + $hedfn);
+			$lunch = Lunch::where('person_id', request()->get('person_id'))->where('state', 'Activo')->first();
+			if($sum >= 3.5){
+				if (isset($lunch)) {
+					Deduction::create([
+						'person_id' => request()->get('person_id'),
+						'countable_deduction_id' => 5,
+						'value' => $lunch->value
+					]);
+					$lunch->update(['apply' => ('Si')]);
+				}
+			} else {
+				if (isset($lunch)) {
+					$lunch->update(['apply' => ('No')]);
+				}
+			}
 			return response()->json(['message' => 'Horas extras validadas correctamente']);
 		} catch (\Throwable $th) {
 			//throw $th;

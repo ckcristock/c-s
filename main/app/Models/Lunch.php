@@ -13,7 +13,8 @@ class Lunch extends Model
         'user_id',
         'value',
         'state',
-        'dependency_id'
+        'dependency_id',
+        'apply'
     ];
 
     public function lunchPerson()
