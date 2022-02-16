@@ -141,15 +141,15 @@ class ExtraHoursController extends Controller
 			$lunch = Lunch::where('person_id', request()->get('person_id'))->first();
 			if($sum >= 3.5){
 				if (isset($lunch)) {
+					$lunch->update(['apply' => ('Si')]);
+				}
+			} else {
+				if (isset($lunch)) {
 					Deduction::create([
 						'person_id' => request()->get('person_id'),
 						'countable_deduction_id' => 5,
 						'value' => $lunch->value
 					]);
-					$lunch->update(['apply' => ('Si')]);
-				}
-			} else {
-				if (isset($lunch)) {
 					$lunch->update(['apply' => ('No')]);
 				}
 			}
