@@ -21,6 +21,7 @@ class AuthController extends Controller
     {
     }
 
+
     public function login(Request $request)
     {
         $credentials = $request->only('user', 'password');
@@ -132,7 +133,7 @@ class AuthController extends Controller
                     'person' => function ($q) {
                         $q->select('*');
                     },
-                    
+
                 ]
             )->find($user->id);
 
