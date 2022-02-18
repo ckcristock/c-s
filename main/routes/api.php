@@ -114,7 +114,8 @@ use App\Http\Controllers\WorkContractTypeController;
 use App\Http\Controllers\ZonesController;
 use App\Http\Controllers\LunchValueController;
 use App\Http\Controllers\LunchController;
-
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
 use App\Models\Budget;
 use App\Models\TravelExpenseEstimationValue;
 use App\Models\TravelExpenseEstimationValues;
@@ -241,7 +242,7 @@ Route::group(
 		Route::get('parametrizacion/nomina/ssocial_funcionario', [PayrollConfigController::class, 'sSocialFuncionarioDatos']);
 
 
-		
+
 		/**/
 
 
@@ -459,6 +460,8 @@ Route::group(
 		Route::resource('apu-service', ApuServiceController::class);
 		Route::resource('lunch-value', LunchValueController::class);
 		Route::resource('annotation', PersonInvolvedController::class);
+		Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
+
 
 		/* Paginations */
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -527,6 +530,12 @@ Route::group(
 		Route::get('companyData', [CompanyController::class, 'getBasicData']);
 		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
 		Route::get('/company-global', [CompanyController::class, 'getGlobal']);
+
+
+        Route::resource("product", ProductController::class);
+
+        Route::resource("category", CategoryController::class);
+
 
 
 		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
