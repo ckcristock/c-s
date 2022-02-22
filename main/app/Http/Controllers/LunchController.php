@@ -51,6 +51,7 @@ class LunchController extends Controller
         ->join('people as p', 'p.id', '=', 'l.person_id')
         ->join('users as u', 'u.id', '=', 'l.user_id')
         ->join('people as user', 'user.id', '=', 'u.person_id')
+        ->where('l.state', 'Activo')
         ->orderByDesc('l.created_at')
         ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
         return $this->success($query);
