@@ -575,6 +575,8 @@ Route::group(
 			'fin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
 		]);
 		Route::get('legal_document/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'legalDocument']);
+		Route::post('legal_document', [DisciplinaryProcessController::class, 'saveLegalDocument']);
+		Route::put('legal_document/{id}', [DisciplinaryProcessController::class, 'InactiveDOcument']);
 		Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
 	}
 );

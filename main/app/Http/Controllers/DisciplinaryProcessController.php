@@ -93,7 +93,7 @@ class DisciplinaryProcessController extends Controller
                 'file' => $base64
             ]);
             $id = $dp->id;
-            $dp["code"] = 'P' . $id;
+            $dp["code"] = 'PD' . $id;
             $dp->save();
             foreach ($involves as $involved) {
                 $base64 = saveBase64File($involved['file'], 'evidencia/', false, '.pdf');
@@ -209,10 +209,47 @@ class DisciplinaryProcessController extends Controller
 
     }
 
+    public function saveLegalDocument( Request $request )
+    {
+        try {
+            $files = $request->all();
+            foreach ($files as $file) {
+                $type = '.' . $file['type'];
+                if ($file['type'] == 'jpeg' || $file['type'] == 'jpg' || $file['type'] == 'png') {
+                    $base64 = saveBase64($file['file'], 'legal_documents/', true, $type);
+                    URL::to('/') . '/api/image?path=' . $base64;
+                } else {
+                    $base64 = saveBase64File($file['file'], 'legal_documents/', false, '.pdf');
+                    URL::to('/') . '/api/file?path=' . $base64;
+                }
+                LegalDocument::create([
+                    'file' => $base64,
+                    'disciplinary_process_id' => $file['disciplinary_process_id'],
+                    'name' => $file['name'],
+                    'type' => $file['type']
+                ]);
+            }
+			return $this->success("Guardado con éxito");
+        } catch (\Throwable $th) {
+			return $this->errorResponse($th->getMessage(), 500);
+        }
+    }
+
+    public function InactiveDOcument(Request $request, $id) 
+    {
+        try {
+            $doc = LegalDocument::where('id', '=', $id)->first();
+            $doc->update($request->all());
+            return $this->success('Estado cambiado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
     public function legalDocument($id)
     {
         return $this->success(
-            LegalDocument::where('disciplinary_process_id', $id)->first()
+            LegalDocument::where('disciplinary_process_id', $id)->where('state', 'Activo')->get()
         );
     }
 
