@@ -64,7 +64,7 @@ class RrhhActivityController extends Controller
 
             $inicio = Carbon::parse($data['date_start']);
             $fin = Carbon::parse($data['date_end']);
-            $code = Str::random(10);
+            $code = Str::random(25);
 
             for ($i = $inicio; $i <= $fin; $i->addDay(1)) {
 
