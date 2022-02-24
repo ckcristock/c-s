@@ -55,8 +55,8 @@ class RrhhActivityController extends Controller
                     ->get()
             );
     }
-
-    public function store(Request $request)
+    
+    /* public function store(Request $request)
     {
         try {
 
@@ -64,9 +64,10 @@ class RrhhActivityController extends Controller
 
             $inicio = Carbon::parse($data['date_start']);
             $fin = Carbon::parse($data['date_end']);
-            $code = Str::random(25);
+
 
             for ($i = $inicio; $i <= $fin; $i->addDay(1)) {
+                if (in_array($i->englishDayOfWeek, $data['days'])) {
 
                     $date1 = $i->format('d M Y');
 
@@ -79,21 +80,23 @@ class RrhhActivityController extends Controller
 
                     $description =  'Fecha: ' . $date1 . ' : ' . $data['hour_start'] . ' - '
                         . $date2 . ' : ' . $data['hour_end'] . ' Actividad: ' . $data['description'];
-                    !$request->get('id') ? $data['code'] = $code : null;
-                    $activity = RrhhActivity::updateOrCreate([ 'id' => $request->get('id') ], $data );
+
+                    $activity = RrhhActivity::updateOrCreate(
+                        ['id' => $request->get('id')],
+                        $data
+                    );
                     $idToUpdate =  $request->get('id');
-                    if ( $idToUpdate ) {
-                        Alert::where('type', 'Actividad')->where('destination_id', $idToUpdate)->delete();
+                    if ($idToUpdate) {
+                        DB::table('alerts')->where('type', 'Actividad')->where('destination_id', $idToUpdate)->delete();
 
                         if (count($data['people_id']) > 0) {
-                            RrhhActivityPerson::where('rrhh_activity_id',  $idToUpdate)->delete();
-                        // } else {
-                            foreach ($data['people_id'] as $person_id) {
-                                RrhhActivityPerson::create(['rrhh_activity_id' => $idToUpdate, 'person_id' => $person_id]);
-                            }
-                            
-                            $peopleList = RrhhActivityPerson::where('rrhh_activity_id', $idToUpdate)
-                            ->get();
+                            DB::table('rrhh_activity_people')->where('rrhh_activity_id',  $idToUpdate)->delete();
+                        } else {
+
+
+                            $peopleList = DB::table('rrhh_activity_people')
+                                ->where('rrhh_activity_id', $idToUpdate)
+                                ->get('id');
 
                             foreach ($peopleList as $people) {
 
@@ -112,8 +115,6 @@ class RrhhActivityController extends Controller
                             }
                         }
                     }
-                if (isset($data['days'])) {
-
                     if (count($data['people_id']) > 0 ||  !$idToUpdate) {
                         if (!in_array('0', $data['people_id'])) {
 
@@ -144,11 +145,7 @@ class RrhhActivityController extends Controller
                                 $dataSe = [];
                             }
                             $people =  PersonService::getPeople();
-
-                            /* return response($people); */
-
                             foreach ($people as $person) {
-                                //insertAlert($value["IDENTIFICACION"], $modelo["Fecha_Inicio"], $modelo["Detalles"]);
                                 Alert::create(
                                     [
                                         'person_id' => $person->id,
@@ -168,9 +165,128 @@ class RrhhActivityController extends Controller
                     }
                 }
             }
+
+
+
             return $this->success('Guardado con éxito');
         } catch (\Throwable $th) {
             //throw $th;
+            return $this->error($th->getMessage() . $th->getLine() . $th->getFile(), 500);
+        }
+    } */
+
+    public function store(Request $request)
+    {
+        try {
+
+            $data = $request->all();
+
+            $inicio = Carbon::parse($data['date_start']);
+            $fin = Carbon::parse($data['date_end']);
+            $code = Str::random(25);
+            
+            for ($i = $inicio; $i <= $fin; $i->addDay(1)) {
+                $date1 = $i->format('d M Y');
+
+                $date2 = $i->format('d M Y');
+
+
+                $data['user_id'] = auth()->user()->id;
+                $data['date_start'] = $i->format('Y-m-d');
+                $data['date_end'] = $i->format('Y-m-d');
+                $description =  'Fecha: ' . $date1 . ' : ' . $data['hour_start'] . ' - '
+                . $date2 . ' : ' . $data['hour_end'] . ' Actividad: ' . $data['description'];
+                $idToUpdate =  $request->get('id');
+                if (in_array($i->englishDayOfWeek, $data['days'])) {
+                    !$request->get('id') ? $data['code'] = $code : null;
+                    // $activity = RrhhActivity::updateOrCreate([ 'id' => $request->get('id') ], $data );
+                    $activity = RrhhActivity::create( $data );
+
+                    if (isset($data['days'])) {
+
+                        if (count($data['people_id']) > 0 ||  !$idToUpdate) {
+                            if (!in_array('0', $data['people_id'])) {
+
+                                foreach ($data['people_id']  as $person_id) {
+                                    Alert::create(
+                                        [
+                                            'person_id' => $person_id,
+                                            'user_id' => $data['user_id'],
+                                            'type' => 'Actividad',
+                                            'icon' => 'fa fa-calendar-day',
+                                            'title' =>  $data['name'],
+                                            'description' => $description,
+                                            'modal' =>  1,
+                                            'destination_id' => $activity->id
+                                        ]
+                                    );
+                                    RrhhActivityPerson::create(['rrhh_activity_id' => $activity->id, 'person_id' => $person_id]);
+                                }
+                            } else {
+                                $dataSe = [];
+                                if ($data['group_id'] != '0' && $data['dependency_id'] != '0' && in_array('0', $data['people_id'])) {
+                                    $dataSe = ['dependencies' => [$data['dependency_id']], 'groups' => [$data['group_id']]];
+                                }
+                                if ($data['group_id'] != '0' && $data['dependency_id'] == '0') {
+                                    $dataSe = ['dependencies' => [$data['dependency_id']]];
+                                }
+                                if ($data['group_id'] == '0') {
+                                    $dataSe = [];
+                                }
+                                $people =  PersonService::getPeople();
+
+                                foreach ($people as $person) {
+                                    Alert::create(
+                                        [
+                                            'person_id' => $person->id,
+                                            'user_id' => $data['user_id'],
+                                            'type' => 'Actividad',
+                                            'icon' => 'fa fa-calendar-day',
+                                            'title' =>  $data['name'],
+                                            'description' => $description,
+
+                                            'modal' =>  1,
+                                            'destination_id' => $activity->id
+                                        ]
+                                    );
+                                    RrhhActivityPerson::create(['rrhh_activity_id' => $activity->id, 'person_id' => $person->id]);
+                                }
+                            }
+                        }
+                    }
+                } 
+                if ($idToUpdate) {
+                    Alert::where('type', 'Actividad')->where('destination_id', $idToUpdate)->delete();
+                    RrhhActivity::find($idToUpdate)->update($data);
+                    if (count($data['people_id']) > 0) {
+                        RrhhActivityPerson::where('rrhh_activity_id',  $idToUpdate)->delete();
+                        foreach ($data['people_id'] as $person_id) {
+                            RrhhActivityPerson::create(['rrhh_activity_id' => $idToUpdate, 'person_id' => $person_id]);
+                        }
+                        
+                        $peopleList = RrhhActivityPerson::where('rrhh_activity_id', $idToUpdate)
+                        ->get();
+
+                        foreach ($peopleList as $people) {
+
+                            Alert::create(
+                                [
+                                    'person_id' => $people->id,
+                                    'user_id' => $data['user_id'],
+                                    'type' => 'Actividad',
+                                    'icon' => 'fa fa-calendar-day',
+                                    'title' =>  $data['name'],
+                                    'description' => $description,
+                                    'modal' =>  1,
+                                    'destination_id' => $data['id']
+                                ]
+                            );
+                        }
+                    }
+                }
+            }
+            return $this->success('Guardado con éxito');
+        } catch (\Throwable $th) {
             return $this->error($th->getMessage() . $th->getLine() . $th->getFile(), 500);
         }
     }
