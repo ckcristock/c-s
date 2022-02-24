@@ -39,12 +39,19 @@ class PersonInvolvedController extends Controller
     public function store(Request $request)
     {
         try {
-            $base64 = saveBase64File($request->file, 'evidencia/', false, '.pdf');
+            $type = '.'. $request->type;
+            if ($request->type == 'jpeg' || $request->type == 'jpg' || $request->type == 'png') {
+                $base64 = saveBase64($request->file, 'evidencia/', true, $type);
+                URL::to('/') . '/api/image?path=' . $base64;
+            } else {
+                $base64 = saveBase64File($request->file, 'evidencia/', false, $type);
                 URL::to('/') . '/api/file?path=' . $base64;
+            }
                 $annotation = PersonInvolved::create([
                     'user_id' => auth()->user()->id,
                     'observation' => $request->observation,
                     'file' => $base64,
+                    'fileType' => $request->type,
                     'disciplinary_process_id' => $request->disciplinary_process_id,
                     'person_id' => $request->person_id
                 ]);

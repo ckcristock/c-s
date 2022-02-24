@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class PersonInvolved extends Model
 {
     use HasFactory;
-    protected $fillable = ['observation', 'disciplinary_process_id', 'file', 'user_id', 'person_id', 'state'];
+    protected $fillable = ['observation', 'disciplinary_process_id', 'file', 'fileType', 'user_id', 'person_id', 'state'];
 
     public function user()
     {

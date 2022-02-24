@@ -83,27 +83,44 @@ class DisciplinaryProcessController extends Controller
             $data = $request->except(['involved']);
             $involves = request()->get('involved');
             $type = '.'. $request->type;
-            $base64 = saveBase64File( $data["file"], 'evidencia/', false, $type);
-            $data["file"] = URL::to('/') . '/api/file?path=' . $base64;
+            if ($request->type == 'jpeg' || $request->type == 'jpg' || $request->type == 'png') {
+                $base64 = saveBase64($data["file"], 'evidencia/', false, $type);
+                URL::to('/') . '/api/image?path=' . $base64;
+            } else {
+                $base64 = saveBase64File($data["file"], 'evidencia/', false, '.pdf');
+                URL::to('/') . '/api/file?path=' . $base64;
+            }
+            // $base64 = saveBase64File( $data["file"], 'evidencia/', false, $type);
+            // $data["file"] = URL::to('/') . '/api/file?path=' . $base64;
             $dp = DisciplinaryProcess::create([
                 'person_id' => $request->person_id,
                 'process_description' => $request->process_description,
                 'date_of_admission' => $request->date_of_admission,
                 'date_end' => $request->date_end,
-                'file' => $base64
+                'file' => $base64,
+                'fileType' => $data["type"]
             ]);
             $id = $dp->id;
             $dp["code"] = 'PD' . $id;
             $dp->save();
             foreach ($involves as $involved) {
-                $base64 = saveBase64File($involved['file'], 'evidencia/', false, '.pdf');
-                URL::to('/') . '/api/file?path=' . $base64;
+                $type = '.'. $involved['type'];
+                if ($involved['type'] == 'jpeg' || $involved['type'] == 'jpg' || $involved['type'] == 'png') {
+                    $base64 = saveBase64($involved["file"], 'evidencia/', false, $type);
+                    URL::to('/') . '/api/image?path=' . $base64;
+                } else {
+                    $base64 = saveBase64File($involved["file"], 'evidencia/', false, $type);
+                    URL::to('/') . '/api/file?path=' . $base64;
+                }
+                // $base64 = saveBase64File($involved['file'], 'evidencia/', false, $type);
+                // URL::to('/') . '/api/file?path=' . $base64;
                 $annotation = PersonInvolved::create([
                     'user_id' => auth()->user()->id,
                     'observation' => $involved['observation'],
                     'file' => $base64,
                     'disciplinary_process_id' => $dp->id,
-                    'person_id' => $involved['person_id']
+                    'person_id' => $involved['person_id'],
+                    'fileType' => $involved["type"]
                 ]);
 				/* $involved["disciplinary_process_id"] = $dp->id;
                 $annotation = Annotation::create($involved); */

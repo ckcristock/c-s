@@ -18,7 +18,8 @@ class DisciplinaryProcess extends Model
         'status',
         'file',
         'approve_user_id',
-        'close_description'
+        'close_description',
+        'fileType'
     ];
 
     public function person()
