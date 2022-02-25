@@ -7,6 +7,9 @@ use App\Models\MaterialField;
 use App\Models\MaterialThickness;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use App\Services\ProductService;
+
+
 
 class MaterialController extends Controller
 {
@@ -61,7 +64,15 @@ class MaterialController extends Controller
      */
     public function store(Request $request)
     {
+
+        $data = $request->all();
+
+        $product = ProductService::saveProduct($data);
+
+
         $material = $request->except('fields');
+        $material['product_id'] = $product->id;
+
         $fields = $request->get('fields');
         $thicknesses = $request->get('thicknesses');
         try {
@@ -70,10 +81,7 @@ class MaterialController extends Controller
                 $field["material_id"] = $materialDB->id;
                 MaterialField::create($field);
             }
-            foreach ($thicknesses as $thickness) {
-                $thickness["material_id"] = $materialDB->id;
-                MaterialThickness::create($thickness);
-            }
+
             return $this->success('Creado con éxtio');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), $th->getLine(), $th->getFile(), 500);
@@ -141,7 +149,7 @@ class MaterialController extends Controller
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
-        
+
     }
 
     /**

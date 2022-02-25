@@ -130,10 +130,10 @@ class AuthController extends Controller
 
             $user = User::with(
                 [
-                    'person' => function ($q) {
-                        $q->select('*');
-                    },
-
+                'person' => function ($q) {
+                    $q->select('*')->with('companies','companyWorked')
+                    ;
+                }
                 ]
             )->find($user->id);
 
