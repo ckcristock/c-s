@@ -33,8 +33,17 @@ class MaterialController extends Controller
             Material::orderBy('name')
                 ->with('materialField')
                 ->with('materialThickness')
+                ->with([
+                    'product' => function ($q) {
+                        $q->select("Id_Producto","Codigo_Barras", "Tipo_Catalogo", "Id_Categoria", "Id_Subcategoria");
+                    }
+                    ])
+
                 ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get('company_id'), function ($q, $fill) {
+                    $q->where('company_id',  $fill );
                 })
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
@@ -126,10 +135,17 @@ class MaterialController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $data = $request->all();
+
 
         $material = $request->except('fields');
         $fields = $request->get('fields');
         $thicknesses = $request->get('thicknesses');
+
+        $dynamic = request()->get("dynamic");
+        ProductService::updateProduct($data, $dynamic);
+
+
         if (!$material) {
             return response()->json(['message' => 'Material no encontrado'], 404);
         }

@@ -35,6 +35,14 @@ class ProductService
         }
     }
 
+    static function updateProduct($data, $dynamic){
+
+        foreach ($dynamic as $d) {
+            $d['product_id'] = $data["product_id"];
+            VariableProduct::updateOrCreate(['id' => $d["id"]], $d);
+        }
+    }
+
 
 
 

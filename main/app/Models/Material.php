@@ -38,4 +38,9 @@ class Material extends Model
     {
         return $this->hasMany(MaterialThickness::class)->with('thickness');
     }
+
+    public function product()
+    {
+        return $this->hasOne(Product::class, 'Id_Producto', "product_id");
+    }
 }

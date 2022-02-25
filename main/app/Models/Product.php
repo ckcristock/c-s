@@ -66,6 +66,8 @@ class Product extends Model
         'Id_Tipo_Activo_Fijo',
         'Orden_Compra'
     ];
+
+  
 }
 
 
