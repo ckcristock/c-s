@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Dotation;
 use App\Models\DotationProduct;
 use App\Models\InventaryDotation;
+use App\Models\ProductDotationType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -347,5 +348,13 @@ class DotationController extends Controller
 
     return $this->success($d);
 
+    }
+
+    public function getDotationType()
+    {
+
+        return $this->success(
+            ProductDotationType::orderBy('id', 'ASC')->get(['name As text', 'id As value'])
+        );
     }
 }

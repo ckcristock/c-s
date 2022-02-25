@@ -8,12 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Company extends Model
 {
     use HasFactory;
+    public function scopeWithWhereHas($query, $relation, $constraint)
+    {
+        return $query->whereHas($relation, $constraint)
+            ->with([$relation => $constraint]);
+    }
     protected $fillable = [
       'constitution_date',
       'document_number',
       'document_type',
       'email_contact',
       'phone',
+      'id',
       'social_reason',
       'verification_digit',
       'max_extras_hours',
@@ -36,6 +42,8 @@ class Company extends Model
       'account_type',
       'logo'
     ];
+
+
 
     public function arl()
     {

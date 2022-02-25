@@ -39,9 +39,11 @@ class Person extends Model
         'personId',
         'persistedFaceId',
         'arl_id',
-        'status'
+        "company_id",
+        'status',
+        'company_worked_id'
     ];
-    
+
     public function getFullNameAttribute()
     {
         return $this->attributes['first_name'] . ' ' . $this->attributes['first_surname'];
@@ -84,7 +86,7 @@ class Person extends Model
         return $this->hasMany(LateArrival::class);
     }
 
-    
+
     /**
      * Un funcionario puede tener varios diarios fijos (dias de un turno fijo) (1,2,3,4,5 ó 6 a la semana)
      *
@@ -94,7 +96,7 @@ class Person extends Model
     {
         return $this->hasMany(DiarioTurnoFijo::class);
     }
- 
+
     public function diariosTurnoRotativo()
     {
         return $this->hasMany(DiarioTurnoRotativo::class);
@@ -122,5 +124,17 @@ class Person extends Model
     {
         return $this->belongsTo(DocumentTypes::class,'type_document_id');
     }
+
+    public function companies()
+    {
+        return $this->belongsToMany(Company::class);
+    }
+
+    public function companyWorked()
+    {
+        return $this->belongsTo(Company::class,'company_worked_id');
+    }
+
+
 
 }
