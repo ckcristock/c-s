@@ -133,11 +133,11 @@ class ExtraHoursController extends Controller
 				'rf_reales' => 'required',
 			]);
 			ExtraHourReport::create($atributos);
-			$hed = request()->get('hed');
-			$hen = request()->get('hen');
-			$hedfd = request()->get('hedfd');
-			$hedfn = request()->get('hedfn');
-			$sum = ($hed + $hen + $hedfd + $hedfn);
+			$hed_reales = request()->get('hed_reales');
+			$hen_reales = request()->get('hen_reales');
+			$hedfd_reales = request()->get('hedfd_reales');
+			$hedfn_reales = request()->get('hedfn_reales');
+			$sum = ($hed_reales + $hen_reales + $hedfd_reales + $hedfn_reales);
 			$lunch = Lunch::where('person_id', request()->get('person_id'))->first();
 			if($sum >= 3.5){
 				if (isset($lunch)) {
