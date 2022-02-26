@@ -25,7 +25,7 @@ class ProductController extends Controller
 
         $tipoCatalogo = Request()->get('tipo');
 
-        $data = DB::table('Producto as p')->join('Subcategoria as s', 's.Id_Subcategoria', 'p.Id_Subcategoria')
+        $data = DB::table('producto as p')->join('Subcategoria as s', 's.Id_Subcategoria', 'p.Id_Subcategoria')
             ->join('Categoria_Nueva as c', 'c.Id_Categoria_Nueva', 's.Id_Categoria_Nueva')
             ->select(
                 'p.Id_Producto',
