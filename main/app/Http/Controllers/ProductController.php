@@ -27,6 +27,8 @@ class ProductController extends Controller
 
         $data = DB::table('producto as p')->join('Subcategoria as s', 's.Id_Subcategoria', 'p.Id_Subcategoria')
             ->join('Categoria_Nueva as c', 'c.Id_Categoria_Nueva', 's.Id_Categoria_Nueva')
+            ->leftJoin('product_dotation_types as pdt', 'pdt.id', 'p.Producto_Dotation_Type_Id')
+            ->leftJoin('inventary_dotations as ido', 'ido.product_id', 'p.Id_Producto')
             ->select(
                 'p.Id_Producto',
                 'p.Codigo_Cum',
@@ -41,13 +43,16 @@ class ProductController extends Controller
                 'p.Laboratorio_Comercial as Comercial',
                 'p.Invima as Invima',
                 'p.Imagen as Foto',
+                'p.Producto_Dotation_Type_Id',
                 'p.Nombre_Comercial as Nombre_Comercial',
                 'p.Id_Producto',
                 'p.Embalaje',
                 'p.Tipo as Tipo',
                 'p.Tipo_Catalogo',
                 'p.Id_Tipo_Activo_Fijo',
-                'p.Estado',
+                'ido.status',
+                'ido.id as id_inventary_dotations',
+                'ido.code as code_inventary_dotations',
                 'p.Referencia'
             );
 
@@ -116,7 +121,7 @@ class ProductController extends Controller
             $data['product_dotation_type_id'] = $data["Producto_Dotation_Type_Id"];
             $data['name'] = $data["Nombre_Comercial"];
             $data['code'] = $data["Codigo"];
-            $data['type'] = $data["Producto_Dotacion_Tipo"];
+            $data['type'] = $data["Tipo"];
             $data['status'] = $data["Status"];
             $data['cost'] = 0;
             $data['stock'] = 0;
@@ -161,7 +166,8 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $data = $request->except(["dynamic","Status","Codigo","Producto_Dotacion_Tipo"]);
+            $datos = $request->all();
+            $data = $request->except(["dynamic","Status","Codigo","Producto_Dotacion_Tipo","id_inventary_dotations"]);
             $dynamic = request()->get("dynamic");
             // var_dump($dynamic);
             $product = Product::where('Id_Producto', $id)->update($data);
@@ -170,6 +176,17 @@ class ProductController extends Controller
                 $d['product_id'] = $id;
                 VariableProduct::updateOrCreate(['id' => $d["id"]], $d);
             }
+
+            $datos['product_id'] = $datos["Id_Producto"];
+            $datos['product_dotation_type_id'] = $datos["Producto_Dotation_Type_Id"];
+            $datos['name'] = $datos["Nombre_Comercial"];
+            $datos['code'] = $datos["Codigo"];
+            $datos['type'] = $datos["Tipo"];
+            $datos['status'] = $datos["Status"];
+            $datos['cost'] = 0;
+            $datos['stock'] = 0;
+
+            InventaryDotation::updateOrCreate(['id' => $datos["id_inventary_dotations"]],$datos);
 
             return $this->success("guardado con éxito");
         } catch (\Throwable $th) {
