@@ -84,7 +84,7 @@ class DisciplinaryProcessController extends Controller
             $involves = request()->get('involved');
             $type = '.'. $request->type;
             if ($request->type == 'jpeg' || $request->type == 'jpg' || $request->type == 'png') {
-                $base64 = saveBase64($data["file"], 'evidencia/', false, $type);
+                $base64 = saveBase64($data["file"], 'evidencia/', true, $type);
                 URL::to('/') . '/api/image?path=' . $base64;
             } else {
                 $base64 = saveBase64File($data["file"], 'evidencia/', false, '.pdf');
@@ -106,7 +106,7 @@ class DisciplinaryProcessController extends Controller
             foreach ($involves as $involved) {
                 $type = '.'. $involved['type'];
                 if ($involved['type'] == 'jpeg' || $involved['type'] == 'jpg' || $involved['type'] == 'png') {
-                    $base64 = saveBase64($involved["file"], 'evidencia/', false, $type);
+                    $base64 = saveBase64($involved["file"], 'evidencia/', true, $type);
                     URL::to('/') . '/api/image?path=' . $base64;
                 } else {
                     $base64 = saveBase64File($involved["file"], 'evidencia/', false, $type);
