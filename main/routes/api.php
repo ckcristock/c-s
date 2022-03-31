@@ -20,6 +20,7 @@ use App\Http\Controllers\BenefitIncomeController;
 use App\Http\Controllers\BenefitNotIncomeController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CalculationBaseController;
 use App\Http\Controllers\CenterCostController;
 use App\Http\Controllers\CiiuCodeController;
@@ -113,6 +114,8 @@ use App\Http\Controllers\LunchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SubcategoryController;
+use App\Models\Business;
+use App\Models\BusinessBudget;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -451,6 +454,9 @@ Route::group(
         Route::resource('apu-service', ApuServiceController::class);
         Route::resource('lunch-value', LunchValueController::class);
         Route::resource('annotation', PersonInvolvedController::class);
+        Route::resource('business', BusinessController::class);
+
+
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
 
 
@@ -583,5 +589,6 @@ Route::group(
 		Route::post('legal_document', [DisciplinaryProcessController::class, 'saveLegalDocument']);
 		Route::put('legal_document/{id}', [DisciplinaryProcessController::class, 'InactiveDOcument']);
 		Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
+        Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
 	}
 );
