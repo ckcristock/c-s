@@ -591,6 +591,6 @@ Route::group(
 		Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
-        Route::get('get-tasks', [BudgetController::class, 'getTasks']);
+        Route::get('get-tasks/{id}', [BudgetController::class, 'getTasks']);
 	}
 );

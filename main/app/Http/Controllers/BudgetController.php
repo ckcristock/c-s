@@ -87,7 +87,7 @@ class BudgetController extends Controller
 		}
     }
 
-    public function getTasks()
+    public function getTasks($id)
     {
         $page = Request()->get('page');
         $page = $page ? $page : 1;
@@ -105,10 +105,7 @@ class BudgetController extends Controller
                 'D.description',
                 'D.completed',
             )
-         /*   ->when(Request()->get('lastDay'), function ($q, $fill) {
-                 $q->whereDate('D.dispatched_at', '<=', $fill );
-                })*/
-
+            ->where('D.id',$id)
             ->orderBy('D.created_at', 'DESC')
             ->paginate($pageSize, '*', 'page', $page);
 
