@@ -584,6 +584,8 @@ Route::group(
         /****** End Rutas del modulo APU CONJUNTO ******/
 
         Route::get('budgets-download-client', [BudgetController::class, 'downloadClient']);
+        Route::post('save-task', [BudgetController::class, 'saveTask']);
+        Route::get('get-tasks', [BudgetController::class, 'getTasks']);
         /****** Rutas del modulo APU Servicio ******/
         Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
         /****** End Rutas del modulo APU Servicio ******/
