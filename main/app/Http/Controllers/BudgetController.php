@@ -8,6 +8,7 @@ use App\Models\BudgetItem;
 use App\Models\BudgetItemSubitem;
 use App\Models\BudgetItemSubitemIndirectCost;
 use App\Models\Company;
+use App\Models\BusinessTask;
 use App\Services\BudgetService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -70,6 +71,48 @@ class BudgetController extends Controller
             )->orderBy('id', 'desc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
+    }
+
+    public function saveTask(Request $request)
+    {
+      /*  $data = $request->get('data');
+
+        $businesstask = BusinessTask::create($data);
+*/
+        try {
+			BusinessTask::updateOrCreate(['id' => $request->get('id')],$request->all());
+			return $this->success('Creado con éxito');
+		} catch (\Throwable $th) {
+			return $this->error($th->getMessage(), 500);
+		}
+    }
+
+    public function getTasks()
+    {
+        $page = Request()->get('page');
+        $page = $page ? $page : 1;
+        $pageSize = Request()->get('pageSize');
+        $pageSize = $pageSize ? $pageSize : 10;
+
+        $d = DB::table('business_task AS D')
+           // ->join('people AS PF', 'PF.id', '=', 'D.person_id')
+          //  ->join('business_budgets AS BB', 'BB.id', '=', 'D.business_budget_id')
+            ->select(
+               // DB::raw(' CONCAT(PF.first_name," ",PF.first_surname) as funcionario '),
+                'D.created_at',
+                'D.id',
+                'D.person_id',
+                'D.description',
+                'D.completed',
+            )
+         /*   ->when(Request()->get('lastDay'), function ($q, $fill) {
+                 $q->whereDate('D.dispatched_at', '<=', $fill );
+                })*/
+
+            ->orderBy('D.created_at', 'DESC')
+            ->paginate($pageSize, '*', 'page', $page);
+
+        return $this->success($d);
     }
 
     /**
