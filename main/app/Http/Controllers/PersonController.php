@@ -406,7 +406,7 @@ class PersonController extends Controller
 
 			$personData = $request->get("person");
 
-			$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
+			$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], realpath('../../../public/app/public/people/'));
 
 			$personData["personId"] = null;
 

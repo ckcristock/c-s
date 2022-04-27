@@ -32,13 +32,20 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app'),
+            'root' => public_path('app'),
         ],
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' => public_path('app/public'),
             'url' => env('APP_URL').'/public',
+            'visibility' => 'public',
+        ],
+
+        'taskmanager' => [
+            'driver' => 'local',
+            'root' => storage_path('app/taskmanager'),
+            'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
         ],
 
@@ -54,6 +61,7 @@ return [
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public'
         ],
+        
 
         's3' => [
             'driver' => 's3',

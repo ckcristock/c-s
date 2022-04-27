@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="25b8aded-2ac8-4687-bc20-bc5ae857a8de" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/main/app/Http/Controllers/CompanyController.php" beforeDir="false" afterPath="$PROJECT_DIR$/main/app/Http/Controllers/CompanyController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/app/Http/Controllers/DependencyController.php" beforeDir="false" afterPath="$PROJECT_DIR$/main/app/Http/Controllers/DependencyController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/app/Http/Controllers/GroupController.php" beforeDir="false" afterPath="$PROJECT_DIR$/main/app/Http/Controllers/GroupController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/app/Http/Controllers/PositionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/main/app/Http/Controllers/PositionController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/config/filesystems.php" beforeDir="false" afterPath="$PROJECT_DIR$/main/config/filesystems.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/main/routes/api.php" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="28LBu2u0kBxzoVKhFjzRw8meRph" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="25b8aded-2ac8-4687-bc20-bc5ae857a8de" name="Default Changelist" comment="" />
+      <created>1650986227579</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1650986227579</updated>
+    </task>
+    <servers />
+  </component>
+</project>

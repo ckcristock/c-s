@@ -22,7 +22,13 @@ class CompanyController extends Controller
         //
         return $this->success(Company::all(['id as value','name as text']));
     }
-
+    public function getBasicDataForId($id){
+        $data = Company::where('id',$id)->get();
+        return $this->success($data);
+    }
+    public function getAllCompanies(){
+        return $this->success(Company::all());
+    }
     public function getBasicData()
     {
         return $this->success(

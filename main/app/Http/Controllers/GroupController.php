@@ -25,4 +25,9 @@ class GroupController extends Controller
             return $this->error($th->getMessage(), 500);
         }
     }
+    public function destroy($id)
+    {
+        Group::destroy(['id' => $id]);
+        return $this->success('eliminado con exito');
+    }
 }

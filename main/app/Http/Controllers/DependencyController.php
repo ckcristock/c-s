@@ -39,5 +39,11 @@ class DependencyController extends Controller
     }
   }
 
+  public function destroy($id)
+    {
+        Dependency::destroy(['id' => $id]);
+        return $this->success('eliminado con exito');
+    }
+
   
 }

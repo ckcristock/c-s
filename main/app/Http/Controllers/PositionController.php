@@ -100,6 +100,7 @@ class PositionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Position::destroy(['id' => $id]);
+        return $this->success('eliminado con exito');
     }
 }
