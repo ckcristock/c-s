@@ -33,7 +33,13 @@ class ThirdPartyController extends Controller
                     } else {
                         $q->where('third_party_type', 'like', '%' . $fill . '%');
                     }
-                })
+                })->when(Request()->get('email'), function ($q, $fill) {
+                    $q->where('email', 'like', '%' . $fill . '%');
+                })->when(Request()->get('cod_dian_address'), function ($q, $fill) {
+                    $q->where('cod_dian_address', 'like', '%' . $fill . '%');
+                })->when(Request()->get('municipio'), function ($q, $fill) {
+                    $q->where('municipality_id', 'like', '%' . $fill . '%');
+                })->orderBy('first_name', 'asc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }

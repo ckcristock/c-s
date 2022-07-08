@@ -20,7 +20,7 @@ class ThirdPartyPersonController extends Controller
         return $this->success(
             DB::table('third_party_people as tp')
             ->select(
-                'tp.id', 'tp.name', 'tp.observation', 'tp.cell_phone', 'tp.email', 'tp.position',
+                'tp.id', 'tp.name', 'tp.observation', 'tp.cell_phone', 'tp.email', 'tp.position', 'tp.n_document',
                 DB::raw('concat(t.first_name," ",t.first_surname) as third_party'),
             )
             ->when(request()->get('third'), function($q, $fill)
@@ -31,7 +31,28 @@ class ThirdPartyPersonController extends Controller
             {
                 $q->where('tp.name', 'like','%'.$fill.'%');
             })
+            ->when(request()->get('phone'), function($q, $fill)
+            {
+                $q->where('tp.cell_phone', 'like','%'.$fill.'%');
+            })
+            ->when(request()->get('email'), function($q, $fill)
+            {
+                $q->where('tp.email', 'like','%'.$fill.'%');
+            })
+            ->when(request()->get('cargo'), function($q, $fill)
+            {
+                $q->where('tp.position', 'like','%'.$fill.'%');
+            })
+            ->when(request()->get('observacion'), function($q, $fill)
+            {
+                $q->where('tp.observation', 'like','%'.$fill.'%');
+            })
+            ->when(request()->get('documento'), function($q, $fill)
+            {
+                $q->where('tp.n_document', 'like','%'.$fill.'%');
+            })
             ->join('third_parties as t', 't.id', '=', 'tp.third_party_id')
+            ->orderBy('name', 'asc')
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
