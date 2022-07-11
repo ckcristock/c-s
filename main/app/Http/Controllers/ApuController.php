@@ -83,6 +83,15 @@ class ApuController extends Controller
             ->when(request()->get('description'), function ($q, $fill) {
                 $q->where('ap.observation', 'like', '%' . $fill . '%');
             })
+            ->when(request()->get('city'), function ($q, $fill) {
+                $q->where('c.name', 'like', '%' . $fill . '%');
+            })
+            ->when(request()->get('type'), function ($q, $fill) {
+                $q->where('typeapu_name', $fill);
+            })
+            ->when(request()->get('client'), function ($q, $fill) {
+                $q->where('tp.social_reason', 'like', '%' . $fill . '%');
+            })
             ->selectRaw(
                 'IFNULL(tp.social_reason, CONCAT_WS(" ",tp.first_name,tp.first_name) ) as custumer,
                      "apu_part" as type_module, "P" as type,
@@ -114,6 +123,15 @@ class ApuController extends Controller
             ->when(request()->get('description'), function ($q, $fill) {
                 $q->where('ap.observation', 'like', '%' . $fill . '%');
             })
+            ->when(request()->get('city'), function ($q, $fill) {
+                $q->where('c.name', 'like', '%' . $fill . '%');
+            })
+            ->when(request()->get('type'), function ($q, $fill) {
+                $q->where('typeapu_name', $fill);
+            })
+            ->when(request()->get('client'), function ($q, $fill) {
+                $q->where('tp.social_reason', 'like', '%' . $fill . '%');
+            })
             ->selectRaw(
                 'IFNULL(tp.social_reason, CONCAT_WS(" ",tp.first_name,tp.first_name) ) as custumer,
                 "apu_set" as type_module, "C" as type,
@@ -144,18 +162,29 @@ class ApuController extends Controller
             ->when(request()->get('description'), function ($q, $fill) {
                 $q->where('ap.observation', 'like', '%' . $fill . '%');
             })
+            ->when(request()->get('city'), function ($q, $fill) {
+                $q->where('c.name', 'like', '%' . $fill . '%');
+            })
             ->selectRaw(
                 'IFNULL(tp.social_reason, CONCAT_WS(" ",tp.first_name,tp.first_name) ) as custumer,
             "apu_set" as type_module, "S" as type,
                 "Servicio" as type_name, c.name as city, false as selected '
             )
+            ->when(request()->get('type'), function ($q, $fill) {
+                $q->where('typeapu_name', $fill);
+            })  
+            ->when(request()->get('client'), function ($q, $fill) {
+                $q->where('tp.social_reason', 'like', '%' . $fill . '%');
+            })        
             ->union($querySets)
             ->union($query);
 
 
         // $query->union($querySets);
         return $this->success(
-            $queryService->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            $queryService
+            
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 

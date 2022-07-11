@@ -26,20 +26,31 @@ class ThirdPartyController extends Controller
                     $q->where('nit', 'like', '%' . $fill . '%');
                 })
                 ->when(Request()->get('name'), function ($q, $fill) {
-                    $q->where(DB::raw('concat(social_reason, first_name," ",first_surname )'), 'like', '%' . $fill . '%');
+                    /* $q->where(DB::raw('concat(social_reason, first_name," ",first_surname )'), 'like', '%' . $fill . '%'); */
+                    $q->where('social_reason', 'like', '%' . $fill . '%');
                 })->when(Request()->get('third_party_type'), function ($q, $fill) {
                     if (request()->get('third_party_type') == 'Todos') {
                         return null;
                     } else {
                         $q->where('third_party_type', 'like', '%' . $fill . '%');
                     }
-                })->when(Request()->get('email'), function ($q, $fill) {
+                })
+                ->when(Request()->get('email'), function ($q, $fill) {
                     $q->where('email', 'like', '%' . $fill . '%');
-                })->when(Request()->get('cod_dian_address'), function ($q, $fill) {
+                })
+                ->when(Request()->get('cod_dian_address'), function ($q, $fill) {
                     $q->where('cod_dian_address', 'like', '%' . $fill . '%');
-                })->when(Request()->get('municipio'), function ($q, $fill) {
-                    $q->where('municipality_id', 'like', '%' . $fill . '%');
-                })->orderBy('first_name', 'asc')
+                })
+                ->when(Request()->get('phone'), function ($q, $fill) {
+                    $q->where('landline', 'like', '%' . $fill . '%')
+                    ->orwhere('cell_phone', 'like', '%' . $fill . '%');
+                })
+                ->when(Request()->get('municipio'), function ($q, $fill) {
+                    $q->whereHas('municipality', function($q) {
+                        $q->where('name', 'like', '%' . \Request()->get('municipio') . '%');
+                    });
+                })
+                ->orderBy('social_reason', 'asc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
