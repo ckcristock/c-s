@@ -17,7 +17,12 @@ class MeasureController extends Controller
     public function index()
     {
 
-        return $this->success(Measure::get(['measure','name As text', 'id As value']));
+        return $this->success(Measure::get(['measure', 'name As text', 'id As value']));
+    }
+
+    public function measureActive(){
+        $measure = Measure::where('state', 'Activo')->get(['measure', 'name As text', 'id As value']);
+        return $this->success($measure);
     }
 
     public function paginate()
@@ -48,16 +53,16 @@ class MeasureController extends Controller
         try {
             $measure = Measure::updateOrCreate(['id' => $request->get('id')], $request->all());
             return ($measure->wasRecentlyCreated)
-            ?
-            $this->success([
-            'title' => '¡Creado con éxito!',
-            'text' => 'La medida ha sido creada satisfactoriamente'
-            ])
-            :
-            $this->success([
-            'title' => '¡Actualizado con éxito!',
-            'text' => 'La medida ha sido actualizada satisfactoriamente'
-            ]);
+                ?
+                $this->success([
+                    'title' => '¡Creado con éxito!',
+                    'text' => 'La medida ha sido creada satisfactoriamente'
+                ])
+                :
+                $this->success([
+                    'title' => '¡Actualizado con éxito!',
+                    'text' => 'La medida ha sido actualizada satisfactoriamente'
+                ]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -106,5 +111,16 @@ class MeasureController extends Controller
     public function destroy($id)
     {
         //
+    }
+    public function changeState(Request $request)
+    {
+        try {
+            $measure = Measure::find(request()->get('id'));
+            $measure->state = request()->get('state');
+            $measure->save();
+            return $this->success('Proceso Correcto');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 }

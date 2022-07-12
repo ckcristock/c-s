@@ -432,6 +432,7 @@ Route::group(
         Route::resource('alerts', AlertController::class);
         Route::resource('geometry', GeometryController::class);
         Route::resource('measure', MeasureController::class);
+        
         Route::resource('geometry-measure', GeometryMeasureController::class);
         Route::resource('materials', MaterialController::class);
         Route::resource('units', UnitController::class);
@@ -460,7 +461,7 @@ Route::group(
 
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
-
+        Route::get('measure-active', [MeasureController::class, 'measureActive']);
 
         /* Paginations */
         Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -593,7 +594,7 @@ Route::group(
 		Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
 		Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
 		Route::get('peopleSelects', [PersonController::class, 'peopleSelects']);
-
+        Route::put('act-inact-medidas', [MeasureController::class, 'changeState']);
 		/****** Rutas del modulo APU PIEZA ******/
 		Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
 		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
