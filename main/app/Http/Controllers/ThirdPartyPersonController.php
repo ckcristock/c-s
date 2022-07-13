@@ -20,8 +20,8 @@ class ThirdPartyPersonController extends Controller
         return $this->success(
             DB::table('third_party_people as tp')
             ->select(
-                'tp.id', 'tp.name', 'tp.observation', 'tp.cell_phone', 'tp.email', 'tp.position', 'tp.n_document',
-                DB::raw('concat(t.first_name," ",t.first_surname) as third_party'),
+                'tp.id', 'tp.name', 'tp.observation', 'tp.cell_phone', 'tp.email', 'tp.position', 'tp.n_document', 'tp.third_party_id',
+                DB::raw('(CASE WHEN (tp.third_party_id=0) THEN "Sin tercero" ELSE concat(t.first_name," ",t.first_surname) END) as third_party'),
             )
             ->when(request()->get('third'), function($q, $fill)
             {
@@ -51,7 +51,7 @@ class ThirdPartyPersonController extends Controller
             {
                 $q->where('tp.n_document', 'like','%'.$fill.'%');
             })
-            ->join('third_parties as t', 't.id', '=', 'tp.third_party_id')
+            ->leftJoin('third_parties as t', 't.id', '=', 'tp.third_party_id')
             ->orderBy('name', 'asc')
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
@@ -75,7 +75,15 @@ class ThirdPartyPersonController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        $data["third_party_id"] = 0;
+        /* return $this->success($request->all()); */
+        try {
+            ThirdPartyPerson::create($data);
+            return $this->success('Creado con exito');
+        } catch (\Throwable $th) {
+            return response()->json([$th->getMessage(), $th->getLine()]);
+        }
     }
 
     /**

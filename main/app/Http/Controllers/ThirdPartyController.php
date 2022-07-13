@@ -9,6 +9,7 @@ use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Validation\Rules\Exists;
 
 class ThirdPartyController extends Controller
 {
@@ -43,10 +44,10 @@ class ThirdPartyController extends Controller
                 })
                 ->when(Request()->get('phone'), function ($q, $fill) {
                     $q->where('landline', 'like', '%' . $fill . '%')
-                    ->orwhere('cell_phone', 'like', '%' . $fill . '%');
+                        ->orwhere('cell_phone', 'like', '%' . $fill . '%');
                 })
                 ->when(Request()->get('municipio'), function ($q, $fill) {
-                    $q->whereHas('municipality', function($q) {
+                    $q->whereHas('municipality', function ($q) {
                         $q->where('name', 'like', '%' . \Request()->get('municipio') . '%');
                     });
                 })
@@ -170,19 +171,29 @@ class ThirdPartyController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $validator = ThirdParty::find($id);
         $data = $request->except(["person"]);
-        $typeImage = '.' . $request->typeImage;
-        $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/', true, $typeImage);
-        $typeRut = '.' . $request->typeRut;
-        $base64 = saveBase64File($data["rut"], 'thirdPartiesRut/', false, $typeRut);
-        $data["rut"] = URL::to('/') . '/api/file?path=' . $base64;
+        if ($data["image"] != $validator["image"]) {
+            $typeImage = '.' . $request->typeImage;
+            $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/', true, $typeImage);
+        }
+        if ($data["rut"] != $validator["rut"]) {
+            $typeRut = '.' . $request->typeRut;
+            $base64 = saveBase64File($data["rut"], 'thirdPartiesRut/', false, $typeRut);
+            $data["rut"] = URL::to('/') . '/api/file?path=' . $base64;
+        }
         $people = request()->get('person');
         try {
             $thirdParty = ThirdParty::find($id)
                 ->update($data);
             foreach ($people as $person) {
-                $thirdPerson = ThirdPartyPerson::find($person["id"]);
-                $thirdPerson->update($person);
+                if (isset($person["id"])) {
+                    $thirdPerson = ThirdPartyPerson::find($person["id"]);
+                    $thirdPerson->update($person);
+                } else {
+                    $person["third_party_id"] = $id;
+                    ThirdPartyPerson::create($person);
+                }
             }
             return $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
