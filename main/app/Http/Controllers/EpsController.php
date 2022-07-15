@@ -32,7 +32,7 @@ class EpsController extends Controller
         );
     }
 
-    public function store(EpsRequest $request)
+    public function store(Request $request)
     {
         try {
             $eps = Eps::updateOrCreate(['id' => $request->get('id')], $request->all());

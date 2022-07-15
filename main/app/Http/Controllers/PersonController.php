@@ -43,13 +43,11 @@ class PersonController extends Controller
 	{
 		return $this->success(
 			Person::select('id as value', DB::raw('CONCAT_WS(" ", first_name, first_surname) as text '))
-            ->when( request()->get('name'), function($q, $fill)
-            {
-                $q->where(DB::raw('concat(first_name," ",first_surname)'),'like','%'.$fill.'%');
-                            
-            })
-            ->limit(100)
-            ->get()
+				->when(request()->get('name'), function ($q, $fill) {
+					$q->where(DB::raw('concat(first_name," ",first_surname)'), 'like', '%' . $fill . '%');
+				})
+				->limit(100)
+				->get()
 		);
 	}
 
@@ -367,22 +365,23 @@ class PersonController extends Controller
 			$person = Person::find($id);
 			$personData = $request->all();
 			$cognitive = new CognitiveService();
-			if (!$person->personId) {
-				return '0';
+			if ($person->personId = null) {
+				//return '0';
 				$person->personId = $cognitive->createPerson($person);
 				$person->save();
 				$cognitive->deleteFace($person);
 			}
 			if (request()->get("image")) {
+				if (request()->get("image") != $person->image) {
+					$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
+					$faceUri = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
+					$person->update($personData);
 
-				$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
-				$faceUri = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
-				$person->update($personData);
-
-				$cognitive->deleteFace($person);
-				$person->persistedFaceId = $cognitive->createFacePoints($person);
-				$person->save();
-				$cognitive->train();
+					$cognitive->deleteFace($person);
+					$person->persistedFaceId = $cognitive->createFacePoints($person);
+					$person->save();
+					$cognitive->train();
+				}
 			} else {
 				$person->update($personData);
 			}
