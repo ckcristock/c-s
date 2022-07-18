@@ -10,6 +10,7 @@ class DocumentTypes extends Model
         'code',
         'dian_code',
         'name',
+        'abbreviation',
         'status'
     ];
     protected $table = 'document_types';
