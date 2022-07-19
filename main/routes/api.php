@@ -89,6 +89,8 @@ use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
 use App\Http\Controllers\RetentionTypeController;
+use App\Http\Controllers\RegimeTypeController;
+use App\Http\Controllers\FiscalResponsibilityController;
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnDiaryController;
 use App\Http\Controllers\RotatingTurnHourController;
@@ -425,6 +427,8 @@ Route::group(
         Route::resource('dian-address', DianAddressController::class);
         Route::resource('pay-vacation', PayVacationController::class);
         Route::resource('retention-type', RetentionTypeController::class);
+        Route::resource('regime-type', RegimeTypeController::class);
+        Route::resource('fiscal-responsibility', FiscalResponsibilityController::class);
         Route::resource('attention-call', AttentionCallController::class);
         Route::resource('cities', CityController::class);
         Route::resource('drivingLicenses', DrivingLicenseController::class);
@@ -484,6 +488,8 @@ Route::group(
         Route::get('paginateProfessions', [ProfessionController::class, 'paginate']);
         Route::get('paginateFixedAssetType', [FixedAssetTypeController::class, 'paginate']);
         Route::get('paginateRetentionType', [RetentionTypeController::class, 'paginate']);
+        Route::get('paginateRegimeType', [RegimeTypeController::class, 'paginate']);
+        Route::get('paginateFiscalResponsibility', [FiscalResponsibilityController::class, 'paginate']);
         Route::get('paginateHotels', [HotelController::class, 'paginate']);
         Route::get('paginateTaxis', [TaxiControlller::class, 'paginate']);
         Route::get('paginateCities', [CityController::class, 'paginate']);

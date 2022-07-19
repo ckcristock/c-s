@@ -381,6 +381,8 @@ class PersonController extends Controller
 					$person->persistedFaceId = $cognitive->createFacePoints($person);
 					$person->save();
 					$cognitive->train();
+				} else {
+					$person->update($personData);
 				}
 			} else {
 				$person->update($personData);
