@@ -27,6 +27,12 @@ class CityController extends Controller
 			->get(['*', 'id as value', 'name as text']));
 	}
 
+	public function getCitiesCountry($idCountry){
+		return $this->success(City::where('state', '=', 'Activo')		
+		->where('country_id', '=', "$idCountry")
+		->get(['*', 'id as value', 'name as text']));
+	}
+
 	public function paginate()
 	{
 		return $this->success(

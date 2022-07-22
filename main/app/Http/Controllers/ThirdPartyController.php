@@ -27,8 +27,8 @@ class ThirdPartyController extends Controller
                     $q->where('nit', 'like', '%' . $fill . '%');
                 })
                 ->when(Request()->get('name'), function ($q, $fill) {
-                    /* $q->where(DB::raw('concat(social_reason, first_name," ",first_surname )'), 'like', '%' . $fill . '%'); */
-                    $q->where('social_reason', 'like', '%' . $fill . '%');
+                    $q->where(DB::raw('IFNULL(social_reason, concat(first_name," ",first_surname))'), 'like', '%' . $fill . '%');
+                    /* $q->where('social_reason', 'like', '%' . $fill . '%'); */                    
                 })->when(Request()->get('third_party_type'), function ($q, $fill) {
                     if (request()->get('third_party_type') == 'Todos') {
                         return null;
@@ -50,8 +50,9 @@ class ThirdPartyController extends Controller
                     $q->whereHas('municipality', function ($q) {
                         $q->where('name', 'like', '%' . \Request()->get('municipio') . '%');
                     });
-                })
-                ->orderBy('social_reason', 'asc')
+                }) 
+                ->select("*", DB::raw('IFNULL(social_reason, concat(first_name," ",first_surname) ) as name'))
+                ->orderBy('name', 'asc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }

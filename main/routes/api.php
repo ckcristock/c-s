@@ -430,7 +430,7 @@ Route::group(
         Route::resource('regime-type', RegimeTypeController::class);
         Route::resource('fiscal-responsibility', FiscalResponsibilityController::class);
         Route::resource('attention-call', AttentionCallController::class);
-        Route::resource('cities', CityController::class);
+        Route::resource('cities', CityController::class);        
         Route::resource('drivingLicenses', DrivingLicenseController::class);
         Route::resource('visa-types', VisaTypeController::class);
         Route::resource('alerts', AlertController::class);
@@ -469,6 +469,7 @@ Route::group(
 
         /* Paginations */
         Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
+        Route::get('citiesCountry/{idCountry}', [CityController::class, 'getCitiesCountry']);
         Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
         Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
         Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
@@ -586,6 +587,7 @@ Route::group(
 		Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
 		Route::get('all-zones', [ZonesController::class, 'allZones']);
 		Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
+		Route::get('municipalities-for-dep/{id}', [MunicipalityController::class, 'municipalitiesForDep']);
 		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
 		Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
 		Route::put('state-change', [LunchController::class, 'activateOrInactivate']);
