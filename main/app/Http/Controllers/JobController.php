@@ -39,7 +39,7 @@ class JobController extends Controller
                 'municipality.department' => function ($q) {
                     $q->select('name', 'id');
                 }
-                ])
+            ])
                 ->whereHas('position', function ($q) {
                     $q->when(request()->get('dependencia'), function ($q, $fill) {
                         $q->where('dependency_id', '=', $fill);
@@ -68,8 +68,8 @@ class JobController extends Controller
                 ->when(request()->get('titulo'), function ($q, $fill) {
                     $q->where('title', 'like', '%' . $fill . '%');
                 })
-                ->where('state','Activo')
-                ->whereDate('date_end','>' , DB::raw('CURDATE()') )
+                ->where('state', 'Activo')
+                ->whereDate('date_end', '>', DB::raw('CURDATE()'))
                 ->orderBy('id', 'ASC')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
@@ -135,8 +135,8 @@ class JobController extends Controller
                 /*  ->when(request()->get('dependency_id'), function ($q, $fill) {
                 $q->where('id', '=', $fill);
             }) */
-            ->where('state','Activo')
-            ->whereDate('date_end','>' , DB::raw('CURDATE()') )
+                ->where('state', 'Activo')
+                ->whereDate('date_end', '>', DB::raw('CURDATE()'))
                 ->orderBy('id', 'DESC')
                 ->simplePaginate($pageSize, '*', 'page', $page)
         );
@@ -154,14 +154,17 @@ class JobController extends Controller
         $drivingLincenseJob = request()->get('drivingLicenseJob');
         try {
             $jobDB = Job::create($job);
-            $jobDB["code"] = "VAC".$jobDB->id;
+            $jobDB["code"] = "VAC" . $jobDB->id;
             $jobDB->save();
-            foreach ($drivingLincenseJob as $driving) {
-                DrivingLicenseJob::create([
-                    'job_id' =>  $jobDB->id,
-                    'driving_license_id' => $driving
-                ]);
+            if (is_array($drivingLincenseJob) || is_object($drivingLincenseJob)) {
+                foreach ($drivingLincenseJob as $driving) {
+                    DrivingLicenseJob::create([
+                        'job_id' =>  $jobDB->id,
+                        'driving_license_id' => $driving
+                    ]);
+                }
             }
+
             return $this->success('creacion exitosa');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), $th->getLine(), $th->getFile(), 500);
