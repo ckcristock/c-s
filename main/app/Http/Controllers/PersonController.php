@@ -106,7 +106,7 @@ class PersonController extends Controller
 				->when($data["status"], function ($q, $fill) {
 					$q->whereIn("p.status", $fill);
 				})
-
+				->orderBy('p.first_name', 'asc')
 				->paginate($pageSize, ["*"], "page", $page)
 		);
 	}
