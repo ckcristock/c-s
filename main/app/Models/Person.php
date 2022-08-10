@@ -27,6 +27,7 @@ class Person extends Model
         'gener',
         'identifier',
         'image',
+        'type_document_id',
         'marital_status',
         'number_of_children',
         'pants_size',
