@@ -17,12 +17,12 @@ class BoardController extends Controller
     {
         DB::table('users')->where('person_id', $personId)->update(['board_id' => $boards]);
     }
+
     public function personBoards($personId)
     {
         $board = DB::table('users')
-        ->join('boards', 'users.board_id','=','boards.id')
-        ->where('users.person_id',$personId)
-        ->select('boards.id', 'boards.name_board')
+        ->where('person_id',$personId)
+        ->select('board_id')
         ->get();
         return $this->success($board);
     }
