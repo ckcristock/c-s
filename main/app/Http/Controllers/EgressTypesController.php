@@ -52,7 +52,7 @@ class EgressTypesController extends Controller
     {
         try {
             $egressTypes  = EgressTypes::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($egressTypes->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            return ($egressTypes->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
         }

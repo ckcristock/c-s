@@ -76,7 +76,7 @@ class ThirdPartyFieldController extends Controller
                 }
                 $sql = DB::unprepared('ALTER TABLE `third_parties` ADD COLUMN'. ' '  . $this->buildFieldName($field->name) . $type . ' NULL DEFAULT NULL');
             }
-            return ($field->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            return ($field->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

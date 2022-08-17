@@ -57,7 +57,7 @@ class ExternalProcessController extends Controller
             :
             $this->success([
             'title' => '¡Actualizado con éxito!',
-            'text' => 'El proceso ha sido Actualizado satisfactoriamente'
+            'text' => 'El proceso ha sido actualizado satisfactoriamente'
             ]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

@@ -57,7 +57,7 @@ class RiskTypesController extends Controller
     {
         try {
             $riskTypes  = RiskTypes::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($riskTypes->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            return ($riskTypes->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
         }

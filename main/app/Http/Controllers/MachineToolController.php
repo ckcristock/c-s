@@ -57,12 +57,12 @@ class MachineToolController extends Controller
                 ?
                 $this->success([
                 'title' => '¡Creado con éxito!',
-                'text' => 'La maquina ha sido creado satisfactoriamente'
+                'text' => 'La máquina ha sido creada satisfactoriamente'
                 ])
                 :
                 $this->success([
                 'title' => '¡Actualizado con éxito!',
-                'text' => 'La maquina ha sido Actualizado satisfactoriamente'
+                'text' => 'La maquina ha sido actualizada satisfactoriamente'
                 ]);
             } else if ($request->type_id == '2') {
                 $unit = InternalProcess::updateOrCreate(['id' => $request->get('id')], $request->all());
@@ -75,7 +75,7 @@ class MachineToolController extends Controller
                 :
                 $this->success([
                 'title' => '¡Actualizado con éxito!',
-                'text' => 'El proceso ha sido Actualizado satisfactoriamente'
+                'text' => 'El proceso ha sido actualizado satisfactoriamente'
                 ]); 
             } else if ($request->type_id == '3') {
                 $unit = ExternalProcess::updateOrCreate(['id' => $request->get('id')], $request->all());
@@ -88,7 +88,7 @@ class MachineToolController extends Controller
                 :
                 $this->success([
                 'title' => '¡Actualizado con éxito!',
-                'text' => 'El proceso ha sido Actualizado satisfactoriamente'
+                'text' => 'El proceso ha sido actualizado satisfactoriamente'
                 ]);
             }
         } catch (\Throwable $th) {

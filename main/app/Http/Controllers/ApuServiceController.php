@@ -104,7 +104,7 @@ class ApuServiceController extends Controller
                 }
 			}
 
-            return $this->success('creado con éxito');
+            return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

@@ -35,7 +35,7 @@ class CompensationFundController extends Controller
     {
         try {
             $pensionFund = CompensationFund::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($pensionFund->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            return ($pensionFund->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
         }

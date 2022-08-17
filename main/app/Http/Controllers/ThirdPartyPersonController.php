@@ -80,7 +80,7 @@ class ThirdPartyPersonController extends Controller
         /* return $this->success($request->all()); */
         try {
             ThirdPartyPerson::create($data);
-            return $this->success('Creado con exito');
+            return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
         }

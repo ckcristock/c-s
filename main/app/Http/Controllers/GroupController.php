@@ -20,7 +20,7 @@ class GroupController extends Controller
     {
         try {
              Group::updateOrCreate( ['id' => $request->get('id')],$request->all());
-            return $this->success('creado con exito');
+            return $this->success('Creado con exito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

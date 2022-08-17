@@ -110,7 +110,7 @@ class ApuSetController extends Controller
 				ApuSetIndirectCost::create($ic);
 			}
 
-            return $this->success('creado con éxito');
+            return $this->success('Creado con éxito');
 
 
         } catch (\Throwable $th) {
@@ -245,7 +245,7 @@ class ApuSetController extends Controller
                 }
             }
 
-            return $this->success('creado con éxito');
+            return $this->success('Creado con éxito');
 
         }catch (\Throwable $th) {
 

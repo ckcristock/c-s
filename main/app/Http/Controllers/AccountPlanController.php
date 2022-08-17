@@ -74,7 +74,7 @@ class AccountPlanController extends Controller
 	{
 		try {
 			$accountPlan  = AccountPlan::updateOrCreate(['id' => $request->get('id')], $request->all());
-			return ($accountPlan->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+			return ($accountPlan->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
 		} catch (\Throwable $th) {
 			return response()->json([$th->getMessage(), $th->getLine()]);
 		}

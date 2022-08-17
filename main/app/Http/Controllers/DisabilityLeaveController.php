@@ -31,7 +31,7 @@ class DisabilityLeaveController extends Controller
     {
         try {
             $noveltyTypes  = DisabilityLeave::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($noveltyTypes->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            return ($noveltyTypes->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
         }

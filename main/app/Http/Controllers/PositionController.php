@@ -52,7 +52,7 @@ class PositionController extends Controller
         //
         try {
             Position::updateOrCreate( ['id' => $request->get('id')],$request->all());
-            return $this->success('creado con exito');
+            return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

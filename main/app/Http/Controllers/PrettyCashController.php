@@ -63,7 +63,7 @@ class PrettyCashController extends Controller
 			$data["user_id"] = auth()->user()->id;
 			PrettyCash::create($data);
 
-			return $this->success('creado con éxito');
+			return $this->success('Creado con éxito');
 		} catch (\Throwable $th) {
 			return $this->errorResponse($th->getMessage(), 402);
 		}

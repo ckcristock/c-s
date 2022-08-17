@@ -58,7 +58,7 @@ class CountryController extends Controller
         try {
             
             $countries = Country::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($countries->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            return ($countries->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 200);
         }

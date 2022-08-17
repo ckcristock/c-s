@@ -129,7 +129,7 @@ class MemorandumController extends Controller
                 'person_id' => $request->person_id
             ] 
             );
-            return $this->success('Creado Con Éxito');
+            return $this->success('Creado Con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
