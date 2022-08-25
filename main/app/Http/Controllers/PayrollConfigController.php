@@ -22,7 +22,8 @@ class PayrollConfigController extends Controller
 
     public function incapacidadesDatos()
     {
-        return PayrollDisabilityLeave::all();
+        return 'En desarrollo';
+        //return PayrollDisabilityLeave::all();
     }
 
     public function parafiscalesDatos()

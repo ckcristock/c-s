@@ -351,6 +351,7 @@ Route::group(
 
         /** End Payroll */
         Route::resource('third-party-fields', ThirdPartyFieldController::class);
+        Route::put('changeStateField/{id}', [ThirdPartyFieldController::class, 'changeState']);
 
 
         /**

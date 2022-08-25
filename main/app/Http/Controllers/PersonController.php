@@ -168,7 +168,8 @@ class PersonController extends Controller
 					"w.salary",
 					"w.id as work_contract_id",
 					"p.signature",
-					"p.title"
+					"p.title",
+					"p.status"
 				)
 				->join("work_contracts as w", function ($join) {
 					$join->on(
@@ -623,9 +624,8 @@ class PersonController extends Controller
 	public function blockOrActivateUser(Request $request, $id)
 	{
 		try {
-			$user = User::find($id);
-			$user->update($request->all());
-			return $this->success('Bloqueado con éxito');
+			User::where('person_id', $id)->update(['state' => $request->state]);
+			return $this->success('Actualizado con éxito');
 		} catch (\Throwable $th) {
 			return $this->error($th->getMessage(), 500);
 		}
