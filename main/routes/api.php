@@ -269,6 +269,7 @@ Route::group(
         Route::post('/rrhh-activity-types/set',  [RrhhActivityTypeController::class, 'setState']);
         // Route::put('/rrhh-activity/{id}', [RrhhActivityController::class, 'update']);
         Route::get('/rrhh-activity-types-all',  [RrhhActivityTypeController::class, 'all']);
+        Route::get('/rrhh-activity-types-actives',  [RrhhActivityTypeController::class, 'actives']);
         /** end*/
 
         /** Rutas del módulo de reporte de horarios */

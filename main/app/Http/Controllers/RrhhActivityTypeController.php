@@ -23,6 +23,12 @@ class RrhhActivityTypeController extends Controller
             RrhhActivityType::get(['name As text', 'id As value'])
         );
     }
+    public function actives()
+    {
+        return $this->success(
+            RrhhActivityType::where('state','Activo')->get(['name As text', 'id As value'])
+        );
+    }
 
     public function store(Request $request)
     {
