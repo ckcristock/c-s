@@ -183,7 +183,7 @@ Route::get('/image', function () {
 
 Route::get('/file', function () {
     $path = Request()->get('path');
-    $download = storage_path('app/' . $path);
+    $download = public_path('app' . '/' . $path);
     if ($path) {
         return response()->download($download);
     }
