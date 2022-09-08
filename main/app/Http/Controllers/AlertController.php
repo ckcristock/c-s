@@ -44,26 +44,28 @@ class AlertController extends Controller
     public function paginate(Request $req)
     {
         $data = DB::table('alerts as a')
-            ->join('users as u', 'u.id', '=', 'a.user_id')
-            ->join('people as pc', 'pc.id', '=', 'u.person_id')
-            ->join('people as pr', 'pr.id', '=', 'a.person_id')
+            ->join('people as pc', 'pc.id', '=', 'a.user_id')
             ->select(
                 'a.type',
-                'a.icon',
-                'a.title',
                 'a.description',
-                'a.url',
                 'a.destination_id',
                 'a.created_at',
-                'pc.image',
-                'pr.first_name',
-                'pr.first_surname',
+                'pc.first_name',
+                'pc.first_surname',
             )
             ->when($req->get('person_id'), function ($q, $fill) {
-                $q->where('a.person_id', $fill);
+                $q->where('a.user_id', $fill);
             })
             ->orderBy('a.id', 'Desc')
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
         return $this->success($data);
+    }
+
+    public function store(Request $request) {
+        $person_id = request()->get("person_id");
+		$type = request()->get("type");
+		$user_id = request()->get("user_id");
+		$description = request()->get("description");
+        Alert::create($request->all());
     }
 }

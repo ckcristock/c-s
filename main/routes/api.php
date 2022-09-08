@@ -597,6 +597,7 @@ Route::group(
 		Route::get('filter-all-positions', [PositionController::class, 'positions']);
 		Route::get('alert/{id}', [AttentionCallController::class, 'callAlert']);
 		Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
+        Route::get('download-work_contracts/{id}', [WorkContractController::class, 'pdf']);
 		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
 		Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
 		Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
