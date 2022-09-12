@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alert;
+use App\Models\Person;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,23 +17,17 @@ class AlertController extends Controller
     {
         # code...
         $data = DB::table('alerts as a')
-            ->join('users as u', 'u.id', '=', 'a.user_id')
-            ->join('people as pc', 'pc.id', '=', 'u.person_id')
-            ->join('people as pr', 'pr.id', '=', 'a.person_id')
+            ->join('people as pc', 'pc.id', '=', 'a.user_id')
             ->select(
                 'a.type',
-                'a.icon',
-                'a.title',
                 'a.description',
-                'a.url',
                 'a.destination_id',
                 'a.created_at',
-                'pc.image',
-                'pr.first_name',
-                'pr.first_surname',
+                'pc.first_name',
+                'pc.first_surname',
             )
             ->when($req->get('person_id'), function ($q, $fill) {
-                $q->where('a.person_id', $fill);
+                $q->where('a.user_id', $fill);
             })
             ->orderBy('a.id', 'Desc')
             ->get();
@@ -61,11 +56,87 @@ class AlertController extends Controller
         return $this->success($data);
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $person_id = request()->get("person_id");
-		$type = request()->get("type");
-		$user_id = request()->get("user_id");
-		$description = request()->get("description");
-        Alert::create($request->all());
+        $type = request()->get("type");
+        $user_id = request()->get("user_id");
+        $description = request()->get("description");
+        $group_id = request()->get("group_id");
+        $dependency_id = request()->get("dependency_id");
+        if ($group_id != "Todas") {
+            if ($dependency_id != "Todas") {
+                if ($user_id != "Todos") {
+                    Alert::create($request->all());
+                    return $this->success('Agregada corrrectamente');
+                } else {
+                    $dependencie = DB::table("dependencies")
+                        ->where("id", "=", $dependency_id)
+                        ->first();
+                    $positions = DB::table("positions")
+                        ->where("dependency_id", "=", $dependencie->id)
+                        ->get();
+                    foreach ($positions as $position) {
+                        $people = DB::table("work_contracts")
+                            ->where("position_id", "=", $position->id)
+                            ->get();
+                        foreach ($people as $person) {
+                            $user_id = $person->person_id;
+                            Alert::create(
+                                [
+                                    'person_id' => $person_id,
+                                    'user_id' => $user_id,
+                                    'type' => $type,
+                                    'description' => $description
+                                ],
+                            );
+                        }
+                    }
+                    return $this->success('Agregado correctamente');
+                }
+            } else {
+                $group = DB::table("groups")
+                    ->where("id", "=", $group_id)
+                    ->first();
+                $dependencies = DB::table("dependencies")
+                    ->where("group_id", "=", $group->id)
+                    ->get();
+                foreach ($dependencies as $dependencie) {
+                    $positions = DB::table("positions")
+                        ->where("dependency_id", "=", $dependencie->id)
+                        ->get();
+                    foreach ($positions as $position) {
+                        $people = DB::table("work_contracts")
+                            ->where("position_id", "=", $position->id)
+                            ->get();
+                        foreach ($people as $person) {
+                            $user_id = $person->person_id;
+                            Alert::create(
+                                [
+                                    'person_id' => $person_id,
+                                    'user_id' => $user_id,
+                                    'type' => $type,
+                                    'description' => $description
+                                ],
+                            );
+                        }
+                    }
+                }
+            }
+        } else {
+            $people = DB::table("work_contracts")
+                ->get();
+            foreach ($people as $person) {
+                $user_id = $person->person_id;
+                Alert::create(
+                    [
+                        'person_id' => $person_id,
+                        'user_id' => $user_id,
+                        'type' => $type,
+                        'description' => $description
+                    ],
+                );
+            }
+        }
     }
 }

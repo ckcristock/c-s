@@ -118,6 +118,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SubcategoryController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\BoardController;
+use App\Http\Controllers\LayoffsCertificateController;
+use App\Http\Controllers\ReasonWithdrawalController;
+use App\Http\Controllers\WorkCertificateController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\User;
@@ -365,6 +368,13 @@ Route::group(
 
         /**End */
         Route::resource('applicants', ApplicantController::class);
+        Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
+        Route::resource('work-certificate', WorkCertificateController::class);
+        Route::get('paginate-work-certificate', [WorkCertificateController::class, 'paginate']);
+        Route::get('download-work-certificate/{id}', [WorkCertificateController::class, 'pdf']);
+        Route::resource('layoffs-certificate', LayoffsCertificateController::class);
+        Route::get('paginate-layoffs-certificate', [LayoffsCertificateController::class, 'paginate']);
+        Route::get('download-layoffs-certificate/{id}', [LayoffsCertificateController::class, 'pdf']);
         Route::resource('pretty-cash', PrettyCashController::class);
         Route::resource('dependencies', DependencyController::class);
         Route::resource('company', CompanyController::class);
@@ -597,7 +607,7 @@ Route::group(
 		Route::get('filter-all-positions', [PositionController::class, 'positions']);
 		Route::get('alert/{id}', [AttentionCallController::class, 'callAlert']);
 		Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
-        Route::get('download-work_contracts/{id}', [WorkContractController::class, 'pdf']);
+        Route::get('download-work-contracts/{id}', [WorkContractController::class, 'pdf']);
 		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
 		Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
 		Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
