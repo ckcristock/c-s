@@ -35,7 +35,7 @@ class WorkCertificateController extends Controller
             DB::table('work_certificates')->when(
                 Request()->get('name'),
                 function ($q, $fill) {
-                    $q->where('name', 'like', '%' . $fill . '%');
+                    $q->where('person_id', 'like', '%' . $fill . '%');
                 }
             )
                 ->join('people', 'people.id', '=', 'work_certificates.person_id')
@@ -64,6 +64,8 @@ class WorkCertificateController extends Controller
         ) {
             return $this->error('Hemos encontrado un certificado laboral solicitado en este mes para este usuario', 409);
         } else {
+            $json = json_encode($request->information, true);
+            $request->merge(['information' => $json]);
             WorkCertificate::create($request->all());
             return $this->success('correcto');
         }
@@ -118,6 +120,9 @@ class WorkCertificateController extends Controller
     {
         $logo = public_path('app/public') . '/logo2.png';
         $work_certificate = WorkCertificate::find($id);
+        $json = json_decode($work_certificate->information);
+        $textoSalario = '';
+        $textoCargo = '';
         $date = Carbon::now()->locale('es');
         $funcionario = DB::table('people')
             ->find($work_certificate->person_id);
@@ -129,40 +134,43 @@ class WorkCertificateController extends Controller
             DB::table('positions')
             ->where('id', '=', $contract->position_id)
             ->first();
-        $contenido = 
-        '<!DOCTYPE html>
+        foreach ($json as $information) {
+            if ($information == 'salario') {
+                $textoSalario = ' y devengando un salario mensual de ' .
+                    number_format($contract->salary, 2, ".", ",");
+            } 
+            if ($information == 'cargo') {
+                $textoCargo = ' desempeñando el cargo de 
+                <b>' . $position->name . "</b>";
+            }
+        }
+        $contenido =
+            '<!DOCTYPE html>
         <html lang="en">
             <head>
                 <meta charset="UTF-8">
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>
-                    #space-between {
-                        display: flex;
-                        justify-content: space-between;
-                    }
-                </style>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">               
             </head>
-            <body>
+            <body style="margin:2rem">
                 <img src="' . $logo . '">
-                <p style="text-align: center;font-size:22px;font-weight:bold;margin-top:350px">CERTIFICADO LABORAL</p>
+                <p style="text-align: center;font-size:22px;font-weight:bold;margin-top:100px">CERTIFICADO LABORAL</p>
                 <p style="margin-top:30px;">
                     Certificamos que el(la) señor(a) 
                     <b>'
-                    .$funcionario->first_name . ' ' 
-                    . $funcionario->second_name . ' ' 
-                    . $funcionario->first_surname . ' ' 
-                    . $funcionario->second_surname .
+                        . $funcionario->first_name . ' '
+                        . $funcionario->second_name . ' '
+                        . $funcionario->first_surname . ' '
+                        . $funcionario->second_surname .
                     '</b> 
                     identificado(a) con cédula de ciudadanía No. 
-                    <b>'.number_format($funcionario->identifier,0,"",".").'</b> 
-                    se encuentra vinculado(a) a la empresa MAQMO NIT. 8002265011. Desempeñando el cargo de 
-                    <b>'.$position->name."</b>". ' y devengando un salario mensual de '. 
-                    number_format($contract->salary, 2, ".", ",") .' , desde el '.$contract->date_of_admission.
-                    '. La presente certificación se expide en Bucaramanga, al(los) '.$date->format('d').' día(s) del mes de '.
-                    $date->isoFormat('MMMM').' a solicitud del interesado.
+                    <b>' . number_format($funcionario->identifier, 0, "", ".") . '</b> 
+                    se encuentra vinculado(a) a la empresa MAQMO NIT. 8002265011'. $textoCargo . $textoSalario . ', desde el ' 
+                    . CARBON::parse($contract->date_of_admission)->locale('es')->isoFormat('DD MMMM YYYY') .
+                    '. La presente certificación se expide en Bucaramanga, al(los) ' . $date->format('d') . ' día(s) del mes de ' .
+            $date->isoFormat('MMMM') . ' a solicitud del interesado.
                 </p>
-                <p style="margin-top:250px;">Atentamente;</p>
+                <p style="margin-top:450px;">Atentamente;</p>
 
                 <table style="margin-top:20px">    
                     <tr>

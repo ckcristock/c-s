@@ -79,6 +79,7 @@ class WorkContractController extends Controller
                 ->when(Request()->get('company'), function ($q, $fill) {
                     $q->where('co.id', 'like', '%' . $fill . '%');
                 })
+                ->orderBy('p.first_name')
                 ->paginate($pageSize, ['*'], 'page', $page)
         );
     }
@@ -130,7 +131,7 @@ class WorkContractController extends Controller
                 $join->on('posi.id', '=', 'w.position_id');
             })
             ->where('status', 'PreLiquidado')
-            ->get();
+            ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1));
         /* for ($i = 0; $i < count($people); $i++) {
                 $fecha = $people[$i]->updated_at;
                 // dd($fecha);
@@ -141,17 +142,7 @@ class WorkContractController extends Controller
 
     public function getLiquidated($id)
     {
-        return $this->success(
-            DB::table('people as p')
-                ->select(
-                    'p.id',
-                    'p.first_name',
-                    'p.second_name',
-                    'p.first_surname',
-                    'p.second_surname'
-                )
-                ->where('p.id', '=', $id)
-                ->first()
+        return $this->success(Person::with('work_contract')->where('id', '=', $id)->first()
         );
     }
 

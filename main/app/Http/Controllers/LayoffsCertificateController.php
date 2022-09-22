@@ -34,7 +34,7 @@ class LayoffsCertificateController extends Controller
             DB::table('layoffs_certificates')->when(
                 Request()->get('name'),
                 function ($q, $fill) {
-                    $q->where('name', 'like', '%' . $fill . '%');
+                    $q->where('person_id', 'like', '%' . $fill . '%');
                 }
             )
                 ->join('people', 'people.id', '=', 'layoffs_certificates.person_id')
