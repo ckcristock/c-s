@@ -9,6 +9,6 @@ class LayoffsCertificate extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'reason_withdrawal', 'person_id', 'reason', 'document', 'state'
+        'reason_withdrawal', 'person_id', 'reason', 'document', 'monto', 'valormonto', 'state'
     ];
 }

@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use App\Models\WorkCertificate;
+use App\Models\WorkContract;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Support\Facades\Storage;
+use NumberFormatter;
 
 class WorkCertificateController extends Controller
 {
@@ -123,22 +126,36 @@ class WorkCertificateController extends Controller
         $json = json_decode($work_certificate->information);
         $textoSalario = '';
         $textoCargo = '';
+        $addressee = '';
+        $gener = '';
+        $formatterES = new NumberFormatter("es", NumberFormatter::SPELLOUT);
         $date = Carbon::now()->locale('es');
+        $company = Company::find(1)->first();
         $funcionario = DB::table('people')
             ->find($work_certificate->person_id);
+
         $contract =
-            DB::table('work_contracts')
-            ->where('person_id', '=', $funcionario->id)
+        WorkContract::with('work_contract_type')->where('person_id', '=', $funcionario->id)
             ->first();
         $position =
             DB::table('positions')
             ->where('id', '=', $contract->position_id)
             ->first();
+        if ($work_certificate->addressee) {
+            $addressee = $work_certificate->addressee;
+        } else {
+            $addressee = 'A QUIEN INTERESE';
+        }
+        if ($funcionario->gener == 'Masculino'){
+            $gener = 'certifica que el señor';
+        } else {
+            $gener = 'certifica que la señora';
+        }
         foreach ($json as $information) {
             if ($information == 'salario') {
-                $textoSalario = ' y devengando un salario mensual de ' .
-                    number_format($contract->salary, 2, ".", ",");
-            } 
+                $textoSalario = ' y devengando un salario mensual de ' . $formatterES->format($contract->salary) . ' ($' .
+                    number_format($contract->salary, 0, ".", ","). ')';
+            }
             if ($information == 'cargo') {
                 $textoCargo = ' desempeñando el cargo de 
                 <b>' . $position->name . "</b>";
@@ -154,35 +171,38 @@ class WorkCertificateController extends Controller
             </head>
             <body style="margin:2rem">
                 <img src="' . $logo . '">
-                <p style="text-align: center;font-size:22px;font-weight:bold;margin-top:100px">CERTIFICADO LABORAL</p>
-                <p style="margin-top:30px;">
-                    Certificamos que el(la) señor(a) 
-                    <b>'
-                        . $funcionario->first_name . ' '
-                        . $funcionario->second_name . ' '
-                        . $funcionario->first_surname . ' '
-                        . $funcionario->second_surname .
+                
+                <p style="font-size:16px;font-weight:bold;margin-top:100px">Girón, ' .
+            CARBON::parse($date)->locale('es')->translatedFormat('l j F Y') . '</p>
+                <p>' . $addressee . '</p>
+                <p style="margin-top:30px; text-align: justify;">
+                    La empresa ' . $company->social_reason . ' con ' . $company->document_type . ' ' . $company->document_number . '-'
+                    . $company->verification_digit . ', ' . $gener .' 
+                            <b>'
+                    . $funcionario->first_name . ' '
+                    . $funcionario->second_name . ' '
+                    . $funcionario->first_surname . ' '
+                    . $funcionario->second_surname .
                     '</b> 
                     identificado(a) con cédula de ciudadanía No. 
-                    <b>' . number_format($funcionario->identifier, 0, "", ".") . '</b> 
-                    se encuentra vinculado(a) a la empresa MAQMO NIT. 8002265011'. $textoCargo . $textoSalario . ', desde el ' 
-                    . CARBON::parse($contract->date_of_admission)->locale('es')->isoFormat('DD MMMM YYYY') .
-                    '. La presente certificación se expide en Bucaramanga, al(los) ' . $date->format('d') . ' día(s) del mes de ' .
-            $date->isoFormat('MMMM') . ' a solicitud del interesado.
+                    <b>' . number_format($funcionario->identifier, 0, "", ".") . '</b> de ' . $funcionario->place_of_birth .' laboró en la empresa
+                    desde el ' . CARBON::parse($contract->date_of_admission)->locale('es')->isoFormat('DD MMMM YYYY') . ', con un contrato ' . $contract->work_contract_type->name .
+                    $textoCargo . $textoSalario . ', . La presente certificación se expide en Bucaramanga, al (los) ' . $date->format('d') . ' día(s) del mes de ' .
+            $date->isoFormat('MMMM') . ' a solicitud del interesado. Y el motivo del retiro ' . $work_certificate->reason . '
                 </p>
                 <p style="margin-top:450px;">Atentamente;</p>
 
                 <table style="margin-top:20px">    
                     <tr>
                         <td style="width:300px;padding-left:10px">
-                            Aquí la firma
+                            
                         <table>
                         <tr>
                             <td style="width:300px;font-weight:bold; border-top:1px solid black; text-align:center;">
-                            Nombre jefe de recursos humanos</td>
+                            ALBERTO BALCARCEL</td>
                         </tr>
                         <tr>
-                            <td style="width:300px;font-weight:bold; text-align:center;">Jefe de recursos humanos </td>    
+                            <td style="width:300px;font-weight:bold; text-align:center;">Director administrativo</td>    
                         </tr>
                         
                         </table>

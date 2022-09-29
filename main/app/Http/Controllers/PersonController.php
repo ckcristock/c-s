@@ -56,11 +56,32 @@ class PersonController extends Controller
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function indexPaginate()
+	public function indexPaginate(Request $request)
 	{
-		$data = json_decode(Request()->get("data"), true);
+		return $this->success(
+			Person::with('work_contract')
+			->when($request->name, function ($q, $fill) {
+				$q->where("identifier", "like","%" . $fill . "%")
+					->orWhere(DB::raw('concat(first_name," ",first_surname)'),"LIKE","%" . $fill . "%");
+			})
+			->when($request->dependency_id, function ($q, $fill) {
+				$q->whereHas('work_contract', function ($q2) use($fill) {
+					$q2->whereHas('position', function ($q3) use($fill) {
+						$q3->where('dependency_id', '=', $fill);
+					});
+				});
+			})
+
+			->when($request->status, function ($q, $fill) {
+				$q->where("status", $fill);
+			})
+			->orderBy('first_name', 'asc')
+			->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1))
+		);
+
+		/* $data = json_decode(Request()->get("data"), true);
 		$page = $data["page"] ? $data["page"] : 1;
-		$pageSize = $data["pageSize"] ? $data["pageSize"] : 10;
+		$pageSize = $data["pageSize"] ? $data["pageSize"] : 12;
 
 		return $this->success(
 			DB::table("people as p")
@@ -108,7 +129,7 @@ class PersonController extends Controller
 				})
 				->orderBy('p.first_name', 'asc')
 				->paginate($pageSize, ["*"], "page", $page)
-		);
+		); */
 	}
 
 	public function getAll(Request $request)
@@ -207,7 +228,8 @@ class PersonController extends Controller
 					"p.id",
 					"p.image",
 					"p.second_name",
-					"p.second_surname"
+					"p.second_surname",
+					"p.status"
 				)
 				->join("work_contracts as w", function ($join) {
 					$join->on(

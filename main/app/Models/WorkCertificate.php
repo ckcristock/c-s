@@ -9,6 +9,6 @@ class WorkCertificate extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'person_id', 'file', 'reason', 'information'
+        'person_id', 'file', 'reason', 'information', 'addressee'
     ];
 }

@@ -12,7 +12,6 @@ class WorkContract extends Model
     protected $fillable = [
         'position_id',
         'date_end',
-        'position_id',
         'salary',
         'turn_type',
         'work_contract_type_id',
@@ -24,7 +23,12 @@ class WorkContract extends Model
     ];
     public function position()
     {
-        return $this->belongsTo(Position::class);
+        return $this->belongsTo(Position::class)->with('dependency');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 
     public function people(){

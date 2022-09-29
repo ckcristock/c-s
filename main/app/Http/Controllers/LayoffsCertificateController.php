@@ -71,6 +71,8 @@ class LayoffsCertificateController extends Controller
                 'person_id' => $request->person_id,
                 'reason' => $request->reason,
                 'document' => $file,
+                'monto' => $request->monto,
+                'valormonto' => $request->valormonto,
             ]);
             return $this->success('correcto');
         }
@@ -125,14 +127,49 @@ class LayoffsCertificateController extends Controller
 
     public function pdf($id)
     {
+        $logo = public_path('app/public') . '/logo2.png';
         $layoffs_certificate = LayoffsCertificate::find($id);
         $date = Carbon::now()->locale('es');
         $funcionario = DB::table('people')
-            ->find($layoffs_certificate->person_id);            
-        $compensation_fund = DB::table('compensation_funds')
-            ->find($funcionario->compensation_fund_id);
+            ->find($layoffs_certificate->person_id);   
+        $compensation_fund = DB::table('severance_funds')
+            ->find($funcionario->severance_fund_id);
         $motivo = DB::table('reason_withdrawal')
             ->find($layoffs_certificate->reason_withdrawal);
+        if ($layoffs_certificate->monto == 'parcial') {
+            $asunto = 'RETIRO PARCIAL DE CESANTIAS';
+            $p1 = 'Respetados señores: <br><br>
+                Para efectos de lo dispuesto en el decreto 2076 de 1967 y normas concordantes, 
+                nos permitimos solicitar a ustedes que se sirvan autorizar el pago de la referencia 
+                a favor del siguiente empleado.';
+            $valor = '
+            <tr>
+                <td><b>VALOR CESANTIAS SOLICITADO:</b></td>
+                <td>$' . number_format($layoffs_certificate->valormonto, 0, "", ".") .'</td>
+            </tr>';
+            $motivotext = '
+            <tr>
+                <td><b>INVERSION O DESTINO:</b></td>
+                <td>' . strtoupper($motivo->name) .'</td>
+            </tr>';
+            $p2 = 'Lo anterior previa presentación de los soportes presentados para tal fin de conformidad con lo establecido en la ley 1429 
+                artículo 21 de 2010, por lo anterior, confirmamos el retiro en mención al trabajador, quien va a utilizar los recursos de sus 
+                cesantías conforme a las condiciones previstas en la ley. <br><br>
+                MAQUINADOS Y MONTAJES S.A.S, Se compromete a vigilar la inversión conforme a lo dispuesto por el decreto antes citado y según 
+                resolución No 04250 de 1973, en concordancia con la circular N°000 de 1974.';
+        } else if ($layoffs_certificate->monto == 'total') {
+            $asunto = 'Autorización retiro total de Cesantías';
+            $p1 = '';
+            $valor = null;
+            $motivotext = '
+            <tr>
+                <td><b>MOTIVO:</b></td>
+                <td>' . strtoupper($motivo->name) .'</td>
+            </tr>';
+            $p2 = null;
+        }
+        
+            
         $contenido = '<!DOCTYPE html>
         <html lang="en">
             <head>
@@ -144,47 +181,62 @@ class LayoffsCertificateController extends Controller
                         display: flex;
                         justify-content: space-between;
                     }
+                    html * {
+                        color: #000 !important;
+                        font-family: Arial !important;
+                    }
                 </style>
             </head>
-            <body>
-                <p style="margin-top:150px;"><b>Bucaramanga, '.$date->isoFormat('D MMMM Y').'</b></p>
-                <p><b>Señores</b></p>
-                <p>'.strtoupper($compensation_fund->name).'</p>
-                <p><b>ASUNTO:</b> '.strtoupper($motivo->name).'</p>
-                <p>
-                    Según lo dispuesto en el artículo 21 de la Ley 1429 de 2010 (que modificó el Art. 256 del código 
-                    sustantivo del trabajo) y a la aclaración contenida en la Carta Circular 011 del 7 de Febrero de 2011 
-                    del Ministerio de la Protección Social, nos permitimos informarles que hemos autorizado el retiro de 
-                    cesantías por '.strtoupper($motivo->name).' señalado más adelante, en las siguientes condiciones:
-                </p>
-                <p>
-                    <b>Nombres del Funcionario(a):</b> '
-                    .strtoupper($funcionario->first_name . ' ' 
-                    . $funcionario->second_name . ' ' 
-                    . $funcionario->first_surname . ' ' 
-                    . $funcionario->second_surname).'
-                </p>
-                <p><b>Identificación:</b> '.number_format($funcionario->identifier, 0, "", ".").'</p>
-                <p><b>Concepto del Retiro:</b> '.strtoupper('????????').'</p>
-                <p>La empresa se compromete a vigilar la inversión de las cesantías de acuerdo con lo estipulado en las normas antes señaladas.</p>
-                <p>Cordialmente,</p>
+            <body style="margin: 2rem"; width: 700px>
+                <img style="float: right;" src="' . $logo . '">
+                <p style="margin-top:15px;"><b>Girón, '.$date->isoFormat('D MMMM Y').'</b></p>
+                <div style="margin-top:80px;"><b>Señores</b></div>
+                <div>'.strtoupper($compensation_fund->name).'</div>
+                <p style="margin-top:60px;"><b>ASUNTO:</b> '.strtoupper($asunto).'</p>
+                <p style="text-align: justify;">'. $p1 . '</p>
+                <table style="margin-top: 80px;">
+                    <tbody>
+                        <tr>
+                            <td style="width:50%;"><b>NOMBRE DEL EMPLEADO(A):</b></td>
+                            <td>'.strtoupper($funcionario->first_name . ' ' 
+                                . $funcionario->second_name . ' ' 
+                                . $funcionario->first_surname . ' ' 
+                                . $funcionario->second_surname).'
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><b>IDENTIFICACION:</b></td>
+                            <td>'.number_format($funcionario->identifier, 0, "", ".").'</td>
+                        </tr>
+                        ' . $valor . $motivotext . '
+                    </tbody>
+                </table>
+                <p style="margin-top:30px; text-align: justify">' . $p2 . '</p>
                 <table style="margin-top:50px">    
                     <tr>
-                        <td style="width:400px;padding-left:10px">
-                        <table>
-                        <tr>
-                            <td style="width:300px;font-weight:bold; border-top:1px solid black; text-align:center;">'.$funcionario->first_name . ' ' 
+                        <td>Cordialmente,</td>
+                        <td>Trabajador,</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 40px">
+                            ____________________________________
+                        </td>
+                        <td style="padding-top: 40px">
+                            ____________________________________
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:bold;">ALBERTO BALCARCEL ZAMBRANO</td>
+                        <td style="font-weight:bold;">'.$funcionario->first_name . ' ' 
                             . $funcionario->second_name . ' ' 
                             . $funcionario->first_surname . ' ' 
-                            . $funcionario->second_surname.'</td>
-                        </tr>
-                        <tr>
-                            <td style="width:300px;font-weight:bold; text-align:center;">C.C '.number_format($funcionario->identifier,0,"",".").' </td>    
-                        </tr>
-                        
-                        </table>
-                        </td>    
+                            . $funcionario->second_surname.'
+                        </td>
                     </tr>
+                    <tr>
+                        <td>Representante legal</td>
+                        <td>C.C '.number_format($funcionario->identifier,0,"",".").' </td>    
+                    </tr>                        
                 </table>
             </body>
         </html>';

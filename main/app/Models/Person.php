@@ -58,12 +58,12 @@ class Person extends Model
 
     public function work_contract()
     {
-        return $this->hasOne(WorkContract::class);
+        return $this->hasOne(WorkContract::class)->with('position', 'company');
     }
 
     public function work_contracts()
     {
-        return $this->hasMany(WorkContract::class);
+        return $this->hasMany(WorkContract::class)->with('position', 'company');
     }
 
     public function liquidado()

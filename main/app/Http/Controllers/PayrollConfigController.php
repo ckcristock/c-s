@@ -9,10 +9,12 @@ use App\Models\PayrollRisksArl;
 use App\Models\PayrollSocialSecurityCompany;
 use App\Models\PayrollSocialSecurityPerson;
 use App\PayrollDisabilityLeave;
+use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
 class PayrollConfigController extends Controller
 {
+    use ApiResponser;
     //
 
     public function horasExtrasDatos()
@@ -20,6 +22,11 @@ class PayrollConfigController extends Controller
         return PayrollOvertime::all();
     }
 
+    public function horasExtrasUpdate($id, Request $request) 
+    {
+        PayrollOvertime::find($id)->update($request->all());
+        return $this->success('Actualizado con éxito');
+    }
     public function incapacidadesDatos()
     {
         return 'En desarrollo';
