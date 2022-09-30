@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\WorkContract;
 use App\Services\CognitiveService;
 use App\Traits\ApiResponser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -355,7 +356,7 @@ class PersonController extends Controller
 		try {
 			$person = Person::find($id);
 			$person->update([
-				'status' => $request->status
+				'status' => $request->status,
 			]);
 			return $this->success('Liquidado con éxito');
 		} catch (\Throwable $th) {

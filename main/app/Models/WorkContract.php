@@ -12,6 +12,7 @@ class WorkContract extends Model
     protected $fillable = [
         'position_id',
         'date_end',
+        'old_date_end',
         'salary',
         'turn_type',
         'work_contract_type_id',

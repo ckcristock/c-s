@@ -38,7 +38,7 @@ class LiquidationsController extends Controller
      */
     public function store(Request $request)
     {
-        Person::where('id',$request->get('person_id'))->update(['status' => 'Liquidado']);
+        Person::where('id', $request->get('person_id'))->update(['status' => 'Liquidado']);
         Liquidation::create($request->all());
         return $this->success('Funcionario liquidado con éxito');
     }
@@ -49,9 +49,10 @@ class LiquidationsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
     public function show($id)
     {
-        //
+        return $this->success(Person::where('id', $id)->with('liquidation')->first());
     }
 
     /**

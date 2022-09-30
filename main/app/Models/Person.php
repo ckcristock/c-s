@@ -136,6 +136,10 @@ class Person extends Model
         return $this->belongsTo(Company::class,'company_worked_id');
     }
 
+    public function liquidation() 
+    {
+        return $this->hasOne(Liquidation::class);
+    }
 
 
 }
