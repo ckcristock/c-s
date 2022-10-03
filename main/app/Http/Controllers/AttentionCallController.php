@@ -57,7 +57,7 @@ class AttentionCallController extends Controller
                 'person_id' => $request->get('person_id'),
                 'user_id' => auth()->user()->id
             ]);
-            return $this->success('Creado Con Éxito');
+            return $this->success('Creado Con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

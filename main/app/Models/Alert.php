@@ -10,14 +10,13 @@ class Alert extends Model
     use HasFactory;
     protected $fillable = [
         'person_id',
+        'title',
+        'modal',
         'user_id',
-        'user_id',
+        'type',
         'icon',
         'description',
-        'type',
         'url',
         'destination_id',
-        'modal',
-        'title'
     ];
 }

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\WorkContract;
 use App\Services\CognitiveService;
 use App\Traits\ApiResponser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -43,13 +44,11 @@ class PersonController extends Controller
 	{
 		return $this->success(
 			Person::select('id as value', DB::raw('CONCAT_WS(" ", first_name, first_surname) as text '))
-            ->when( request()->get('name'), function($q, $fill)
-            {
-                $q->where(DB::raw('concat(first_name," ",first_surname)'),'like','%'.$fill.'%');
-                            
-            })
-            ->limit(100)
-            ->get()
+				->when(request()->get('name'), function ($q, $fill) {
+					$q->where(DB::raw('concat(first_name," ",first_surname)'), 'like', '%' . $fill . '%');
+				})
+				->limit(100)
+				->get()
 		);
 	}
 
@@ -58,11 +57,32 @@ class PersonController extends Controller
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function indexPaginate()
+	public function indexPaginate(Request $request)
 	{
-		$data = json_decode(Request()->get("data"), true);
+		return $this->success(
+			Person::with('work_contract')
+			->when($request->name, function ($q, $fill) {
+				$q->where("identifier", "like","%" . $fill . "%")
+					->orWhere(DB::raw('concat(first_name," ",first_surname)'),"LIKE","%" . $fill . "%");
+			})
+			->when($request->dependency_id, function ($q, $fill) {
+				$q->whereHas('work_contract', function ($q2) use($fill) {
+					$q2->whereHas('position', function ($q3) use($fill) {
+						$q3->where('dependency_id', '=', $fill);
+					});
+				});
+			})
+
+			->when($request->status, function ($q, $fill) {
+				$q->where("status", $fill);
+			})
+			->orderBy('first_name', 'asc')
+			->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1))
+		);
+
+		/* $data = json_decode(Request()->get("data"), true);
 		$page = $data["page"] ? $data["page"] : 1;
-		$pageSize = $data["pageSize"] ? $data["pageSize"] : 10;
+		$pageSize = $data["pageSize"] ? $data["pageSize"] : 12;
 
 		return $this->success(
 			DB::table("people as p")
@@ -108,9 +128,9 @@ class PersonController extends Controller
 				->when($data["status"], function ($q, $fill) {
 					$q->whereIn("p.status", $fill);
 				})
-
+				->orderBy('p.first_name', 'asc')
 				->paginate($pageSize, ["*"], "page", $page)
-		);
+		); */
 	}
 
 	public function getAll(Request $request)
@@ -170,7 +190,8 @@ class PersonController extends Controller
 					"w.salary",
 					"w.id as work_contract_id",
 					"p.signature",
-					"p.title"
+					"p.title",
+					"p.status"
 				)
 				->join("work_contracts as w", function ($join) {
 					$join->on(
@@ -208,7 +229,8 @@ class PersonController extends Controller
 					"p.id",
 					"p.image",
 					"p.second_name",
-					"p.second_surname"
+					"p.second_surname",
+					"p.status"
 				)
 				->join("work_contracts as w", function ($join) {
 					$join->on(
@@ -334,7 +356,7 @@ class PersonController extends Controller
 		try {
 			$person = Person::find($id);
 			$person->update([
-				'status' => $request->status
+				'status' => $request->status,
 			]);
 			return $this->success('Liquidado con éxito');
 		} catch (\Throwable $th) {
@@ -367,22 +389,25 @@ class PersonController extends Controller
 			$person = Person::find($id);
 			$personData = $request->all();
 			$cognitive = new CognitiveService();
-			if (!$person->personId) {
-				return '0';
+			if ($person->personId = null) {
+				//return '0';
 				$person->personId = $cognitive->createPerson($person);
 				$person->save();
 				$cognitive->deleteFace($person);
 			}
 			if (request()->get("image")) {
+				if (request()->get("image") != $person->image) {
+					$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
+					$faceUri = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
+					$person->update($personData);
 
-				$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
-				$faceUri = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
-				$person->update($personData);
-
-				$cognitive->deleteFace($person);
-				$person->persistedFaceId = $cognitive->createFacePoints($person);
-				$person->save();
-				$cognitive->train();
+					$cognitive->deleteFace($person);
+					$person->persistedFaceId = $cognitive->createFacePoints($person);
+					$person->save();
+					$cognitive->train();
+				} else {
+					$person->update($personData);
+				}
 			} else {
 				$person->update($personData);
 			}
@@ -406,7 +431,7 @@ class PersonController extends Controller
 
 			$personData = $request->get("person");
 
-			$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
+			$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], realpath('../../../public/app/public/people/'));
 
 			$personData["personId"] = null;
 
@@ -622,9 +647,8 @@ class PersonController extends Controller
 	public function blockOrActivateUser(Request $request, $id)
 	{
 		try {
-			$user = User::find($id);
-			$user->update($request->all());
-			return $this->success('Bloqueado con éxito');
+			User::where('person_id', $id)->update(['state' => $request->state]);
+			return $this->success('Actualizado con éxito');
 		} catch (\Throwable $th) {
 			return $this->error($th->getMessage(), 500);
 		}

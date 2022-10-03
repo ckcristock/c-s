@@ -28,7 +28,19 @@ class InventaryDotationController extends Controller
         $pageSize = $pageSize ? $pageSize : 10;
 
         return $this->success(
-            InventaryDotation::orderBy('id', 'DESC')->paginate($pageSize, '*', 'page', $page)
+            InventaryDotation::when(Request()->get('code'), function ($q, $fill) {
+                $q->where('code', 'like', '%' . $fill . '%');
+            })
+            ->when(Request()->get('name'), function ($q, $fill) {
+                $q->where('name', 'like', '%' . $fill . '%');
+            })
+            ->when(Request()->get('calidad'), function ($q, $fill) {
+                $q->where('status', 'like', '%' . $fill . '%');
+            })
+            ->when(Request()->get('tipo'), function ($q, $fill) {
+                $q->where('type', 'like', '%' . $fill . '%');
+            })    
+            ->orderBy('id', 'DESC')->paginate($pageSize, '*', 'page', $page)
         );
     }
 

@@ -34,7 +34,7 @@ class SeveranceFundController extends Controller
     public function store(SeveranceFundRequest $request) {
         try {
             $severanceFund = SeveranceFund::updateOrCreate( [ 'id'=> $request->get('id') ], $request->all() );
-            return ($severanceFund->wasRecentlyCreated) ? $this->success('creado con exito') : $this->success('actualizado con exito');
+            return ($severanceFund->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
         }

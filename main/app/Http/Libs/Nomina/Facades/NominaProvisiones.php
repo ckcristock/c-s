@@ -107,7 +107,7 @@ class NominaProvisiones extends PeriodoPago
             $this->facadeExtras['valor_total'],
             $this->facadeNovedades['novedades_totales'],
             $this->facadeRetenciones['retenciones']['Ingresos'],
-            $this->facadeExtras['horas_extras_totales']['rn'],
+            $this->facadeExtras['horas_extras_totales']['hrndf'],
             $this->facadeSalario['transportation_assistance'],
         );
 

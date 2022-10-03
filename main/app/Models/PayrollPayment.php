@@ -39,4 +39,11 @@ class PayrollPayment extends Model
         return $this->hasMany(SocialSecurityPersonPayrollPayment::class);
     }
 
+    public function scopeVacacionesAcumuladasFuncionarioWithId($query, $id)
+    {
+        return $query->select('id', 'start_period', 'end_period')->orderByRaw('start_period DESC, end_period DESC')->with(['provisionsPersonPayrollPayment' => function ($query) use ($id) {
+            $query->select('id', 'person_id', 'payroll_payment_id', 'accumulated_vacations')->where('person_id', $id);
+        }]);
+    }
+
 }

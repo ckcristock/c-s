@@ -18,7 +18,7 @@ class DocumentTypesController extends Controller
     public function index()
     {
         return $this->success(DocumentTypes::where('status', '=', 'Activo')
-        ->get(['name As text', 'id As value']));
+        ->get(['name As text', 'id As value', 'code']));
     }
 
     public function paginate()
@@ -54,7 +54,7 @@ class DocumentTypesController extends Controller
     {
         try {
             $typeDocument = DocumentTypes::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($typeDocument->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            return ($typeDocument->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
         }

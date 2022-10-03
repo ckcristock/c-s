@@ -49,7 +49,7 @@ class LunchValueController extends Controller
     {
         try {
             $value = LunchValue::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($value->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            return ($value->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             //throw $th;
             return $this->errorResponse( $th->getFile().$th->getMessage() );

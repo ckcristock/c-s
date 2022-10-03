@@ -23,12 +23,18 @@ class RrhhActivityTypeController extends Controller
             RrhhActivityType::get(['name As text', 'id As value'])
         );
     }
+    public function actives()
+    {
+        return $this->success(
+            RrhhActivityType::where('state','Activo')->get(['name As text', 'id As value'])
+        );
+    }
 
     public function store(Request $request)
     {
         try {
             $activity = RrhhActivityType::updateOrCreate(['id' => $request->get('id')], $request->all());
-            return ($activity->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            return ($activity->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(),500);
         }

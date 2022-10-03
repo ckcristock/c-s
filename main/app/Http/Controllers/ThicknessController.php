@@ -35,12 +35,12 @@ class ThicknessController extends Controller
             ?
             $this->success([
             'title' => '¡Creado con éxito!',
-            'text' => 'El Espesor ha sido creado satisfactoriamente'
+            'text' => 'El espesor ha sido creado satisfactoriamente'
             ])
             :
             $this->success([
             'title' => '¡Actualizado con éxito!',
-            'text' => 'El Espesor ha sido actualizado satisfactoriamente'
+            'text' => 'El espesor ha sido actualizado satisfactoriamente'
             ]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

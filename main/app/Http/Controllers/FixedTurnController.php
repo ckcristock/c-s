@@ -44,7 +44,7 @@ class FixedTurnController extends Controller
 		$fixed = FixedTurn::create($fixedTurnData);
 		$hours = $req->get("days");
 		$fixed->horariosTurnoFijo()->createMany($hours);
-		return $this->success("creado con éxito");
+		return $this->success("Creado con éxito");
 		try {
 		} catch (\Throwable $err) {
 			return $this->error($err->getMessage(), 500);

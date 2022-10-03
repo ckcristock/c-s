@@ -60,7 +60,7 @@ class CutLaserMaterialController extends Controller
                 $material["cut_laser_material_id"] = $materialDB->id;
                 CutLaserMaterialValue::create($material);
             }
-            return $this->success('Creado con éxtio');
+            return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), $th->getLine(), $th->getFile(), 500);
         }

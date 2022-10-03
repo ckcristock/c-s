@@ -27,6 +27,12 @@ class CityController extends Controller
 			->get(['*', 'id as value', 'name as text']));
 	}
 
+	public function getCitiesCountry($idCountry){
+		return $this->success(City::where('state', '=', 'Activo')		
+		->where('country_id', '=', "$idCountry")
+		->get(['*', 'id as value', 'name as text']));
+	}
+
 	public function paginate()
 	{
 		return $this->success(
@@ -71,7 +77,7 @@ class CityController extends Controller
 	{
 		try {
 			$city = City::updateOrCreate(['id' => $request->get('id')], $request->all());
-			return ($city->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+			return ($city->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
 		} catch (\Throwable $th) {
 			return $this->error($th->getMessage(), 500);
 		}

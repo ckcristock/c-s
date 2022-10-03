@@ -54,12 +54,12 @@ class VisaTypeController extends Controller
             ? 
             $this->success([
             'title' => '¡Creado con éxito!',
-            'text' => 'El Tipo de Visa ha sido creado satisfactoriamente'
+            'text' => 'El tipo de visa ha sido creado satisfactoriamente'
             ]) 
             : 
             $this->success([
             'title' => '¡Actualizado con éxito!',
-            'text' => 'El Tipo de Visa ha sido Actualizado satisfactoriamente'
+            'text' => 'El tipo de visa ha sido actualizado satisfactoriamente'
             ]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

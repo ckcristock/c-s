@@ -46,7 +46,7 @@ class BenefitIncomeController extends Controller
         try {
             //code...
             BenefitIncome::create($request->all());
-            return $this->success('creado con éxito');
+            return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             //throw $th;
             return $this->error($th->getMessage(), 500);

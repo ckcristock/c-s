@@ -32,11 +32,11 @@ class EpsController extends Controller
         );
     }
 
-    public function store(EpsRequest $request)
+    public function store(Request $request)
     {
         try {
             $eps = Eps::updateOrCreate(['id' => $request->get('id')], $request->all());
-            return ($eps->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+            return ($eps->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
         }

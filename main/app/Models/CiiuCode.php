@@ -9,7 +9,9 @@ class CiiuCode extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'code',
-        'description'
+        'title',
+        'subtitle',
+        'value',
+        'text'
     ];
 }

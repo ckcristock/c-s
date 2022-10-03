@@ -54,12 +54,12 @@ class DrivingLicenseController extends Controller
                 ? 
                 $this->success([
                 'title' => '¡Creado con éxito!',
-                'text' => 'La Licencia de Conducción ha sido creada satisfactoriamente'
+                'text' => 'La licencia de conducción ha sido creada satisfactoriamente'
                 ]) 
                 : 
                 $this->success([
                 'title' => '¡Actualizado con éxito!',
-                'text' => 'La Licencia de Conducción ha sido Actualizada satisfactoriamente'
+                'text' => 'La cicencia de conducción ha sido actualizada satisfactoriamente'
                 ]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

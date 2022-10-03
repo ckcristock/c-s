@@ -28,7 +28,10 @@ trait Porcentaje
 
     public function porcentajeRiesgosArl(Person $funcionario)
     {
-        return PayrollRisksArl::where('id', $funcionario->payroll_risks_arl_id)->first()['percentage'];
+        if(isset($funcionario->payroll_risks_arl_id)){
+            return PayrollRisksArl::where('id', $funcionario->payroll_risks_arl_id)->first()['percentage'];
+        }
+        
     }
 
     public function porcentajeSena()

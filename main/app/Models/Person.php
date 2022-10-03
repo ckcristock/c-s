@@ -27,6 +27,7 @@ class Person extends Model
         'gener',
         'identifier',
         'image',
+        'type_document_id',
         'marital_status',
         'number_of_children',
         'pants_size',
@@ -57,12 +58,12 @@ class Person extends Model
 
     public function work_contract()
     {
-        return $this->hasOne(WorkContract::class);
+        return $this->hasOne(WorkContract::class)->with('position', 'company');
     }
 
     public function work_contracts()
     {
-        return $this->hasMany(WorkContract::class);
+        return $this->hasMany(WorkContract::class)->with('position', 'company');
     }
 
     public function liquidado()
@@ -135,6 +136,10 @@ class Person extends Model
         return $this->belongsTo(Company::class,'company_worked_id');
     }
 
+    public function liquidation() 
+    {
+        return $this->hasOne(Liquidation::class);
+    }
 
 
 }

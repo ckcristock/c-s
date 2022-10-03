@@ -43,7 +43,7 @@ class MenuController extends Controller
 
     public function store(Request $request)
     {
-
+        //return $this->success($request->get('filteredmenu'));
         try {
             //code...
             self::$user = User::where('person_id', $request->get('person_id'))->first();
@@ -160,7 +160,7 @@ class MenuController extends Controller
     public function getByPerson()
     {
         self::$user = User::where('person_id', Request()->get('person_id'))->first();
-        $menus = Menu::whereNull('parent_id')->get(['id', 'name']);
+        $menus = Menu::whereNull('parent_id')->get(['id', 'name', 'icon']);
         foreach ($menus as &$item) {
 
             $item['child'] = [];

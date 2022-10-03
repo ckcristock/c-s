@@ -89,6 +89,8 @@ use App\Http\Controllers\PayVacationController;
 use App\Http\Controllers\PrettyCashController;
 use App\Http\Controllers\ProfessionController;
 use App\Http\Controllers\RetentionTypeController;
+use App\Http\Controllers\RegimeTypeController;
+use App\Http\Controllers\FiscalResponsibilityController;
 use App\Http\Controllers\RiskTypesController;
 use App\Http\Controllers\RotatingTurnDiaryController;
 use App\Http\Controllers\RotatingTurnHourController;
@@ -114,6 +116,13 @@ use App\Http\Controllers\LunchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SubcategoryController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\BoardController;
+use App\Http\Controllers\LayoffsCertificateController;
+use App\Http\Controllers\LiquidacionesController;
+use App\Http\Controllers\LiquidationsController;
+use App\Http\Controllers\ReasonWithdrawalController;
+use App\Http\Controllers\WorkCertificateController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\User;
@@ -170,7 +179,7 @@ Route::get('/image', function () {
 
     $path = Request()->get('path');
     if ($path) {
-        $path = storage_path('app/public') . '/' . $path;
+        $path = public_path('app/public') . '/' . $path;
         return response()->file($path);
     }
     return 'path not found';
@@ -179,7 +188,7 @@ Route::get('/image', function () {
 
 Route::get('/file', function () {
     $path = Request()->get('path');
-    $download = storage_path('app/' . $path);
+    $download = public_path('app' . '/' . $path);
     if ($path) {
         return response()->download($download);
     }
@@ -221,6 +230,7 @@ Route::group(
 
         Route::post('/jobs/set-state/{id}',  [JobController::class, 'setState']);
         Route::get('/payroll-factor-people',  [PayrollFactorController::class, 'indexByPeople']);
+        Route::get('/payroll-factor-people-count',  [PayrollFactorController::class, 'count']);
 
         Route::get('electronic-payroll/{id}',  [ElectronicPayrollController::class, 'getElectronicPayroll']);
         Route::get('electronic-payroll-paginate/{id}',  [ElectronicPayrollController::class, 'paginate']);
@@ -229,6 +239,7 @@ Route::group(
 
         /*CONFIG NOMINA*/
         Route::get('parametrizacion/nomina/extras', [PayrollConfigController::class, 'horasExtrasDatos']);
+        Route::put('parametrizacion/nomina/extras/update/{id}', [PayrollConfigController::class, 'horasExtrasUpdate']);
         Route::get('parametrizacion/nomina/incapacidades', [PayrollConfigController::class, 'incapacidadesDatos']);
         Route::get('parametrizacion/nomina/parafiscales', [PayrollConfigController::class, 'parafiscalesDatos']);
         Route::get('parametrizacion/nomina/riesgos', [PayrollConfigController::class, 'riesgosArlDatos']);
@@ -265,6 +276,7 @@ Route::group(
         Route::post('/rrhh-activity-types/set',  [RrhhActivityTypeController::class, 'setState']);
         // Route::put('/rrhh-activity/{id}', [RrhhActivityController::class, 'update']);
         Route::get('/rrhh-activity-types-all',  [RrhhActivityTypeController::class, 'all']);
+        Route::get('/rrhh-activity-types-actives',  [RrhhActivityTypeController::class, 'actives']);
         /** end*/
 
         /** Rutas del módulo de reporte de horarios */
@@ -347,6 +359,7 @@ Route::group(
 
         /** End Payroll */
         Route::resource('third-party-fields', ThirdPartyFieldController::class);
+        Route::put('changeStateField/{id}', [ThirdPartyFieldController::class, 'changeState']);
 
 
         /**
@@ -359,6 +372,13 @@ Route::group(
 
         /**End */
         Route::resource('applicants', ApplicantController::class);
+        Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
+        Route::resource('work-certificate', WorkCertificateController::class);
+        Route::get('paginate-work-certificate', [WorkCertificateController::class, 'paginate']);
+        Route::get('download-work-certificate/{id}', [WorkCertificateController::class, 'pdf']);
+        Route::resource('layoffs-certificate', LayoffsCertificateController::class);
+        Route::get('paginate-layoffs-certificate', [LayoffsCertificateController::class, 'paginate']);
+        Route::get('download-layoffs-certificate/{id}', [LayoffsCertificateController::class, 'pdf']);
         Route::resource('pretty-cash', PrettyCashController::class);
         Route::resource('dependencies', DependencyController::class);
         Route::resource('company', CompanyController::class);
@@ -377,6 +397,7 @@ Route::group(
         Route::resource('jobs', JobController::class);
         Route::resource('disability-leaves', DisabilityLeaveController::class);
         Route::resource('payroll-factor', PayrollFactorController::class);
+        Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
         Route::resource('inventary-dotation', InventaryDotationController::class);
         Route::resource('product-dotation-types', ProductDotationTypeController::class);
         Route::resource('dotations', DotationController::class);
@@ -423,6 +444,8 @@ Route::group(
         Route::resource('dian-address', DianAddressController::class);
         Route::resource('pay-vacation', PayVacationController::class);
         Route::resource('retention-type', RetentionTypeController::class);
+        Route::resource('regime-type', RegimeTypeController::class);
+        Route::resource('fiscal-responsibility', FiscalResponsibilityController::class);
         Route::resource('attention-call', AttentionCallController::class);
         Route::resource('cities', CityController::class);
         Route::resource('drivingLicenses', DrivingLicenseController::class);
@@ -430,6 +453,7 @@ Route::group(
         Route::resource('alerts', AlertController::class);
         Route::resource('geometry', GeometryController::class);
         Route::resource('measure', MeasureController::class);
+
         Route::resource('geometry-measure', GeometryMeasureController::class);
         Route::resource('materials', MaterialController::class);
         Route::resource('units', UnitController::class);
@@ -458,10 +482,11 @@ Route::group(
 
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
-
+        Route::get('measure-active', [MeasureController::class, 'measureActive']);
 
         /* Paginations */
         Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
+        Route::get('citiesCountry/{idCountry}', [CityController::class, 'getCitiesCountry']);
         Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
         Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
         Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
@@ -481,6 +506,8 @@ Route::group(
         Route::get('paginateProfessions', [ProfessionController::class, 'paginate']);
         Route::get('paginateFixedAssetType', [FixedAssetTypeController::class, 'paginate']);
         Route::get('paginateRetentionType', [RetentionTypeController::class, 'paginate']);
+        Route::get('paginateRegimeType', [RegimeTypeController::class, 'paginate']);
+        Route::get('paginateFiscalResponsibility', [FiscalResponsibilityController::class, 'paginate']);
         Route::get('paginateHotels', [HotelController::class, 'paginate']);
         Route::get('paginateTaxis', [TaxiControlller::class, 'paginate']);
         Route::get('paginateCities', [CityController::class, 'paginate']);
@@ -489,108 +516,153 @@ Route::group(
         Route::get('paginateMaterial', [MaterialController::class, 'paginate']);
         Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
         Route::get('paginateMachines', [MachineToolController::class, 'paginate']);
-		Route::get('paginateInternalProcesses', [InternalProcessController::class, 'paginate']);
-		Route::get('paginateExternalProcesses', [ExternalProcessController::class, 'paginate']);
-		Route::get('paginateMeasure', [MeasureController::class, 'paginate']);
-		Route::get('paginateIndirectCost', [IndirectCostController::class, 'paginate']);
-		Route::get('paginateCutLaserMaterial', [CutLaserMaterialController::class, 'paginate']);
-		Route::get('paginateAlert', [AlertController::class, 'paginate']);
-		Route::get('budgets-paginate', [BudgetController::class, 'paginate']);
-		Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
-		Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
-		Route::get('paginateApus', [ApuController::class, 'paginate']);
-		Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
-		/* Paginations */
+        Route::get('paginateInternalProcesses', [InternalProcessController::class, 'paginate']);
+        Route::get('paginateExternalProcesses', [ExternalProcessController::class, 'paginate']);
+        Route::get('paginateMeasure', [MeasureController::class, 'paginate']);
+        Route::get('paginateIndirectCost', [IndirectCostController::class, 'paginate']);
+        Route::get('paginateCutLaserMaterial', [CutLaserMaterialController::class, 'paginate']);
+        Route::get('paginateAlert', [AlertController::class, 'paginate']);
+        Route::get('budgets-paginate', [BudgetController::class, 'paginate']);
+        Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
+        Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
+        Route::get('paginateApus', [ApuController::class, 'paginate']);
+        Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
+        /* Paginations */
 
-		Route::get('person/{id}', [PersonController::class, 'basicData']);
-		Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
-		Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
-		Route::get('salary/{id}', [PersonController::class, 'salary']);
-		Route::post('salary', [PersonController::class, 'updateSalaryInfo']);
-		Route::get('afiliation/{id}', [PersonController::class, 'afiliation']);
-		Route::post('updateAfiliation/{id}', [PersonController::class, 'updateAfiliation']);
-		Route::get('epss', [PersonController::class, 'epss']);
-		Route::get('fixed_turn', [PersonController::class, 'fixed_turn']);
-		Route::post('enterpriseData', [WorkContractController::class, 'updateEnterpriseData']);
-		Route::get('countable_income', [BonificationsController::class, 'countable_income']);
-		Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
-		Route::get('preLiquidado', [WorkContractController::class, 'getPreliquidated']);
-		Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
-		Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
-		Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
-		Route::get('ListLimitated', [memorandumTypeController::class, 'getListLimitated']);
-		Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
-		Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
-		// !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
+        Route::get('person/{id}', [PersonController::class, 'basicData']);
+        Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
+        Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
+        Route::get('salary/{id}', [PersonController::class, 'salary']);
+        Route::post('salary', [PersonController::class, 'updateSalaryInfo']);
+        Route::get('afiliation/{id}', [PersonController::class, 'afiliation']);
+        Route::post('updateAfiliation/{id}', [PersonController::class, 'updateAfiliation']);
+        Route::get('epss', [PersonController::class, 'epss']);
+        Route::get('fixed_turn', [PersonController::class, 'fixed_turn']);
+        Route::post('enterpriseData', [WorkContractController::class, 'updateEnterpriseData']);
+        Route::get('countable_income', [BonificationsController::class, 'countable_income']);
+        Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
+        Route::get('preLiquidado', [WorkContractController::class, 'getPreliquidated']);
+        Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
+        Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
+        Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
+        Route::get('ListLimitated', [memorandumTypeController::class, 'getListLimitated']);
+        Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
+        Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
+        // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
-		/** Tutas de Empresas  */
-		Route::get('companyData', [CompanyController::class, 'getBasicData']);
-		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
-		Route::get('/company-global', [CompanyController::class, 'getGlobal']);
+        /** Tutas de Empresas  */
+        Route::get('companyData', [CompanyController::class, 'getBasicData']);
+        Route::get('companyAll', [CompanyController::class, 'getAllCompanies']);
+        Route::get('companyData/{id}', [CompanyController::class, 'getBasicDataForId']);
+        Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
+        Route::get('/company-global', [CompanyController::class, 'getGlobal']);
 
-		Route::resource("subcategory", SubcategoryController::class);
+        Route::resource("subcategory", SubcategoryController::class);
         Route::post("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
 
+        //boards
+        Route::get("board", [BoardController::class, "getData"]);
+        Route::post('person/set-board/{personId}/{board}', [BoardController::class, 'setBoardsPerson']);
+        Route::get('person/get-boards/{personId}', [BoardController::class, 'personBoards']);
+
+
+        //tareas
+        Route::get("task", [TaskController::class, "getData"]);
+        Route::post('upload', [TaskController::class, 'upload']);
+        Route::get('deletetask/{idTask}', [TaskController::class, 'deleteTask']);
+        Route::get('adjuntostask/{idTask}', [TaskController::class, 'adjuntosTask']);
+        Route::get('taskview/{id}', [TaskController::class, 'taskView']);
+        Route::post('newtask/{task}', [TaskController::class, 'newTask']);
+        Route::post('newcomment/{comment}', [TaskController::class, 'newComment']);
+        Route::get('deletecomment/{commentId}', [TaskController::class, 'deleteComment']);
+        Route::get('getarchivada/{id}', [TaskController::class, 'getArchivada']);
+        Route::get('task/{id}', [TaskController::class, 'personTask']);
+        Route::get('getcomments/{idTask}', [TaskController::class, 'getComments']);
+        Route::get('taskperson/{personId}', [TaskController::class, 'person']);
+        Route::get('taskfor/{id}', [TaskController::class, 'personTaskFor']);
+        Route::get('person-taskpendientes/{personId}', [TaskController::class, 'personTaskPendientes']);
+        Route::get('person-taskejecucion/{personId}', [TaskController::class, 'personTaskEjecucion']);
+        Route::get('person-taskespera/{personId}', [TaskController::class, 'personTaskEspera']);
+        Route::get('person-taskfinalizado/{personId}', [TaskController::class, 'personTaskFinalizado']);
+        Route::post('updatefinalizado/{id}', [TaskController::class, 'updateFinalizado']);
+        Route::post('updatependiente/{id}', [TaskController::class, 'updatePendiente']);
+        Route::post('updateejecucion/{id}', [TaskController::class, 'updateEjecucion']);
+        Route::post('updateespera/{id}', [TaskController::class, 'updateEspera']);
+        Route::post('updatearchivada/{id}', [TaskController::class, 'updateArchivado']);
+
         //se ejecuta al crear
-        Route::get("subcategory-field/{id}", [SubcategoryController::class,'getField']);
+        Route::get("subcategory-field/{id}", [SubcategoryController::class, 'getField']);
 
         //se ejecuta al editar
-        Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class,'getFieldEdit']);
+        Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class);
 
         Route::resource("category", CategoryController::class);
 
-		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
-		// Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
-		Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
-		Route::get('all-zones', [ZonesController::class, 'allZones']);
-		Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
-		Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
-		Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
-		Route::put('state-change', [LunchController::class, 'activateOrInactivate']);
-		Route::get('filter-all-depencencies', [DependencyController::class, 'dependencies']);
-		Route::get('filter-all-positions', [PositionController::class, 'positions']);
-		Route::get('alert/{id}', [AttentionCallController::class, 'callAlert']);
-		Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
-		Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
-		Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
-		Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
-		Route::get('users/{id}', [PersonController::class, 'user']);
-		Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
-		Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
-		Route::get('peopleSelects', [PersonController::class, 'peopleSelects']);
+        Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
+        // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
+        Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
+        Route::get('all-zones', [ZonesController::class, 'allZones']);
+        Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
+        Route::get('municipalities-for-dep/{id}', [MunicipalityController::class, 'municipalitiesForDep']);
+        Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
+        Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
+        Route::put('state-change', [LunchController::class, 'activateOrInactivate']);
+        Route::get('filter-all-depencencies', [DependencyController::class, 'dependencies']);
+        Route::get('filter-all-positions', [PositionController::class, 'positions']);
+        Route::get('alert/{id}', [AttentionCallController::class, 'callAlert']);
+        Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
+        Route::get('download-work-contracts/{id}', [WorkContractController::class, 'pdf']);
+        Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
+        Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
+        Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
+        Route::get('users/{id}', [PersonController::class, 'user']);
+        Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
+        Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
+        Route::get('peopleSelects', [PersonController::class, 'peopleSelects']);
+        Route::put('act-inact-medidas', [MeasureController::class, 'changeState']);
+        /****** Rutas del modulo APU PIEZA ******/
+        Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
+        Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
+        Route::get('material-thickness', [MaterialController::class, 'getMaterialThickness']);
+        /****** End Rutas del modulo APU PIEZA ******/
 
-		/****** Rutas del modulo APU PIEZA ******/
-		Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
-		Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
-		Route::get('material-thickness', [MaterialController::class, 'getMaterialThickness']);
-		/****** End Rutas del modulo APU PIEZA ******/
+        /** Liquidacion Funcionarios */
+        Route::get('nomina/liquidaciones/funcionarios/{id}/mostrar/{fechaFin?}', [LiquidacionesController::class, 'get']);
+        Route::post('nomina/liquidaciones/{id}/vacaciones_actuales', [LiquidacionesController::class, 'getWithVacacionesActuales']);
+        Route::post('nomina/liquidaciones/{id}/salario_base', [LiquidacionesController::class, 'getWithSalarioBase']);
+        Route::post('nomina/liquidaciones/{id}/bases', [LiquidacionesController::class, 'getWithBases']);
+        Route::post('nomina/liquidaciones/{id}/ingresos', [LiquidacionesController::class, 'getWithIngresos']);
+        Route::post('nomina/liquidaciones/previsualizacion', [LiquidacionesController::class, 'getPdfLiquidacion']);
+        Route::get('nomina/liquidaciones/dias-trabajados/{id}/{fechaFin}', [LiquidacionesController::class, 'getDiasTrabajados']);
+        Route::resource('liquidation', LiquidationsController::class);
 
-		/****** Rutas del modulo APU CONJUNTO ******/
-		Route::put('apu-set-activate-Inactive', [ApuSetController::class, 'activateOrInactivate']);
-		Route::get('apu-set/pdf/{id}', [ApuSetController::class, 'pdf']);
-		Route::get('apu-parts-list', [ApuSetController::class, 'apuParts']);
-		Route::get('apu-parts-find', [ApuPartController::class, 'find']);
 
-		Route::get('apu-sets-list', [ApuSetController::class, 'apuSets']);
-		Route::get('apu-sets-find', [ApuSetController::class, 'find']);
-		Route::post('calculation-bases-update', [CalculationBaseController::class, 'updateAll']);
-		/****** End Rutas del modulo APU CONJUNTO ******/
+        /****** Rutas del modulo APU CONJUNTO ******/
+        Route::put('apu-set-activate-Inactive', [ApuSetController::class, 'activateOrInactivate']);
+        Route::get('apu-set/pdf/{id}', [ApuSetController::class, 'pdf']);
+        Route::get('apu-parts-list', [ApuSetController::class, 'apuParts']);
+        Route::get('apu-parts-find', [ApuPartController::class, 'find']);
 
-		Route::get('budgets-download-client', [BudgetController::class, 'downloadClient']);
-		/****** Rutas del modulo APU Servicio ******/
-		Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
-		/****** End Rutas del modulo APU Servicio ******/
-		Route::get('lunches/download/{inicio?}/{fin?}', [LunchController::class, 'download'])->where([
-			'inicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
-			'fin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
-		]);
-		Route::get('legal_document/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'legalDocument']);
-		Route::post('legal_document', [DisciplinaryProcessController::class, 'saveLegalDocument']);
-		Route::put('legal_document/{id}', [DisciplinaryProcessController::class, 'InactiveDOcument']);
-		Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
+        Route::get('apu-sets-list', [ApuSetController::class, 'apuSets']);
+        Route::get('apu-sets-find', [ApuSetController::class, 'find']);
+        Route::post('calculation-bases-update', [CalculationBaseController::class, 'updateAll']);
+        /****** End Rutas del modulo APU CONJUNTO ******/
+
+        Route::get('budgets-download-client', [BudgetController::class, 'downloadClient']);
+        /****** Rutas del modulo APU Servicio ******/
+        Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
+        /****** End Rutas del modulo APU Servicio ******/
+        Route::get('lunches/download/{inicio?}/{fin?}', [LunchController::class, 'download'])->where([
+            'inicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+            'fin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+        ]);
+        Route::get('legal_document/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'legalDocument']);
+        Route::post('legal_document', [DisciplinaryProcessController::class, 'saveLegalDocument']);
+        Route::put('legal_document/{id}', [DisciplinaryProcessController::class, 'InactiveDOcument']);
+        Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
         Route::get('get-tasks/{id}', [BudgetController::class, 'getTasks']);
-	}
+    }
 );

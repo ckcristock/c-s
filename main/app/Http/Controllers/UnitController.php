@@ -45,12 +45,12 @@ class UnitController extends Controller
             ?
             $this->success([
             'title' => '¡Creado con éxito!',
-            'text' => 'La unidad ha sido creado satisfactoriamente'
+            'text' => 'La unidad ha sido creada satisfactoriamente'
             ])
             :
             $this->success([
             'title' => '¡Actualizado con éxito!',
-            'text' => 'La unidad ha sido Actualizado satisfactoriamente'
+            'text' => 'La unidad ha sido actualizada satisfactoriamente'
             ]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

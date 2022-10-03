@@ -88,8 +88,8 @@ class MemorandumController extends Controller
         ->join('attention_calls as a', function($join) {
             $join->on('a.person_id', '=', 'p.id');
         })
-        ->orderBy('a.created_at', 'desc')
         ->union($memorandum)
+        ->orderBy('created_at', 'desc')
         ->paginate($pageSize, ['*'],'page', $page);
         return $this->success(
             $attentionCall
@@ -129,7 +129,7 @@ class MemorandumController extends Controller
                 'person_id' => $request->person_id
             ] 
             );
-            return $this->success('Creado Con Éxito');
+            return $this->success('Creado Con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

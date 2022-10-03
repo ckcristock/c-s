@@ -83,7 +83,7 @@ class CalculationBaseController extends Controller
                 $base->save();
             }
 
-            return $this->success('creado con éxito');
+            return $this->success('Creado con éxito');
            
         } catch (\Throwable $th) {
             //throw $th;

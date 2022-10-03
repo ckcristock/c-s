@@ -243,7 +243,8 @@ class DisciplinaryProcessController extends Controller
                     'file' => $base64,
                     'disciplinary_process_id' => $file['disciplinary_process_id'],
                     'name' => $file['name'],
-                    'type' => $file['type']
+                    'type' => $file['type'],
+                    'motivo' => $file['motivo']
                 ]);
             }
 			return $this->success("Guardado con éxito");

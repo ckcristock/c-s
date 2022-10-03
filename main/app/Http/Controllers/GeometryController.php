@@ -54,8 +54,9 @@ class GeometryController extends Controller
     {
         try {
             $data = $request->except(["measures"]);
-            $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'geometries/', true);
-            
+            if ($data["image"] != ''){
+                $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'geometries/', true);
+            }              
             $geometry = Geometry::create($data);
             $measures = request()->get('measures');
 

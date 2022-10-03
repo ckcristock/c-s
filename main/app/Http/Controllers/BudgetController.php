@@ -105,7 +105,7 @@ class BudgetController extends Controller
                 'D.description',
                 'D.completed',
             )
-            ->where('D.id',$id)
+            ->where('D.business_budget_id',$id)
             ->orderBy('D.created_at', 'DESC')
             ->paginate($pageSize, '*', 'page', $page);
 

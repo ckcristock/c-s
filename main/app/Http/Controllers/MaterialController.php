@@ -91,7 +91,7 @@ class MaterialController extends Controller
                 MaterialField::create($field);
             }
 
-            return $this->success('Creado con éxtio');
+            return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), $th->getLine(), $th->getFile(), 500);
         }
