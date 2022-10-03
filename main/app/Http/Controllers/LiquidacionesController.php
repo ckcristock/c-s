@@ -18,7 +18,7 @@ use App\Models\PersonPayrollPayment;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 
 class LiquidacionesController extends Controller
 {
