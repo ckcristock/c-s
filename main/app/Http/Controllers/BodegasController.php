@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TravelExpenseEstimation;
-use App\Traits\ApiResponser;
+use App\Models\Bodegas;
+use App\Models\Estiba;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponser;
 
-class TravelExpenseEstimationController extends Controller
+class BodegasController extends Controller
 {
     use ApiResponser;
     /**
@@ -16,19 +17,18 @@ class TravelExpenseEstimationController extends Controller
      */
     public function index()
     {
-        return $this->success(
-            TravelExpenseEstimation::with('travelExpenseEstimationValues')->get()
-        );
+        return $this->success(Bodegas::with('estibas')->get());
     }
 
     public function paginate()
     {
+        return $this->success(Bodegas::with('estibas')->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
+    }
+
+    public function activarInactivar(){
         return $this->success(
-            TravelExpenseEstimation::with('travelExpenseEstimationValues')
-            ->when(request()->get('description'), function ($q, $fill) {
-                $q->where('description', 'like', '%' . $fill . '%');
-            })
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            Bodegas::where('Id_Bodega_Nuevo',request()->get('id'))
+            ->update(['Estado' => request()->get('state')])
         );
     }
 
@@ -50,12 +50,7 @@ class TravelExpenseEstimationController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $travelExpense = TravelExpenseEstimation::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($travelExpense->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
-        } catch (\Throwable $th) {
-            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
-        }
+        //
     }
 
     /**

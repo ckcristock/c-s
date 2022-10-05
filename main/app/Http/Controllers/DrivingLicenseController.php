@@ -25,7 +25,9 @@ class DrivingLicenseController extends Controller
     public function paginate()
     {
         return $this->success(
-            DrivingLicense::orderBy('type')
+            DrivingLicense::orderBy('type')->when(request()->get('tipo'), function ($q, $fill) {
+                $q->where('type', 'like', '%' . $fill . '%');
+            })
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }

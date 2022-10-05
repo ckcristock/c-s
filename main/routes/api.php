@@ -123,6 +123,7 @@ use App\Http\Controllers\LiquidacionesController;
 use App\Http\Controllers\LiquidationsController;
 use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
+use App\Http\Controllers\BodegasController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\User;
@@ -372,12 +373,11 @@ Route::group(
 
         /**End */
         Route::resource('applicants', ApplicantController::class);
+        Route::resource('bodegas', BodegasController::class);
         Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
         Route::resource('work-certificate', WorkCertificateController::class);
-        Route::get('paginate-work-certificate', [WorkCertificateController::class, 'paginate']);
         Route::get('download-work-certificate/{id}', [WorkCertificateController::class, 'pdf']);
         Route::resource('layoffs-certificate', LayoffsCertificateController::class);
-        Route::get('paginate-layoffs-certificate', [LayoffsCertificateController::class, 'paginate']);
         Route::get('download-layoffs-certificate/{id}', [LayoffsCertificateController::class, 'pdf']);
         Route::resource('pretty-cash', PrettyCashController::class);
         Route::resource('dependencies', DependencyController::class);
@@ -479,12 +479,20 @@ Route::group(
         Route::resource('lunch-value', LunchValueController::class);
         Route::resource('annotation', PersonInvolvedController::class);
         Route::resource('business', BusinessController::class);
+        Route::post('bodegas-activar-inactivar', [BodegasController::class,'activarInactivar']);
 
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
 
         /* Paginations */
+        Route::get('paginateBodegas', [BodegasController::class,'paginate']);
+        Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class,'paginate']);
+        Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class,'paginate']);
+        Route::get('paginateThickness', [ThicknessController::class, 'paginate']);
+        Route::get('paginate-work-certificate', [WorkCertificateController::class, 'paginate']);
+        Route::get('paginate-layoffs-certificate', [LayoffsCertificateController::class, 'paginate']);
+        Route::get('get-rotating-turns', [RotatingTurnController::class, 'paginate']);
         Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
         Route::get('citiesCountry/{idCountry}', [CityController::class, 'getCitiesCountry']);
         Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
@@ -515,6 +523,7 @@ Route::group(
         Route::get('paginateVisaTypes', [VisaTypeController::class, 'paginate']);
         Route::get('paginateMaterial', [MaterialController::class, 'paginate']);
         Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
+        Route::get('paginateUnits', [UnitController::class, 'paginate']);
         Route::get('paginateMachines', [MachineToolController::class, 'paginate']);
         Route::get('paginateInternalProcesses', [InternalProcessController::class, 'paginate']);
         Route::get('paginateExternalProcesses', [ExternalProcessController::class, 'paginate']);

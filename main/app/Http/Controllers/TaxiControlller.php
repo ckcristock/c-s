@@ -50,7 +50,7 @@ class TaxiControlller extends Controller
 			)
 			->when( request()->get('tipo'), function ($q, $fill)
 			{
-				$q->where('type','like','%'.$fill.'%');
+				$q->where('type','=',$fill);
 			})
 			->join('taxi_cities as tc', 'tc.taxi_id', '=', 't.id')
 			->join('cities as c', 'c.id', '=', 'tc.city_id')

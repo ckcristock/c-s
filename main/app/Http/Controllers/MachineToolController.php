@@ -117,6 +117,7 @@ class MachineToolController extends Controller
 
     public function paginate()
     {
+
         $machine = DB::table('machine_tools as m')
         ->select(
             'm.id',
@@ -128,6 +129,9 @@ class MachineToolController extends Controller
             'u.name as unit_name',
             'u.id as unit_id'
         )
+        ->when(request()->get('name'), function ($q, $fill) {
+            $q->where('m.name', 'like', '%' . $fill . '%');
+        })
         ->join('units as u', 'u.id', '=', 'm.unit_id');
         $internalProcesses = DB::table('internal_processes as i')
         ->select(
@@ -140,6 +144,9 @@ class MachineToolController extends Controller
             'u.name as unit_name',
             'u.id as unit_id'
             )
+            ->when(request()->get('name'), function ($q, $fill) {
+                $q->where('i.name', 'like', '%' . $fill . '%');
+            })
             ->join('units as u', 'u.id', '=', 'i.unit_id');
         $externalProcesses = DB::table('external_processes as e')
         ->select(
@@ -152,9 +159,13 @@ class MachineToolController extends Controller
             'u.name as unit_name',
             'u.id as unit_id'
         )
+        ->when(request()->get('name'), function ($q, $fill) {
+            $q->where('e.name', 'like', '%' . $fill . '%');
+        })
         ->join('units as u', 'u.id', '=', 'e.unit_id')
         ->union($internalProcesses)
         ->union($machine)
+        
         ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
         return $this->success($externalProcesses);
         /* return $this->success(
