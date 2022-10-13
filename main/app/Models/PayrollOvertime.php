@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class PayrollOvertime extends Model
 {
     use HasFactory;
+
     protected static $funcionario;
 
     protected $guarded = ['id'];
@@ -34,12 +35,12 @@ class PayrollOvertime extends Model
      * Settea la propiedad funcionario filtrando al funcionario que se pase por el parámetro $id,
      * retorna una nueva instancia de la clase 
      *
-     * @param integer $id
+     * @param Persona $persona
      * @return NominaExtras
      */
-    public static function extrasFuncionarioWithId($id)
+    public static function extrasFuncionarioWithPerson($persona)
     {
-        self::$funcionario = Person::find($id);
+        self::$funcionario = $persona;
 
         return new self;
     }
@@ -57,11 +58,17 @@ class PayrollOvertime extends Model
 
     public function fromTo($fechaInicio, $fechaFin)
     {
+        //consulta los prefijos en la DB PayrollOvertime
         $prefijos = PayrollOvertime::get(['prefix'])->keyBy('prefix')->keys();
+
+        //devuelve un builder
         $reporteExtras =  ExtraHourReport::where('person_id', self::$funcionario->id)->whereBetween('date', [$fechaInicio, $fechaFin]);
-        $salarioPartial = Person::with('contractultimate')->where('id', self::$funcionario->id)->firstOrFail();
-        $salario = $salarioPartial->contractultimate->salary;
         
+        //revisar que no vuelva a consultar la persona
+        //$salarioPartial = Person::with('contractultimate')->where('id', self::$funcionario->id)->firstOrFail();
+        //dd(self::$funcionario->contractultimate->salary);
+        //si una perona no tiene contrato, podría haber un error aquí o si no recibió el objeto completo 
+        $salario = self::$funcionario->contractultimate->salary;
         $calculoExtras = new CalculoExtra($prefijos, $reporteExtras, $salario);
         $calculoExtras->calcularCantidadHoras();
         $calculoExtras->setHorasReportadas($calculoExtras->getCantidadHoras());
@@ -70,7 +77,7 @@ class PayrollOvertime extends Model
         );
         $calculoExtras->calcularTotalHoras();
         $calculoExtras->calcularValorTotalHoras();
-       
+
         return $calculoExtras->crearColeccion();
     }
 }
