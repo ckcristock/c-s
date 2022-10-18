@@ -27,8 +27,15 @@ class MeasureController extends Controller
 
     public function paginate()
     {
-        return $this->success(
+        /* return $this->success(
             Measure::paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        ); */
+        return $this->success(
+            Measure::orderBy('state')
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
