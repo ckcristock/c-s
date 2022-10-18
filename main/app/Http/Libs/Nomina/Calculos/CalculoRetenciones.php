@@ -148,25 +148,24 @@ class CalculoRetenciones implements Coleccion
 
         $saldos_uvt = $saldo/$this->uvt;
 
-
         if ($saldos_uvt > 95 && $saldos_uvt <= 150) {
             $this->retencionFuente = round((($saldos_uvt-95)*$this->uvt) * 19 / 100);
-            $this->xcentajeFuente = "0.19";
+            $this->xcentajeFuente = "0.019";
         } elseif ($saldos_uvt > 150 && $saldos_uvt <= 360) {
             $this->retencionFuente = round((($saldos_uvt-150)*$this->uvt)  * 28 / 100) + (10*$this->uvt);
-            $this->xcentajeFuente = "0.28";
+            $this->xcentajeFuente = "0.028";
         } elseif ($saldos_uvt > 360 && $saldos_uvt <= 640) {
             $this->retencionFuente = round((($saldos_uvt-360)*$this->uvt)  * 33 / 100) + (69*$this->uvt);
-            $this->xcentajeFuente = "0.33";
+            $this->xcentajeFuente = "0.033";
         } elseif ($saldos_uvt > 640 && $saldos_uvt <= 945) {
             $this->retencionFuente = round((($saldos_uvt-640)*$this->uvt)  * 35 / 100)  + (162*$this->uvt);
-            $this->xcentajeFuente = "0.35";
+            $this->xcentajeFuente = "0.035";
         } elseif ($saldos_uvt > 945 && $saldos_uvt <= 2300) {
             $this->retencionFuente = round((($saldos_uvt-945)*$this->uvt)  * 37 / 100) + (268*$this->uvt);
-            $this->xcentajeFuente = "0.37";
+            $this->xcentajeFuente = "0.037";
         } elseif ($saldos_uvt > 2300) {
             $this->retencionFuente = round((($saldos_uvt-2300)*$this->uvt)  * 39 / 100) + (770*$this->uvt);
-            $this->xcentajeFuente = "0.39";
+            $this->xcentajeFuente = "0.039";
         } else {
             $this->retencionFuente = 0;
         }

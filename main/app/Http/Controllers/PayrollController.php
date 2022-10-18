@@ -582,7 +582,7 @@ class PayrollController extends Controller
             ->where('liquidated', '0');
         })->with(['payroll_factors' => $fechasNovedades])->get(['id', 'identifier', 'first_name', 'first_surname', 'image']); */
         try {
-            //code...
+
             $funcionariosResponse = [];
             foreach ($funcionarios as $funcionario1) {
                 $funcionario = Person::find($funcionario1->id);
@@ -591,19 +591,24 @@ class PayrollController extends Controller
                 $temIngresos = $this->getIngresos($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $tempNovedades = $this->getNovedades($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $tempDeducciones = $this->getDeducciones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
-                $tempSeguridad = $this->getSeguridad($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
-                $seguridad = $tempSeguridad['valor_total_seguridad'];
-                $parafiscal = $tempSeguridad['valor_total_parafiscales'];
-                $tempExtras = $this->getExtrasTotales($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
-                $extras = $tempExtras['valor_total'];
 
                 $salarioBase = NominaSalario::salarioFuncionarioWithPerson($funcionario)->fromTo($fechaInicioPeriodo, $fechaFinPeriodo)->calculate();
+
+                $tempExtras = $this->getExtrasTotales($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
+                $extras = $tempExtras['valor_total'];
 
                 //$retencion = $this->getRetenciones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
                 $retencion = NominaRetenciones::retencionesFuncionarioWithPerson($funcionario)
                     ->withParams($salarioBase, $tempExtras, $tempNovedades, $temIngresos, $fechaInicioPeriodo, $fechaFinPeriodo)
                     ->calculate();
 
+                //$tempSeguridad = $this->getSeguridad($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
+                $tempSeguridad = NominaSeguridad::seguridadFuncionarioWithPerson($funcionario)
+                        ->withParams($retencion, $tempNovedades, $fechaInicioPeriodo, $fechaFinPeriodo)
+                        ->calculate();
+
+                $seguridad = $tempSeguridad['valor_total_seguridad'];
+                $parafiscal = $tempSeguridad['valor_total_parafiscales'];
 
                 //$provision = $this->getProvisiones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
                 $provision = NominaProvisiones::provisionesFuncionarioWithPerson($funcionario)
@@ -615,24 +620,16 @@ class PayrollController extends Controller
                  * que use muchos de los facades Nominas ya empleados anteriormente
                  **/
                 //$salario = $this->getPagoNeto($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['total_valor_neto'];
-                /*$salario = new ResumenPago($salarioBase['salary'],
-                                           $salarioBase['transportation_assistance'],
-                                           $extras,
-                                           $tempNovedades['valor_total'],
-                                           $temIngresos['valor_total'],
-                                           $retencion['valor_total'],
-                                           $tempDeducciones['valor_total']
-                                        );
-                $salario->calculo();
-                $salario->crearColeccion();*/
+
                 $salario = NominaPago::pagoFuncionarioWithPerson($funcionario)
                         ->withParams($salarioBase, $tempExtras, $tempNovedades, $temIngresos, $retencion, $tempDeducciones, $fechaInicioPeriodo, $fechaFinPeriodo)
                         ->calculate();
-                //dd($salario);
+                //dd($temIngresos['valor_total']);
 
-
+                //$totalSalarios +=  $salario['total_valor_neto']; //que no incluya horas extras ni ingresos adicionales
+                //dd($salarioBase['salary']);
+                //$totalSalarios +=  $salarioBase['salary'];
                 $totalSalarios +=  $salario['total_valor_neto'];
-                //$totalSalarios +=  $salario;
                 $totalRetenciones += $retencion['valor_total'];
                 $totalSeguridadSocial += $seguridad;
                 $totalParafiscales += $parafiscal;
@@ -653,14 +650,14 @@ class PayrollController extends Controller
                     'horas_extras' => $tempExtras['horas_reportadas'],
                     'novedades' => $tempNovedades['novedades'],
                     'valor_ingresos_salariales' => ($temIngresos['valor_constitutivos'] +
-                        $tempNovedades['valor_total'] +
+                        //$tempNovedades['valor_total'] +
                         $extras),
                     'valor_ingresos_no_salariales' => $temIngresos['valor_no_constitutivos'],
                     'valor_deducciones' => $tempDeducciones['valor_total']
                 ];
             }
 
-
+//dd($totalIngresos);
 
             $totalCostoEmpresa += $totalSalarios + $totalRetenciones +   $totalSeguridadSocial + $totalParafiscales + $totalProvisiones;
 

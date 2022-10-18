@@ -120,14 +120,16 @@ class CalculoNovedades implements Coleccion
     }
 
     /**
-     * Registrar masivamente novedades, si ya existen en el container, simplemente se aumentan los días correspondientes de esa novedad, válido únicamente para vacaciones
+     * Registrar masivamente novedades, si ya existen en el container, simplemente se
+     * aumentan los días correspondientes de esa novedad, válido únicamente para vacaciones
      *
      * @param Collection $novedades
      * @return void
      */
     private function registroMasivoNovedades(Collection $novedades)
     {
-        //Se utiliza en caso de que el concepto de la novedad ya esté en el array de novedadesRegistradas, únicamente para las vacaciones actualmente
+        //Se utiliza en caso de que el concepto de la novedad ya esté en
+        //el array de novedadesRegistradas, únicamente para las vacaciones actualmente
         $diferenciaTemporal = 0;
         $novedades->each(function ($novedad) use (&$diferenciaTemporal) {
 
@@ -143,7 +145,7 @@ class CalculoNovedades implements Coleccion
             $this->registrarNovedad($novedad->disability_leave->concept, $diferencia, $novedad);
             $this->dias += $diferencia - $diferenciaTemporal;
         });
-    
+
     }
 
     public function custoRegisterNovedad($novedad)
@@ -169,12 +171,21 @@ class CalculoNovedades implements Coleccion
      */
     private function comprobarCondiciones($fechaInicio, $fechaFin)
     {
-        //Que la fecha del inicio de periodo de pago sea mayor/igual a la fecha de inicio de la novedad, o si es menor, que estén ambas en el mismo mes, por último que la fecha de inicio de periodo de pago sea menor/igual a la fecha final de la novedad (por si acaso....)
-        $condicionUno = $this->inicioPeriodo->greaterThanOrEqualTo($fechaInicio) || ($this->inicioPeriodo->lessThan($fechaInicio) && $this->inicioPeriodo->isSameMonth($fechaInicio)) && $this->inicioPeriodo->lessThanOrEqualTo($fechaFin);
+        //Que la fecha del inicio de periodo de pago sea mayor/igual a
+        //la fecha de inicio de la novedad, o si es menor, que estén ambas
+        //en el mismo mes, por último que la fecha de inicio de periodo de pago
+        //sea menor/igual a la fecha final de la novedad (por si acaso....)
+        $condicionUno = $this->inicioPeriodo->greaterThanOrEqualTo($fechaInicio) || ($this->inicioPeriodo
+                             ->lessThan($fechaInicio) && $this->inicioPeriodo
+                             ->isSameMonth($fechaInicio)) && $this->inicioPeriodo
+                             ->lessThanOrEqualTo($fechaFin);
 
-        //Que la fecha del fin de periodo de pago sea mayor/igual a la fecha de inicio de la novedad (por si acaso..), y que la fecha del fin de periodo de pago sea menor/igual a la fecha final de la novedad, o si es mayor, que estén ambas en el mismo mes.
+        //Que la fecha del fin de periodo de pago sea mayor/igual a la fecha de inicio
+        //de la novedad (por si acaso..), y que la fecha del fin de periodo de pago
+        //sea menor/igual a la fecha final de la novedad, o si es mayor, que estén ambas en el mismo mes.
         $condicionDos = $this->finPeriodo->greaterThanOrEqualTo($fechaInicio) &&
-            $this->finPeriodo->lessThanOrEqualTo($fechaFin) || ($this->finPeriodo->greaterThan($fechaFin) && $this->finPeriodo->isSameMonth($fechaFin));
+            $this->finPeriodo
+                 ->lessThanOrEqualTo($fechaFin) || ($this->finPeriodo->greaterThan($fechaFin) && $this->finPeriodo->isSameMonth($fechaFin));
 
         if ($condicionUno && $condicionDos) {
             return true;
@@ -202,8 +213,8 @@ class CalculoNovedades implements Coleccion
                     $dias = $this->inicioPeriodo->diffInDays($this->finPeriodo) + 1;
                     //Febrero
                     $dias = (($dias > 15 && $dias < 30) || $dias > 30) ? 30 : $dias;
-                    
-                    
+
+
                     //Si la novedad está en el mismo mes, descartar automáticamente demás opciones y asignar los dias iguales a la diferencia
                     if ($fechaInicio->isSameMonth($fechaFin)) {
                         $diferencia = $fechaFin->diffInDays($fechaInicio) + 1;
@@ -215,11 +226,13 @@ class CalculoNovedades implements Coleccion
                         $diferencia = $fechaFin->diffInDays($this->inicioPeriodo) + 1;
                         $dias = $diferencia;
                     }
-                    //Si ya existe el concepto de la novedad en el array novedadesRegistradas, entonces solo se suma a la que existe los días de la entrante, ej: suspensión => 2 días, suspensión => 1 día igual a suspensión => 3 días
-                 
+                    //Si ya existe el concepto de la novedad en el array novedadesRegistradas,
+                    //entonces solo se suma a la que existe los días de la entrante,
+                    //ej: suspensión => 2 días, suspensión => 1 día igual a suspensión => 3 días
+
                     if (collect($this->novedadesRegistradas)->has($novedad->disability_leave->concept)) {
                         $diferenciaTemporal = $this->novedadesRegistradas[$novedad->disability_leave->concept]['value'];
-                       
+
                         $dias += $diferenciaTemporal;
                     }
 
@@ -242,7 +255,7 @@ class CalculoNovedades implements Coleccion
     public function totalizarNovedad()
     {
         $configuracion = PayConfigurationCompany::with('percentage:id,value')->exclude(['created_at', 'updated_at'])->first();
-        
+
 
 
         foreach ($this->getNovedades() as $novedad => $item) {
@@ -276,11 +289,11 @@ class CalculoNovedades implements Coleccion
         $this->valorTotal =  collect($this->getTotalesNovedad())->values()->sum();
     }
 
-    /** 
-     * Aplicar el contract de la interfaz, crear la colección 
-     *  
+    /**
+     * Aplicar el contract de la interfaz, crear la colección
+     *
      * @return Illuminate\Support\Collection
-     * 
+     *
      * */
     public function crearColeccion()
     {
