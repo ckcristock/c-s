@@ -61,6 +61,11 @@ class Person extends Model
         return $this->hasOne(WorkContract::class)->with('position', 'company');
     }
 
+    public function work_contract_with_turn()
+    {
+        return $this->hasMany(WorkContract::class)->with('rotatingTurnWithDiaries');
+    }
+
     public function work_contracts()
     {
         return $this->hasMany(WorkContract::class)->with('position', 'company');
@@ -100,7 +105,7 @@ class Person extends Model
 
     public function diariosTurnoRotativo()
     {
-        return $this->hasMany(DiarioTurnoRotativo::class);
+        return $this->hasMany(DiarioTurnoRotativo::class, 'person_id', 'id');
     }
     public function diariosTurnoRotativoAyer()
     {

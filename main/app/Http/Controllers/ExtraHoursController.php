@@ -95,11 +95,8 @@ class ExtraHoursController extends Controller
 					return $this->success($this->extrasService->calcularExtras($funcionario));
 					break;
 				case 'Rotativo':
-
-
 					$funcionario =   $this->extrasService->funcionarioRotativo($filtroDiarioFecha);
 					return $this->success($this->extrasService->calcularExtras($funcionario));
-
 					break;
 				default:
 					return abort(404);

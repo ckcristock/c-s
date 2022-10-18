@@ -19,6 +19,6 @@ class DiarioTurnoRotativo extends Model
 
     public function funcionario()
     {
-        return $this->belongsTo(Funcionario::class);
+        return $this->belongsTo(Person::class, 'person_id');
     }
 }

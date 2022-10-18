@@ -14,6 +14,7 @@ class RotatingTurnHourController extends Controller
     use ApiResponser;
     public function getDatosGenerales($semana)
     {
+        //return $semana;
         $companies = Company::when(
             Request()->get("company_id"),
             function ($q, $fill) {
