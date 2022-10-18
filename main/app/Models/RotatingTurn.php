@@ -34,4 +34,14 @@ class RotatingTurn extends Model
 	{
 		return $this->belongsTo(RotatingTurn::class , 'saturday_id','id');
 	}
+
+	public function horariosTurnoRotativo()
+	{
+		return $this->hasMany(RotatingTurnHour::class);
+	}
+
+	public function diariosTurnoRotativo()
+	{
+		return $this->hasMany(DiarioTurnoRotativo::class);
+	}
 }

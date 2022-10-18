@@ -17,7 +17,7 @@ class FixedTurnController extends Controller
 	 */
 	public function index()
 	{
-		return $this->success(FixedTurn::all(["id as value", "name as text", "state"]));
+		return $this->success(FixedTurn::where('state', 'Activo')->get(["id as value", "name as text", "state"]));
 	}
 
 	/**
