@@ -374,6 +374,11 @@ Route::group(
         /**End */
         Route::resource('applicants', ApplicantController::class);
         Route::resource('bodegas', BodegasController::class);
+        Route::post('bodegas-activar-inactivar', [BodegasController::class,'activarInactivar']);
+        Route::post('grupos-bodegas', [BodegasController::class,'storeGrupo']);
+        Route::post('estibas', [BodegasController::class,'storeEstiba']);
+        Route::get('bodegas-with-estibas/{id}', [BodegasController::class,'bodegasConGrupos']);
+        Route::get('grupos-with-estibas/{id}', [BodegasController::class,'gruposConEstibas']);
         Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
         Route::resource('work-certificate', WorkCertificateController::class);
         Route::get('download-work-certificate/{id}', [WorkCertificateController::class, 'pdf']);
@@ -479,7 +484,6 @@ Route::group(
         Route::resource('lunch-value', LunchValueController::class);
         Route::resource('annotation', PersonInvolvedController::class);
         Route::resource('business', BusinessController::class);
-        Route::post('bodegas-activar-inactivar', [BodegasController::class,'activarInactivar']);
 
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
