@@ -25,7 +25,9 @@ class LunchValueController extends Controller
     {
         return $this->success(
             LunchValue::orderBy('created_at')
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            ->when(request()->get('value'), function ($q, $fill) {
+                $q->where('value', 'like', '%' . $fill . '%');
+            })->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
