@@ -23,6 +23,7 @@ class RotatingHourService
 			->join("positions as ps", "ps.id", "=", "w.position_id")
 			->where("ps.dependency_id", $id)
 			->where("w.turn_type", 'Rotativo')
+			->where("w.date_end", null)
 			->where("w.company_id", $company_id)
 			->when( Request()->get('person') , function($q, $fill)
             {

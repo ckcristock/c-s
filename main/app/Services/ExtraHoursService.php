@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Clases\stdObject;
 use App\Models\Company;
+use App\Models\DiarioTurnoRotativo;
 use App\Models\Person;
 use App\Models\RotatingTurn;
 use App\Services\TranslateService;
@@ -67,19 +68,19 @@ class ExtraHoursService
     public function getPeople($id, $turn, $company_id, $dates)
     {
         $query = DB::table('people as p')
-            ->join('work_contracts as w', function ($join) use ($dates) {
+             ->join('work_contracts as w', function ($join) use ($dates) {
                 $join->on('p.id', '=', 'w.person_id')
                     ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                 join people as u2 on u2.id = a2.person_id 
                 join work_contract_types as wt on a2. work_contract_type_id = wt.id 
                 WHERE date(a2.date_of_admission) <= "' . $dates[1] . '" 
                     and(
-                        date(a2.date_end) >= "' . $dates[0] . '"  or  wt.conclude = 0
+                        date(a2.date_end) >= "' . $dates[0] . '"  or  a2.date_end is null
                     )
                 group by u2.id
            
                 )');
-            })
+            }) 
             ->join('positions as ps', 'ps.id', '=', 'w.position_id')
             ->where('ps.dependency_id', $id)
             ->where('w.company_id', $company_id)
@@ -104,10 +105,10 @@ class ExtraHoursService
     public function funcionarioRotativo($filtroDiarioFecha)
     {
         $translateService = new TranslateService();
+        /* return Person::with('diariosTurnoRotativo')->get(); */
         $funcionario =  Person::with(['diariosTurnoRotativo' => $filtroDiarioFecha])
             ->with(['horariosTurnoRotativo' => $filtroDiarioFecha])
             ->find(request()->get('id'))->toArray();
-
         if (isset($funcionario['horarios_turno_rotativo'])) {
 
             $funcionario['daysWork'] = $funcionario['horarios_turno_rotativo'];
@@ -132,14 +133,15 @@ class ExtraHoursService
     {
         //Tiempo Asignado
         $tiempoAsignado = Company::first()->toArray()['work_time'];
-
+        return $funcionario;
         foreach ($funcionario['daysWork'] as $ky => $day) {
+            return $day;
             $descansa = false;
             switch ($descansa) {
                 case true:
                     break;
                 case false:
-                    if (isset($day[0])) {
+                    if (isset($day)) {
 
                         //Seteo valores
                         $toleranciaSalida = 0;

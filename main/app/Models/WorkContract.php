@@ -60,6 +60,20 @@ class WorkContract extends Model
     {
         return $this->belongsTo(FixedTurn::class);
     }
+    /**
+     * Get the user that owns the WorkContract
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function rotatingTurn()
+    {
+        return $this->belongsTo(RotatingTurn::class);
+    }
+
+    public function rotatingTurnWithDiaries()
+    {
+        return $this->belongsTo(RotatingTurn::class)->with('diariosTurnoRotativo');
+    }
 
     public function bonifications()
     {

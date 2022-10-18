@@ -135,7 +135,7 @@ class WorkCertificateController extends Controller
             ->find($work_certificate->person_id);
 
         $contract =
-        WorkContract::with('work_contract_type')->where('person_id', '=', $funcionario->id)
+            WorkContract::with('work_contract_type')->where('person_id', '=', $funcionario->id)
             ->first();
         $position =
             DB::table('positions')
@@ -146,7 +146,7 @@ class WorkCertificateController extends Controller
         } else {
             $addressee = 'A QUIEN INTERESE';
         }
-        if ($funcionario->gener == 'Masculino'){
+        if ($funcionario->gener == 'Masculino') {
             $gener = 'certifica que el señor';
         } else {
             $gener = 'certifica que la señora';
@@ -154,7 +154,7 @@ class WorkCertificateController extends Controller
         foreach ($json as $information) {
             if ($information == 'salario') {
                 $textoSalario = ' y devengando un salario mensual de ' . $formatterES->format($contract->salary) . ' ($' .
-                    number_format($contract->salary, 0, ".", ","). ')';
+                    number_format($contract->salary, 0, ".", ",") . ')';
             }
             if ($information == 'cargo') {
                 $textoCargo = ' desempeñando el cargo de 
@@ -177,36 +177,32 @@ class WorkCertificateController extends Controller
                 <p>' . $addressee . '</p>
                 <p style="margin-top:30px; text-align: justify;">
                     La empresa ' . $company->social_reason . ' con ' . $company->document_type . ' ' . $company->document_number . '-'
-                    . $company->verification_digit . ', ' . $gener .' 
+            . $company->verification_digit . ', ' . $gener . ' 
                             <b>'
-                    . $funcionario->first_name . ' '
-                    . $funcionario->second_name . ' '
-                    . $funcionario->first_surname . ' '
-                    . $funcionario->second_surname .
-                    '</b> 
+            . $funcionario->first_name . ' '
+            . $funcionario->second_name . ' '
+            . $funcionario->first_surname . ' '
+            . $funcionario->second_surname .
+            '</b> 
                     identificado(a) con cédula de ciudadanía No. 
-                    <b>' . number_format($funcionario->identifier, 0, "", ".") . '</b> de ' . $funcionario->place_of_birth .' laboró en la empresa
+                    <b>' . number_format($funcionario->identifier, 0, "", ".") . '</b> de ' . $funcionario->place_of_birth . ' laboró en la empresa
                     desde el ' . CARBON::parse($contract->date_of_admission)->locale('es')->isoFormat('DD MMMM YYYY') . ', con un contrato ' . $contract->work_contract_type->name .
-                    $textoCargo . $textoSalario . ', . La presente certificación se expide en Bucaramanga, al (los) ' . $date->format('d') . ' día(s) del mes de ' .
+            $textoCargo . $textoSalario . ', . La presente certificación se expide en Bucaramanga, al (los) ' . $date->format('d') . ' día(s) del mes de ' .
             $date->isoFormat('MMMM') . ' a solicitud del interesado. Y el motivo del retiro ' . $work_certificate->reason . '
                 </p>
-                <p style="margin-top:450px;">Atentamente;</p>
+                <p style="margin-top:280px;">Atentamente;</p>
 
-                <table style="margin-top:20px">    
+                <table style="margin-top:20px">   
                     <tr>
-                        <td style="width:300px;padding-left:10px">
-                            
-                        <table>
-                        <tr>
-                            <td style="width:300px;font-weight:bold; border-top:1px solid black; text-align:center;">
-                            ALBERTO BALCARCEL</td>
-                        </tr>
-                        <tr>
-                            <td style="width:300px;font-weight:bold; text-align:center;">Director administrativo</td>    
-                        </tr>
-                        
-                        </table>
-                        </td>    
+                        <td style="padding-top: 40px">
+                            ____________________________________
+                        </td>
+                    </tr> 
+                    <tr>                        
+                        <td style="font-weight:bold; text-align:center;">
+                            ALBERTO BALCARCEL <br>
+                            Director administrativo
+                        </td>   
                     </tr>
                 </table>
             </body>
