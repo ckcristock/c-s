@@ -19,6 +19,18 @@ class ThicknessController extends Controller
         return $this->success(
             Thickness::all()
         );
+
+    }
+    public function paginate()
+    {
+        return $this->success(
+            Thickness::orderBy('thickness')
+                ->when(request()->get('thickness'), function ($q, $fill) {
+                    $q->where('thickness', 'like','%'.$fill.'%');
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
+
     }
 
     /**

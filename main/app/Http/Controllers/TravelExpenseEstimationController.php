@@ -21,6 +21,17 @@ class TravelExpenseEstimationController extends Controller
         );
     }
 
+    public function paginate()
+    {
+        return $this->success(
+            TravelExpenseEstimation::with('travelExpenseEstimationValues')
+            ->when(request()->get('description'), function ($q, $fill) {
+                $q->where('description', 'like', '%' . $fill . '%');
+            })
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
+    }
+
     /**
      * Show the form for creating a new resource.
      *

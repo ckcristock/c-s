@@ -33,7 +33,7 @@ class HotelController extends Controller
 			Hotel::orderBy('type')
 			->when( request()->get('tipo') , function($q, $fill)
 			{
-				$q->where('type','like','%'.$fill.'%');
+				$q->where('type','=',$fill);
 			})
 			->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
 		);
