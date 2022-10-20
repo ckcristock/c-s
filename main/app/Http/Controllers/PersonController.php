@@ -63,7 +63,7 @@ class PersonController extends Controller
 			Person::with('work_contract')
 			->when($request->name, function ($q, $fill) {
 				$q->where("identifier", "like","%" . $fill . "%")
-					->orWhere(DB::raw('concat(first_name," ",first_surname)'),"LIKE","%" . $fill . "%");
+					->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'),"LIKE","%" . $fill . "%");
 			})
 			->when($request->dependency_id, function ($q, $fill) {
 				$q->whereHas('work_contract', function ($q2) use($fill) {
