@@ -12,20 +12,18 @@ use App\Models\Person;
 
 class NominaExtras extends PeriodoPago
 {
-    protected static $funcionario;
+    protected static Person $funcionario;
 
     /**
-     * Settea la propiedad funcionario filtrando al funcionario que se pase por el parámetro $id,
+     * Settea la propiedad funcionario que se pasa por el parámetro $person,
      * retorna una nueva instancia de la clase 
      *
-     * @param integer $id
-     * @return NominaExtras
+     * @param App\Models\Person $persona
+     
      */
-    public static function extrasFuncionarioWithId($id)
+    public static function extrasFuncionarioWithPerson($persona)
     {
-
-        self::$funcionario = Person::find($id);
-
+        self::$funcionario = $persona;
         return new self;
     }
 
@@ -41,20 +39,20 @@ class NominaExtras extends PeriodoPago
     public function fromTo($fechaInicio, $fechaFin)
     {
         $prefijos = PayrollOvertime::get(['prefix'])->keyBy('prefix')->keys();
-   
-        $reporteExtras =  ExtraHourReport::where('person_id', self::$funcionario->id)->whereBetween('date', [$fechaInicio, $fechaFin]);
+        $reporteExtras =  ExtraHourReport::where('person_id', self::$funcionario)->whereBetween('date', [$fechaInicio, $fechaFin]);
         $salarioPartial = Person::with('contractultimate')->where('id', self::$funcionario->id)->firstOrFail();
+        //$salarioPartial = self::$funcionario->contractultimate;
         $salario = $salarioPartial->contractultimate->salary;
 
         $calculoExtras = new CalculoExtra($prefijos, $reporteExtras, $salario);
         $calculoExtras->calcularCantidadHoras();
        
         $calculoExtras->setHorasReportadas($calculoExtras->getCantidadHoras());
-      
+        //$calculoExtras->getPrefijos() es lo mismo que $prefijos
         $calculoExtras->setPorcentajes(
             PayrollOvertime::enviarPorcentajes($calculoExtras->getPrefijos())
         );
-    
+        
         $calculoExtras->calcularTotalHoras();
         $calculoExtras->calcularValorTotalHoras();
         return $calculoExtras->crearColeccion();

@@ -2,8 +2,6 @@
 
 namespace App\Http\Libs\Nomina\Facades;
 
-use App\Models\IngresoNoPrestacional;
-use App\Models\IngresoPrestacional;
 
 use App\Http\Libs\Nomina\Calculos\CalculoIngresos;
 use App\Http\Libs\Nomina\PeriodoPago;
@@ -21,7 +19,7 @@ class NominaIngresos extends PeriodoPago
     /**
      * Funcionario al cual se le calculan las novedades
      *
-     * @var  App\Funcionario
+     * @var  App\Models\Person
      */
     protected static $funcionario;
 
@@ -50,12 +48,11 @@ class NominaIngresos extends PeriodoPago
      * Settea la propiedad funcionario filtrando al funcionario que se pase por el parámetro $id,
      * retorna una nueva instancia de la clase 
      *
-     * @param integer $id
-     * @return NominaIngesos
+     * @param App\Models\Person $persona
      */
-    public static function ingresosFuncionarioWithId($id)
+    public static function ingresosFuncionarioWithPerson($persona)
     {
-        self::$funcionario = Person::findOrFail($id);
+        self::$funcionario = $persona;
         return new self;
     }
 

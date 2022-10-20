@@ -19,7 +19,7 @@ class NominaNovedades extends PeriodoPago
     /**
      * Funcionario al cual se le calculan las novedades
      *
-     * @var  App\Funcionario
+     * @var  App\Models\Person
      */
     protected static $funcionario;
 
@@ -49,11 +49,11 @@ class NominaNovedades extends PeriodoPago
      * retorna una nueva instancia de la clase 
      *
      * @param integer $id
-     * @return NominaNovedades
+     
      */
-    public static function novedadesFuncionarioWithId($id)
+    public static function novedadesFuncionarioWithPerson($persona)
     {
-        self::$funcionario = Person::with('contractultimate')->find($id);
+        self::$funcionario = $persona;
         return new self;
     }
 

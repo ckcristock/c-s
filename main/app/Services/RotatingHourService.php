@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Carbon\Carbon;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -10,6 +11,7 @@ class RotatingHourService
 	/**Funciones de estadisticas */
 	public static function getPeople($id, $company_id)
 	{
+		$today = Carbon::now();
 		$compare = Request()->get('turn_type') == 'Rotativo' ? 'rotating_turn_diaries' : 'fixed_turn_diaries';
 		return DB::table("people as p")
 			->join("work_contracts as w", function ($join) {
@@ -23,7 +25,10 @@ class RotatingHourService
 			->join("positions as ps", "ps.id", "=", "w.position_id")
 			->where("ps.dependency_id", $id)
 			->where("w.turn_type", 'Rotativo')
-			->where("w.date_end", null)
+			->where(function ($query) use ($today) {
+				$query->where("w.date_end", null)
+					->orWhere("w.date_end", '>', $today);
+			})
 			->where("w.company_id", $company_id)
 			->when( Request()->get('person') , function($q, $fill)
             {

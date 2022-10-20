@@ -13,7 +13,7 @@ class NominaPago extends PeriodoPago
     /**
      * Funcionario al cual se le calcula el salario
      *
-     * @var  App\Funcionario
+     * @var  App\Models\Person
      */
     protected static $funcionario;
 
@@ -37,10 +37,12 @@ class NominaPago extends PeriodoPago
      * @var NominaSalario
      */
     protected $facadeSalario;
+
     /**
-     * Facade NominaExtras
+     * Facade  NominaExtras
      *
      * @var NominaExtras
+     *
      */
     protected $facadeExtras;
 
@@ -84,12 +86,12 @@ class NominaPago extends PeriodoPago
      * Settea la propiedad funcionario filtrando al funcionario que se pase por el parámetro $id,
      * retorna una nueva instancia de la clase
      *
-     * @param integer $id
-     * @return NominaSalario
-     */
-    public static function pagoFuncionarioWithId($id)
+     * @param App\Models\Person $persona
+     * 
+     **/
+    public static function pagoFuncionarioWithPerson($persona)
     {
-        self::$funcionario = Person::findOrFail($id);
+        self::$funcionario = $persona;
         return new self;
     }
 
@@ -99,38 +101,50 @@ class NominaPago extends PeriodoPago
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
 
-        $this->facadeSalario = NominaSalario::salarioFuncionarioWithId(self::$funcionario->id)
-            ->fromTo($this->fechaInicio, $this->fechaFin)
-            ->calculate();
+        $this->facadeSalario = NominaSalario::salarioFuncionarioWithPerson(self::$funcionario)
+                                ->fromTo($this->fechaInicio,$this->fechaFin)
+                                ->calculate();
 
 
-
-        $this->facadeExtras = NominaExtras::extrasFuncionarioWithId(self::$funcionario->id)
+        $this->facadeExtras = NominaExtras::extrasFuncionarioWithPerson(self::$funcionario)
             ->fromTo($this->fechaInicio, $this->fechaFin);
 
 
-
-        $this->facadeNovedades = NominaNovedades::novedadesFuncionarioWithId(self::$funcionario->id)
-            ->fromTo($this->fechaInicio, $this->fechaFin)
-            ->calculate();
-
-        $this->facadeIngresos = NominaIngresos::ingresosFuncionarioWithId(self::$funcionario->id)
+            $this->facadeNovedades = NominaNovedades::novedadesFuncionarioWithPerson(self::$funcionario)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
 
 
-        $this->facadeRetenciones = NominaRetenciones::retencionesFuncionarioWithId(self::$funcionario->id)
+        $this->facadeIngresos = NominaIngresos::ingresosFuncionarioWithPerson(self::$funcionario)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
 
 
-        $this->facadeDeducciones = NominaDeducciones::deduccionesFuncionarioWithId(self::$funcionario->id)
+        $this->facadeRetenciones = NominaRetenciones::retencionesFuncionarioWithPerson(self::$funcionario)
+            ->fromTo($this->fechaInicio, $this->fechaFin)
+            ->calculate();
+
+
+        $this->facadeDeducciones = NominaDeducciones::deduccionesFuncionarioWithPerson(self::$funcionario)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
 
         return $this;
     }
 
+    public function withParams($salario, $extras, $novedades, $ingresos, $retenciones, $deducciones, $fechaInicio, $fechaFin)
+    {
+        $this->fechaInicio = $fechaInicio;
+        $this->fechaFin = $fechaFin;
+
+        $this->facadeSalario = $salario;
+        $this->facadeExtras = $extras;
+        $this->facadeNovedades = $novedades;
+        $this->facadeIngresos = $ingresos;
+        $this->facadeRetenciones = $retenciones;
+        $this->facadeDeducciones = $deducciones;
+        return $this;
+    }
 
     public function calculate()
     {
@@ -146,6 +160,7 @@ class NominaPago extends PeriodoPago
                 $this->facadeDeducciones['valor_total']
             );
         $this->resumenPago->calculo();
+        $this->resumenPago->crearColeccion();
 
         return $this->resumenPago->crearColeccion();
     }
