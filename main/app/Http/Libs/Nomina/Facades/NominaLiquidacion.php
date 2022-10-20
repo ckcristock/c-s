@@ -27,18 +27,22 @@ class NominaLiquidacion
      * Obtener el funcionario con el id que se pasa por parámetro
      *
      * @param  Person $persona
-     
+
      */
     public static function liquidacionFuncionarioWithPerson($persona)
     {
-        //self::$funcionario = Person::with('work_contracts')->find($id);
-        self::$funcionario = $persona;
+        if (gettype($persona)==='string') {
+            self::$funcionario = Person::with('work_contracts')->find($persona);
+        }else {
+            self::$funcionario = $persona;
+        }
+        //dd(self::$funcionario);
         //return self::$funcionario;
         return new self;
     }
 
     /**
-     * Primero se obtiene el valor de auxilio de transporte configurado en la empresa, necesario para hacer cálculos de las bases de 
+     * Primero se obtiene el valor de auxilio de transporte configurado en la empresa, necesario para hacer cálculos de las bases de
      * prima y cesantías, siguiente se crea la configuración inicial de la indemnización en caso de que se requiera, después se calculan los dias a liquidar
      *
      * @param string $fechaFin
@@ -46,7 +50,7 @@ class NominaLiquidacion
      */
     public function until($fechaFin = null)
     {
-        
+
         if (self::$funcionario->work_contracts[0]->company->transportation_assistance) {
             $this->auxilioTransporte = Company::first(['transportation_assistance'])['transportation_assistance'];
         }
@@ -129,7 +133,7 @@ class NominaLiquidacion
         //Consulta para traer los dias acumulados en vacaciones del ultimo periodo
         $consultaPeriodo = PayrollPayment::vacacionesAcumuladasFuncionarioWithId(self::$funcionario->id)->first();
 
-        //Extraer valor ya que se devuelve una instancia de PagoNomina 
+        //Extraer valor ya que se devuelve una instancia de PagoNomina
         $vacaionesUltimoPeriodo = $consultaPeriodo ?: ['provisionsPersonPayrollPayment'][0]['accumulated_vacations'];
 
         //Settear los días acumulados en el último periodo
