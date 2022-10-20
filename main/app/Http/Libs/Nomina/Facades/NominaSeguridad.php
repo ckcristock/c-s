@@ -2,9 +2,6 @@
 
 namespace App\Http\Libs\Nomina\Facades;
 
-use App\Models\Funcionario;
-use App\Models\Empresa;
-
 use App\Http\Libs\Nomina\Calculos\CalculoSeguridad;
 use App\Http\Libs\Nomina\PeriodoPago;
 use App\Models\Company;
@@ -15,9 +12,9 @@ class NominaSeguridad extends PeriodoPago
     /**
      * Funcionario al cual se le calcula el salario
      *
-     * @var  App\Funcionario
+     * @var  App\Models\Person
      */
-    protected static $funcionario;
+    protected static Person $funcionario;
 
     /**
      * Fecha de inicio del periodo de pago
@@ -57,14 +54,15 @@ class NominaSeguridad extends PeriodoPago
 
     /**
      * Settea la propiedad funcionario filtrando al funcionario que se pase por el parámetro $id,
-     * retorna una nueva instancia de la clase 
+     * retorna una nueva instancia de la clase
      *
-     * @param integer $id
-     * @return NominaSalario
-     */
-    public static function seguridadFuncionarioWithId($id)
+     * @param App\Models\Person $persona
+          */
+    public static function seguridadFuncionarioWithPerson($persona)
     {
-        self::$funcionario = Person::with('contractultimate')->findOrFail($id);
+        //self::$funcionario = Person::with('contractultimate')->findOrFail($id);
+        self::$funcionario = $persona;
+        //$this->funcionario =$persona;
         self::$empresa = Company::first();
         return new self;
     }
@@ -74,14 +72,25 @@ class NominaSeguridad extends PeriodoPago
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
 
-        $this->facadeRetenciones = NominaRetenciones::retencionesFuncionarioWithId(self::$funcionario->id)
+        $this->facadeRetenciones = NominaRetenciones::retencionesFuncionarioWithPerson(self::$funcionario)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
-         
-        $this->facadeNovedades = NominaNovedades::novedadesFuncionarioWithId(self::$funcionario->id)
+
+        $this->facadeNovedades = NominaNovedades::novedadesFuncionarioWithPerson(self::$funcionario)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
-       
+
+
+        return $this;
+    }
+
+    public function withParams($retenciones, $novedades, $fechaInicio, $fechaFin)
+    {
+        $this->fechaInicio = $fechaInicio;
+        $this->fechaFin = $fechaFin;
+
+        $this->facadeRetenciones = $retenciones;
+        $this->facadeNovedades = $novedades;
 
         return $this;
     }
@@ -89,7 +98,7 @@ class NominaSeguridad extends PeriodoPago
     public function calculate()
     {
         $salarioMinimo = self::$empresa['base_salary'];
-       
+
         $this->calculoSeguridad = new CalculoSeguridad(
             $this->facadeRetenciones['IBC_seguridad'],
             $this->facadeRetenciones['retenciones']['Salario'],
@@ -98,9 +107,9 @@ class NominaSeguridad extends PeriodoPago
             $this->facadeRetenciones['retenciones']['Ingresos'],
             $this->facadeNovedades['novedades_totales']['Vacaciones'] ?? 0
         );
-        
+
         $this->calculoSeguridad->calcularIbcRiesgos($salarioMinimo)->calcularIbcParafiscales();
-        
+
         $this->calculoSeguridad->calcularPension()->calcularSalud(self::$empresa['law_1607'], $salarioMinimo)
             ->calcularRiesgos(self::$funcionario);
 
@@ -108,13 +117,13 @@ class NominaSeguridad extends PeriodoPago
             ->calcularSena(self::$empresa['law_1607'], $salarioMinimo)
             ->calcularIcbf(self::$empresa['law_1607'], $salarioMinimo)
             ->calcularCajaCompensacion();
-        
+
         $this->calculoSeguridad
             ->calcularTotalSeguridadSocial()
             ->calcularTotalParafiscales();
-           
+
         $this->calculoSeguridad->calcularTotal();
-       
+
         return $this->calculoSeguridad->crearColeccion();
     }
 }

@@ -15,7 +15,7 @@ class NominaDeducciones extends PeriodoPago
     /**
      * Funcionario al cual se le calculan las retenciones
      *
-     * @var  App\Funcionario
+     * @var  App\Models\Person
      */
     protected static $funcionario;
 
@@ -41,15 +41,15 @@ class NominaDeducciones extends PeriodoPago
     protected $fechaFin;
 
     /**
-     * Settea la propiedad funcionario filtrando al funcionario que se pase por el parámetro $id,
+     * Settea la propiedad funcionario que se pasa por el parámetro $person,
      * retorna una nueva instancia de la clase 
      *
-     * @param integer $id
-     * @return NominaDeducciones
+     * @param App\Models\Person $persona
+     
      */
-    public static function deduccionesFuncionarioWithId($id)
+    public static function deduccionesFuncionarioWithPerson($persona)
     {
-        self::$funcionario = Person::find($id);
+        self::$funcionario = $persona;
         return new self;
     }
 
@@ -57,7 +57,6 @@ class NominaDeducciones extends PeriodoPago
     {
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
-
         $this->calculoDeducciones = new CalculoDeducciones(
             Deduction::periodo(self::$funcionario, $this->fechaInicio, $this->fechaFin)
         );

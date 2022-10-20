@@ -99,7 +99,6 @@ class CalculoDeducciones implements Coleccion
 
         foreach ($this->deducciones->groupBy('deduccion.concept') as  $deduccion) {
             $this->suma = 0;
-           # dd($deduccion);
             foreach ($deduccion as  $concepto) {
                 $this->suma += $concepto->value;
                 $this->conceptoAux = $concepto;
