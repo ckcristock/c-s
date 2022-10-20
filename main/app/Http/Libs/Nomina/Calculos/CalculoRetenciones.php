@@ -21,6 +21,8 @@ class CalculoRetenciones implements Coleccion
     protected $retencionFuente;
     protected $salarioSMLV;
     protected $salarioFuncionario;
+    protected $tipoXcentajeSubsitencia;
+    protected $xcentajeFuente;
 
     /**
      * Constructor
@@ -93,7 +95,7 @@ class CalculoRetenciones implements Coleccion
     public function calcularIbcSeguridad()
     {
         //dd($this->retenciones);
-        foreach ($this->retenciones as $retencion => $valor) { 
+        foreach ($this->retenciones as $retencion => $valor) {
             $this->ibcSeguridad += $valor;
         }
     }
@@ -136,29 +138,34 @@ class CalculoRetenciones implements Coleccion
 
         return $this;
     }
-    
+
     public function calculoIBCRetencionFuente()
     {
         $salario_final = ($this->salarioFuncionario-($this->salud + $this->pension + $this->fondoSolidaridad + $this->fondoSubsistencia));
         $deduccion = (($this->salarioFuncionario-($this->salud + $this->pension + $this->fondoSolidaridad + $this->fondoSubsistencia))*25/100);
-        
+
         $saldo =  $salario_final - $deduccion;
-        
+
         $saldos_uvt = $saldo/$this->uvt;
-        //dd($saldos_uvt);
-        
+
         if ($saldos_uvt > 95 && $saldos_uvt <= 150) {
             $this->retencionFuente = round((($saldos_uvt-95)*$this->uvt) * 19 / 100);
+            $this->xcentajeFuente = "0.019";
         } elseif ($saldos_uvt > 150 && $saldos_uvt <= 360) {
             $this->retencionFuente = round((($saldos_uvt-150)*$this->uvt)  * 28 / 100) + (10*$this->uvt);
+            $this->xcentajeFuente = "0.028";
         } elseif ($saldos_uvt > 360 && $saldos_uvt <= 640) {
             $this->retencionFuente = round((($saldos_uvt-360)*$this->uvt)  * 33 / 100) + (69*$this->uvt);
+            $this->xcentajeFuente = "0.033";
         } elseif ($saldos_uvt > 640 && $saldos_uvt <= 945) {
             $this->retencionFuente = round((($saldos_uvt-640)*$this->uvt)  * 35 / 100)  + (162*$this->uvt);
+            $this->xcentajeFuente = "0.035";
         } elseif ($saldos_uvt > 945 && $saldos_uvt <= 2300) {
             $this->retencionFuente = round((($saldos_uvt-945)*$this->uvt)  * 37 / 100) + (268*$this->uvt);
+            $this->xcentajeFuente = "0.037";
         } elseif ($saldos_uvt > 2300) {
             $this->retencionFuente = round((($saldos_uvt-2300)*$this->uvt)  * 39 / 100) + (770*$this->uvt);
+            $this->xcentajeFuente = "0.039";
         } else {
             $this->retencionFuente = 0;
         }
@@ -173,21 +180,38 @@ class CalculoRetenciones implements Coleccion
 
     public function calculoIBCFondoSubsistencia()
     {
-        if ($this->salarioFuncionario >= $this->salarioSMLV * 16 && $this->salarioFuncionario <= $this->salarioSMLV * 17) {
+        $this->tipoXcentajeSubsitencia = 'fondo_solidaridad';
 
-            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia()['fondo_subsistencia_02']);
-        } elseif ($this->salarioFuncionario > $this->salarioSMLV * 17 && $this->salarioFuncionario <= $this->salarioSMLV * 18) {
+        $this->salarioFuncionario = intval($this->salarioFuncionario);
 
-            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia()['fondo_subsistencia_04']);
-        } elseif ($this->salarioFuncionario > $this->salarioSMLV * 18 && $this->salarioFuncionario <= $this->salarioSMLV * 19) {
+        if ($this->salarioFuncionario < ($this->salarioSMLV * 4)) {
+            $this->tipoXcentajeSubsitencia = 'fondo_subsistencia_0';
+            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia('fondo_subsistencia_0'));
 
-            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia()['fondo_subsistencia_06']);
-        } elseif ($this->salarioFuncionario > $this->salarioSMLV * 19 && $this->salarioFuncionario <= $this->salarioSMLV * 20) {
+        } elseif ($this->salarioFuncionario >= ($this->salarioSMLV * 4) && $this->salarioFuncionario <= ($this->salarioSMLV * 16)) {
+            $this->tipoXcentajeSubsitencia = 'fondo_subsistencia_1';
+            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia('fondo_subsistencia_1'));
 
-            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia()['fondo_subsistencia_08']);
-        } elseif ($this->salarioFuncionario > $this->salarioSMLV * 20) {
+        } elseif ($this->salarioFuncionario >= ($this->salarioSMLV * 16) && $this->salarioFuncionario <= ($this->salarioSMLV * 17)) {
+            $this->tipoXcentajeSubsitencia = 'fondo_subsistencia_2';
+            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia('fondo_subsistencia_2'));
 
-            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia()['fondo_subsistencia_1']);
+        } elseif ($this->salarioFuncionario > ($this->salarioSMLV * 17) && $this->salarioFuncionario <= ($this->salarioSMLV * 18)) {
+            $this->tipoXcentajeSubsitencia = 'fondo_subsistencia_3';
+            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia('fondo_subsistencia_3'));
+
+        } elseif ($this->salarioFuncionario > ($this->salarioSMLV * 18) && $this->salarioFuncionario <= ($this->salarioSMLV * 19)) {
+            $this->tipoXcentajeSubsitencia = 'fondo_subsistencia_4';
+            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia('fondo_subsistencia_4'));
+
+        } elseif ($this->salarioFuncionario > ($this->salarioSMLV * 19) && $this->salarioFuncionario <= ($this->salarioSMLV * 20)) {
+            $this->tipoXcentajeSubsitencia = 'fondo_subsistencia_5';
+            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia('fondo_subsistencia_5'));
+
+        } elseif ($this->salarioFuncionario > ($this->salarioSMLV * 20)) {
+            $this->tipoXcentajeSubsitencia = 'fondo_subsistencia_6';
+            $this->fondoSubsistencia = round($this->ibcSeguridad * $this->porcentajesFondoSubsistencia('fondo_subsistencia_6'));
+
         }
          return $this;
     }
@@ -196,7 +220,7 @@ class CalculoRetenciones implements Coleccion
     {
         return $this->fondoSubsistencia;
     }
-    
+
     public function getRetencionFuente()
     {
         return $this->retencionFuente;
@@ -214,10 +238,16 @@ class CalculoRetenciones implements Coleccion
                 'Retencion en la Fuente' => $this->getRetencionFuente()
             ]),
             'porcentajes' => new Collection([
-                'Salud' => $this->porcentajeSalud(),
-                'Pensión' => $this->porcentajePension(),
+                //'Salud' => $this->porcentajeSalud(),
+                'Salud' => $this->porcentajeSaludFunc(),
+                //'Pensión' => $this->porcentajePension(),
+                'Pensión' => $this->porcentajePensionFunc(),
+                //'Fondo de solidaridad' => $this->porcentajeFondoSolidaridad(),
                 'Fondo de solidaridad' => $this->porcentajeFondoSolidaridad(),
-                'Retencion en la Fuente' => 0,
+                //'Fondo de subsistencia' => $this->porcentajesFondoSubsistencia($this->tipoXcentajeSubsitencia),
+                'Fondo de subsistencia' => $this->porcentajesFondoSubsistencia($this->tipoXcentajeSubsitencia),
+                //'Retencion en la Fuente' => $this->porcentajesFondoSubsistencia($this->tipoXcentajeSubsitencia),
+                'Retencion en la Fuente' => $this->xcentajeFuente
             ]),
             'IBC_seguridad' =>  $this->getIbcSeguridad(),
             'valor_total' => $this->getIBCRetenciones()

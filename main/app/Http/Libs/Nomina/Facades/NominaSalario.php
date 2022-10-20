@@ -18,9 +18,10 @@ class NominaSalario extends PeriodoPago
     /**
      * Funcionario al cual se le calcula el salario
      *
-     * @var  App\Funcionario
+     * @var  App\Models\Person
      */
     protected static $funcionario;
+
     static $auxilioTransporte;
 
     /**
@@ -56,20 +57,21 @@ class NominaSalario extends PeriodoPago
      * retorna una nueva instancia de la clase
      *
      * @param integer $id
-     * @return NominaSalario
+     
      */
-     
      public function __construct(){
-         $this->geAuxilioTransporte();
-     }
+        $this->geAuxilioTransporte();
+    }
      
      
-    public static function salarioFuncionarioWithId($id)
+    public static function salarioFuncionarioWithPerson($persona)
     {
-        $contratos = function ($q) {
+        /*$contratos = function ($q) {
             $q->where('liquidated', 0)->orderBy('id', 'Desc')->take(1);
         };
-        self::$funcionario = Person::with('contractultimate')->with(['work_contracts' => $contratos])->findOrFail($id);
+        self::$funcionario = Person::with('contractultimate')->with(['work_contracts' => $contratos])->findOrFail($id);*/
+
+        self::$funcionario = $persona;
         return new self;
     }
 
@@ -101,6 +103,7 @@ class NominaSalario extends PeriodoPago
     public function verifiyNovedadesFromTo($fechaInicio, $fechaFin)
     {
         //*Aqui/
+//        dd(self::$funcionario->contractultimate->salary);
         $this->calculoNovedades = new CalculoNovedades(
             self::$funcionario->contractultimate->salary,
             $fechaInicio,

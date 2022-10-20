@@ -31,7 +31,7 @@ trait Porcentaje
         if(isset($funcionario->payroll_risks_arl_id)){
             return PayrollRisksArl::where('id', $funcionario->payroll_risks_arl_id)->first()['percentage'];
         }
-        
+
     }
 
     public function porcentajeSena()
@@ -64,9 +64,10 @@ trait Porcentaje
         return PayrollSocialSecurityPerson::where('prefix', '=', 'fondo_solidaridad')->first()['percentage'];
     }
 
-    public function porcentajesFondoSubsistencia()
+    public function porcentajesFondoSubsistencia($tipo)
     {
-        return PayrollSocialSecurityPerson::pluck('percentage', 'prefix');
+
+        return PayrollSocialSecurityPerson::where('prefix', '=', $tipo)->first()['percentage'];
     }
 }
 

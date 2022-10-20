@@ -9,16 +9,17 @@ use App\Http\Libs\Nomina\Calculos\CalculoProvisiones;
 use App\Http\Libs\Nomina\PeriodoPago;
 use App\Models\PayrollFactor;
 use App\Models\Person;
+use APP\Clases\PorcentajeInstance;
 
 class NominaProvisiones extends PeriodoPago
 {
     /**
      * Funcionario al cual se le calcula el salario
      *
-     * @var  App\Funcionario
+     * @var  App\Model\Person
      */
-    protected static $funcionario;
-
+    protected static Person $funcionario;
+    
     /**
      * Fecha de inicio del periodo de pago
      *
@@ -68,17 +69,16 @@ class NominaProvisiones extends PeriodoPago
      */
     protected $calculoProvisiones;
 
-
     /**
      * Settea la propiedad funcionario filtrando al funcionario que se pase por el parámetro $id,
      * retorna una nueva instancia de la clase 
      *
-     * @param integer $id
-     * @return NominaSalario
+     * @param App\Models\Person $persona
+     
      */
-    public static function provisionesFuncionarioWithId($id)
+    public static function provisionesFuncionarioWithPerson($persona)
     {
-        self::$funcionario = Person::findOrFail($id);
+        self::$funcionario = $persona;
         return new self;
     }
 
@@ -87,13 +87,26 @@ class NominaProvisiones extends PeriodoPago
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
 
-        $this->facadeExtras = NominaExtras::extrasFuncionarioWithId(self::$funcionario->id)->fromTo($this->fechaInicio, $this->fechaFin);
+        $this->facadeExtras = NominaExtras::extrasFuncionarioWithPerson(self::$funcionario)->fromTo($this->fechaInicio, $this->fechaFin);
       
-        $this->facadeSalario = NominaSalario::salarioFuncionarioWithId(self::$funcionario->id)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
+        $this->facadeSalario = NominaSalario::salarioFuncionarioWithPerson(self::$funcionario)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
 
-        $this->facadeNovedades = NominaNovedades::novedadesFuncionarioWithId(self::$funcionario->id)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
+        $this->facadeNovedades = NominaNovedades::novedadesFuncionarioWithPerson(self::$funcionario)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
 
-        $this->facadeRetenciones = NominaRetenciones::retencionesFuncionarioWithId(self::$funcionario->id)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
+        $this->facadeRetenciones = NominaRetenciones::retencionesFuncionarioWithPerson(self::$funcionario)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
+
+        return $this;
+    }
+
+    public function withParams($salario, $extras, $novedades, $retenciones, $fechaInicio, $fechaFin)
+    {
+        $this->fechaInicio = $fechaInicio;
+        $this->fechaFin = $fechaFin;
+
+        $this->facadeExtras = $extras;
+        $this->facadeSalario = $salario;
+        $this->facadeNovedades = $novedades;
+        $this->facadeRetenciones = $retenciones;
 
         return $this;
     }
@@ -137,21 +150,21 @@ class NominaProvisiones extends PeriodoPago
     }
 
 
-    public function getProvisiones($id, $fechaInicio, $fechaFin)
+    /*public function getProvisiones($fechaInicio, $fechaFin)
     {
 
-        $funcionario = Funcionario::findOrFail($id);
+        $funcionario = self::$funcionario;
 
 
-        $salario =  $this->getSalario($id, $fechaInicio, $fechaFin);
-        $extras =  $this->getExtrasTotales($id, $fechaInicio, $fechaFin);
-        $novedades = $this->getNovedades($id, $fechaInicio, $fechaFin);
+        $salario =  $this->getSalario($funcionario->id, $fechaInicio, $fechaFin);
+        $extras =  $this->getExtrasTotales($funcionario->id, $fechaInicio, $fechaFin);
+        $novedades = $this->getNovedades($funcionario->id, $fechaInicio, $fechaFin);
 
         $calculoProvisiones = new CalculoProvisiones(
             $salario['salario'],
             $extras['valor_total'],
             $novedades['novedades_totales'],
-            $this->getRetenciones($id, $fechaInicio, $fechaFin)['retenciones']['Ingresos'],
+            $this->getRetenciones($funcionario->id, $fechaInicio, $fechaFin)['retenciones']['Ingresos'],
             $extras['horas_extras_totales']['rn'],
             $salario['auxilio_transporte']
         );
@@ -165,5 +178,5 @@ class NominaProvisiones extends PeriodoPago
         $calculoProvisiones->calcularTotalProvisiones();
 
         return $calculoProvisiones->crearColeccion();
-    }
+    }*/
 }

@@ -2,14 +2,10 @@
 
 namespace App\Http\Libs\Nomina\Facades;
 
-use App\Funcionario;
-use App\Empresa;
-use App\PagoNomina;
-
 use App\Http\Libs\Nomina\Calculos\CalculoLiquidacion;
 use App\Http\Libs\Nomina\Calculos\CalculoIndemnizacion;
 use App\Models\Company;
-use App\Models\Loan;
+
 use App\Models\PayrollPayment;
 use App\Models\Person;
 use Illuminate\Support\Carbon;
@@ -30,12 +26,13 @@ class NominaLiquidacion
     /**
      * Obtener el funcionario con el id que se pasa por parámetro
      *
-     * @param  $id
-     * @return NominaLiquidacion
+     * @param  Person $persona
+     
      */
-    public static function liquidacionFuncionarioWithId($id)
+    public static function liquidacionFuncionarioWithPerson($persona)
     {
-        self::$funcionario = Person::with('work_contracts')->find($id);
+        //self::$funcionario = Person::with('work_contracts')->find($id);
+        self::$funcionario = $persona;
         //return self::$funcionario;
         return new self;
     }

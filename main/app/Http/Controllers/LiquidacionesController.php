@@ -34,7 +34,7 @@ class LiquidacionesController extends Controller
      */
     public function get($id, $fechaFin = null)
     {
-        return NominaLiquidacion::liquidacionFuncionarioWithId($id)
+        return NominaLiquidacion::liquidacionFuncionarioWithPerson($id)
             ->until($fechaFin)->calculate()
             ->makeResponse();
     }
@@ -57,7 +57,7 @@ class LiquidacionesController extends Controller
             $diasAcumulados = request('diasAcumulados');
         }
         return
-            NominaLiquidacion::liquidacionFuncionarioWithId($id)
+            NominaLiquidacion::liquidacionFuncionarioWithPerson($id)
             ->until($fechaFin)
             ->withVacacionesActuales($diasAcumulados)
             ->calculate()
@@ -83,7 +83,7 @@ class LiquidacionesController extends Controller
             $salarioBase = request('salarioBase');
         }
 
-        return NominaLiquidacion::liquidacionFuncionarioWithId($id)->until($fechaFin)->withSalarioBase($salarioBase)->calculate()->makeResponse();
+        return NominaLiquidacion::liquidacionFuncionarioWithPerson($id)->until($fechaFin)->withSalarioBase($salarioBase)->calculate()->makeResponse();
     }
 
 
@@ -109,7 +109,7 @@ class LiquidacionesController extends Controller
             $basePrima = request('basePrima');
         }
 
-        return NominaLiquidacion::liquidacionFuncionarioWithId($id)->until($fechaRetiro)
+        return NominaLiquidacion::liquidacionFuncionarioWithPerson($id)->until($fechaRetiro)
             ->withSalarioBase($salarioBase)
             ->withBaseVacaciones($baseVacaciones)
             ->withBaseCesantias($baseCesantias)
@@ -136,7 +136,7 @@ class LiquidacionesController extends Controller
             $egresos = request('egresos');
         }
 
-        return NominaLiquidacion::liquidacionFuncionarioWithId($id)
+        return NominaLiquidacion::liquidacionFuncionarioWithPerson($id)
             ->until($fechaRetiro)
             ->withIngresos($ingresos)
             ->withEgresos($egresos)
@@ -164,7 +164,7 @@ class LiquidacionesController extends Controller
     public function getSeguridad($id, $fechaInicio, $fechaFin)
     {
 
-        return NominaSeguridad::seguridadFuncionarioWithId($id)
+        return NominaSeguridad::seguridadFuncionarioWithPerson($id)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
     }
@@ -174,40 +174,40 @@ class LiquidacionesController extends Controller
 
         return PayrollOvertime::extrasFuncionarioWithId($id)->fromTo($fechaInicio, $fechaFin);
     }
-    public function getPagoNeto($id, $fechaInicio, $fechaFin)
+    public function getPagoNeto($persona, $fechaInicio, $fechaFin)
     {
-        return NominaPago::pagoFuncionarioWithId($id)
+        return NominaPago::pagoFuncionarioWithPerson($persona)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
     }
     public function getRetenciones($id, $fechaInicio, $fechaFin)
     {
-        return  NominaRetenciones::retencionesFuncionarioWithId($id)
+        return  NominaRetenciones::retencionesFuncionarioWithPerson($id)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
     }
-    public function getProvisiones($id, $fechaInicio, $fechaFin)
+    public function getProvisiones($persona, $fechaInicio, $fechaFin)
     {
-        return NominaProvisiones::provisionesFuncionarioWithId($id)
+        return NominaProvisiones::provisionesFuncionarioWithPerson($persona)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
     }
     public function getIngresos($id, $fechaInicio, $fechaFin)
     {
 
-        return NominaIngresos::ingresosFuncionarioWithId($id)
+        return NominaIngresos::ingresosFuncionarioWithPerson($id)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
     }
     public function getNovedades($id, $fechaInicio, $fechaFin)
     {
-        return NominaNovedades::novedadesFuncionarioWithId($id)
+        return NominaNovedades::novedadesFuncionarioWithPerson($id)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
     }
-    public function getDeducciones($id, $fechaInicio, $fechaFin)
+    public function getDeducciones($person, $fechaInicio, $fechaFin)
     {
-        return NominaDeducciones::deduccionesFuncionarioWithId($id)
+        return NominaDeducciones::deduccionesFuncionarioWithPerson($person)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
     }
@@ -266,7 +266,7 @@ class LiquidacionesController extends Controller
             $extras = $tempExtras['valor_total'];
             $salario = $this->getPagoNeto($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['total_valor_neto'];
             $retencion = $this->getRetenciones($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
-            $provision = $this->getProvisiones($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
+            $provision = $this->getProvisiones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
             $temIngresos = $this->getIngresos($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
 
             $funcionariosResponse = [
