@@ -28,7 +28,7 @@ class ContractTermController extends Controller
     public function store(Request $request)
     {
         try {
-			$nuevo  = ContractTerm::updateOrCreate(['id' => $request->get('id')], $request->all());
+			$nuevo  = ContractTerm::updateOrCreate(['id' => $request->get('id'), "status"=>"activo"], $request->all());
 			return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
 		} catch (\Throwable $th) {
             return $this->error($th->getMessage(), $th->getCode());
