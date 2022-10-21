@@ -223,7 +223,7 @@ Route::group(
         Route::get("payroll-nex-mouths", [PayrollController::class, "nextMonths"]);
         Route::get("people-paginate", [PersonController::class, "indexPaginate"]);
         Route::get("people-all", [PersonController::class, "getAll"]);
-
+        Route::get("validar-cedula/{documento}", [PersonController::class, "validarCedula"]);
         Route::get('/get-menu',  [MenuController::class, 'getByPerson']);
         Route::post('/save-menu',  [MenuController::class, 'store']);
 
