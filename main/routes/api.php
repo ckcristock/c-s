@@ -25,6 +25,7 @@ use App\Http\Controllers\CalculationBaseController;
 use App\Http\Controllers\CenterCostController;
 use App\Http\Controllers\CiiuCodeController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\ContractTermController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyPaymentConfigurationController;
 use App\Http\Controllers\CompensationFundController;
@@ -484,6 +485,7 @@ Route::group(
         Route::resource('lunch-value', LunchValueController::class);
         Route::resource('annotation', PersonInvolvedController::class);
         Route::resource('business', BusinessController::class);
+        Route::resource('contract-terms', ContractTermController::class)->except(['create', 'edit']);
 
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
@@ -540,6 +542,7 @@ Route::group(
         Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
         Route::get('paginateApus', [ApuController::class, 'paginate']);
         Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
+        Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
