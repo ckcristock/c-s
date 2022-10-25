@@ -92,7 +92,9 @@ class CityController extends Controller
 	 */
 	public function show($id)
 	{
-        $cities = City::where('department_id', $id)->get();
+        $cities = City::where('department_id', $id)
+                        ->orderBy('name', 'asc')
+                      ->get(['name as text', 'id as value']);
         if (count($cities)===0) {
             return $this->error('Ciudades no encontrados para este departamento/estado', 204);
         }else{
@@ -112,7 +114,8 @@ class CityController extends Controller
 	 */
 	public function showByMunicipality($id)
 	{
-        $cities = City::where('municipality_id', $id)->get();
+        $cities = City::where('municipality_id', $id)
+                      ->get(['name as text', 'id as value']);
         if (count($cities)===0) {
             return $this->error('Ciudades no encontrados para este municipio', 204);
         }else{
