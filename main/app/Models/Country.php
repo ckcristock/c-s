@@ -11,8 +11,6 @@ class Country extends Model
     protected $fillable = [
         'name',
         'state',
-        'updated_at',
-        'created_at',
         'iso',
         'dian_code',
         'code_phone',
