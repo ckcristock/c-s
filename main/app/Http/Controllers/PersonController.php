@@ -61,23 +61,23 @@ class PersonController extends Controller
 	{
 		return $this->success(
 			Person::with('work_contract')
-			->when($request->name, function ($q, $fill) {
-				$q->where("identifier", "like","%" . $fill . "%")
-					->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'),"LIKE","%" . $fill . "%");
-			})
-			->when($request->dependency_id, function ($q, $fill) {
-				$q->whereHas('work_contract', function ($q2) use($fill) {
-					$q2->whereHas('position', function ($q3) use($fill) {
-						$q3->where('dependency_id', '=', $fill);
+				->when($request->name, function ($q, $fill) {
+					$q->where("identifier", "like", "%" . $fill . "%")
+						->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%");
+				})
+				->when($request->dependency_id, function ($q, $fill) {
+					$q->whereHas('work_contract', function ($q2) use ($fill) {
+						$q2->whereHas('position', function ($q3) use ($fill) {
+							$q3->where('dependency_id', '=', $fill);
+						});
 					});
-				});
-			})
+				})
 
-			->when($request->status, function ($q, $fill) {
-				$q->where("status", $fill);
-			})
-			->orderBy('first_name', 'asc')
-			->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1))
+				->when($request->status, function ($q, $fill) {
+					$q->where("status", $fill);
+				})
+				->orderBy('first_name', 'asc')
+				->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1))
 		);
 
 		/* $data = json_decode(Request()->get("data"), true);
@@ -270,6 +270,17 @@ class PersonController extends Controller
 				})
 				->where("p.id", "=", $id)
 				->first()
+		);
+	}
+
+	public function salaryHistory($id)
+	{
+		return $this->success(
+			WorkContract::where('person_id', $id)
+				->where('liquidated', 1)
+				->with('work_contract_type', 'position')
+				->orderBy('date_end')
+				->get()
 		);
 	}
 
