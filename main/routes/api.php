@@ -564,6 +564,7 @@ Route::group(
         Route::get('ListLimitated', [memorandumTypeController::class, 'getListLimitated']);
         Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
         Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
+        Route::get('cities-by-municipalities/{id}', [CityController::class, 'showByMunicipality']);
         // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
         /** Tutas de Empresas  */

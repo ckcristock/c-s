@@ -28,6 +28,20 @@ class DepartmentController extends Controller
         );
     }
 
+    public function show($country_id)
+    {
+        $departamentos = Department::where('country_id', $country_id)->get();
+        if (count($departamentos)===0) {
+            return $this->error('Estados/Departamentos no encontrados para este país', 204);
+        }else{
+            return $this->success(
+                $departamentos
+                //Department::where('country_id', $country_id)->get()
+            );
+        }
+
+    }
+
     public function store(Request $request)
     {
         try {

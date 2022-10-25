@@ -78,4 +78,22 @@ class MunicipalityController extends Controller
             return $this->error($th->getMessage(), 200);
         }
     }
+
+    /**
+     * 25/10/22
+     * Busca los munucipios de acuerdo el id de Estado
+     */
+    public function show ($state_id)
+    {
+
+        $municipality = Municipality::where('department_id', $state_id)->get();
+        if (count($municipality)===0) {
+            return $this->error('Municipios no encontrados para este país', 204);
+        }else{
+            return $this->success(
+                $municipality
+                //Department::where('country_id', $country_id)->get()
+            );
+        }
+    }
 }
