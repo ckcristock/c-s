@@ -44,12 +44,17 @@ class DepartmentController extends Controller
 
     }
 
+    /**
+     * Esta función sirve para crear y actualizar 
+     */
     public function store(Request $request)
     {
         try {
-            Department::create($request->all());
+            $departamentos = Department::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            return ($departamentos->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 200);
         }
+
     }
 }

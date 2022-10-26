@@ -67,13 +67,24 @@ class MunicipalityController extends Controller
 
     public function store(Request $request)
     {
-        try {
+        /* try {
             $validate_code = Municipality::where('code', $request->get('code'))->first();
             if ($validate_code) {
                 return $this->error('El código del Municipio ya existe', 423);
             }
             Municipality::updateOrCreate(['id' => $request->get('id')], $request->all());
             return $this->success('creacion exitosa');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 200);
+        } */
+        try {
+            $validate_code = Municipality::where('code', $request->code)->first();
+            if($validate_code){
+                $municipality = Municipality::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+                return ($municipality->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+            } else {
+                return $this->error('El código del Municipio ya existe', 423);
+            }
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 200);
         }

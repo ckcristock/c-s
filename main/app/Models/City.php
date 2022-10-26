@@ -19,6 +19,7 @@ class City extends Model
         'department_id',
         'dian_code',
         'dane_code',
+        'municipality_id'
     ];
 
     protected $hidden = [

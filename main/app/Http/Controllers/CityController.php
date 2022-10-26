@@ -76,6 +76,7 @@ class CityController extends Controller
 	public function store(Request $request)
 	{
 		try {
+            //return response()->json($request->municipality_id);
 			$city = City::updateOrCreate(['id' => $request->get('id')], $request->all());
 			return ($city->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
 		} catch (\Throwable $th) {
