@@ -400,7 +400,7 @@ class PersonController extends Controller
 			$person = Person::find($id);
 			$personData = $request->all();
 			$cognitive = new CognitiveService();
-			if ($person->personId = null) {
+			if (!$person->personId) {
 				//return '0';
 				$person->personId = $cognitive->createPerson($person);
 				$person->save();
@@ -457,17 +457,18 @@ class PersonController extends Controller
 				"change_password" => 1,
 			]);
 			//crear personID
-			if ($personData["image"]) {
-				$cognitive = new CognitiveService();
-				$person->personId = $cognitive->createPerson($person);
-				$cognitive->deleteFace($person);
+			$cognitive = new CognitiveService();
+			$person->personId = $cognitive->createPerson($person);
+			
 
+			if ($personData["image"]) {
+				$cognitive->deleteFace($person);
 				$person->persistedFaceId = $cognitive->createFacePoints(
 					$person
 				);
-				$person->save();
-				$cognitive->train();
 			}
+			$person->save();
+			$cognitive->train();
 
 			return $this->success(["id" => $person->id, 'faceCreated' => true]);
 		} catch (\Throwable $th) {

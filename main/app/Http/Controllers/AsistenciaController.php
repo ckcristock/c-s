@@ -53,7 +53,7 @@ class AsistenciaController extends Controller
             $file_path = 'temporales/' . Str::random(30) . time() . '.png';
             Storage::disk('public')->put($file_path, $image, 'public');
 
-            $tem = URL::to('/') . '/api/image?path=' . $file_path;
+            $tem = URL::to('/') . '/api/image?path=' . $file_path; 
 
 
             //return $fully;
@@ -592,7 +592,7 @@ class AsistenciaController extends Controller
             $turno_rotativo_ayer = $rotativo_ayer->RotatingTurn;
 
             $startTime = Carbon::parse($hoy . " " . $hactual);
-            $finishTime = Carbon::parse($ayer . " " . $turno_rotativo_ayer->entry_time);
+            $finishTime = Carbon::parse($ayer . " " . $turno_rotativo_ayer->entry_time_one);
             $totalDuration = $finishTime->diffInSeconds($startTime) / 3600;
             //finish
             if ($totalDuration < 24) {
@@ -632,8 +632,8 @@ class AsistenciaController extends Controller
         if (count($func->diariosTurnoRotativoHoy) > 0) {
             $rotativo_hoy = $func->diariosTurnoRotativoHoy[0];
 
-            $totalDuration = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->entry_time);
-            $totalDuration = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->entry_time);
+            $totalDuration = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->entry_time_one);
+           
 
             if ($totalDuration > 600) {
                 if ($rotativo_hoy->turnoRotativo->breack == 1 && $rotativo_hoy->breack_time_one == null) {
@@ -803,7 +803,7 @@ class AsistenciaController extends Controller
                     $turno_asignado = $func->horariosTurnoRotativo[0]->turnoRotativo;
 
                     $startTime = Carbon::parse($hoy . " " . $hactual);
-                    $finishTime = Carbon::parse($hoy . " " . $turno_asignado->entry_time);
+                    $finishTime = Carbon::parse($hoy . " " . $turno_asignado->entry_time_one);
                     $totalDuration = $finishTime->diffInSeconds($startTime, false);
 
                     MarcationService::marcation('error', $fully, $func->id, 'El funcionario tenía día de descanso');
@@ -819,7 +819,7 @@ class AsistenciaController extends Controller
                     if ($totalDuration > ($turno_asignado->leave_tolerance * 60)) {
 
                         Diarios::guardarDiarioTurnoRotativo($datos);
-                        MarcationService::makeLateArrival($func->id, $hoy, $totalDuration, $hactual, $turno_asignado->entry_time);
+                        MarcationService::makeLateArrival($func->id, $hoy, $totalDuration, $hactual, $turno_asignado->entry_time_one);
 
                         /** FIN GUARDAR LLEGADA */
                         $lleg = 'Hoy ha Llegado tarde';
@@ -839,7 +839,7 @@ class AsistenciaController extends Controller
 
                         $respuesta = array(
                             'title' => 'Muy Temprano',
-                            'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Su turno asignado para hoy,<br> tiene hora de Ingreso a las " . $turno_asignado->entry_time . "</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
+                            'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Su turno asignado para hoy,<br> tiene hora de Ingreso a las " . $turno_asignado->entry_time_one . "</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
                             'icon' => 'warning'
                         );
                         return $respuesta;
