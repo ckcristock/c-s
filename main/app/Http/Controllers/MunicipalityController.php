@@ -96,17 +96,14 @@ class MunicipalityController extends Controller
      */
     public function show ($state_id)
     {
-
-        $municipality = Municipality::where('department_id', $state_id)
+        return $this->success(Municipality::where('department_id', $state_id)
                                     ->orderBy('name', 'asc')
-                                    ->get(['name as text', 'id as value']);
-        if (count($municipality)===0) {
-            return $this->error('Municipios no encontrados para este país', 204);
-        }else{
-            return $this->success(
-                $municipality
-                //Department::where('country_id', $country_id)->get()
-            );
-        }
+                                    ->when(request()->get('name'),
+                                        function ($q, $fill){
+                                            $q->where('name', 'like', '%'.$fill.'%');
+                                        })
+                                    ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
+                                    //->get(['name as text', 'id as value']);
     }
+
 }

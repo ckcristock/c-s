@@ -11,7 +11,6 @@ class Municipality extends Model
     protected $fillable = [
         'name',
         'code',
-        'codigo_dane',
         'department_id',
         'codigo_dane',
         'municipalities_id',

@@ -93,17 +93,13 @@ class CityController extends Controller
 	 */
 	public function show($id)
 	{
-        $cities = City::where('department_id', $id)
+        return $this->success(City::where('department_id', $id)
                         ->orderBy('name', 'asc')
-                      ->get(['name as text', 'id as value']);
-        if (count($cities)===0) {
-            return $this->error('Ciudades no encontrados para este departamento/estado', 204);
-        }else{
-            return $this->success(
-                $cities
-                //Department::where('country_id', $country_id)->get()
-            );
-        }
+                        ->when(request()->get('name'),
+                            function ($q, $fill){
+                                $q->where('name', 'like', '%'.$fill.'%');
+                            })
+                        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
 	}
 
     	/**
@@ -115,16 +111,13 @@ class CityController extends Controller
 	 */
 	public function showByMunicipality($id)
 	{
-        $cities = City::where('municipality_id', $id)
-                      ->get(['name as text', 'id as value']);
-        if (count($cities)===0) {
-            return $this->error('Ciudades no encontrados para este municipio', 204);
-        }else{
-            return $this->success(
-                $cities
-                //Department::where('country_id', $country_id)->get()
-            );
-        }
+        return $this->success(City::where('municipality_id', $id)
+                        ->orderBy('name', 'asc')
+                        ->when(request()->get('name'),
+                            function ($q, $fill){
+                                $q->where('name', 'like', '%'.$fill.'%');
+                            })
+                        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
 	}
 
 
