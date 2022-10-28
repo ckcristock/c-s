@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Bodegas;
 use App\Models\GrupoEstiba;
 use App\Models\Estiba;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
+use Illuminate\Support\Facades\URL;
 
 class BodegasController extends Controller
 {
@@ -90,16 +92,28 @@ class BodegasController extends Controller
     public function store()
     {
         try {
-
-            $value = Bodegas::updateOrCreate( [ 'Id_Bodega_Nuevo'=> request()->get('id') ] , [
+            $camposPorRegistrar = [
                 'Nombre'=> request()->get('nombre'),
                 'Direccion'=> request()->get('direccion'),
                 'Telefono'=> request()->get('telefono'),
                 'Compra_Internacional'=> request()->get('compraInternacional')
-            ] );
+            ];
+            $type = '.'. request()->get('typeMapa');
+            if(!is_null(request("typeMapa"))){
+                if (in_array(request("typeMapa"),['jpeg','jpg','png'])) {
+                    $base64 = saveBase64(request("mapa"), 'mapas_bodegas/', true, $type);
+                    $url=URL::to('/') . '/api/image?path=' . $base64;
+                } else {
+                    throw new Exception(
+                        "No se ha encontrado un formato de imagen válido (".request("typeMapa")."), revise e intente nuevamente"
+                    );
+                }
+                $camposPorRegistrar['Mapa'] = $url;
+            }
+            $value = Bodegas::updateOrCreate( [ 'Id_Bodega_Nuevo'=> request()->get('id') ] , $camposPorRegistrar );
             return ($value->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
-            return $this->errorResponse( $th->getFile().$th->getMessage() );
+            return $this->errorResponse( [ "file" => $th->getFile(),"text" => $th->getMessage()]);
         }
     }
 
