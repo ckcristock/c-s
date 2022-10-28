@@ -12,7 +12,8 @@ class Municipality extends Model
         'name',
         'code',
         'department_id',
-        'codigo_dane',
+        'dane_code',
+        'dian_code',
         'municipalities_id',
     ];
 
