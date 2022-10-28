@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class PayrollSocialSecurityPerson extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'prefix',
+        'concept',
+        'percentage',
+    ];
 }
