@@ -553,6 +553,7 @@ Route::group(
         Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
         Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
         Route::get('salary/{id}', [PersonController::class, 'salary']);
+        Route::get('salary-history/{id}', [PersonController::class, 'salaryHistory']);
         Route::post('salary', [PersonController::class, 'updateSalaryInfo']);
         Route::get('afiliation/{id}', [PersonController::class, 'afiliation']);
         Route::post('updateAfiliation/{id}', [PersonController::class, 'updateAfiliation']);
