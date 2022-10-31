@@ -28,7 +28,7 @@ class CityController extends Controller
 	}
 
 	public function getCitiesCountry($idCountry){
-		return $this->success(City::where('state', '=', 'Activo')		
+		return $this->success(City::where('state', '=', 'Activo')
 		->where('country_id', '=', "$idCountry")
 		->get(['*', 'id as value', 'name as text']));
 	}
@@ -76,6 +76,7 @@ class CityController extends Controller
 	public function store(Request $request)
 	{
 		try {
+            //return response()->json($request->municipality_id);
 			$city = City::updateOrCreate(['id' => $request->get('id')], $request->all());
 			return ($city->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
 		} catch (\Throwable $th) {
@@ -85,14 +86,41 @@ class CityController extends Controller
 
 	/**
 	 * Display the specified resource.
+     * Muestra las ciudades dado el id del Departamento/Estado
 	 *
 	 * @param  int  $id
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show($id)
 	{
-		//
+        return $this->success(City::where('department_id', $id)
+                        ->orderBy('name', 'asc')
+                        ->when(request()->get('name'),
+                            function ($q, $fill){
+                                $q->where('name', 'like', '%'.$fill.'%');
+                            })
+                        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
 	}
+
+    	/**
+	 * Display the specified resource.
+     * Muestra las ciudades dado el id del Municipio
+	 *
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function showByMunicipality($id)
+	{
+        return $this->success(City::where('municipality_id', $id)
+                        ->orderBy('name', 'asc')
+                        ->when(request()->get('name'),
+                            function ($q, $fill){
+                                $q->where('name', 'like', '%'.$fill.'%');
+                            })
+                        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
+	}
+
+
 
 	/**
 	 * Show the form for editing the specified resource.

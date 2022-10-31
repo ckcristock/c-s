@@ -61,23 +61,23 @@ class PersonController extends Controller
 	{
 		return $this->success(
 			Person::with('work_contract')
-			->when($request->name, function ($q, $fill) {
-				$q->where("identifier", "like","%" . $fill . "%")
-					->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'),"LIKE","%" . $fill . "%");
-			})
-			->when($request->dependency_id, function ($q, $fill) {
-				$q->whereHas('work_contract', function ($q2) use($fill) {
-					$q2->whereHas('position', function ($q3) use($fill) {
-						$q3->where('dependency_id', '=', $fill);
+				->when($request->name, function ($q, $fill) {
+					$q->where("identifier", "like", "%" . $fill . "%")
+						->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%");
+				})
+				->when($request->dependency_id, function ($q, $fill) {
+					$q->whereHas('work_contract', function ($q2) use ($fill) {
+						$q2->whereHas('position', function ($q3) use ($fill) {
+							$q3->where('dependency_id', '=', $fill);
+						});
 					});
-				});
-			})
+				})
 
-			->when($request->status, function ($q, $fill) {
-				$q->where("status", $fill);
-			})
-			->orderBy('first_name', 'asc')
-			->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1))
+				->when($request->status, function ($q, $fill) {
+					$q->where("status", $fill);
+				})
+				->orderBy('first_name', 'asc')
+				->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1))
 		);
 
 		/* $data = json_decode(Request()->get("data"), true);
@@ -131,6 +131,18 @@ class PersonController extends Controller
 				->orderBy('p.first_name', 'asc')
 				->paginate($pageSize, ["*"], "page", $page)
 		); */
+	}
+
+	public function validarCedula($documento)
+	{
+		$user= '';
+		$person = DB::table("people")
+			->where('identifier', $documento)
+			->exists();
+		if ($person) {
+			$user =  DB::table('people')->where('identifier', $documento)->first();
+		}
+		return $this->success($person, $user);
 	}
 
 	public function getAll(Request $request)
@@ -273,6 +285,17 @@ class PersonController extends Controller
 		);
 	}
 
+	public function salaryHistory($id)
+	{
+		return $this->success(
+			WorkContract::where('person_id', $id)
+				->where('liquidated', 1)
+				->with('work_contract_type', 'position')
+				->orderBy('date_end')
+				->get()
+		);
+	}
+
 	public function updateSalaryInfo(Request $request)
 	{
 		try {
@@ -389,7 +412,7 @@ class PersonController extends Controller
 			$person = Person::find($id);
 			$personData = $request->all();
 			$cognitive = new CognitiveService();
-			if ($person->personId = null) {
+			if (!$person->personId) {
 				//return '0';
 				$person->personId = $cognitive->createPerson($person);
 				$person->save();
@@ -446,17 +469,18 @@ class PersonController extends Controller
 				"change_password" => 1,
 			]);
 			//crear personID
-			if ($personData["image"]) {
-				$cognitive = new CognitiveService();
-				$person->personId = $cognitive->createPerson($person);
-				$cognitive->deleteFace($person);
+			$cognitive = new CognitiveService();
+			$person->personId = $cognitive->createPerson($person);
+			
 
+			if ($personData["image"]) {
+				$cognitive->deleteFace($person);
 				$person->persistedFaceId = $cognitive->createFacePoints(
 					$person
 				);
-				$person->save();
-				$cognitive->train();
 			}
+			$person->save();
+			$cognitive->train();
 
 			return $this->success(["id" => $person->id, 'faceCreated' => true]);
 		} catch (\Throwable $th) {

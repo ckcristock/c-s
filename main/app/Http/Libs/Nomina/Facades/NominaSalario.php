@@ -57,13 +57,13 @@ class NominaSalario extends PeriodoPago
      * retorna una nueva instancia de la clase
      *
      * @param integer $id
-     
+
      */
      public function __construct(){
         $this->geAuxilioTransporte();
     }
-     
-     
+
+
     public static function salarioFuncionarioWithPerson($persona)
     {
         /*$contratos = function ($q) {
@@ -86,7 +86,7 @@ class NominaSalario extends PeriodoPago
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
         $this->verifiyNovedadesFromTo($this->fechaInicio, $this->fechaFin);
-      
+
 
         $this->calculoSalario = new CalculoSalario(
             self::$funcionario->contractultimate->salary,
@@ -94,25 +94,25 @@ class NominaSalario extends PeriodoPago
             $this->fechaInicio,
             $this->fechaFin
         );
-     
-   
+
+
 
         return $this;
     }
 
     public function verifiyNovedadesFromTo($fechaInicio, $fechaFin)
     {
-        //*Aqui/
-//        dd(self::$funcionario->contractultimate->salary);
+        //*Aqui no/
+        $salary = self::$funcionario->contractultimate->salary;
         $this->calculoNovedades = new CalculoNovedades(
-            self::$funcionario->contractultimate->salary,
+            $salary,
             $fechaInicio,
             $fechaFin
         );
         $this->calculoNovedades->existenVacaciones(
             PayrollFactor::vacations(self::$funcionario, $fechaInicio)
         );
-       
+
         $this->calculoNovedades->existenNovedades(
             PayrollFactor::factors(self::$funcionario, $fechaFin)->get()
         );
@@ -120,7 +120,7 @@ class NominaSalario extends PeriodoPago
 
     public function calculate()
     {
-    
+
         $this->calculoSalario->verificarFechasContrato(self::$funcionario->contractultimate->date_of_admission, self::$funcionario->contractultimate->date_end);
 
         $this->calculoSalario->valorSubsidioTransporte =  Company::first(['transportation_assistance'])['transportation_assistance'];

@@ -46,10 +46,10 @@ class NominaNovedades extends PeriodoPago
 
     /**
      * Settea la propiedad funcionario filtrando al funcionario que se pase por el parámetro $id,
-     * retorna una nueva instancia de la clase 
+     * retorna una nueva instancia de la clase
      *
      * @param integer $id
-     
+
      */
     public static function novedadesFuncionarioWithPerson($persona)
     {
@@ -70,12 +70,12 @@ class NominaNovedades extends PeriodoPago
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
         $this->calculoNovedades = new CalculoNovedades(self::$funcionario->contractultimate->salary, $this->fechaInicio, $this->fechaFin);
-      
+
         return $this;
     }
 
     /**
-     * Realizar el cálculo de las novedades que existen entre las fechas de inicio y fin de periodo, 
+     * Realizar el cálculo de las novedades que existen entre las fechas de inicio y fin de periodo,
      * se utiliza queryScope del modelo Novedad (ver modelo para más información)
      *
      * @return void
@@ -83,15 +83,16 @@ class NominaNovedades extends PeriodoPago
     public function calculate()
     {
 
-       
+
         $this->calculoNovedades->existenVacaciones(
+
             PayrollFactor::vacations(self::$funcionario, $this->fechaInicio)
         );
-     
+
         $this->calculoNovedades->existenNovedades(
             PayrollFactor::factors(self::$funcionario, $this->fechaFin)->get()
         );
-        
+
 
         $this->calculoNovedades->totalizarNovedad()->calcularValorTotal();
 

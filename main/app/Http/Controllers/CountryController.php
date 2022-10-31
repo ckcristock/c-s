@@ -19,6 +19,7 @@ class CountryController extends Controller
         try {
             return $this->success(
                 Country::where('state', '=', 'Activo')
+                ->orderBy('name', 'asc')
                 ->get(['name as text', 'id as value'])
             );
         } catch (\Throwable $th) {
@@ -56,7 +57,7 @@ class CountryController extends Controller
     public function store(Request $request)
     {
         try {
-            
+
             $countries = Country::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
             return ($countries->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
