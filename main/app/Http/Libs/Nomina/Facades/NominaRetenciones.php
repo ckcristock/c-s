@@ -70,10 +70,10 @@ class NominaRetenciones extends PeriodoPago
 
     /**
      * Settea la propiedad funcionario filtrando al funcionario que se pase por el parámetro $id,
-     * retorna una nueva instancia de la clase 
+     * retorna una nueva instancia de la clase
      *
      * @param App\Models\Person $person
-     
+
      */
     public static function retencionesFuncionarioWithPerson($persona)
     {
@@ -92,15 +92,15 @@ class NominaRetenciones extends PeriodoPago
         $this->fechaFin = $fechaFin;
 
         $this->facadeSalario =  NominaSalario::salarioFuncionarioWithPerson(self::$funcionario)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
-        
+
         $this->facadeExtras =  NominaExtras::extrasFuncionarioWithPerson(self::$funcionario)->fromTo($this->fechaInicio, $this->fechaFin);
         $this->facadeNovedades =  NominaNovedades::novedadesFuncionarioWithPerson(self::$funcionario)->fromTo($this->fechaInicio, $this->fechaFin)->calculate();
-      
+
 
         $this->facadeIngresos =  NominaIngresos::ingresosFuncionarioWithPerson(self::$funcionario)
             ->fromTo($this->fechaInicio, $this->fechaFin)
             ->calculate();
-        
+
         return $this;
     }
 
@@ -111,9 +111,9 @@ class NominaRetenciones extends PeriodoPago
         $this->facadeSalario =  $salario;
         $this->facadeExtras =  $extras;
         $this->facadeNovedades =  $novedades;
-      
+
         $this->facadeIngresos =  $ingresos;
-        
+
         return $this;
     }
 
@@ -126,7 +126,7 @@ class NominaRetenciones extends PeriodoPago
             self::$funcionario->contractultimate->salary
         );
 
-      
+
         $this->calculoRetenciones->registrar('Salario', $this->facadeSalario['salary']);
 
         $this->calculoRetenciones->registrar('Horas extras', $this->facadeExtras['valor_total']);
@@ -145,8 +145,8 @@ class NominaRetenciones extends PeriodoPago
             ->calculoIBCFondoSolidaridad()
             ->calculoIBCFondoSubsistencia()
             ->calculoIBCRetencionFuente();
-         
 
+            
 
         return $this->calculoRetenciones->crearColeccion();
     }

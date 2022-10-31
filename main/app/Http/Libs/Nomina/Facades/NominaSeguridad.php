@@ -61,7 +61,13 @@ class NominaSeguridad extends PeriodoPago
     public static function seguridadFuncionarioWithPerson($persona)
     {
         //self::$funcionario = Person::with('contractultimate')->findOrFail($id);
-        self::$funcionario = $persona;
+        //self::$funcionario = $persona;
+        //dd(gettype($persona));
+        if (gettype($persona)==='string' || gettype($persona)==='integer') {
+            self::$funcionario = Person::with('contractultimate')->findOrFail($persona);
+        }else {
+            self::$funcionario = $persona;
+        }
         //$this->funcionario =$persona;
         self::$empresa = Company::first();
         return new self;
