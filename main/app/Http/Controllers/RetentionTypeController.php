@@ -29,12 +29,25 @@ class RetentionTypeController extends Controller
             ->select(
                 'r.id',
                 'r.name',
-                'a.name as account_plan',
+                'r.account_plan_id',
+                DB::raw('concat(a.code," - ",a.name) as account_plan'),
                 'r.percentage',
                 'r.state',
                 'r.description'
             )
             ->join('account_plans as a', 'a.id', '=', 'account_plan_id')
+            ->when(request()->get('nombre'), function ($q, $fill) {
+                $q->where('r.name', 'like', '%' . $fill . '%');
+            })
+            ->when(request()->get('porcentaje'), function ($q, $fill) {
+                $q->where('percentage', 'like', '%' . $fill . '%');
+            })
+            ->when(request()->get('cuentaAsociada'), function ($q, $fill) {
+                $q->where('a.name', 'like', '%' . $fill . '%');
+            })
+            ->when(request()->get('estado'), function ($q, $fill) {
+                $q->where('state', '=', $fill);
+            })
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }

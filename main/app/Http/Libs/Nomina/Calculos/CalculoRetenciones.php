@@ -228,6 +228,7 @@ class CalculoRetenciones implements Coleccion
 
     public function crearColeccion()
     {
+        //dd('aquí murieron dos programadores');
         return new Collection([
             'retenciones' =>  $this->getRetenciones(),
             'total_retenciones' => new Collection([

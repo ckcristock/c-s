@@ -25,7 +25,7 @@ class LiquidacionesController extends Controller
     use ApiResponser;
 
     /**
-     * Retornar objeto JSON con calculo inicial de la liquidación del funcionario siendo posible modificar 
+     * Retornar objeto JSON con calculo inicial de la liquidación del funcionario siendo posible modificar
      * la fecha de liquidación por parte del usuario, por defecto este parámetro es null
      *
      * @param integer $id
@@ -40,7 +40,7 @@ class LiquidacionesController extends Controller
     }
 
     /**
-     * Retornar objeto JSON con cálculo de liquidación modificando los días acumulados de vacaciones del 
+     * Retornar objeto JSON con cálculo de liquidación modificando los días acumulados de vacaciones del
      * funcionario,esta acción es realizada por el usuario
      *
      * @param int $id
@@ -172,7 +172,7 @@ class LiquidacionesController extends Controller
     public function getExtrasTotales($id, $fechaInicio, $fechaFin)
     {
 
-        return PayrollOvertime::extrasFuncionarioWithId($id)->fromTo($fechaInicio, $fechaFin);
+        return PayrollOvertime::extrasFuncionarioWithPerson($id)->fromTo($fechaInicio, $fechaFin);
     }
     public function getPagoNeto($persona, $fechaInicio, $fechaFin)
     {
@@ -224,13 +224,15 @@ class LiquidacionesController extends Controller
                 ->whereBetween('date_end', [$fechaInicioPeriodo, $fechaFinPeriodo])
                 ->with('disability_leave');
         };
+
         $funcionario = Person::where('id', $id)->whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
-                return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
-                    ->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end')
-                    ->where('liquidated', '0');
-            })
+            return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
+                ->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end')
+                ->where('liquidated', '0');
+        })
             ->with(['payroll_factors' => $fechasNovedades])
             ->first(['id', 'identifier', 'first_name', 'first_surname', 'image']);
+
         if (!$funcionario) {
             $funcionariosResponse = [
                 'id' => null,
@@ -257,17 +259,17 @@ class LiquidacionesController extends Controller
             ];
             return $this->success($funcionariosResponse);
         }
-        //return $this->success($funcionario);
+
         try {
-            $tempSeguridad = $this->getSeguridad($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
+            $tempSeguridad = $this->getSeguridad($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
             $seguridad = $tempSeguridad['valor_total_seguridad'];
             $parafiscal = $tempSeguridad['valor_total_parafiscales'];
-            $tempExtras = $this->getExtrasTotales($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
+            $tempExtras = $this->getExtrasTotales($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
             $extras = $tempExtras['valor_total'];
-            $salario = $this->getPagoNeto($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['total_valor_neto'];
-            $retencion = $this->getRetenciones($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
+            $salario = $this->getPagoNeto($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['total_valor_neto'];
+            $retencion = $this->getRetenciones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
             $provision = $this->getProvisiones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
-            $temIngresos = $this->getIngresos($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
+            $temIngresos = $this->getIngresos($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
 
             $funcionariosResponse = [
                 'id' => $funcionario->id,
@@ -287,13 +289,14 @@ class LiquidacionesController extends Controller
                 'novedades' => [],
                 'novedades' => $funcionario->novedades,
                 'horas_extras' => $tempExtras['horas_reportadas'],
-                'novedades' => $this->getNovedades($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['novedades'],
+                'novedades' => $this->getNovedades($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['novedades'],
                 'valor_ingresos_salariales' => ($temIngresos['valor_constitutivos'] +
-                    $this->getNovedades($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'] +
+                    $this->getNovedades($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'] +
                     $extras),
                 'valor_ingresos_no_salariales' => $temIngresos['valor_no_constitutivos'],
-                'valor_deducciones' => $this->getDeducciones($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total']
+                'valor_deducciones' => $this->getDeducciones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total']
             ];
+            //dd($funcionariosResponse);
             return $this->success($funcionariosResponse);
         } catch (\Throwable $th) {
             //throw $th;

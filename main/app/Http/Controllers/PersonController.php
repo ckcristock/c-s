@@ -133,6 +133,18 @@ class PersonController extends Controller
 		); */
 	}
 
+	public function validarCedula($documento)
+	{
+		$user= '';
+		$person = DB::table("people")
+			->where('identifier', $documento)
+			->exists();
+		if ($person) {
+			$user =  DB::table('people')->where('identifier', $documento)->first();
+		}
+		return $this->success($person, $user);
+	}
+
 	public function getAll(Request $request)
 	{
 		# code...

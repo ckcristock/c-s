@@ -25,6 +25,7 @@ use App\Http\Controllers\CalculationBaseController;
 use App\Http\Controllers\CenterCostController;
 use App\Http\Controllers\CiiuCodeController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\ContractTermController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyPaymentConfigurationController;
 use App\Http\Controllers\CompensationFundController;
@@ -223,7 +224,7 @@ Route::group(
         Route::get("payroll-nex-mouths", [PayrollController::class, "nextMonths"]);
         Route::get("people-paginate", [PersonController::class, "indexPaginate"]);
         Route::get("people-all", [PersonController::class, "getAll"]);
-
+        Route::get("validar-cedula/{documento}", [PersonController::class, "validarCedula"]);
         Route::get('/get-menu',  [MenuController::class, 'getByPerson']);
         Route::post('/save-menu',  [MenuController::class, 'store']);
 
@@ -240,14 +241,18 @@ Route::group(
 
         /*CONFIG NOMINA*/
         Route::get('parametrizacion/nomina/extras', [PayrollConfigController::class, 'horasExtrasDatos']);
-        Route::put('parametrizacion/nomina/extras/update/{id}', [PayrollConfigController::class, 'horasExtrasUpdate']);
         Route::get('parametrizacion/nomina/incapacidades', [PayrollConfigController::class, 'incapacidadesDatos']);
         Route::get('parametrizacion/nomina/parafiscales', [PayrollConfigController::class, 'parafiscalesDatos']);
         Route::get('parametrizacion/nomina/riesgos', [PayrollConfigController::class, 'riesgosArlDatos']);
         Route::get('parametrizacion/nomina/ssocial_empresa', [PayrollConfigController::class, 'sSocialEmpresaDatos']);
         Route::get('parametrizacion/nomina/ssocial_funcionario', [PayrollConfigController::class, 'sSocialFuncionarioDatos']);
-
-
+        /**ACTUALIZAR PARAMETROS CONFIG NOMINA */
+        Route::put('parametrizacion/nomina/extras/update/{id}', [PayrollConfigController::class, 'horasExtrasUpdate']);
+        Route::put('parametrizacion/nomina/seguridad-social-persona/update/{id}', [PayrollConfigController::class, 'sSocialPerson']);
+        Route::put('parametrizacion/nomina/seguridad-social-company/update/{id}', [PayrollConfigController::class, 'sSocialCompany']);
+        Route::put('parametrizacion/nomina/riesgos-arl/update/{id}', [PayrollConfigController::class, 'riesgosArlUpdate']);
+        Route::put('parametrizacion/nomina/parafiscales/update/{id}', [PayrollConfigController::class, 'parafiscalesUpdate']);
+        Route::put('parametrizacion/nomina/incapacidades/update/{id}', [PayrollConfigController::class, 'incapacidadesUpdate']);
 
         /**/
 
@@ -484,6 +489,7 @@ Route::group(
         Route::resource('lunch-value', LunchValueController::class);
         Route::resource('annotation', PersonInvolvedController::class);
         Route::resource('business', BusinessController::class);
+        Route::resource('contract-terms', ContractTermController::class)->except(['create', 'edit']);
 
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
@@ -540,6 +546,7 @@ Route::group(
         Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
         Route::get('paginateApus', [ApuController::class, 'paginate']);
         Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
+        Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -562,6 +569,7 @@ Route::group(
         Route::get('ListLimitated', [memorandumTypeController::class, 'getListLimitated']);
         Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
         Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
+        Route::get('cities-by-municipalities/{id}', [CityController::class, 'showByMunicipality']);
         // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
         /** Tutas de Empresas  */
