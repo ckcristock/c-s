@@ -29,7 +29,7 @@ class WorkContractTypeController extends Controller
             {
                 $q->where('name','like','%'.$fill.'%');
             })
-            ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
+            ->paginate(Request()->get('pageSize', 5), ['*'], 'page', Request()->get('page', 1))
         );
     }
 
@@ -52,7 +52,9 @@ class WorkContractTypeController extends Controller
     public function store(Request $request)
     {
         try {
+            //dd($request->contract_terms);
             $typeContract  = WorkContractType::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            $typeContract->contractTerms()->detach();
             $typeContract->contractTerms()->attach($request->contract_terms);
             return ($typeContract->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
