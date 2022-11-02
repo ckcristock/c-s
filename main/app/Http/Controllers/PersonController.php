@@ -231,7 +231,7 @@ class PersonController extends Controller
 					"p.image",
 					"p.email",
 					"p.degree",
-					"p.date_of_birth",
+					"p.birth_date",
 					"p.gener",
 					"p.marital_status",
 					"p.address",

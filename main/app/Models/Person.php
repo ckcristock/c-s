@@ -14,7 +14,7 @@ class Person extends Model
         'blood_type',
         'cell_phone',
         'compensation_fund_id',
-        'date_of_birth',
+        'birth_date',
         'degree',
         'direction',
         'address',

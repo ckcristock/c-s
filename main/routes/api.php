@@ -125,6 +125,7 @@ use App\Http\Controllers\LiquidationsController;
 use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
+use App\Http\Controllers\CategoriaNuevaController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\User;
@@ -618,6 +619,7 @@ Route::group(
         //se ejecuta al editar
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class);
+        Route::resource("type-documents", "DocumentTypesController");
 
         Route::resource("category", CategoryController::class);
 
@@ -686,5 +688,10 @@ Route::group(
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
         Route::get('get-tasks/{id}', [BudgetController::class, 'getTasks']);
+
+        /************RUTAS PHP************/
+        Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);
+        Route::get('php/genericos/departamentos.php', [CategoriaNuevaController::class, 'getDepartamentos']);
+        Route::get('php/categoria_nueva/detalle_categoria_nueva_departamento.php', [CategoriaNuevaController::class, 'categoriaDepartamento']);
     }
 );
