@@ -16,7 +16,7 @@ class ContractTermController extends Controller
      */
     public function index()
     {
-        return $this->success(ContractTerm::all('name as text, id as value'));
+        return $this->success(ContractTerm::all('name as text', 'id as value'));
     }
 
     /**

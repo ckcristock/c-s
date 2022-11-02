@@ -52,7 +52,6 @@ class WorkContractTypeController extends Controller
     public function store(Request $request)
     {
         try {
-            //dd($request->contract_terms);
             $typeContract  = WorkContractType::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
             $typeContract->contractTerms()->detach();
             $typeContract->contractTerms()->attach($request->contract_terms);
