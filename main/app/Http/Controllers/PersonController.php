@@ -139,12 +139,17 @@ class PersonController extends Controller
      */
     public function peoplesWithDni(Request $request)
     {
+		//dd(request()->get('dni'));
         return $this->success(
-			Person::all([
+			Person::select(
 				"id as value",
                 "identifier as dni",
-				DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '),
-			])
+				DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '))
+				->when(request('search'), function ($q, $fill) {
+					$q->where(DB::raw('identifier'), 'like', '%' .$fill. '%')
+					  ->orWhere(DB::raw('concat(first_name," ",first_surname)'), 'like', '%'.$fill.'%');
+				})
+				->get()
 		);
     }
 
