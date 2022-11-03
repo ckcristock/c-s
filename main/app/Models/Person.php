@@ -42,7 +42,9 @@ class Person extends Model
         'arl_id',
         "company_id",
         'status',
-        'company_worked_id'
+        'company_worked_id',
+        'visa',
+        'passport_number'
     ];
 
     public function getFullNameAttribute()

@@ -16,13 +16,15 @@ class UnitController extends Controller
      */
     public function index()
     {
+
         return $this->success(
-            Unit::all()
+            Unit::get(['name As text', 'id AS value'])
         );
     }
 
-    public function paginate(){
-        
+    public function paginate()
+    {
+
         return $this->success(
             Unit::orderBy('name')
                 ->when(request()->get('name'), function ($q, $fill) {
@@ -53,16 +55,16 @@ class UnitController extends Controller
         try {
             $unit = Unit::updateOrCreate(['id' => $request->get('id')], $request->all());
             return ($unit->wasRecentlyCreated)
-            ?
-            $this->success([
-            'title' => '¡Creado con éxito!',
-            'text' => 'La unidad ha sido creada satisfactoriamente'
-            ])
-            :
-            $this->success([
-            'title' => '¡Actualizado con éxito!',
-            'text' => 'La unidad ha sido actualizada satisfactoriamente'
-            ]);
+                ?
+                $this->success([
+                    'title' => '¡Creado con éxito!',
+                    'text' => 'La unidad ha sido creada satisfactoriamente'
+                ])
+                :
+                $this->success([
+                    'title' => '¡Actualizado con éxito!',
+                    'text' => 'La unidad ha sido actualizada satisfactoriamente'
+                ]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -76,7 +78,7 @@ class UnitController extends Controller
      */
     public function show($id)
     {
-        return Unit::find($id,['name As text', 'id As value']);
+        return Unit::find($id, ['name As text', 'id As value']);
     }
 
     /**

@@ -13,7 +13,7 @@ class MunicipalityController extends Controller
     public function allMunicipalities()
     {
         return $this->success(
-            Municipality::all(['name as text', 'id as value'])
+            Municipality::orderByDesc('name')->all(['name as text', 'id as value'])
         );
     }
     public function municipalitiesForDep($idDep)
@@ -30,7 +30,7 @@ class MunicipalityController extends Controller
                 $q->select('id', 'name');
             }
         ])
-            ->orderBy('name', 'DESC')
+            ->orderBy('name', 'asc')
             ->when(Request()->get('department_id'), function ($q, $param) {
                 $q->where('department_id', $param);
             })

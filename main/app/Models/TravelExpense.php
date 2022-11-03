@@ -12,11 +12,11 @@ class TravelExpense extends Model
 
 	public function destiny()
 	{
-		return $this->belongsTo(City::class, 'destinity_id');
+		return $this->belongsTo(Municipality::class, 'destinity_id');
 	}
 	public function origin()
 	{
-		return $this->belongsTo(City::class, 'origin_id');
+		return $this->belongsTo(Municipality::class, 'origin_id');
 	}
 	public function user()
 	{
