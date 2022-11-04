@@ -425,14 +425,14 @@ class PayrollController extends Controller
 
             $funcionarios->each(function ($funcionario) use ($pagoNomina) {
 
-                $salario =  $this->getSalario($funcionario->id, $pagoNomina->start_period, $pagoNomina->end_period);
+                $salario =  $this->getSalario($funcionario, $pagoNomina->start_period, $pagoNomina->end_period);
                 $pagoNomina->personPayrollPayment()->create([
                     'person_id' => $funcionario->id,
                     'payroll_payment_id' => $pagoNomina->id,
                     'worked_days' => $salario['worked_days'],
                     'salary' => $salario['salary'],
                     'transportation_assistance' => $salario['transportation_assistance'],
-                    'retentions_deductions' => $this->getRetenciones($funcionario->id, $pagoNomina->start_period, $pagoNomina->end_period)['valor_total'],
+                    'retentions_deductions' => $this->getRetenciones($funcionario, $pagoNomina->start_period, $pagoNomina->end_period)['valor_total'],
                     'net_salary' => $this->getPagoNeto($funcionario, $pagoNomina->start_period, $pagoNomina->end_period)['total_valor_neto'],
                 ]);
 

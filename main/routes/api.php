@@ -126,6 +126,7 @@ use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\CategoriaNuevaController;
+use App\Http\Controllers\LocationController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\User;
@@ -309,6 +310,7 @@ Route::group(
 
         Route::get('/horarios/datos/generales/{semana}', [RotatingTurnHourController::class, 'getDatosGenerales']);
         Route::get('download-applicants/{id}', [ApplicantController::class, 'donwloadCurriculum']);
+        Route::get('download-vacation/{id}', [PayVacationController::class, 'download']);
 
 
         Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'statistics']);
@@ -454,6 +456,7 @@ Route::group(
         Route::resource('ciiu-code', CiiuCodeController::class);
         Route::resource('dian-address', DianAddressController::class);
         Route::resource('pay-vacation', PayVacationController::class);
+        
         Route::resource('retention-type', RetentionTypeController::class);
         Route::resource('regime-type', RegimeTypeController::class);
         Route::resource('fiscal-responsibility', FiscalResponsibilityController::class);
@@ -521,6 +524,7 @@ Route::group(
         Route::get('paginateEgressTypes', [EgressTypesController::class, 'paginate']);
         Route::get('paginateIngressTypes', [IngressTypesController::class, 'paginate']);
         Route::get('paginateBanks', [BanksController::class, 'paginate']);
+        Route::get('paginate-vacation', [PayVacationController::class, 'paginate']);
         Route::get('paginateBankAccount', [BankAccountsController::class, 'paginate']);
         Route::get('paginateProfessions', [ProfessionController::class, 'paginate']);
         Route::get('paginateFixedAssetType', [FixedAssetTypeController::class, 'paginate']);
@@ -548,6 +552,7 @@ Route::group(
         Route::get('paginateApus', [ApuController::class, 'paginate']);
         Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
         Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
+        Route::get('paginate-locations', [LocationController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);

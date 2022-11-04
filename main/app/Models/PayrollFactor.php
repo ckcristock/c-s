@@ -34,6 +34,11 @@ class PayrollFactor extends Model
         return $this->belongsTo(Person::class)->with('contractultimate');
     }
 
+    public function pay_vacations()
+    {
+        return $this->hasMany(PayVacation::class);
+    }
+
     public function scopeVacations($query, Person $person, $fechaInicio)
     {
         return $query->where('person_id', $person->id)
