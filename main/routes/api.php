@@ -126,6 +126,7 @@ use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\CategoriaNuevaController;
+use App\Http\Controllers\PayrollManagerController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\User;
@@ -225,6 +226,7 @@ Route::group(
         Route::get("payroll-nex-mouths", [PayrollController::class, "nextMonths"]);
         Route::get("people-paginate", [PersonController::class, "indexPaginate"]);
         Route::get("people-all", [PersonController::class, "getAll"]);
+        Route::get("people-with-dni", [PersonController::class, "peoplesWithDni"]);
         Route::get("validar-cedula/{documento}", [PersonController::class, "validarCedula"]);
         Route::get('/get-menu',  [MenuController::class, 'getByPerson']);
         Route::post('/save-menu',  [MenuController::class, 'store']);
@@ -491,7 +493,7 @@ Route::group(
         Route::resource('annotation', PersonInvolvedController::class);
         Route::resource('business', BusinessController::class);
         Route::resource('contract-terms', ContractTermController::class)->except(['create', 'edit']);
-
+        Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
@@ -571,6 +573,7 @@ Route::group(
         Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
         Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
         Route::get('cities-by-municipalities/{id}', [CityController::class, 'showByMunicipality']);
+        Route::get('contract-term', [WorkContractTypeController::class, 'test']);
         // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
         /** Tutas de Empresas  */
@@ -643,7 +646,7 @@ Route::group(
         Route::get('users/{id}', [PersonController::class, 'user']);
         Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
         Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
-        Route::get('peopleSelects', [PersonController::class, 'peopleSelects']);
+        Route::get('peopleSelects', [PersonController::class, 'peopleSelects']); //mismo servicio que people->index pero hasta 100 registros
         Route::put('act-inact-medidas', [MeasureController::class, 'changeState']);
         /****** Rutas del modulo APU PIEZA ******/
         Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);

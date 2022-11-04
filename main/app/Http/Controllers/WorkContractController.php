@@ -134,7 +134,7 @@ class WorkContractController extends Controller
                 $join->on('posi.id', '=', 'w.position_id');
             })
             ->where('status', 'PreLiquidado')
-            ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1));
+            ->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1));
         /* for ($i = 0; $i < count($people); $i++) {
                 $fecha = $people[$i]->updated_at;
                 // dd($fecha);
@@ -348,7 +348,7 @@ class WorkContractController extends Controller
         if ($prueba > 60) {
           $prueba = 60;
         }
-        $fechaFinPrueba = Carbon::parse(date("j F Y",strtotime($fechain." + $prueba days")))->locale('es')->translatedFormat('j F Y'); 
+        $fechaFinPrueba = Carbon::parse(date("j F Y",strtotime($fechain." + $prueba days")))->locale('es')->translatedFormat('j F Y');
         echo $fechaFinPrueba;
         $created = new Carbon($contract->created_at);
         $dia = $created->format('d');
@@ -445,7 +445,7 @@ class WorkContractController extends Controller
                 <tr>
                   <td>Salario mensual:</td>
                   <td valign="bottom">
-                  $' . number_format($contract->salary, 0, "", ".")  
+                  $' . number_format($contract->salary, 0, "", ".")
                   . ' (' . $enLetras . ' MCTE)
                   </td>
                 </tr>
@@ -854,7 +854,7 @@ class WorkContractController extends Controller
                 trabajo vigente en la empresa.
             </p>
             <p>
-              Para constancia se firma en la ciudad de Girón (Santander), el ' . $diaenletras 
+              Para constancia se firma en la ciudad de Girón (Santander), el ' . $diaenletras
               . ' ('. $dia . ') de '. $mes .' de '.$year.'<u></u>
             </p>
             <table style="width: 100%; margin-top: 60px">
@@ -893,7 +893,7 @@ class WorkContractController extends Controller
             </table>
           </body>
         </html>
-        
+
         ';
         $contenifoFijo = '<!DOCTYPE html>
         <html lang="en">
@@ -983,7 +983,7 @@ class WorkContractController extends Controller
                 <tr>
                   <td>Salario mensual:</td>
                   <td valign="bottom">
-                  $' . number_format($contract->salary, 0, "", ".")  
+                  $' . number_format($contract->salary, 0, "", ".")
                   . ' (' . $enLetras . ' MCTE)
                   </td>
                 </tr>
@@ -1116,7 +1116,7 @@ class WorkContractController extends Controller
               empresa. <strong><u>CUARTA</u>.</strong> <strong>REMUNERACIÓN: </strong>El
               empleador pagará al trabajador por la prestación de sus servicios el
               salario mensual<strong
-                > $' . number_format($contract->salary, 0, "", ".")  
+                > $' . number_format($contract->salary, 0, "", ".")
                 . ' (' . $enLetras . ' MCTE)</strong
               >
               <strong> </strong>pagadero en las oportunidades ya señaladas. Dentro de
@@ -1347,7 +1347,7 @@ class WorkContractController extends Controller
             </p>
             <p>
               En constancia de lo anterior se firma en dos o más ejemplares del mismo
-              tenor y valor, en la ciudad de Girón (Santander), el ' . $diaenletras 
+              tenor y valor, en la ciudad de Girón (Santander), el ' . $diaenletras
               . ' ('. $dia . ') de '. $mes .' de '.$year.'<u></u>
             </p>
             <table style="width: 100%; margin-top: 30px">
@@ -1386,10 +1386,10 @@ class WorkContractController extends Controller
             </table>
           </body>
         </html>
-        
+
         ';
         $contenidoObraLaboral = '
-    
+
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -1404,7 +1404,7 @@ class WorkContractController extends Controller
         </head>
         <body style="width: 700px;"">
             <div style="text-align: center">
-                <strong 
+                <strong
                 >CONTRATO LABORAL POR EL TÉRMINO DE LA OBRA O LABOR CONTRATADA
                 </strong>
             </div>
@@ -1471,7 +1471,7 @@ class WorkContractController extends Controller
                 </tr>
                 <tr>
                 <td>Salario mensual:</td>
-                <td>$' . number_format($contract->salary, 0, "", ".")  
+                <td>$' . number_format($contract->salary, 0, "", ".")
                 . ' (' . $enLetras . ' MCTE)</td>
                 </tr>
                 <tr>
@@ -1829,7 +1829,7 @@ class WorkContractController extends Controller
             $contenido = $contenifoFijo;
         } else if ($contract->work_contract_type_id == 3) {
             $contenido = $contenidoObraLaboral;
-        } 
+        }
         $pdf = PDF::loadHtml($contenido);
         return $pdf->download('contrato.pdf');
     }

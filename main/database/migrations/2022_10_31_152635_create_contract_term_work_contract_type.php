@@ -1,11 +1,10 @@
 <?php
 
-use FontLib\Table\Type\name;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateContractTermsTable extends Migration
+class CreateContractTermWorkContractType extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +13,10 @@ class CreateContractTermsTable extends Migration
      */
     public function up()
     {
-        Schema::create('contract_terms', function (Blueprint $table) {
+        Schema::create('contract_term_work_contract_type', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->enum('status', ['Activo', 'Inactivo']);
+            $table->unsignedBigInteger('work_contract_type_id');
+            $table->unsignedBigInteger('contract_term_id');
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ class CreateContractTermsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contract_terms');
+        Schema::dropIfExists('contract_term_work_contract_type');
     }
 }

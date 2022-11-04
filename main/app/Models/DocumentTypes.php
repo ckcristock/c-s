@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class DocumentTypes extends Model
 {
+    protected $table = 'document_types';
+
     protected $fillable = [
         'code',
-        'dian_code',
         'name',
-        'abbreviation',
+        'dian_code',
         'status'
     ];
-    protected $table = 'document_types';
 }
