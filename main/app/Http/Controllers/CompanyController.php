@@ -7,6 +7,7 @@ use App\Models\WorkContract;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\CustomFacades\ImgUploadFacade;
 use Illuminate\Support\Facades\URL;
 
 class CompanyController extends Controller
@@ -20,13 +21,15 @@ class CompanyController extends Controller
     public function index()
     {
         //
-        return $this->success(Company::all(['id as value','name as text']));
+        return $this->success(Company::all(['id as value', 'name as text']));
     }
-    public function getBasicDataForId($id){
-        $data = Company::where('id',$id)->get();
+    public function getBasicDataForId($id)
+    {
+        $data = Company::where('id', $id)->get();
         return $this->success($data);
     }
-    public function getAllCompanies(){
+    public function getAllCompanies()
+    {
         return $this->success(Company::all());
     }
     public function getBasicData()
@@ -36,11 +39,20 @@ class CompanyController extends Controller
         );
     }
 
-    public function saveCompanyData(Request $request) 
+    public function saveCompanyData(Request $request)
     {
+        $company = Company::findOrFail($request->get('id'));
+        $company_data = $request->all();
+        if ($request->has('logo')) {
+            if ($company_data['logo'] != $company->logo) {
+                $company_data['logo'] = URL::to('/') . '/api/image?path=' . saveBase64($company_data['logo'], 'company/');
+            }
+        }
+        if ($request->has('page_heading')) {
+            $company_data['page_heading'] = URL::to('/') . '/api/image?path=' . saveBase64($company_data['page_heading'], 'company/');
+        }
         return $this->success(
-            $company = Company::findOrFail($request->get('id')),
-            $company->update($request->all())
+            $company->update($company_data)
         );
     }
 
@@ -82,7 +94,6 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-     
     }
 
     /**

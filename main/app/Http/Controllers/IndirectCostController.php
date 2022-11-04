@@ -17,7 +17,7 @@ class IndirectCostController extends Controller
     public function index()
     {
         return $this->success(
-            IndirectCost::all(['name as text', 'id as value', 'percentage'])
+            IndirectCost::where('state', 'Activo')->get(['name as text', 'id as value', 'percentage'])
         );
     }
 
@@ -27,6 +27,7 @@ class IndirectCostController extends Controller
             IndirectCost::when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
             })
+            ->orderBy('state')
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }

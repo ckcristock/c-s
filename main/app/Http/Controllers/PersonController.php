@@ -251,7 +251,7 @@ class PersonController extends Controller
 					"p.image",
 					"p.email",
 					"p.degree",
-					"p.date_of_birth",
+					"p.birth_date",
 					"p.gener",
 					"p.marital_status",
 					"p.address",
@@ -262,7 +262,11 @@ class PersonController extends Controller
 					"p.image",
 					"p.second_name",
 					"p.second_surname",
-					"p.status"
+					"p.status",
+					"p.visa",
+					"p.passport_number",
+					"p.title"
+
 				)
 				->join("work_contracts as w", function ($join) {
 					$join->on(

@@ -52,6 +52,7 @@ class ThirdPartyController extends Controller
                     });
                 }) 
                 ->select("*", DB::raw('IFNULL(social_reason, concat(first_name," ",first_surname) ) as name'))
+                ->orderBy('state', 'asc')
                 ->orderBy('name', 'asc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );

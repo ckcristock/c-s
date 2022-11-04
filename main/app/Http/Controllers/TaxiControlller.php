@@ -38,22 +38,10 @@ class TaxiControlller extends Controller
 	public function paginate()
 	{
 		return $this->success(
-			DB::table('taxis as t')
-			->select(
-				't.id',
-				't.route',
-				'tc.type',
-				'c.name as city',
-				'c.id as city_id',
-				'tc.value',
-				'tc.taxi_id'
-			)
-			->when( request()->get('tipo'), function ($q, $fill)
+			TaxiCity::with('city', 'taxi')->when( request()->get('tipo'), function ($q, $fill)
 			{
 				$q->where('type','=',$fill);
 			})
-			->join('taxi_cities as tc', 'tc.taxi_id', '=', 't.id')
-			->join('cities as c', 'c.id', '=', 'tc.city_id')
 			->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
 		);
 	}

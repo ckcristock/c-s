@@ -26,7 +26,9 @@ class ApuProfileController extends Controller
         return $this->success(
             ApuProfile::when(request()->get('profile'), function ($q, $fill) {
                 $q->where('profile', 'like', '%' . $fill . '%');
-            })->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            })
+            ->orderBy('state')
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
