@@ -133,6 +133,26 @@ class PersonController extends Controller
 		); */
 	}
 
+    /***
+     * Función que me devuelve el id, identificador,
+     * y nombre+apellido de personas (people)
+     */
+    public function peoplesWithDni(Request $request)
+    {
+		//dd(request()->get('dni'));
+        return $this->success(
+			Person::select(
+				"id as value",
+                "identifier",
+				DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '))
+				->when(request('search'), function ($q, $fill) {
+					$q->where(DB::raw('identifier'), 'like', '%' .$fill. '%')
+					  ->orWhere(DB::raw('concat(first_name," ",first_surname)'), 'like', '%'.$fill.'%');
+				})
+				->get()
+		);
+    }
+
 	public function validarCedula($documento)
 	{
 		$user= '';
@@ -210,7 +230,7 @@ class PersonController extends Controller
 						"p.id",
 						"=",
 						"w.person_id"
-					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                             join people as u2 on u2.id = a2.person_id group by u2.id)');
 				})
 				->where("p.id", "=", $id)
@@ -253,7 +273,7 @@ class PersonController extends Controller
 						"p.id",
 						"=",
 						"w.person_id"
-					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                             join people as u2 on u2.id = a2.person_id group by u2.id)');
 				})
 				->where("p.id", "=", $id)
@@ -278,7 +298,7 @@ class PersonController extends Controller
 						"w.person_id",
 						"=",
 						"p.id"
-					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                     join people as u2 on u2.id = a2.person_id group by u2.id)');
 				})
 				->join("work_contract_types as wc", function ($join) {
@@ -475,7 +495,7 @@ class PersonController extends Controller
 			//crear personID
 			$cognitive = new CognitiveService();
 			$person->personId = $cognitive->createPerson($person);
-			
+
 
 			if ($personData["image"]) {
 				$cognitive->deleteFace($person);
@@ -502,7 +522,7 @@ class PersonController extends Controller
 
                 'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey,
             ])->post($this->uriBase . '/persongroups/' . $this->azure_grupo . '/train', [
-               
+
             ]);
             $resp = $response->json();
             return response()->json($resp);
