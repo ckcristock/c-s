@@ -143,7 +143,7 @@ class PersonController extends Controller
         return $this->success(
 			Person::select(
 				"id as value",
-                "identifier as dni",
+                "identifier",
 				DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '))
 				->when(request('search'), function ($q, $fill) {
 					$q->where(DB::raw('identifier'), 'like', '%' .$fill. '%')

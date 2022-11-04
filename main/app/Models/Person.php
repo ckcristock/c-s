@@ -141,10 +141,14 @@ class Person extends Model
         return $this->belongsTo(Company::class,'company_worked_id');
     }
 
-    public function liquidation() 
+    public function liquidation()
     {
         return $this->hasOne(Liquidation::class);
     }
 
+    public function responsableNomina ()
+    {
+        return $this->belongsTo(PayrollManager::class,'identifier', 'manager');
+    }
 
 }

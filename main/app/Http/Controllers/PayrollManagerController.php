@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PayrollManager;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PayrollManagerController extends Controller
 {
@@ -17,7 +18,13 @@ class PayrollManagerController extends Controller
      */
     public function index()
     {
-        return $this->success(PayrollManager::all());
+        //return $this->success(PayrollManager::with('responsable: identifier as dni, CONCAT_WS(" ", first_name, first_surname) as text')->get());
+        return $this->success(PayrollManager::with(['responsable' => function ($q){
+                        $q->select(
+                            'id',
+                            'identifier',
+                            DB::raw('CONCAT_WS(" ",first_name,first_surname) as text'));
+                        }])->get());
     }
 
     /**
