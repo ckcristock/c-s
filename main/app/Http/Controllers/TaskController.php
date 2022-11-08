@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Person;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Traits\ApiResponser;
@@ -9,104 +10,42 @@ use Illuminate\Support\Facades\DB;
 use JsonIncrementalParser;
 use Illuminate\Support\Facades\Storage;
 use stdClass;
+use Illuminate\Support\Facades\URL;
 
 class TaskController extends Controller
 {
     use ApiResponser;
-    /* public function getData()
-    {
-        return $this->success(Task::get());
-    } */
-
-    public function personTask($id)
-    {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('id_realizador', $id)
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
-    }
 
     public function person($companyId)
     {
-        $person = DB::table('people')
-            ->where('company_id', $companyId)
-            ->get(['id', DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as name ')]);
+        $person = Person::whereHas('work_contract', function($q) use ($companyId){
+            $q->where('company_id', $companyId);
+        })
+        ->get(['id as value', DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as text ')]);
         return $this->success($person);
     }
 
-    public function personTaskFor($id)
+    public function getAsignadas($id)
     {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_realizador', '=', 'people.id')
+        return $this->success(
+            Task::with('realizador')
             ->where('id_asignador', $id)
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
+            ->get());
     }
 
-    public function personTaskPendientes($personId)
-    {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('id_realizador', $personId)
-            ->where('estado', 'Pendiente')
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
+    public function personTasks(Request $request) {
+        return $this->success(Task::with('asignador')
+            ->where('id_realizador', $request->person_id)
+            ->when($request->estado, function($q, $fill) {
+                $q->where('estado', '=', $fill);
+            })
+            ->get());
     }
 
-    public function personTaskEjecucion($personId)
+    public function statusUpdate(Request $request)
     {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('id_realizador', $personId)
-            ->where('estado', 'En ejecucion')
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
-    }
-
-    public function personTaskEspera($personId)
-    {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('id_realizador', $personId)
-            ->where('estado', 'En espera')
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
-    }
-
-    public function personTaskFinalizado($personId)
-    {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('id_realizador', $personId)
-            ->where('estado', 'Finalizado')
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
-    }
-
-    public function updateFinalizado($id)
-    {
-        DB::table('tasks')
-            ->where('id', $id)
-            ->update(['estado' => "Finalizado"]);
-    }
-    public function updatePendiente($id)
-    {
-        DB::table('tasks')
-            ->where('id', $id)
-            ->update(['estado' => "Pendiente"]);
-    }
-    public function updateEjecucion($id)
-    {
-        DB::table('tasks')
-            ->where('id', $id)
-            ->update(['estado' => "En ejecucion"]);
-    }
-    public function updateEspera($id)
-    {
-        DB::table('tasks')
-            ->where('id', $id)
-            ->update(['estado' => "En espera"]);
+        Task::where('id', $request->id)->update(['estado' => $request->status]);
+        return $this->success('Actualizado con éxito');
     }
 
     public function updateArchivado($id)
@@ -116,15 +55,7 @@ class TaskController extends Controller
             ->update(['estado' => "Archivada"]);
     }
 
-    public function getArchivada($id)
-    {
-        $archivado = DB::table('tasks')
-            ->join('people', 'tasks.id_realizador', '=', 'people.id')
-            ->where('tasks.id_realizador', $id)
-            ->where('tasks.estado', 'Archivada')
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($archivado);
-    }
+   
 
     public function taskView($id)
     {
@@ -205,51 +136,24 @@ class TaskController extends Controller
         return $this->success($json);
     }
 
-    public function newTask($task)
+    public function new(Request $request)
     {
-        $datos = json_decode($task);
-        $link = null;
-        if ($datos->{'link'}) {
-            $link = str_replace('_', '/', $datos->{'link'});
-        }
-        $insert = DB::table('tasks')
-            ->insert([
-                'id_realizador' => $datos->{'id_realizador'},
-                'tipo' => $datos->{'tipo'},
-                'titulo' => $datos->{'titulo'},
-                'descripcion' => $datos->{'descripcion'},
-                'fecha' => $datos->{'fecha'},
-                'adjuntos' => $datos->{'adjuntos'},
-                'link' => $link,
-                'id_asignador' => $datos->{'id_asignador'},
-                'hora' => $datos->{'hora'},
-                'estado' => $datos->{'estado'},
-            ]);
-        $idTask = DB::getPdo()->lastInsertId();
-        $uploads_dir = realpath(dirname(getcwd())) . '\storage\framework\adjuntostasks';
-        for ($i = 0; $i < count($_FILES); $i++) {
-            if (isset($_FILES["file$i"]["name"])) {
-                $tipoarchivo = $_FILES["file$i"]["type"];
-                $nombrerchivo = $_FILES["file$i"]["name"];
-                $tmp_name = $_FILES["file$i"]["tmp_name"];
-                //$dirNombre = '\\'.$nombrerchivo;
-                //$dir = $uploads_dir.$dirNombre;
-                $ruta = Storage::disk('taskmanager')->putFileAs($idTask, $tmp_name, $nombrerchivo);
-                $url = realpath(__DIR__."/../../../storage/app/taskmanager/$idTask/$nombrerchivo");
-                //Storage::disk('taskmanager')->put("/$idTask/$nombrerchivo", $tmp_name);
-                //move_uploaded_file($tmp_name,"$dir");
-                //$imagensubida = "$dir";
-
-                $subida = DB::table('adjuntos_tasks')
-                    ->insert([
-                        'file' => $url,
-                        'nombre' => $nombrerchivo,
-                        'tipo' => $tipoarchivo,
-                        'id_task' => $idTask,
-                    ]);
+        $data = $request->all();
+        $type = '.' . $request->type;
+        if ($request->type) {
+            if ($request->type == 'jpeg' || $request->type == 'jpg' || $request->type == 'png') {
+                $base64 = saveBase64($data["adjuntos"], 'task/', true, $type);
+                $data['adjuntos'] = URL::to('/') . '/api/image?path=' . $base64;
+            } else {
+                $base64 = saveBase64File($data["adjuntos"], 'task/', false, '.pdf');
+                $data['adjuntos'] = URL::to('/') . '/api/file?path=' . $base64;
             }
         }
-        return $this->success($idTask);
+        if ($request->link) {
+            $data['link'] = str_replace('_', '/', $data['link']);
+        }
+        Task::create($data);
+        $id_task = DB::getPdo()->lastInsertId();
+        return $this->success('Creado con éxito', $id_task);
     }
-    // agregar tarea -- obtener tareas asignadas -- editar tareas asignadas -- 
 }
