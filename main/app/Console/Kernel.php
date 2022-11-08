@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('listarUsers')->everyMinute()->sendOutputTo('prueba.json');
+        $schedule->command('listarUsers')->everyMinute()->sendOutputTo('../../prueba.json');
     }
 
     /**
