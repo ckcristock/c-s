@@ -15,7 +15,7 @@ class Task extends Model
         'titulo',
         'descripcion',
         'fecha',
-        'adjuntos',
+        'adjunto',
         'link',
         'id_asignador',
         'hora',
@@ -30,5 +30,15 @@ class Task extends Model
     public function realizador() 
     {
         return $this->hasOne(Person::class, 'id', 'id_realizador');
+    }
+
+    public function adjuntos()
+    {
+        return $this->hasMany(TaskFile::class);
+    }
+
+    public function comment()
+    {
+        return $this->hasMany(TaskComment::class)->with('autor');
     }
 }

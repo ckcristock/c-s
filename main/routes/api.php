@@ -598,20 +598,14 @@ Route::group(
 
 
         //tareas
-        Route::get('deletetask/{idTask}', [TaskController::class, 'deleteTask']);
-        Route::get('adjuntostask/{idTask}', [TaskController::class, 'adjuntosTask']);
         Route::get('taskview/{id}', [TaskController::class, 'taskView']);
         Route::post('newtask', [TaskController::class, 'new']);
-        Route::post('newcomment/{comment}', [TaskController::class, 'newComment']);
-        Route::get('deletecomment/{commentId}', [TaskController::class, 'deleteComment']);
-        Route::get('getcomments/{idTask}', [TaskController::class, 'getComments']);
+        Route::post('newcomment', [TaskController::class, 'newComment']);
+        Route::get('deletecomment/{id}', [TaskController::class, 'deleteComment']);
         Route::get('taskperson/{personId}', [TaskController::class, 'person']);
         Route::get('taskfor/{id}', [TaskController::class, 'getAsignadas']);
         Route::get('person-tasks', [TaskController::class, 'personTasks']);
-
-
         Route::post('status-update', [TaskController::class, 'statusUpdate']);
-        Route::post('updatearchivada/{id}', [TaskController::class, 'updateArchivado']);
 
         //se ejecuta al crear
         Route::get("subcategory-field/{id}", [SubcategoryController::class, 'getField']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Person;
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Models\TaskComment;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\DB;
 use JsonIncrementalParser;
@@ -18,10 +19,10 @@ class TaskController extends Controller
 
     public function person($companyId)
     {
-        $person = Person::whereHas('work_contract', function($q) use ($companyId){
+        $person = Person::whereHas('work_contract', function ($q) use ($companyId) {
             $q->where('company_id', $companyId);
         })
-        ->get(['id as value', DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as text ')]);
+            ->get(['id as value', DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as text ')]);
         return $this->success($person);
     }
 
@@ -29,16 +30,28 @@ class TaskController extends Controller
     {
         return $this->success(
             Task::with('realizador')
-            ->where('id_asignador', $id)
-            ->get());
+                ->where('id_asignador', $id)
+                ->get()
+        );
     }
 
-    public function personTasks(Request $request) {
+    public function personTasks(Request $request)
+    {
         return $this->success(Task::with('asignador')
             ->where('id_realizador', $request->person_id)
-            ->when($request->estado, function($q, $fill) {
+            ->when($request->estado, function ($q, $fill) {
                 $q->where('estado', '=', $fill);
             })
+            ->when($request->except, function ($q, $fill) {
+                $q->where('id', '!=', $fill)
+                    ->where('estado', '!=', 'Archivada')
+                    ->where('estado', '!=', 'Finalizado');
+            })
+            ->when($request->max, function ($q, $fill) {
+                $q->limit($fill);
+            })
+            ->orderByDesc('fecha')
+            ->orderBy('hora')
             ->get());
     }
 
@@ -48,92 +61,31 @@ class TaskController extends Controller
         return $this->success('Actualizado con éxito');
     }
 
-    public function updateArchivado($id)
-    {
-        DB::table('tasks')
-            ->where('id', $id)
-            ->update(['estado' => "Archivada"]);
-    }
-
-   
-
     public function taskView($id)
     {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('tasks.id', $id)
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        $task2 = DB::table('tasks')
-            ->join('people', 'tasks.id_realizador', '=', 'people.id')
-            ->where('tasks.id', $id)
-            ->get(DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as name '));
-        return $this->success($task, $task2);
+        return $this->success(
+            Task::where('id', $id)
+                ->with('asignador', 'realizador', 'adjuntos', 'comment')
+                ->first()
+        );
     }
 
-    public function newComment($comment)
+    public function newComment(Request $request)
     {
-        $commentjson = json_decode($comment);
-        $new = DB::table('comentarios_tareas')
-            ->insert([
-                'id_person' => $commentjson->{'id_person'},
-                'fecha' => $commentjson->{'fecha'},
-                'comentario' => $commentjson->{'comentario'},
-                'id_task' => $commentjson->{'id_task'},
-            ]);
-        return $this->success($new);
-    }
-    public function getComments($idTask)
-    {
-        $comments = DB::table('comentarios_tareas')
-            ->join('tasks', 'tasks.id', '=', 'comentarios_tareas.id_task')
-            ->join('people', 'people.id', '=', 'comentarios_tareas.id_person')
-            ->where('comentarios_tareas.id_task', $idTask)
-            ->get(['comentarios_tareas.*', DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as name ')]);
-        return $this->success($comments);
+        TaskComment::create($request->all());
+        return $this->success(
+            TaskComment::where('task_id', $request->task_id)->with('autor')->get()
+        );
     }
 
-    public function deleteComment($commentId)
+    public function deleteComment($id)
     {
-        $delete = DB::table('comentarios_tareas')
-            ->where('comentarios_tareas.id', $commentId)
-            ->delete();
-        return $this->success($delete);
-    }
-
-    public function deleteTask($idTask)
-    {
-        $delete = DB::table('tasks')
-            ->where('tasks.id', $idTask)
-            ->delete();
-        return $this->success($delete);
-    }
-
-    public function adjuntosTask($idTask)
-    {
-        $myArray = [];
-        $adjuntos = DB::table('adjuntos_tasks')
-            ->join('tasks', 'tasks.id', '=', 'adjuntos_tasks.id_task')
-            ->where('tasks.id', $idTask)
-            ->get('adjuntos_tasks.*');
-
-        $json = json_decode($adjuntos, true);
-        foreach ($json as &$value) {
-            $nombre = $value['nombre'];
-            $url1 = $value['file'];
-            /* $file = (base64_encode(file_get_contents("C:/laragon/www/core-back/main/storage/app/taskmanager/$idTask/$nombre"))); */
-            $file = (base64_encode(file_get_contents($url1)));
-            $value["fileview"] = $file;
-            //return array($file);
-        }
-        /* for ($i = 0; $i < count($json); $i++) {
-            $nombre = $json[$i]['nombre'];
-            $file = json_encode(base64_encode(file_get_contents("C:/laragon/www/ateneo-server/main/storage/app/taskmanager/$idTask/$nombre")));            
-            //$contents = base64_decode(Storage::disk('taskmanager')->get("/$idTask/$nombre"));
-            //array_push($json, array('fileview' => "$file"));
-            return $json;
-        }
-         */
-        return $this->success($json);
+        $comment = TaskComment::where('id', $id)->first();
+        $task_id = $comment->task_id;
+        $comment->delete();
+        return $this->success(
+            TaskComment::where('task_id', $task_id)->with('autor')->get()
+        );
     }
 
     public function new(Request $request)
