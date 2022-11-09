@@ -106,8 +106,4 @@ class WorkContractTypeController extends Controller
         //
     }
 
-    public function test()
-    {
-        return WorkContractType::with('contractTerms')->get();
-    }
 }

@@ -245,6 +245,7 @@ Route::group(
         /*CONFIG NOMINA*/
         Route::get('parametrizacion/nomina/extras', [PayrollConfigController::class, 'horasExtrasDatos']);
         Route::get('parametrizacion/nomina/incapacidades', [PayrollConfigController::class, 'incapacidadesDatos']);
+        Route::get('parametrizacion/nomina/novelties', [PayrollConfigController::class, 'novedadesList']);
         Route::get('parametrizacion/nomina/parafiscales', [PayrollConfigController::class, 'parafiscalesDatos']);
         Route::get('parametrizacion/nomina/riesgos', [PayrollConfigController::class, 'riesgosArlDatos']);
         Route::get('parametrizacion/nomina/ssocial_empresa', [PayrollConfigController::class, 'sSocialEmpresaDatos']);
@@ -408,7 +409,7 @@ Route::group(
         Route::resource('departments', DepartmentController::class);
         Route::resource('municipalities', MunicipalityController::class);
         Route::resource('jobs', JobController::class);
-        Route::resource('disability-leaves', DisabilityLeaveController::class);
+        Route::resource('disability-leaves', DisabilityLeaveController::class)->only(['index', 'store']);
         Route::resource('payroll-factor', PayrollFactorController::class);
         Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
         Route::resource('inventary-dotation', InventaryDotationController::class);
@@ -573,7 +574,6 @@ Route::group(
         Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
         Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
         Route::get('cities-by-municipalities/{id}', [CityController::class, 'showByMunicipality']);
-        Route::get('contract-term', [WorkContractTypeController::class, 'test']);
         // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
         /** Tutas de Empresas  */
@@ -622,7 +622,7 @@ Route::group(
         //se ejecuta al editar
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class);
-        Route::resource("type-documents", "DocumentTypesController");
+        Route::resource("type-documents", DocumentTypesController::class);
 
         Route::resource("category", CategoryController::class);
 
