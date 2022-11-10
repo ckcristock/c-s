@@ -27,12 +27,12 @@ class PayrollConfigController extends Controller
             }
         }
         return $this->success($horasExtras); */
-        return PayrollOvertime::all();
+        return PayrollOvertime::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     public function incapacidadesDatos()
     {
-        return PayrollDisabilityLeave::all();
+        return PayrollDisabilityLeave::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     /**
@@ -42,13 +42,13 @@ class PayrollConfigController extends Controller
      * */
     public function novedadesList ()
     {
-        $novedades = DisabilityLeave::all();
-        foreach ($novedades as $novedad) {
+        $novedades = DisabilityLeave::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+        /* foreach ($novedades as $novedad) {
             $cuenta = $this->consultaAPI($novedad->accounting_account);//son varias consultas a la DB, optimizar
             if (gettype($cuenta)=="array" && !empty($cuenta)){
                 $novedad->cuenta_contable = $cuenta[0];
             }
-        }
+        } */
         return $this->success($novedades);
     }
 
@@ -61,22 +61,22 @@ class PayrollConfigController extends Controller
 
     public function parafiscalesDatos()
     {
-        return PayrollParafiscal::all();
+        return PayrollParafiscal::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     public function riesgosArlDatos()
     {
-        return PayrollRisksArl::all();
+        return PayrollRisksArl::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     public function sSocialEmpresaDatos()
     {
-        return PayrollSocialSecurityCompany::all();
+        return PayrollSocialSecurityCompany::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     public function sSocialFuncionarioDatos()
     {
-        return PayrollSocialSecurityPerson::all();
+        return PayrollSocialSecurityPerson::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     public function horasExtrasUpdate($id, Request $request)

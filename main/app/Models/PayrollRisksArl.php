@@ -15,6 +15,13 @@ class PayrollRisksArl extends Model
         'prefix',
         'concept',
         'percentage',
+        'account_plan_id',
+        'account_setoff',
     ];
+
+    public function cuentaContable()
+    {
+        return $this->belongsTo(AccountPlan::class, 'account_plan_id', 'Codigo_Niif');
+    }
 
 }

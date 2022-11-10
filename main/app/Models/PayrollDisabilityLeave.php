@@ -15,7 +15,14 @@ class PayrollDisabilityLeave extends Model
     protected $fillable = [
         'prefix',
         'concept',
+        'account_plan_id',
+        'account_setoff',
         'percentage',
     ];
+
+    public function cuentaContable()
+    {
+        return $this->belongsTo(AccountPlan::class, 'account_plan_id', 'Codigo_Niif');
+    }
 
 }

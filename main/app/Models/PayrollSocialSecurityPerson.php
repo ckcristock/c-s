@@ -13,5 +13,12 @@ class PayrollSocialSecurityPerson extends Model
         'prefix',
         'concept',
         'percentage',
+        'account_plan_id'
     ];
+
+    public function cuentaContable()
+    {
+        return $this->belongsTo(AccountPlan::class, 'account_plan_id', 'Codigo_Niif');
+    }
+    
 }
