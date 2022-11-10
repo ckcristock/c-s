@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alert;
 use App\Models\Person;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\TaskComment;
+use App\Models\TaskFile;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\DB;
 use JsonIncrementalParser;
@@ -57,7 +59,17 @@ class TaskController extends Controller
 
     public function statusUpdate(Request $request)
     {
+        $task = Task::where('id', $request->id)->with('realizador')->first();
         Task::where('id', $request->id)->update(['estado' => $request->status]);
+        Alert::create([
+            'user_id' => $task->id_asignador,
+            'person_id' => $task->id_realizador,
+            'type' => 'Cambio de estado de la tarea',
+            'description' => $task->realizador->full_name . ' ha cambiado el estado de la tarea ' . strtolower($task->titulo) . ' a ' . strtolower($request->status),
+            'url' => '/' . 'task/' . $task->id,
+            'icon' => 'fas fa-arrow-right',
+
+        ]);
         return $this->success('Actualizado con éxito');
     }
 
@@ -70,12 +82,39 @@ class TaskController extends Controller
         );
     }
 
+    public function updateComments(Request $request) {
+        return $this->success(TaskComment::with('autor')->where('task_id', $request->id)->get());
+    }
+
     public function newComment(Request $request)
     {
+        $task = Task::where('id', $request->task_id)->with('realizador')->first();
+        $person = Person::where('id', $request->person_id)->first();
         TaskComment::create($request->all());
+        if ($task->id_realizador == $person->id) {
+            $user_id = $task->id_asignador;
+            $this->alertComment($user_id, $person, $task);
+        } else if ($task->id_asignador == $person->id) {
+            $user_id = $task->id_realizador;
+            $this->alertComment($user_id, $person, $task);
+        }
         return $this->success(
             TaskComment::where('task_id', $request->task_id)->with('autor')->get()
         );
+    }
+
+    private function alertComment($user_id, $person, $task)
+    {
+        Alert::create([
+            'user_id' => $user_id,
+            'person_id' => $person->id,
+            'type' => 'Nuevo comentario',
+            'description' => $person->full_name
+                . ' ha publicado un nuevo comentario en la tarea: '
+                . strtolower($task->titulo),
+            'url' => '/' . 'task/' . $task->id,
+            'icon' => 'fas fa-comments',
+        ]);
     }
 
     public function deleteComment($id)
@@ -91,21 +130,40 @@ class TaskController extends Controller
     public function new(Request $request)
     {
         $data = $request->all();
-        $type = '.' . $request->type;
-        if ($request->type) {
-            if ($request->type == 'jpeg' || $request->type == 'jpg' || $request->type == 'png') {
-                $base64 = saveBase64($data["adjuntos"], 'task/', true, $type);
-                $data['adjuntos'] = URL::to('/') . '/api/image?path=' . $base64;
-            } else {
-                $base64 = saveBase64File($data["adjuntos"], 'task/', false, '.pdf');
-                $data['adjuntos'] = URL::to('/') . '/api/file?path=' . $base64;
+        Task::create($data);
+        $task_id = DB::getPdo()->lastInsertId();
+        if ($request->has('files')) {
+            $data_files = $request->get('files');
+            foreach ($data_files as $file) {
+                $type = '.' . $file['type'];
+                if ($file['type']) {
+                    if ($file['type'] == 'jpeg' || $file['type'] == 'jpg' || $file['type'] == 'png') {
+                        $base64 = saveBase64($file['base64'], 'task/', true, $type);
+                        $save = URL::to('/') . '/api/image?path=' . $base64;
+                    } else {
+                        $base64 = saveBase64File($file['base64'], 'task/', false, '.pdf');
+                        $save = URL::to('/') . '/api/file?path=' . $base64;
+                    }
+                    TaskFile::create([
+                        'name' => $file['name'],
+                        'type' => $file['type'],
+                        'task_id' => $task_id,
+                        'file' => $save
+                    ]);
+                }
             }
         }
-        if ($request->link) {
-            $data['link'] = str_replace('_', '/', $data['link']);
-        }
-        Task::create($data);
-        $id_task = DB::getPdo()->lastInsertId();
-        return $this->success('Creado con éxito', $id_task);
+        $asignador = Person::where('id', $data['id_asignador'])->first();
+        Alert::create([
+            'user_id' => $data['id_realizador'],
+            'person_id' => $data['id_asignador'],
+            'type' => 'Nueva tarea',
+            'description' => $asignador->full_name . ' te ha asignado una nueva tarea.',
+            'url' => '/' . 'task/' . $task_id,
+            'icon' => 'fas fa-tasks',
+
+        ]);
+
+        return $this->success('Creado con éxito', $task_id);
     }
 }

@@ -17,12 +17,14 @@ class AlertController extends Controller
     {
         # code...
         $data = DB::table('alerts as a')
-            ->join('people as pc', 'pc.id', '=', 'a.user_id')
+            ->join('people as pc', 'pc.id', '=', 'a.person_id')
             ->select(
                 'a.type',
                 'a.description',
                 'a.destination_id',
                 'a.created_at',
+                'a.url',
+                'a.icon',
                 'pc.first_name',
                 'pc.first_surname',
             )
@@ -39,12 +41,14 @@ class AlertController extends Controller
     public function paginate(Request $req)
     {
         $data = DB::table('alerts as a')
-            ->join('people as pc', 'pc.id', '=', 'a.user_id')
+            ->join('people as pc', 'pc.id', '=', 'a.person_id')
             ->select(
                 'a.type',
                 'a.description',
                 'a.destination_id',
                 'a.created_at',
+                'a.url',
+                'a.icon',
                 'pc.first_name',
                 'pc.first_surname',
             )

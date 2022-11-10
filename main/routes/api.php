@@ -606,6 +606,7 @@ Route::group(
         Route::get('taskfor/{id}', [TaskController::class, 'getAsignadas']);
         Route::get('person-tasks', [TaskController::class, 'personTasks']);
         Route::post('status-update', [TaskController::class, 'statusUpdate']);
+        Route::get('update-comments', [TaskController::class, 'updateComments']);
 
         //se ejecuta al crear
         Route::get("subcategory-field/{id}", [SubcategoryController::class, 'getField']);
