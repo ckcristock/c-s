@@ -11,7 +11,7 @@ class Task extends Model
 
     protected $fillable =[
         'id_realizador',
-        'tipo',
+        'type_id',
         'titulo',
         'descripcion',
         'fecha',
@@ -40,5 +40,15 @@ class Task extends Model
     public function comment()
     {
         return $this->hasMany(TaskComment::class)->with('autor');
+    }
+
+    public function types()
+    {
+        return $this->hasOne(TaskType::class, 'id', 'type_id');
+    }
+
+    public function timeline()
+    {
+        return $this->hasMany(TaskTimeline::class)->with('person')->orderByDesc('created_at');
     }
 }

@@ -16,25 +16,35 @@ class AlertController extends Controller
     public function index(Request $req)
     {
         # code...
-        $data = DB::table('alerts as a')
-            ->join('people as pc', 'pc.id', '=', 'a.person_id')
-            ->select(
-                'a.type',
-                'a.description',
-                'a.destination_id',
-                'a.created_at',
-                'a.url',
-                'a.icon',
-                'pc.first_name',
-                'pc.first_surname',
-            )
-            ->when($req->get('person_id'), function ($q, $fill) {
-                $q->where('a.user_id', $fill);
-            })
-            ->orderBy('a.id', 'Desc')
-            ->get();
+        $alerts = Alert::where('user_id', $req->user_id)->with('transmitter')->orderByDesc('created_at');
+        $temp = $alerts->get();
+        $data = $alerts->limit(99)->get();
+        $count = 0;
+        foreach($temp as $dat) {
+            if ($dat->read_boolean == 0){
+                $count++;
+            }
+        }
         return $this->success(
-            $data
+            $data, $count
+        );
+    }
+
+    public function read(Request $request){
+        $alert = Alert::where('id', $request->id)->first();
+        $alert->update(['read_boolean' => 1]);
+        
+        $alerts = Alert::where('user_id', $request->user_id)->with('transmitter')->orderByDesc('created_at');
+        $temp = $alerts->get();
+        $data = $alerts->limit(99)->get();
+        $count = 0;
+        foreach($temp as $dat) {
+            if ($dat->read_boolean == 0){
+                $count++;
+            }
+        }
+        return $this->success(
+            $data, $count
         );
     }
 

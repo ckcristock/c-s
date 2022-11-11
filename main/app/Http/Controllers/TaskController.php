@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\TaskComment;
 use App\Models\TaskFile;
+use App\Models\TaskTimeline;
+use App\Models\TaskType;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\DB;
 use JsonIncrementalParser;
@@ -31,15 +33,15 @@ class TaskController extends Controller
     public function getAsignadas($id)
     {
         return $this->success(
-            Task::with('realizador')
+            Task::with('realizador', 'types')
                 ->where('id_asignador', $id)
-                ->get()
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
     public function personTasks(Request $request)
     {
-        return $this->success(Task::with('asignador')
+        return $this->success(Task::with('asignador', 'types')
             ->where('id_realizador', $request->person_id)
             ->when($request->estado, function ($q, $fill) {
                 $q->where('estado', '=', $fill);
@@ -57,6 +59,17 @@ class TaskController extends Controller
             ->get());
     }
 
+    public function getArchivadas(Request $request)
+    {
+        return $this->success(Task::with('asignador', 'types')
+            ->where('estado', $request->estado)
+            ->where('id_realizador', $request->person_id)
+            ->orWhere('id_asignador', $request->person_id)
+            ->orderByDesc('fecha')
+            ->orderBy('hora')
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
+    }
+
     public function statusUpdate(Request $request)
     {
         $task = Task::where('id', $request->id)->with('realizador')->first();
@@ -70,6 +83,14 @@ class TaskController extends Controller
             'icon' => 'fas fa-arrow-right',
 
         ]);
+        TaskTimeline::create([
+            'icon' => 'fas fa-arrow-right',
+            'title' => 'Cambio de estado',
+            'description' => $task->realizador->full_name . ' cambió el estado a ' . strtolower($request->status),
+            'task_id' => $request->id,
+            'person_id' => $task->id_asignador,
+
+        ]);
         return $this->success('Actualizado con éxito');
     }
 
@@ -77,12 +98,13 @@ class TaskController extends Controller
     {
         return $this->success(
             Task::where('id', $id)
-                ->with('asignador', 'realizador', 'adjuntos', 'comment')
+                ->with('asignador', 'realizador', 'adjuntos', 'comment', 'types', 'timeline')
                 ->first()
         );
     }
 
-    public function updateComments(Request $request) {
+    public function updateComments(Request $request)
+    {
         return $this->success(TaskComment::with('autor')->where('task_id', $request->id)->get());
     }
 
@@ -115,13 +137,30 @@ class TaskController extends Controller
             'url' => '/' . 'task/' . $task->id,
             'icon' => 'fas fa-comments',
         ]);
+        TaskTimeline::create([
+            'icon' => 'fas fa-comments',
+            'title' => 'Nuevo comentario',
+            'description' => $person->full_name
+                . ' publicó un nuevo comentario',
+            'task_id' => $task->id,
+            'person_id' => $person->id,
+        ]);
     }
 
     public function deleteComment($id)
     {
         $comment = TaskComment::where('id', $id)->first();
         $task_id = $comment->task_id;
+        $person = Person::where('id', $comment->person_id)->first();
         $comment->delete();
+        TaskTimeline::create([
+            'icon' => 'fas fa-trash',
+            'title' => 'Comentario eliminado',
+            'description' => $person->fullname . ' eliminó un comentario ',
+            'task_id' => $task_id,
+            'person_id' => $person->id,
+
+        ]);
         return $this->success(
             TaskComment::where('task_id', $task_id)->with('autor')->get()
         );
@@ -161,6 +200,14 @@ class TaskController extends Controller
             'description' => $asignador->full_name . ' te ha asignado una nueva tarea.',
             'url' => '/' . 'task/' . $task_id,
             'icon' => 'fas fa-tasks',
+
+        ]);
+        TaskTimeline::create([
+            'icon' => 'fas fa-tasks',
+            'title' => 'Nueva tarea',
+            'description' => $asignador->full_name . ' creó la tarea.',
+            'task_id' => $task_id,
+            'person_id' => $asignador->id,
 
         ]);
 

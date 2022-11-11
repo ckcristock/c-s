@@ -128,6 +128,7 @@ use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\CategoriaNuevaController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
+use App\Http\Controllers\TaskTypeController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\User;
@@ -548,6 +549,7 @@ Route::group(
         Route::get('paginateIndirectCost', [IndirectCostController::class, 'paginate']);
         Route::get('paginateCutLaserMaterial', [CutLaserMaterialController::class, 'paginate']);
         Route::get('paginateAlert', [AlertController::class, 'paginate']);
+        Route::get('read-alert', [AlertController::class, 'read']);
         Route::get('budgets-paginate', [BudgetController::class, 'paginate']);
         Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
         Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
@@ -607,6 +609,9 @@ Route::group(
         Route::get('person-tasks', [TaskController::class, 'personTasks']);
         Route::post('status-update', [TaskController::class, 'statusUpdate']);
         Route::get('update-comments', [TaskController::class, 'updateComments']);
+        Route::get('get-archivadas', [TaskController::class, 'getArchivadas']);
+        Route::resource('task-types', TaskTypeController::class);
+        Route::get('paginate-task-types', [TaskTypeController::class, 'paginate']);
 
         //se ejecuta al crear
         Route::get("subcategory-field/{id}", [SubcategoryController::class, 'getField']);
