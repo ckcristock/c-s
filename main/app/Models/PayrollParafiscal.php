@@ -24,4 +24,9 @@ class PayrollParafiscal extends Model
         return $this->belongsTo(AccountPlan::class, 'account_plan_id', 'Codigo_Niif');
     }
 
+    public function contrapartida()
+    {
+        return $this->belongsTo(AccountPlan::class, 'account_setoff', 'Codigo_Niif');
+    }
+
 }

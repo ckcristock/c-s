@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Countable_income;
+use App\Models\CountableDeduction;
+use App\Models\CountableLiquidation;
+use App\Models\CountableSalary;
 use App\Models\DisabilityLeave;
-use App\Models\Payroll;
 use App\Models\PayrollOvertime;
 use App\Models\PayrollParafiscal;
 use App\Models\PayrollRisksArl;
@@ -61,24 +64,51 @@ class PayrollConfigController extends Controller
 
     public function parafiscalesDatos()
     {
-        return PayrollParafiscal::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+        return PayrollParafiscal::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                       'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     public function riesgosArlDatos()
     {
-        return PayrollRisksArl::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+        return PayrollRisksArl::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                     'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     public function sSocialEmpresaDatos()
     {
-        return PayrollSocialSecurityCompany::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+        return PayrollSocialSecurityCompany::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                                  'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     public function sSocialFuncionarioDatos()
     {
-        return PayrollSocialSecurityPerson::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+        return PayrollSocialSecurityPerson::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                                 'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
+    public function incomeDatos()
+    {
+        return Countable_income::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+    }
+
+    public function deductionsDatos()
+    {
+        return CountableDeduction::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+    }
+
+    public function liquidationsDatos()
+    {
+        return CountableLiquidation::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+    }
+
+    public function SalariosSubsidiosDatos()
+    {
+        return CountableSalary::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+    }
+
+    /*
+     * Updates
+     */
     public function horasExtrasUpdate($id, Request $request)
     {
         PayrollOvertime::find($id)->update($request->all());
@@ -99,7 +129,7 @@ class PayrollConfigController extends Controller
 
     public function riesgosArlUpdate($id, Request $request)
     {
-        $updated = PayrollRisksArl ::find($id)->update($request->all());
+        $updated = PayrollRisksArl::find($id)->update($request->all());
         if ($updated) {
             return $this->success('Actualizado con éxito');
         }else{
@@ -117,6 +147,47 @@ class PayrollConfigController extends Controller
     {
         PayrollDisabilityLeave::find($id)->update($request->all());
         return $this->success('Actualizado con éxito');
+    }
+
+    public function createUptadeIncomeDatos(Request $request)
+    {
+        try {
+			$nuevo  = Countable_income::updateOrCreate(['id' => $request->get('id')], $request->all());
+			return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+		} catch (\Throwable $th) {
+            return $this->error($th->getMessage(), $th->getCode());
+			//return response()->json([$th->getMessage(), $th->getLine()]);
+		}
+    }
+
+    public function createUpdateDeductionsDatos(Request $request)
+    {
+        try {
+			$nuevo  = CountableDeduction::updateOrCreate(['id' => $request->get('id')], $request->all());
+			return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+		} catch (\Throwable $th) {
+            return $this->error($th->getMessage(), $th->getCode());
+		}
+    }
+
+    public function createUpdateLiquidationsDatos(Request $request)
+    {
+        try {
+			$nuevo  = CountableLiquidation::updateOrCreate(['id' => $request->get('id')], $request->all());
+			return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+		} catch (\Throwable $th) {
+            return $this->error($th->getMessage(), $th->getCode());
+		}
+    }
+
+    public function createUpdateSalariosSubsidiosDatos(Request $request)
+    {
+        try {
+			$nuevo  = CountableSalary::updateOrCreate(['id' => $request->get('id')], $request->all());
+			return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+		} catch (\Throwable $th) {
+            return $this->error($th->getMessage(), $th->getCode());
+		}
     }
 
 }
