@@ -51,7 +51,7 @@ class AlertController extends Controller
     public function paginate(Request $req)
     {
         $data = DB::table('alerts as a')
-            ->join('people as pc', 'pc.id', '=', 'a.person_id')
+            ->join('people as pc', 'pc.id', '=', 'a.user_id')
             ->select(
                 'a.type',
                 'a.description',

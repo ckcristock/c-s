@@ -62,9 +62,9 @@ class TaskController extends Controller
     public function getArchivadas(Request $request)
     {
         return $this->success(Task::with('asignador', 'types')
-            ->where('estado', $request->estado)
+            ->where('estado', 'Archivada')
             ->where('id_realizador', $request->person_id)
-            ->orWhere('id_asignador', $request->person_id)
+            /* ->orWhere('id_asignador', $request->person_id) */
             ->orderByDesc('fecha')
             ->orderBy('hora')
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
