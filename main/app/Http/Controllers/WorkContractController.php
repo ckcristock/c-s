@@ -233,6 +233,8 @@ class WorkContractController extends Controller
             DB::table('people as p')
                 ->select(
                     'p.id as person_id',
+                    DB::raw("concat(p.first_name,if(p.second_name!='',' ',''),p.second_name,' ',p.first_surname,
+                    if(p.second_surname!='',' ',''),p.second_surname) AS name"),
                     'posi.name as position_name',
                     'd.name as dependency_name',
                     'gr.name as group_name',
@@ -240,11 +242,17 @@ class WorkContractController extends Controller
                     'w.rotating_turn_id',
                     'posi.dependency_id',
                     'f.name as fixed_turn_name',
+                    'r.name as rotating_turn_name',
                     'c.name as company_name',
                     'w.turn_type',
                     'w.position_id',
                     'w.company_id',
                     'w.fixed_turn_id',
+                    DB::raw("DATEDIFF(w.date_end,w.date_of_admission) AS date_diff"),
+                    'w.date_end as date_of_admission',
+                    'w.date_end as old_date_end',
+                    DB::raw("ADDDATE(w.date_end,DATEDIFF(w.date_end,w.date_of_admission)) AS date_end"),
+                    'w.salary',
                     'w.id'
                 )
                 ->join('work_contracts as w', function ($join) {
@@ -264,12 +272,27 @@ class WorkContractController extends Controller
                 ->leftJoin('fixed_turns as f', function ($join) {
                     $join->on('f.id', '=', 'w.fixed_turn_id');
                 })
+                ->leftJoin('rotating_turns as r', function ($join) {
+                    $join->on('r.id', '=', 'w.rotating_turn_id');
+                })
                 ->join('companies as c', function ($join) {
                     $join->on('c.id', '=', 'w.company_id');
                 })
                 ->where('p.id', '=', $id)
                 ->first()
         );
+    }
+
+    public function getTurnTypes(){
+        $listaRaw=explode(",",DB::table('information_schema.COLUMNS as c')
+        ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_turnos")
+        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)="sigmaqmo_db-work_contracts-turn_type"')
+        ->first()->lista_turnos);
+        $lista=[];
+        foreach($listaRaw as $value){
+            $lista[]=["tipoTurno"=>str_replace("'","",$value)];
+        }
+        return $this->success($lista);
     }
 
     public function updateEnterpriseData(Request $request)
