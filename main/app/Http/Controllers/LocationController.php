@@ -2,24 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CompanyPaymentConfiguration;
+use App\Models\Location;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class CompanyPaymentConfigurationController extends Controller
+class LocationController extends Controller
 {
     use ApiResponser;
     /**
      * Display a listing of the resource.
-     * Muestra los datos de la compañia 1
-     * porque es una sola empresa
-     * Cambiar si se requiere multiempresa
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        return CompanyPaymentConfiguration::where('company_id', 1)->first();
+        //
     }
 
     /**
@@ -32,6 +29,15 @@ class CompanyPaymentConfigurationController extends Controller
         //
     }
 
+    public function paginate(Request $request)
+    {
+        return $this->success(Location::orderByDesc('name')
+            ->when($request->name, function ($q, $fill) {
+                $q->where('name', 'like', '%' . $fill . '%');
+            })
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -40,14 +46,7 @@ class CompanyPaymentConfigurationController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $companyConfiguration = $this->success(
-                CompanyPaymentConfiguration::updateOrCreate([ 'company_id'=> $request->get('company_id') ], $request->all())
-            );
-            return ($companyConfiguration->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
+        //
     }
 
     /**

@@ -5,24 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Alert extends Model
+class TaskTimeline extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'person_id', //emisor
-        'title',
-        'modal',
-        'user_id', //receptor
-        'type',
         'icon',
+        'title',
         'description',
-        'url',
-        'destination_id',
-        'read_boolean',
+        'task_id',
+        'person_id',
         'created_at',
     ];
 
-    public function transmitter()
+    public function person()
     {
         return $this->hasOne(Person::class, 'id', 'person_id');
     }

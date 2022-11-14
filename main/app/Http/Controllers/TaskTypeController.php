@@ -2,26 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CompanyPaymentConfiguration;
+use App\Models\TaskType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class CompanyPaymentConfigurationController extends Controller
+class TaskTypeController extends Controller
 {
     use ApiResponser;
     /**
      * Display a listing of the resource.
-     * Muestra los datos de la compañia 1
-     * porque es una sola empresa
-     * Cambiar si se requiere multiempresa
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        return CompanyPaymentConfiguration::where('company_id', 1)->first();
+        return $this->success(
+            TaskType::all(['id as value','name as text'])
+        );
+    }
+    public function getTypes()
+    {
+        
     }
 
+    public function paginate()
+    {
+        return $this->success(
+            TaskType::paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1))
+        );
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -40,14 +49,7 @@ class CompanyPaymentConfigurationController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $companyConfiguration = $this->success(
-                CompanyPaymentConfiguration::updateOrCreate([ 'company_id'=> $request->get('company_id') ], $request->all())
-            );
-            return ($companyConfiguration->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
+        TaskType::create($request->all());
     }
 
     /**

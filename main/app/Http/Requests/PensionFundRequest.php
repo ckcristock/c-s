@@ -36,4 +36,14 @@ class PensionFundRequest extends FormRequest
             'nit.unique' => 'El NIT se encuentra registrado'
         ];
     }
+
+    /**
+     * Get the underlying response instance.
+     *
+     * @return \Symfony\Component\HttpFoundation\Response|null
+     */
+    public function getResponse()
+    {
+        return $this->error('Formato no válido', 402);
+    }
 }

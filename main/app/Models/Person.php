@@ -14,7 +14,7 @@ class Person extends Model
         'blood_type',
         'cell_phone',
         'compensation_fund_id',
-        'date_of_birth',
+        'birth_date',
         'degree',
         'direction',
         'address',
@@ -42,7 +42,9 @@ class Person extends Model
         'arl_id',
         "company_id",
         'status',
-        'company_worked_id'
+        'company_worked_id',
+        'visa',
+        'passport_number'
     ];
 
     public function getFullNameAttribute()
@@ -141,10 +143,14 @@ class Person extends Model
         return $this->belongsTo(Company::class,'company_worked_id');
     }
 
-    public function liquidation() 
+    public function liquidation()
     {
         return $this->hasOne(Liquidation::class);
     }
 
+    public function responsableNomina ()
+    {
+        return $this->belongsTo(PayrollManager::class,'identifier', 'manager');
+    }
 
 }
