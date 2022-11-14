@@ -25,11 +25,11 @@ class WorkContractTypeController extends Controller
     public function paginate()
     {
         return $this->success(
-            WorkContractType::when( Request()->get('name') , function($q, $fill)
+            WorkContractType::with('contractTerms')->when( Request()->get('name') , function($q, $fill)
             {
                 $q->where('name','like','%'.$fill.'%');
             })
-            ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
+            ->paginate(Request()->get('pageSize', 5), ['*'], 'page', Request()->get('page', 1))
         );
     }
 
@@ -53,6 +53,8 @@ class WorkContractTypeController extends Controller
     {
         try {
             $typeContract  = WorkContractType::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            $typeContract->contractTerms()->detach();
+            $typeContract->contractTerms()->attach($request->contract_terms);
             return ($typeContract->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
@@ -102,5 +104,10 @@ class WorkContractTypeController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function test()
+    {
+        return WorkContractType::with('contractTerms')->get();
     }
 }

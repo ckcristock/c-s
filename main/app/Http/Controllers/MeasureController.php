@@ -17,7 +17,7 @@ class MeasureController extends Controller
     public function index()
     {
 
-        return $this->success(Measure::get(['measure', 'name As text', 'id As value']));
+        return $this->success(Measure::where('state', 'Activo')->get(['measure', 'name As text', 'id As value']));
     }
 
     public function measureActive(){

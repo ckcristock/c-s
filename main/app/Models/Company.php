@@ -40,7 +40,8 @@ class Company extends Model
       'bank_id',
       'account_number',
       'account_type',
-      'logo'
+      'logo',
+      'page_heading'
     ];
 
 

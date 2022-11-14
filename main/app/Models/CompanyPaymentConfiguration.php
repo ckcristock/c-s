@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class CompanyPaymentConfiguration extends Model
 {
     use HasFactory;
+    
     protected $fillable = [
         'calculate_work_disability',
         'pay_deductions',

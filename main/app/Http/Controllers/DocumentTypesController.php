@@ -25,7 +25,7 @@ class DocumentTypesController extends Controller
     {
         $data = Request()->all();
         $page = key_exists('page', $data) ? $data['page'] : 1;
-        $pageSize = key_exists('pageSize', $data) ? $data['pageSize'] : 10;
+        $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 5;
         return $this->success(
             DocumentTypes::when(Request()->get('name'), function ($q, $fill) {
                 $q->where('name', 'like', '%' . $fill . '%');

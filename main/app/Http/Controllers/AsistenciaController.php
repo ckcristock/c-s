@@ -803,10 +803,8 @@ class AsistenciaController extends Controller
                     $turno_asignado = $func->horariosTurnoRotativo[0]->turnoRotativo;
 
                     $startTime = Carbon::parse($hoy . " " . $hactual);
-                    $finishTime = Carbon::parse($hoy . " " . $turno_asignado->entry_time_one);
+                    $finishTime = Carbon::parse($hoy . " " . $turno_asignado->entry_time);
                     $totalDuration = $finishTime->diffInSeconds($startTime, false);
-
-                    MarcationService::marcation('error', $fully, $func->id, 'El funcionario tenía día de descanso');
                     $datos = array(
                         'person_id' => $func->id,
                         'date' => $hoy,
@@ -819,7 +817,7 @@ class AsistenciaController extends Controller
                     if ($totalDuration > ($turno_asignado->leave_tolerance * 60)) {
 
                         Diarios::guardarDiarioTurnoRotativo($datos);
-                        MarcationService::makeLateArrival($func->id, $hoy, $totalDuration, $hactual, $turno_asignado->entry_time_one);
+                        MarcationService::makeLateArrival($func->id, $hoy, $totalDuration, $hactual, $turno_asignado->entry_time);
 
                         /** FIN GUARDAR LLEGADA */
                         $lleg = 'Hoy ha Llegado tarde';
@@ -839,7 +837,7 @@ class AsistenciaController extends Controller
 
                         $respuesta = array(
                             'title' => 'Muy Temprano',
-                            'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Su turno asignado para hoy,<br> tiene hora de Ingreso a las " . $turno_asignado->entry_time_one . "</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
+                            'html' => "<img src='" . $func->image . "' class='img-thumbnail rounded-circle img-fluid' style='max-width:140px;'  /><br><strong>Su turno asignado para hoy,<br> tiene hora de Ingreso a las " . $turno_asignado->entry_time. "</strong><br><strong>" . $func->first_name . " " . $func->first_surname . "</strong>",
                             'icon' => 'warning'
                         );
                         return $respuesta;
