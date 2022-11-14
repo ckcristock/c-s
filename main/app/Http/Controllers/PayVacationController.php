@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PayrollFactor;
 use App\Models\PayVacation;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade as PDF;
+use Carbon\Carbon;
 
 class PayVacationController extends Controller
 {
@@ -47,6 +51,19 @@ class PayVacationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function paginate () 
+    {
+        return $this->success(
+            PayrollFactor::with('person', 'pay_vacations')
+            ->whereHas('disability_leave', function($query) {
+                return $query->where('concept', 'Vacaciones');
+            })
+            ->orderByDesc('updated_at')
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
+    }
+
+
     public function create()
     {
         //
@@ -108,5 +125,56 @@ class PayVacationController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function download($id){
+        $vacation = PayrollFactor::with('person', 'pay_vacations')
+        ->where('id', $id)
+        ->whereHas('disability_leave', function($query) {
+            return $query->where('concept', 'Vacaciones');
+        })
+        ->first();
+        $contenido =
+            '<!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+                <style>
+                    table, th, td {
+                        border: 1px solid;
+                        padding: 10px;
+                    }
+                    table {
+                        border-collapse: collapse;
+                      }
+                </style>             
+            </head>
+            <body style="margin:2rem">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Fecha de inicio</th>
+                            <th>Fecha de fin</th>
+                            <th>N° días</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>' . $vacation->person->full_name . '</td>
+                        <td>' . Carbon::parse($vacation->date_start)->locale('es')->isoFormat('DD MMMM YYYY') . '</td>
+                        <td>' . Carbon::parse($vacation->date_end)->locale('es')->isoFormat('DD MMMM YYYY') . '</td>
+                        <td>' . $vacation->pay_vacations[0]->days . '</td>
+                        <td>$' . number_format( $vacation->pay_vacations[0]->value, 0, "", ".") . '</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </body>
+        </html>';
+        $pdf = PDF::loadHTML($contenido);
+        return $pdf->download('certificado.pdf');
     }
 }

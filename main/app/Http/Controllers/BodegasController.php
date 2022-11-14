@@ -67,10 +67,18 @@ class BodegasController extends Controller
     }
 
     public function activarInactivar(){
-        return $this->success(
-            Bodegas::where('Id_Bodega_Nuevo',request()->get('id'))
-            ->update(['Estado' => request()->get('state')])
-        );
+
+        switch (request("modulo")) {
+            case 'bodega':
+                return $this->success(Bodegas::where('Id_Bodega_Nuevo',request()->get('id'))
+                ->update(['Estado' => request()->get('state')]));
+                break;
+            case 'grupo':
+                return $this->success(GrupoEstiba::where('Id_Grupo_Estiba',request()->get('id'))
+                ->update(['Estado' => request()->get('state')]));
+                break;
+        }
+
     }
 
     /**

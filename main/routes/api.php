@@ -126,7 +126,9 @@ use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\CategoriaNuevaController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
+use App\Http\Controllers\TaskTypeController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\User;
@@ -319,6 +321,7 @@ Route::group(
 
         Route::get('/horarios/datos/generales/{semana}', [RotatingTurnHourController::class, 'getDatosGenerales']);
         Route::get('download-applicants/{id}', [ApplicantController::class, 'donwloadCurriculum']);
+        Route::get('download-vacation/{id}', [PayVacationController::class, 'download']);
 
 
         Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'statistics']);
@@ -539,6 +542,7 @@ Route::group(
         Route::get('paginateEgressTypes', [EgressTypesController::class, 'paginate']);
         Route::get('paginateIngressTypes', [IngressTypesController::class, 'paginate']);
         Route::get('paginateBanks', [BanksController::class, 'paginate']);
+        Route::get('paginate-vacation', [PayVacationController::class, 'paginate']);
         Route::get('paginateBankAccount', [BankAccountsController::class, 'paginate']);
         Route::get('paginateProfessions', [ProfessionController::class, 'paginate']);
         Route::get('paginateFixedAssetType', [FixedAssetTypeController::class, 'paginate']);
@@ -560,12 +564,14 @@ Route::group(
         Route::get('paginateIndirectCost', [IndirectCostController::class, 'paginate']);
         Route::get('paginateCutLaserMaterial', [CutLaserMaterialController::class, 'paginate']);
         Route::get('paginateAlert', [AlertController::class, 'paginate']);
+        Route::get('read-alert', [AlertController::class, 'read']);
         Route::get('budgets-paginate', [BudgetController::class, 'paginate']);
         Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
         Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
         Route::get('paginateApus', [ApuController::class, 'paginate']);
         Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
         Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
+        Route::get('paginate-locations', [LocationController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -608,28 +614,18 @@ Route::group(
 
 
         //tareas
-        Route::get("task", [TaskController::class, "getData"]);
-        Route::post('upload', [TaskController::class, 'upload']);
-        Route::get('deletetask/{idTask}', [TaskController::class, 'deleteTask']);
-        Route::get('adjuntostask/{idTask}', [TaskController::class, 'adjuntosTask']);
         Route::get('taskview/{id}', [TaskController::class, 'taskView']);
-        Route::post('newtask/{task}', [TaskController::class, 'newTask']);
-        Route::post('newcomment/{comment}', [TaskController::class, 'newComment']);
-        Route::get('deletecomment/{commentId}', [TaskController::class, 'deleteComment']);
-        Route::get('getarchivada/{id}', [TaskController::class, 'getArchivada']);
-        Route::get('task/{id}', [TaskController::class, 'personTask']);
-        Route::get('getcomments/{idTask}', [TaskController::class, 'getComments']);
+        Route::post('newtask', [TaskController::class, 'new']);
+        Route::post('newcomment', [TaskController::class, 'newComment']);
+        Route::get('deletecomment/{id}', [TaskController::class, 'deleteComment']);
         Route::get('taskperson/{personId}', [TaskController::class, 'person']);
-        Route::get('taskfor/{id}', [TaskController::class, 'personTaskFor']);
-        Route::get('person-taskpendientes/{personId}', [TaskController::class, 'personTaskPendientes']);
-        Route::get('person-taskejecucion/{personId}', [TaskController::class, 'personTaskEjecucion']);
-        Route::get('person-taskespera/{personId}', [TaskController::class, 'personTaskEspera']);
-        Route::get('person-taskfinalizado/{personId}', [TaskController::class, 'personTaskFinalizado']);
-        Route::post('updatefinalizado/{id}', [TaskController::class, 'updateFinalizado']);
-        Route::post('updatependiente/{id}', [TaskController::class, 'updatePendiente']);
-        Route::post('updateejecucion/{id}', [TaskController::class, 'updateEjecucion']);
-        Route::post('updateespera/{id}', [TaskController::class, 'updateEspera']);
-        Route::post('updatearchivada/{id}', [TaskController::class, 'updateArchivado']);
+        Route::get('taskfor/{id}', [TaskController::class, 'getAsignadas']);
+        Route::get('person-tasks', [TaskController::class, 'personTasks']);
+        Route::post('status-update', [TaskController::class, 'statusUpdate']);
+        Route::get('update-comments', [TaskController::class, 'updateComments']);
+        Route::get('get-archivadas', [TaskController::class, 'getArchivadas']);
+        Route::resource('task-types', TaskTypeController::class);
+        Route::get('paginate-task-types', [TaskTypeController::class, 'paginate']);
 
         //se ejecuta al crear
         Route::get("subcategory-field/{id}", [SubcategoryController::class, 'getField']);
@@ -655,6 +651,7 @@ Route::group(
         Route::get('alert/{id}', [AttentionCallController::class, 'callAlert']);
         Route::get('descargo/{id}', [DisciplinaryProcessController::class, 'descargoPdf']);
         Route::get('download-work-contracts/{id}', [WorkContractController::class, 'pdf']);
+        Route::get('get-turn-types', [WorkContractController::class, 'getTurnTypes']);
         Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
         Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
         Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);

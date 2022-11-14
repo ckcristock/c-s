@@ -2,254 +2,215 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alert;
+use App\Models\Person;
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Models\TaskComment;
+use App\Models\TaskFile;
+use App\Models\TaskTimeline;
+use App\Models\TaskType;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\DB;
 use JsonIncrementalParser;
 use Illuminate\Support\Facades\Storage;
 use stdClass;
+use Illuminate\Support\Facades\URL;
 
 class TaskController extends Controller
 {
     use ApiResponser;
-    /* public function getData()
-    {
-        return $this->success(Task::get());
-    } */
-
-    public function personTask($id)
-    {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('id_realizador', $id)
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
-    }
 
     public function person($companyId)
     {
-        $person = DB::table('people')
-            ->where('company_id', $companyId)
-            ->get(['id', DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as name ')]);
+        $person = Person::whereHas('work_contract', function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
+        })
+            ->get(['id as value', DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as text ')]);
         return $this->success($person);
     }
 
-    public function personTaskFor($id)
+    public function getAsignadas($id)
     {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_realizador', '=', 'people.id')
-            ->where('id_asignador', $id)
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
+        return $this->success(
+            Task::with('realizador', 'types')
+                ->where('id_asignador', $id)
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
     }
 
-    public function personTaskPendientes($personId)
+    public function personTasks(Request $request)
     {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('id_realizador', $personId)
-            ->where('estado', 'Pendiente')
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
+        return $this->success(Task::with('asignador', 'types')
+            ->where('id_realizador', $request->person_id)
+            ->when($request->estado, function ($q, $fill) {
+                $q->where('estado', '=', $fill);
+            })
+            ->when($request->except, function ($q, $fill) {
+                $q->where('id', '!=', $fill)
+                    ->where('estado', '!=', 'Archivada')
+                    ->where('estado', '!=', 'Finalizado');
+            })
+            ->when($request->max, function ($q, $fill) {
+                $q->limit($fill);
+            })
+            ->orderByDesc('fecha')
+            ->orderBy('hora')
+            ->get());
     }
 
-    public function personTaskEjecucion($personId)
+    public function getArchivadas(Request $request)
     {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('id_realizador', $personId)
-            ->where('estado', 'En ejecucion')
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
+        return $this->success(Task::with('asignador', 'types')
+            ->where('estado', 'Archivada')
+            ->where('id_realizador', $request->person_id)
+            /* ->orWhere('id_asignador', $request->person_id) */
+            ->orderByDesc('fecha')
+            ->orderBy('hora')
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
     }
 
-    public function personTaskEspera($personId)
+    public function statusUpdate(Request $request)
     {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('id_realizador', $personId)
-            ->where('estado', 'En espera')
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
-    }
+        $task = Task::where('id', $request->id)->with('realizador')->first();
+        Task::where('id', $request->id)->update(['estado' => $request->status]);
+        Alert::create([
+            'user_id' => $task->id_asignador,
+            'person_id' => $task->id_realizador,
+            'type' => 'Cambio de estado de la tarea',
+            'description' => $task->realizador->full_name . ' ha cambiado el estado de la tarea ' . strtolower($task->titulo) . ' a ' . strtolower($request->status),
+            'url' => '/' . 'task/' . $task->id,
+            'icon' => 'fas fa-arrow-right',
 
-    public function personTaskFinalizado($personId)
-    {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('id_realizador', $personId)
-            ->where('estado', 'Finalizado')
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($task);
-    }
+        ]);
+        TaskTimeline::create([
+            'icon' => 'fas fa-arrow-right',
+            'title' => 'Cambio de estado',
+            'description' => $task->realizador->full_name . ' cambió el estado a ' . strtolower($request->status),
+            'task_id' => $request->id,
+            'person_id' => $task->id_asignador,
 
-    public function updateFinalizado($id)
-    {
-        DB::table('tasks')
-            ->where('id', $id)
-            ->update(['estado' => "Finalizado"]);
-    }
-    public function updatePendiente($id)
-    {
-        DB::table('tasks')
-            ->where('id', $id)
-            ->update(['estado' => "Pendiente"]);
-    }
-    public function updateEjecucion($id)
-    {
-        DB::table('tasks')
-            ->where('id', $id)
-            ->update(['estado' => "En ejecucion"]);
-    }
-    public function updateEspera($id)
-    {
-        DB::table('tasks')
-            ->where('id', $id)
-            ->update(['estado' => "En espera"]);
-    }
-
-    public function updateArchivado($id)
-    {
-        DB::table('tasks')
-            ->where('id', $id)
-            ->update(['estado' => "Archivada"]);
-    }
-
-    public function getArchivada($id)
-    {
-        $archivado = DB::table('tasks')
-            ->join('people', 'tasks.id_realizador', '=', 'people.id')
-            ->where('tasks.id_realizador', $id)
-            ->where('tasks.estado', 'Archivada')
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        return $this->success($archivado);
+        ]);
+        return $this->success('Actualizado con éxito');
     }
 
     public function taskView($id)
     {
-        $task = DB::table('tasks')
-            ->join('people', 'tasks.id_asignador', '=', 'people.id')
-            ->where('tasks.id', $id)
-            ->get(['tasks.*', 'people.first_name', 'people.second_name', 'people.first_surname']);
-        $task2 = DB::table('tasks')
-            ->join('people', 'tasks.id_realizador', '=', 'people.id')
-            ->where('tasks.id', $id)
-            ->get(DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as name '));
-        return $this->success($task, $task2);
+        return $this->success(
+            Task::where('id', $id)
+                ->with('asignador', 'realizador', 'adjuntos', 'comment', 'types', 'timeline')
+                ->first()
+        );
     }
 
-    public function newComment($comment)
+    public function updateComments(Request $request)
     {
-        $commentjson = json_decode($comment);
-        $new = DB::table('comentarios_tareas')
-            ->insert([
-                'id_person' => $commentjson->{'id_person'},
-                'fecha' => $commentjson->{'fecha'},
-                'comentario' => $commentjson->{'comentario'},
-                'id_task' => $commentjson->{'id_task'},
-            ]);
-        return $this->success($new);
-    }
-    public function getComments($idTask)
-    {
-        $comments = DB::table('comentarios_tareas')
-            ->join('tasks', 'tasks.id', '=', 'comentarios_tareas.id_task')
-            ->join('people', 'people.id', '=', 'comentarios_tareas.id_person')
-            ->where('comentarios_tareas.id_task', $idTask)
-            ->get(['comentarios_tareas.*', DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as name ')]);
-        return $this->success($comments);
+        return $this->success(TaskComment::with('autor')->where('task_id', $request->id)->get());
     }
 
-    public function deleteComment($commentId)
+    public function newComment(Request $request)
     {
-        $delete = DB::table('comentarios_tareas')
-            ->where('comentarios_tareas.id', $commentId)
-            ->delete();
-        return $this->success($delete);
-    }
-
-    public function deleteTask($idTask)
-    {
-        $delete = DB::table('tasks')
-            ->where('tasks.id', $idTask)
-            ->delete();
-        return $this->success($delete);
-    }
-
-    public function adjuntosTask($idTask)
-    {
-        $myArray = [];
-        $adjuntos = DB::table('adjuntos_tasks')
-            ->join('tasks', 'tasks.id', '=', 'adjuntos_tasks.id_task')
-            ->where('tasks.id', $idTask)
-            ->get('adjuntos_tasks.*');
-
-        $json = json_decode($adjuntos, true);
-        foreach ($json as &$value) {
-            $nombre = $value['nombre'];
-            $url1 = $value['file'];
-            /* $file = (base64_encode(file_get_contents("C:/laragon/www/core-back/main/storage/app/taskmanager/$idTask/$nombre"))); */
-            $file = (base64_encode(file_get_contents($url1)));
-            $value["fileview"] = $file;
-            //return array($file);
+        $task = Task::where('id', $request->task_id)->with('realizador')->first();
+        $person = Person::where('id', $request->person_id)->first();
+        TaskComment::create($request->all());
+        if ($task->id_realizador == $person->id) {
+            $user_id = $task->id_asignador;
+            $this->alertComment($user_id, $person, $task);
+        } else if ($task->id_asignador == $person->id) {
+            $user_id = $task->id_realizador;
+            $this->alertComment($user_id, $person, $task);
         }
-        /* for ($i = 0; $i < count($json); $i++) {
-            $nombre = $json[$i]['nombre'];
-            $file = json_encode(base64_encode(file_get_contents("C:/laragon/www/ateneo-server/main/storage/app/taskmanager/$idTask/$nombre")));            
-            //$contents = base64_decode(Storage::disk('taskmanager')->get("/$idTask/$nombre"));
-            //array_push($json, array('fileview' => "$file"));
-            return $json;
-        }
-         */
-        return $this->success($json);
+        return $this->success(
+            TaskComment::where('task_id', $request->task_id)->with('autor')->get()
+        );
     }
 
-    public function newTask($task)
+    private function alertComment($user_id, $person, $task)
     {
-        $datos = json_decode($task);
-        $link = null;
-        if ($datos->{'link'}) {
-            $link = str_replace('_', '/', $datos->{'link'});
-        }
-        $insert = DB::table('tasks')
-            ->insert([
-                'id_realizador' => $datos->{'id_realizador'},
-                'tipo' => $datos->{'tipo'},
-                'titulo' => $datos->{'titulo'},
-                'descripcion' => $datos->{'descripcion'},
-                'fecha' => $datos->{'fecha'},
-                'adjuntos' => $datos->{'adjuntos'},
-                'link' => $link,
-                'id_asignador' => $datos->{'id_asignador'},
-                'hora' => $datos->{'hora'},
-                'estado' => $datos->{'estado'},
-            ]);
-        $idTask = DB::getPdo()->lastInsertId();
-        $uploads_dir = realpath(dirname(getcwd())) . '\storage\framework\adjuntostasks';
-        for ($i = 0; $i < count($_FILES); $i++) {
-            if (isset($_FILES["file$i"]["name"])) {
-                $tipoarchivo = $_FILES["file$i"]["type"];
-                $nombrerchivo = $_FILES["file$i"]["name"];
-                $tmp_name = $_FILES["file$i"]["tmp_name"];
-                //$dirNombre = '\\'.$nombrerchivo;
-                //$dir = $uploads_dir.$dirNombre;
-                $ruta = Storage::disk('taskmanager')->putFileAs($idTask, $tmp_name, $nombrerchivo);
-                $url = realpath(__DIR__."/../../../storage/app/taskmanager/$idTask/$nombrerchivo");
-                //Storage::disk('taskmanager')->put("/$idTask/$nombrerchivo", $tmp_name);
-                //move_uploaded_file($tmp_name,"$dir");
-                //$imagensubida = "$dir";
+        Alert::create([
+            'user_id' => $user_id,
+            'person_id' => $person->id,
+            'type' => 'Nuevo comentario',
+            'description' => $person->full_name
+                . ' ha publicado un nuevo comentario en la tarea: '
+                . strtolower($task->titulo),
+            'url' => '/' . 'task/' . $task->id,
+            'icon' => 'fas fa-comments',
+        ]);
+        TaskTimeline::create([
+            'icon' => 'fas fa-comments',
+            'title' => 'Nuevo comentario',
+            'description' => $person->full_name
+                . ' publicó un nuevo comentario',
+            'task_id' => $task->id,
+            'person_id' => $person->id,
+        ]);
+    }
 
-                $subida = DB::table('adjuntos_tasks')
-                    ->insert([
-                        'file' => $url,
-                        'nombre' => $nombrerchivo,
-                        'tipo' => $tipoarchivo,
-                        'id_task' => $idTask,
+    public function deleteComment($id)
+    {
+        $comment = TaskComment::where('id', $id)->first();
+        $task_id = $comment->task_id;
+        $person = Person::where('id', $comment->person_id)->first();
+        $comment->delete();
+        TaskTimeline::create([
+            'icon' => 'fas fa-trash',
+            'title' => 'Comentario eliminado',
+            'description' => $person->fullname . ' eliminó un comentario ',
+            'task_id' => $task_id,
+            'person_id' => $person->id,
+
+        ]);
+        return $this->success(
+            TaskComment::where('task_id', $task_id)->with('autor')->get()
+        );
+    }
+
+    public function new(Request $request)
+    {
+        $data = $request->all();
+        Task::create($data);
+        $task_id = DB::getPdo()->lastInsertId();
+        if ($request->has('files')) {
+            $data_files = $request->get('files');
+            foreach ($data_files as $file) {
+                $type = '.' . $file['type'];
+                if ($file['type']) {
+                    if ($file['type'] == 'jpeg' || $file['type'] == 'jpg' || $file['type'] == 'png') {
+                        $base64 = saveBase64($file['base64'], 'task/', true, $type);
+                        $save = URL::to('/') . '/api/image?path=' . $base64;
+                    } else {
+                        $base64 = saveBase64File($file['base64'], 'task/', false, '.pdf');
+                        $save = URL::to('/') . '/api/file?path=' . $base64;
+                    }
+                    TaskFile::create([
+                        'name' => $file['name'],
+                        'type' => $file['type'],
+                        'task_id' => $task_id,
+                        'file' => $save
                     ]);
+                }
             }
         }
-        return $this->success($idTask);
+        $asignador = Person::where('id', $data['id_asignador'])->first();
+        Alert::create([
+            'user_id' => $data['id_realizador'],
+            'person_id' => $data['id_asignador'],
+            'type' => 'Nueva tarea',
+            'description' => $asignador->full_name . ' te ha asignado una nueva tarea.',
+            'url' => '/' . 'task/' . $task_id,
+            'icon' => 'fas fa-tasks',
+
+        ]);
+        TaskTimeline::create([
+            'icon' => 'fas fa-tasks',
+            'title' => 'Nueva tarea',
+            'description' => $asignador->full_name . ' creó la tarea.',
+            'task_id' => $task_id,
+            'person_id' => $asignador->id,
+
+        ]);
+
+        return $this->success('Creado con éxito', $task_id);
     }
-    // agregar tarea -- obtener tareas asignadas -- editar tareas asignadas -- 
 }

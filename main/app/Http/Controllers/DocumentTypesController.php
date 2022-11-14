@@ -27,11 +27,13 @@ class DocumentTypesController extends Controller
         $page = key_exists('page', $data) ? $data['page'] : 1;
         $pageSize = key_exists('pageSize',$data) ? $data['pageSize'] : 5;
         return $this->success(
-            DocumentTypes::when( Request()->get('name') , function($q, $fill)
-            {
-                $q->where('name','like','%'.$fill.'%');
+            DocumentTypes::when(Request()->get('name'), function ($q, $fill) {
+                $q->where('name', 'like', '%' . $fill . '%');
             })
-            ->paginate($pageSize, ['*'],'page', $page));
+                ->orderBy('status', 'asc')
+                ->orderBy('name', 'asc')
+                ->paginate($pageSize, ['*'], 'page', $page)
+        );
     }
 
     /**
