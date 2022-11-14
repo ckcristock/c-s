@@ -422,8 +422,8 @@ Route::group(
         Route::resource('eps', EpsController::class)->only(['index', 'store']);
         Route::resource('people', PersonController::class)->only(['index', 'store']);
         Route::resource('group', GroupController::class)->only(['index', 'store']);
-        Route::resource('departments', DepartmentController::class)->only(['index', 'store']);
-        Route::resource('municipalities', MunicipalityController::class)->only(['index', 'store']);
+        Route::resource('departments', DepartmentController::class);
+        Route::resource('municipalities', MunicipalityController::class);
         Route::resource('jobs', JobController::class)->only(['index', 'store']);
         Route::resource('disability-leaves', DisabilityLeaveController::class)->only(['index', 'store']);
         Route::resource('payroll-factor', PayrollFactorController::class)->only(['index', 'store']);
@@ -441,7 +441,7 @@ Route::group(
         Route::resource('countable_incomes', CountableIncomeController::class)->only(['index', 'store']);
         Route::resource('arl', ArlController::class)->only(['index', 'store']);
         /* Route::resource('inventary-dotation-group', ProductDotationType::class); */
-        Route::resource('work_contracts', WorkContractController::class)->only(['index', 'store']);
+        Route::resource('work_contracts', WorkContractController::class);
         Route::resource('memorandum', MemorandumController::class)->only(['index', 'store']);
         Route::resource('type_memorandum', MemorandumTypeController::class)->only(['index', 'store']);
         Route::resource('disciplinary_process', DisciplinaryProcessController::class)->only(['index', 'store']);
