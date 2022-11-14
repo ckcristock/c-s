@@ -14,6 +14,19 @@ class PayrollOvertime extends Model
 
     protected $guarded = ['id'];
 
+    protected $fillable = [
+        'prefix',
+        'concept',
+        'percentage',
+        'account_plan_id',
+        'account_setoff'
+    ];
+
+    public function cuentaContable()
+    {
+        return $this->belongsTo(AccountPlan::class, 'account_plan_id', 'Codigo_Niif');
+    }
+
     public function scopePrefijo($query, $indice)
     {
 

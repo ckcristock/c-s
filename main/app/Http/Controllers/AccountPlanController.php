@@ -19,7 +19,8 @@ class AccountPlanController extends Controller
 	 */
 	public function index()
 	{
-		return $this->success(
+        return $this->success(AccountPlan::all());
+		/* return $this->success(
 			AccountPlan::when(request()->get('name'), function ($q, $fill) {
 				$q->where('name', 'like', '%' . $fill . '%');
 			})
@@ -36,7 +37,7 @@ class AccountPlanController extends Controller
 					$q->where('status', 'like', '%' . $fill . '%');
 				})
 				->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
-		);
+		); */
 	}
 
 	public function accountPlan()
@@ -131,12 +132,14 @@ class AccountPlanController extends Controller
 
 			->get(['*', DB::raw("concat(name,' - ', code) as text, id as value")]));
 	}
+
 	public function list()
 	{
 		try {
 			$query = ' SELECT id, CONCAT(code," - ",name) as code, center_cost, percent
                 FROM account_plans WHERE CHAR_LENGTH( code ) > 5 ';
-			return $this->success(DB::select($query));
+            //dd(DB::raw($query));
+			return $this->success(DB::raw($query));
 			//code...
 		} catch (\Throwable $th) {
 			//throw $th;
