@@ -265,7 +265,8 @@ class PersonController extends Controller
 					"p.status",
 					"p.visa",
 					"p.passport_number",
-					"p.title"
+					"p.title",
+                    "p.address"
 
 				)
 				->join("work_contracts as w", function ($join) {
@@ -290,7 +291,10 @@ class PersonController extends Controller
 					"w.date_end",
 					"w.salary",
 					"wc.name as contract_type",
+					"ct.name as contract_term",
+					"ct.conclude",
 					"w.work_contract_type_id",
+					"w.contract_term_id",
 					"w.id"
 				)
 				->join("work_contracts as w", function ($join) {
@@ -303,6 +307,9 @@ class PersonController extends Controller
 				})
 				->join("work_contract_types as wc", function ($join) {
 					$join->on("wc.id", "=", "w.work_contract_type_id");
+				})
+				->leftJoin("contract_terms as ct", function ($join) {
+					$join->on("ct.id", "=", "w.contract_term_id");
 				})
 				->where("p.id", "=", $id)
 				->first()

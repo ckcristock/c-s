@@ -378,7 +378,7 @@ Route::group(
 
 
         /** End Payroll */
-        Route::resource('third-party-fields', ThirdPartyFieldController::class)->only(['index', 'store']);
+        Route::resource('third-party-fields', ThirdPartyFieldController::class);
         Route::put('changeStateField/{id}', [ThirdPartyFieldController::class, 'changeState']);
 
 
@@ -391,7 +391,7 @@ Route::group(
 
 
         /**End */
-        Route::resource('applicants', ApplicantController::class)->only(['index', 'store'])->only(['index', 'store']);
+        Route::resource('applicants', ApplicantController::class);
         Route::resource('bodegas', BodegasController::class)->only(['index', 'store', 'show']);
 
         Route::post('bodegas-activar-inactivar', [BodegasController::class,'activarInactivar']);
@@ -400,117 +400,117 @@ Route::group(
         Route::get('bodegas-with-estibas/{id}', [BodegasController::class,'bodegasConGrupos']);
         Route::get('grupos-with-estibas/{id}', [BodegasController::class,'gruposConEstibas']);
 
-        Route::resource('reason_withdrawal', ReasonWithdrawalController::class)->only(['index', 'store']);
-        Route::resource('work-certificate', WorkCertificateController::class)->only(['index', 'store']);
+        Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
+        Route::resource('work-certificate', WorkCertificateController::class);
 
         Route::get('download-work-certificate/{id}', [WorkCertificateController::class, 'pdf']);
 
-        Route::resource('layoffs-certificate', LayoffsCertificateController::class)->only(['index', 'store']);
+        Route::resource('layoffs-certificate', LayoffsCertificateController::class);
 
         Route::get('download-layoffs-certificate/{id}', [LayoffsCertificateController::class, 'pdf']);
 
-        Route::resource('pretty-cash', PrettyCashController::class)->only(['index', 'store']);
-        Route::resource('dependencies', DependencyController::class)->only(['index', 'store']);
-        Route::resource('company', CompanyController::class)->only(['index', 'store']);
-        Route::resource('positions', PositionController::class)->only(['index', 'store']);
-        Route::resource('work-contract-type', WorkContractTypeController::class)->only(['index', 'store']);
-        Route::resource('fixed-turns', FixedTurnController::class)->only(['index', 'store']);
-        Route::resource('rotating-turns', RotatingTurnController::class)->only(['index', 'store']);
-        Route::resource('severance-funds', SeveranceFundController::class)->only(['index', 'store']);
-        Route::resource('pension-funds', PensionFundController::class)->only(['index', 'store']);
-        Route::resource('compensation-funds', CompensationFundController::class)->only(['index', 'store']);
-        Route::resource('eps', EpsController::class)->only(['index', 'store']);
-        Route::resource('people', PersonController::class)->only(['index', 'store']);
-        Route::resource('group', GroupController::class)->only(['index', 'store']);
+        Route::resource('pretty-cash', PrettyCashController::class);
+        Route::resource('dependencies', DependencyController::class);
+        Route::resource('company', CompanyController::class);
+        Route::resource('positions', PositionController::class);
+        Route::resource('work-contract-type', WorkContractTypeController::class);
+        Route::resource('fixed-turns', FixedTurnController::class);
+        Route::resource('rotating-turns', RotatingTurnController::class);
+        Route::resource('severance-funds', SeveranceFundController::class);
+        Route::resource('pension-funds', PensionFundController::class);
+        Route::resource('compensation-funds', CompensationFundController::class);
+        Route::resource('eps', EpsController::class);
+        Route::resource('people', PersonController::class);
+        Route::resource('group', GroupController::class);
         Route::resource('departments', DepartmentController::class);
         Route::resource('municipalities', MunicipalityController::class);
-        Route::resource('jobs', JobController::class)->only(['index', 'store']);
-        Route::resource('disability-leaves', DisabilityLeaveController::class)->only(['index', 'store']);
-        Route::resource('payroll-factor', PayrollFactorController::class)->only(['index', 'store']);
+        Route::resource('jobs', JobController::class);
+        Route::resource('disability-leaves', DisabilityLeaveController::class);
+        Route::resource('payroll-factor', PayrollFactorController::class);
 
         Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
 
-        Route::resource('inventary-dotation', InventaryDotationController::class)->only(['index', 'store']);
-        Route::resource('product-dotation-types', ProductDotationTypeController::class)->only(['index', 'store']);
-        Route::resource('dotations', DotationController::class)->only(['index', 'store']);
-        Route::resource('rrhh-activity-types', RrhhActivityTypeController::class)->only(['index', 'store']);
-        Route::resource('rrhh-activity', RrhhActivityController::class)->only(['index', 'store']);
-        Route::resource('late-arrivals', LateArrivalController::class)->only(['index', 'store']);
-        Route::resource('zones', ZonesController::class)->only(['index', 'store']);
-        Route::resource('bonifications', BonificationsController::class)->only(['index', 'store']);
-        Route::resource('countable_incomes', CountableIncomeController::class)->only(['index', 'store']);
-        Route::resource('arl', ArlController::class)->only(['index', 'store']);
+        Route::resource('inventary-dotation', InventaryDotationController::class);
+        Route::resource('product-dotation-types', ProductDotationTypeController::class);
+        Route::resource('dotations', DotationController::class);
+        Route::resource('rrhh-activity-types', RrhhActivityTypeController::class);
+        Route::resource('rrhh-activity', RrhhActivityController::class);
+        Route::resource('late-arrivals', LateArrivalController::class);
+        Route::resource('zones', ZonesController::class);
+        Route::resource('bonifications', BonificationsController::class);
+        Route::resource('countable_incomes', CountableIncomeController::class);
+        Route::resource('arl', ArlController::class);
         /* Route::resource('inventary-dotation-group', ProductDotationType::class); */
         Route::resource('work_contracts', WorkContractController::class);
-        Route::resource('memorandum', MemorandumController::class)->only(['index', 'store']);
-        Route::resource('type_memorandum', MemorandumTypeController::class)->only(['index', 'store']);
-        Route::resource('disciplinary_process', DisciplinaryProcessController::class)->only(['index', 'store']);
-        Route::resource('salaryTypes', SalaryTypesController::class)->only(['index', 'store']);
-        Route::resource('rotating-hour', RotatingTurnHourController::class)->only(['index', 'store']);
-        Route::resource('rotating-hour-diary', RotatingTurnDiaryController::class)->only(['index', 'store']);
-        Route::resource('fixed-hour-diary', FixedTurnDiaryController::class)->only(['index', 'store']);
-        Route::resource('documentTypes', DocumentTypesController::class)->only(['index', 'store']);
-        Route::resource('countries', CountryController::class)->only(['index', 'store']);
-        Route::resource('risk', RiskTypesController::class)->only(['index', 'store']);
-        Route::resource('egress_types', EgressTypesController::class)->only(['index', 'store']);
-        Route::resource('ingress_types', IngressTypesController::class)->only(['index', 'store']);
-        Route::resource('banks', BanksController::class)->only(['index', 'store']);
-        Route::resource('banksAccount', BankAccountsController::class)->only(['index', 'store']);
-        Route::resource('account_plan', AccountPlanController::class)->only(['index', 'store']);
-        Route::resource('center_cost', CenterCostController::class)->only(['index', 'store']);
-        Route::resource('hotels', HotelController::class)->only(['index', 'store']);
-        Route::resource('taxis', TaxiControlller::class)->only(['index', 'store']);
-        Route::resource('travel-expense', TravelExpenseController::class)->only(['index', 'store']);
-        Route::resource('taxi-city', TaxiCityController::class)->only(['index', 'store']);
-        Route::resource('city', CityController::class)->only(['index', 'store']);
-        Route::resource('companyPayment', CompanyPaymentConfigurationController::class)->only(['index', 'store']);
-        Route::resource('loan', LoanController::class)->only(['index', 'store']);
-        Route::resource('fixed_asset', FixedAssetController::class)->only(['index', 'store']);
-        Route::resource('fixed_asset_type', FixedAssetTypeController::class)->only(['index', 'store']);
-        Route::resource('lunch', LunchController::class)->only(['index', 'store']);
-        Route::resource('professions', ProfessionController::class)->only(['index', 'store']);
-        Route::resource('third-party', ThirdPartyController::class)->only(['index', 'store']);
-        Route::resource('third-party-person', ThirdPartyPersonController::class)->only(['index', 'store']);
-        Route::resource('winnings-list', WinningListController::class)->only(['index', 'store']);
-        Route::resource('ciiu-code', CiiuCodeController::class)->only(['index', 'store']);
-        Route::resource('dian-address', DianAddressController::class)->only(['index', 'store']);
-        Route::resource('pay-vacation', PayVacationController::class)->only(['index', 'store']);
-        Route::resource('retention-type', RetentionTypeController::class)->only(['index', 'store']);
-        Route::resource('regime-type', RegimeTypeController::class)->only(['index', 'store']);
-        Route::resource('fiscal-responsibility', FiscalResponsibilityController::class)->only(['index', 'store']);
-        Route::resource('attention-call', AttentionCallController::class)->only(['index', 'store']);
-        Route::resource('cities', CityController::class)->only(['index', 'store']);
-        Route::resource('drivingLicenses', DrivingLicenseController::class)->only(['index', 'store']);
-        Route::resource('visa-types', VisaTypeController::class)->only(['index', 'store']);
-        Route::resource('alerts', AlertController::class)->only(['index', 'store']);
-        Route::resource('geometry', GeometryController::class)->only(['index', 'store']);
-        Route::resource('measure', MeasureController::class)->only(['index', 'store']);
+        Route::resource('memorandum', MemorandumController::class);
+        Route::resource('type_memorandum', MemorandumTypeController::class);
+        Route::resource('disciplinary_process', DisciplinaryProcessController::class);
+        Route::resource('salaryTypes', SalaryTypesController::class);
+        Route::resource('rotating-hour', RotatingTurnHourController::class);
+        Route::resource('rotating-hour-diary', RotatingTurnDiaryController::class);
+        Route::resource('fixed-hour-diary', FixedTurnDiaryController::class);
+        Route::resource('documentTypes', DocumentTypesController::class);
+        Route::resource('countries', CountryController::class);
+        Route::resource('risk', RiskTypesController::class);
+        Route::resource('egress_types', EgressTypesController::class);
+        Route::resource('ingress_types', IngressTypesController::class);
+        Route::resource('banks', BanksController::class);
+        Route::resource('banksAccount', BankAccountsController::class);
+        Route::resource('account_plan', AccountPlanController::class);
+        Route::resource('center_cost', CenterCostController::class);
+        Route::resource('hotels', HotelController::class);
+        Route::resource('taxis', TaxiControlller::class);
+        Route::resource('travel-expense', TravelExpenseController::class);
+        Route::resource('taxi-city', TaxiCityController::class);
+        Route::resource('city', CityController::class);
+        Route::resource('companyPayment', CompanyPaymentConfigurationController::class);
+        Route::resource('loan', LoanController::class);
+        Route::resource('fixed_asset', FixedAssetController::class);
+        Route::resource('fixed_asset_type', FixedAssetTypeController::class);
+        Route::resource('lunch', LunchController::class);
+        Route::resource('professions', ProfessionController::class);
+        Route::resource('third-party', ThirdPartyController::class);
+        Route::resource('third-party-person', ThirdPartyPersonController::class);
+        Route::resource('winnings-list', WinningListController::class);
+        Route::resource('ciiu-code', CiiuCodeController::class);
+        Route::resource('dian-address', DianAddressController::class);
+        Route::resource('pay-vacation', PayVacationController::class);
+        Route::resource('retention-type', RetentionTypeController::class);
+        Route::resource('regime-type', RegimeTypeController::class);
+        Route::resource('fiscal-responsibility', FiscalResponsibilityController::class);
+        Route::resource('attention-call', AttentionCallController::class);
+        Route::resource('cities', CityController::class);
+        Route::resource('drivingLicenses', DrivingLicenseController::class);
+        Route::resource('visa-types', VisaTypeController::class);
+        Route::resource('alerts', AlertController::class);
+        Route::resource('geometry', GeometryController::class);
+        Route::resource('measure', MeasureController::class);
 
-        Route::resource('geometry-measure', GeometryMeasureController::class)->only(['index', 'store']);
-        Route::resource('materials', MaterialController::class)->only(['index', 'store']);
-        Route::resource('units', UnitController::class)->only(['index', 'store']);
-        Route::resource('machinestools', MachineToolController::class)->only(['index', 'store']);
-        Route::resource('internalprocesses', InternalProcessController::class)->only(['index', 'store']);
-        Route::resource('externalprocesses', ExternalProcessController::class)->only(['index', 'store']);
-        Route::resource('countable-incomes', BenefitIncomeController::class)->only(['index', 'store']);
-        Route::resource('countable-not-incomes', BenefitNotIncomeController::class)->only(['index', 'store']);
-        Route::resource('deductions', DeductionController::class)->only(['index', 'store']);
-        Route::resource('countable_deductions', CountableDeductionController::class)->only(['index', 'store']);
-        Route::resource('indirect-cost', IndirectCostController::class)->only(['index', 'store']);
-        Route::resource('apu-parts', ApuPartController::class)->only(['index', 'store']);
-        Route::resource('apu-sets', ApuSetController::class)->only(['index', 'store']);
-        Route::resource('thicknesses', ThicknessController::class)->only(['index', 'store']);
-        Route::resource('cut-laser-material', CutLaserMaterialController::class)->only(['index', 'store']);
-        Route::resource('calculation-bases', CalculationBaseController::class)->only(['index', 'store']);
-        Route::resource('apu', ApuController::class)->only(['index', 'store']);
-        Route::resource('budgets', BudgetController::class)->only(['index', 'store']);
-        Route::resource('apu-profile', ApuProfileController::class)->only(['index', 'store']);
-        Route::resource('travel-expense-estimation', TravelExpenseEstimationController::class)->only(['index', 'store']);
-        Route::resource('travelExpenseEstimationValue', TravelExpenseEstimationValuesController::class)->only(['index', 'store']);
-        Route::resource('apu-service', ApuServiceController::class)->only(['index', 'store']);
-        Route::resource('lunch-value', LunchValueController::class)->only(['index', 'store']);
-        Route::resource('annotation', PersonInvolvedController::class)->only(['index', 'store']);
-        Route::resource('business', BusinessController::class)->only(['index', 'store']);
+        Route::resource('geometry-measure', GeometryMeasureController::class);
+        Route::resource('materials', MaterialController::class);
+        Route::resource('units', UnitController::class);
+        Route::resource('machinestools', MachineToolController::class);
+        Route::resource('internalprocesses', InternalProcessController::class);
+        Route::resource('externalprocesses', ExternalProcessController::class);
+        Route::resource('countable-incomes', BenefitIncomeController::class);
+        Route::resource('countable-not-incomes', BenefitNotIncomeController::class);
+        Route::resource('deductions', DeductionController::class);
+        Route::resource('countable_deductions', CountableDeductionController::class);
+        Route::resource('indirect-cost', IndirectCostController::class);
+        Route::resource('apu-parts', ApuPartController::class);
+        Route::resource('apu-sets', ApuSetController::class);
+        Route::resource('thicknesses', ThicknessController::class);
+        Route::resource('cut-laser-material', CutLaserMaterialController::class);
+        Route::resource('calculation-bases', CalculationBaseController::class);
+        Route::resource('apu', ApuController::class);
+        Route::resource('budgets', BudgetController::class);
+        Route::resource('apu-profile', ApuProfileController::class);
+        Route::resource('travel-expense-estimation', TravelExpenseEstimationController::class);
+        Route::resource('travelExpenseEstimationValue', TravelExpenseEstimationValuesController::class);
+        Route::resource('apu-service', ApuServiceController::class);
+        Route::resource('lunch-value', LunchValueController::class);
+        Route::resource('annotation', PersonInvolvedController::class);
+        Route::resource('business', BusinessController::class);
         Route::resource('contract-terms', ContractTermController::class)->except(['create', 'edit']);
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
 
@@ -532,6 +532,7 @@ Route::group(
         Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
         Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
         Route::get('paginateDocumentType', [DocumentTypesController::class, 'paginate']);
+        Route::get('paginate-fixed-turns', [FixedTurnController::class, 'paginate']);
         Route::get('paginateCountries', [CountryController::class, 'paginate']);
         Route::get('paginateArl', [ArlController::class, 'paginate']);
         Route::get('paginatePensionFun', [PensionFundController::class, 'paginate']);
@@ -635,7 +636,7 @@ Route::group(
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 
-        Route::resource("category", CategoryController::class)->only(['index', 'store']);
+        Route::resource("category", CategoryController::class);
 
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);

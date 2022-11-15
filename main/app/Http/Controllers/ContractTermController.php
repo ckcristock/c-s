@@ -16,7 +16,7 @@ class ContractTermController extends Controller
      */
     public function index()
     {
-        return $this->success(ContractTerm::all('name as text', 'id as value'));
+        return $this->success(ContractTerm::with('workContractTypes')->get());
     }
 
     /**
@@ -28,12 +28,12 @@ class ContractTermController extends Controller
     public function store(Request $request)
     {
         try {
-			$nuevo  = ContractTerm::updateOrCreate(['id' => $request->get('id'), "status"=>"activo"], $request->all());
-			return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
-		} catch (\Throwable $th) {
+            $nuevo  = ContractTerm::updateOrCreate(['id' => $request->get('id'), "status" => "activo"], $request->all());
+            return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
             return $this->error($th->getMessage(), $th->getCode());
-			//return response()->json([$th->getMessage(), $th->getLine()]);
-		}
+            //return response()->json([$th->getMessage(), $th->getLine()]);
+        }
     }
 
     /**
@@ -46,11 +46,12 @@ class ContractTermController extends Controller
     {
         $data = Request()->all();
         return $this->success(
-            ContractTerm::when( Request()->get('name') , function($q, $fill)
-            {
-                $q->where('name','like','%'.$fill.'%');
-            })
-            ->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1)));
+            ContractTerm::with('workContractTypes')
+                ->when(Request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1))
+        );
     }
 
     /**
