@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\WorkContractFinishConditions;
 use App\Models\Person;
 use App\Models\WorkContract;
 use App\Traits\ApiResponser;
@@ -239,7 +240,10 @@ class WorkContractController extends Controller
                     'd.name as dependency_name',
                     'gr.name as group_name',
                     'd.group_id',
+                    'w.fixed_turn_id',
                     'w.rotating_turn_id',
+                    'w.contract_term_id',
+                    'w.work_contract_type_id',
                     'posi.dependency_id',
                     'f.name as fixed_turn_name',
                     'r.name as rotating_turn_name',
@@ -247,7 +251,6 @@ class WorkContractController extends Controller
                     'w.turn_type',
                     'w.position_id',
                     'w.company_id',
-                    'w.fixed_turn_id',
                     DB::raw("DATEDIFF(w.date_end,w.date_of_admission) AS date_diff"),
                     'w.date_end as date_of_admission',
                     'w.date_end as old_date_end',
@@ -293,6 +296,16 @@ class WorkContractController extends Controller
             $lista[]=["tipoTurno"=>str_replace("'","",$value)];
         }
         return $this->success($lista);
+    }
+
+    /**
+     * Acciones antes de la finalización del contrato: Reovación o preliquidación.
+     */
+    public function finishContract(Request $request){
+        $value = WorkContractFinishConditions::updateOrCreate( [ 'id'=> request()->get('id') ] , $request->all() );
+        return $this->success(
+            ($value->wasRecentlyCreated) ? 'Renovación registrada con éxito': 'Renovación modificada con éxito'
+        );
     }
 
     public function updateEnterpriseData(Request $request)
