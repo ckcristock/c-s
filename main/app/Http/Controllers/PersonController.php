@@ -26,6 +26,8 @@ class PersonController extends Controller
 	public $azure_grupo = "personalnuevo";
 	public $uriBase = "https://facemaqymon2021.cognitiveservices.azure.com/face/v1.0";
 	use ApiResponser;
+
+    // ! Al liquidar un funcionario tendríamos que validar si este es responsable de algo en algún lado
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -34,9 +36,11 @@ class PersonController extends Controller
 	public function index()
 	{
 		return $this->success(
-			Person::all([
+			Person::
+            where('status', 'Activo')
+            ->get([
 				"id as value",
-				DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '),
+				DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),
 			])
 		);
 	}
@@ -64,6 +68,9 @@ class PersonController extends Controller
 			Person::with('work_contract')
 				->when($request->name, function ($q, $fill) {
 					$q->where("identifier", "like", "%" . $fill . "%")
+						->orWhere(DB::raw('CONCAT_WS(" ", first_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
+						->orWhere(DB::raw('CONCAT_WS(" ", second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
+						->orWhere(DB::raw('CONCAT_WS(" ", first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
 						->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%");
 				})
 				->when($request->dependency_id, function ($q, $fill) {
@@ -145,11 +152,12 @@ class PersonController extends Controller
 			Person::select(
 				"id as value",
                 "identifier",
-				DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '))
+				DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '))
 				->when(request('search'), function ($q, $fill) {
 					$q->where(DB::raw('identifier'), 'like', '%' .$fill. '%')
-					  ->orWhere(DB::raw('concat(first_name," ",first_surname)'), 'like', '%'.$fill.'%');
+					  ->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), 'like', '%'.$fill.'%');
 				})
+                ->where('status', 'Activo')
 				->get()
 		);
     }
@@ -185,7 +193,7 @@ class PersonController extends Controller
 					"p.id as value",
 					"p.passport_number",
 					"p.visa",
-					DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '),
+					DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),
 					"c.name as company",
 					DB::raw("w.id AS work_contract_id"),
 					DB::raw("'Funcionario' AS type")
@@ -451,40 +459,16 @@ class PersonController extends Controller
 				$person->save();
 				$cognitive->deleteFace($person);
 			}
-			if (request()->get("image")) {
-				if (request()->get("image") != $person->image) {
-
-
-                    $this->validate($request->image, [
-                        'file' => 'required|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
-                    ]);
-                    $image = $request->file('file');
-                    $input['file'] = time().'.'.$image->getClientOriginalExtension();
-
-                    $destinationPath = public_path('/thumbnail');
-                    $imgFile = Image::make($image->getRealPath());
-                    $imgFile->resize(150, 150, function ($constraint) {
-                        $constraint->aspectRatio();
-                    })->save($destinationPath.'/'.$input['file']);
-                    $destinationPath = public_path('/uploads');
-                    $image->move($destinationPath, $input['file']);
-
-
-
-					$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
-					$faceUri = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
-					$person->update($personData);
-
-					$cognitive->deleteFace($person);
-					$person->persistedFaceId = $cognitive->createFacePoints($person);
-					$person->save();
-					$cognitive->train();
-				} else {
-					$person->update($personData);
-				}
-			} else {
-				$person->update($personData);
-			}
+			if ($request->image != $person->image) {
+                $personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
+                $person->update($personData);
+                $cognitive->deleteFace($person);
+                $person->persistedFaceId = $cognitive->createFacePoints($person); //esta línea está dando un error
+                $person->save();
+                $cognitive->train();
+            } else {
+                $person->update($personData);
+            }
 
 			return response()->json($person);
 		} catch (\Throwable $th) {

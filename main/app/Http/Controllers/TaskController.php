@@ -26,7 +26,8 @@ class TaskController extends Controller
         $person = Person::whereHas('work_contract', function ($q) use ($companyId) {
             $q->where('company_id', $companyId);
         })
-            ->get(['id as value', DB::raw('CONCAT_WS(" ",first_name,second_name,first_surname) as text ')]);
+            ->where('status', 'Activo')
+            ->get(['id as value', DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text ')]);
         return $this->success($person);
     }
 
