@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Intervention\Image\Facades\Image;
 
 class PersonController extends Controller
 {
@@ -441,6 +442,7 @@ class PersonController extends Controller
 	{
 		try {
 			$person = Person::find($id);
+
 			$personData = $request->all();
 			$cognitive = new CognitiveService();
 			if (!$person->personId) {
@@ -451,6 +453,24 @@ class PersonController extends Controller
 			}
 			if (request()->get("image")) {
 				if (request()->get("image") != $person->image) {
+
+
+                    $this->validate($request->image, [
+                        'file' => 'required|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
+                    ]);
+                    $image = $request->file('file');
+                    $input['file'] = time().'.'.$image->getClientOriginalExtension();
+
+                    $destinationPath = public_path('/thumbnail');
+                    $imgFile = Image::make($image->getRealPath());
+                    $imgFile->resize(150, 150, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($destinationPath.'/'.$input['file']);
+                    $destinationPath = public_path('/uploads');
+                    $image->move($destinationPath, $input['file']);
+
+
+
 					$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
 					$faceUri = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
 					$person->update($personData);
