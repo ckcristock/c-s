@@ -94,8 +94,60 @@ class WorkContractController extends Controller
         $data = Request()->all();
         $page = key_exists('page', $data) ? $data['page'] : 1;
         $pageSize = key_exists('pageSize', $data) ? $data['pageSize'] : 2;
-        return $this->success(
-            DB::table('people as p')
+
+        $renewedContractsCount = WorkContract::select("person_id", DB::raw("count(id)-1 as cantidad"))
+        ->groupBy("person_id");
+
+        $people=DB::table('people as p')
+        ->select(
+            'p.id',
+            'p.first_name',
+            'p.second_name',
+            'p.first_surname',
+            'p.second_surname',
+            'p.image',
+            'w.date_of_admission',
+            'w.date_end',
+            DB::raw('null as renewed'),
+            'rc.cantidad',
+            DB::raw('null as process_id')
+        )
+        ->join('work_contracts as w', function ($join) {
+            $join->on('w.person_id', '=', 'p.id')
+                ->whereNotNull('date_end')->whereBetween('date_end', [Carbon::now(), Carbon::now()->addDays(45)]);
+        })->joinSub($renewedContractsCount,'rc', function ($join) {
+            $join->on('rc.person_id', '=', 'p.id');
+        })->whereNotIn("p.id", function ($query) {
+            $query->select("person_id")->from(with(new WorkContractFinishConditions)->getTable())->get();
+        });
+
+        $people2=DB::table('people as p')
+        ->select(
+            'p.id',
+            'p.first_name',
+            'p.second_name',
+            'p.first_surname',
+            'p.second_surname',
+            'p.image',
+            'w.date_of_admission',
+            'w.date_end',
+            'wc.renewed',
+            'rc.cantidad',
+            'wc.id as process_id'
+        )
+        ->join('work_contracts as w', function ($join) {
+            $join->on('w.person_id', '=', 'p.id')
+                ->whereNotNull('date_end')->whereBetween('date_end', [Carbon::now(), Carbon::now()->addDays(45)]);
+        })->joinSub($renewedContractsCount,'rc', function ($join) {
+            $join->on('rc.person_id', '=', 'p.id');
+        })
+        ->join('work_contract_finish_conditions as wc', function ($join) {
+            $join->on('wc.person_id', '=', 'p.id');
+        })->unionAll($people)->orderBy('id', 'Desc');
+
+
+        return $this->success($people2
+            /* DB::table('people as p')
                 ->select(
                     'p.id',
                     'p.first_name',
@@ -109,7 +161,7 @@ class WorkContractController extends Controller
                 ->join('work_contracts as w', function ($join) {
                     $join->on('w.person_id', '=', 'p.id')
                         ->whereNotNull('date_end')->whereBetween('date_end', [Carbon::now(), Carbon::now()->addDays(45)])->orderBy('name', 'Desc');
-                })
+                }) */
                 ->paginate($pageSize, ['*'], 'page', $page)
         );
     }
