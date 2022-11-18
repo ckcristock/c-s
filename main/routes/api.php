@@ -245,6 +245,8 @@ Route::group(
         Route::delete('electronic-payroll/{id}', [ElectronicPayrollController::class, 'deleteElectroincPayroll']);
 
         /*CONFIG NOMINA*/
+
+        Route::get('parametrizacion/nomina/all', [PayrollConfigController::class, 'getParametrosNomina']);
         Route::get('parametrizacion/nomina/extras', [PayrollConfigController::class, 'horasExtrasDatos']);
         Route::get('parametrizacion/nomina/incapacidades', [PayrollConfigController::class, 'incapacidadesDatos']);
         Route::get('parametrizacion/nomina/novelties', [PayrollConfigController::class, 'novedadesList']);
