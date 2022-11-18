@@ -44,7 +44,8 @@ class Person extends Model
         'status',
         'company_worked_id',
         'visa',
-        'passport_number'
+        'passport_number',
+        'folder_id'
     ];
 
     public function getFullNameAttribute()

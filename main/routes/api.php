@@ -128,6 +128,7 @@ use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\CategoriaNuevaController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
+use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
@@ -409,6 +410,12 @@ Route::group(
 
         Route::get('download-layoffs-certificate/{id}', [LayoffsCertificateController::class, 'pdf']);
 
+
+        Route::post('update-file-permission', [PersonController::class, 'updateFilePermission']);
+        Route::get('get-file-permission/{id}', [PersonController::class, 'getFilePermission']);
+
+
+
         Route::resource('pretty-cash', PrettyCashController::class);
         Route::resource('dependencies', DependencyController::class);
         Route::resource('company', CompanyController::class);
@@ -511,6 +518,7 @@ Route::group(
         Route::resource('lunch-value', LunchValueController::class);
         Route::resource('annotation', PersonInvolvedController::class);
         Route::resource('business', BusinessController::class);
+        Route::resource('quotations', QuotationController::class);
         Route::resource('contract-terms', ContractTermController::class)->except(['create', 'edit']);
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
 
@@ -528,6 +536,7 @@ Route::group(
         Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
         Route::get('citiesCountry/{idCountry}', [CityController::class, 'getCitiesCountry']);
         Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
+        Route::get('paginateQuotations', [QuotationController::class, 'paginate']);
         Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
         Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
         Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);

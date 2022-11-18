@@ -225,6 +225,7 @@ class PersonController extends Controller
 					"p.first_name",
 					"p.first_surname",
 					"p.id",
+                    "p.identifier",
 					"p.image",
 					"p.second_name",
 					"p.second_surname",
@@ -475,6 +476,19 @@ class PersonController extends Controller
 			return $this->error($th->getMessage(), 500);
 		}
 	}
+
+
+    public function updateFilePermission(Request $request)
+    {
+        $person = Person::where('id', $request->id)->first();
+        $person->update(['folder_id' => $request->folder_id]);
+    }
+
+    public function getFilePermission($id)
+    {
+        $person = Person::where('id', $id)->pluck('folder_id')->first();
+        return $this->success($person);
+    }
 
 	/**
 	 * Store a newly created resource in storage.
