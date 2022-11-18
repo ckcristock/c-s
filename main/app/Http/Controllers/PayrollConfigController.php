@@ -103,7 +103,8 @@ class PayrollConfigController extends Controller
 
     public function SalariosSubsidiosDatos()
     {
-        return CountableSalary::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+        return CountableSalary::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                     'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     /*
