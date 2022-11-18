@@ -95,10 +95,11 @@ class WorkContractController extends Controller
         $page = key_exists('page', $data) ? $data['page'] : 1;
         $pageSize = key_exists('pageSize', $data) ? $data['pageSize'] : 2;
 
+        // Contamos los contratos renovados con esa persona (No incluye el original).
         $renewedContractsCount = WorkContract::select("person_id", DB::raw("count(id)-1 as cantidad"))
         ->groupBy("person_id");
 
-        $people=DB::table('people as p')
+        $peopleToLiquidate=DB::table('people as p')
         ->select(
             'p.id',
             'p.first_name',
@@ -106,6 +107,7 @@ class WorkContractController extends Controller
             'p.first_surname',
             'p.second_surname',
             'p.image',
+            'w.id as contract_id',
             'w.date_of_admission',
             'w.date_end',
             DB::raw('null as renewed'),
@@ -121,7 +123,7 @@ class WorkContractController extends Controller
             $query->select("person_id")->from(with(new WorkContractFinishConditions)->getTable())->get();
         });
 
-        $people2=DB::table('people as p')
+        $peopleRenewedContract=DB::table('people as p')
         ->select(
             'p.id',
             'p.first_name',
@@ -129,6 +131,7 @@ class WorkContractController extends Controller
             'p.first_surname',
             'p.second_surname',
             'p.image',
+            'w.id as contract_id',
             'w.date_of_admission',
             'w.date_end',
             'wc.renewed',
@@ -143,10 +146,10 @@ class WorkContractController extends Controller
         })
         ->join('work_contract_finish_conditions as wc', function ($join) {
             $join->on('wc.person_id', '=', 'p.id');
-        })->unionAll($people)->orderBy('id', 'Desc');
+        })->unionAll($peopleToLiquidate)->orderBy('id', 'Desc');
 
 
-        return $this->success($people2
+        return $this->success(
             /* DB::table('people as p')
                 ->select(
                     'p.id',
@@ -162,7 +165,27 @@ class WorkContractController extends Controller
                     $join->on('w.person_id', '=', 'p.id')
                         ->whereNotNull('date_end')->whereBetween('date_end', [Carbon::now(), Carbon::now()->addDays(45)])->orderBy('name', 'Desc');
                 }) */
-                ->paginate($pageSize, ['*'], 'page', $page)
+                $peopleRenewedContract->paginate($pageSize, ['*'], 'page', $page)
+        );
+    }
+
+    public function contractRevewal($process_id){
+        return $this->success(
+            DB::table('work_contract_finish_conditions as w')
+            ->select(
+                DB::raw("concat(p.first_name,if(p.second_name!='',' ',''),p.second_name,' ',p.first_surname,
+                    if(p.second_surname!='',' ',''),p.second_surname) AS name"),
+                'c.name as company_name',
+                'w.*',
+                DB::raw("DATEDIFF(date_end,date_of_admission) AS date_diff")
+            )
+            ->join('people as p', function ($join) {
+                $join->on('p.id', '=', 'w.person_id');
+            })
+            ->join('companies as c', function ($join) {
+                $join->on('c.id', '=', 'w.company_id');
+            })
+            ->where('w.id', '=', $process_id)->first()
         );
     }
 
@@ -355,8 +378,9 @@ class WorkContractController extends Controller
      */
     public function finishContract(Request $request){
         $value = WorkContractFinishConditions::updateOrCreate( [ 'id'=> request()->get('id') ] , $request->all() );
-        return $this->success(
-            ($value->wasRecentlyCreated) ? 'Renovación registrada con éxito': 'Renovación modificada con éxito'
+            $nombreProceso = (request()->get('renewed')==1)?"Renovación":"Preliquidación";
+            return $this->success(
+            ($value->wasRecentlyCreated) ? $nombreProceso.' registrada con éxito': $nombreProceso.' modificada con éxito'
         );
     }
 
