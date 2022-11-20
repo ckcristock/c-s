@@ -79,8 +79,8 @@ class MunicipalityController extends Controller
         } */
         try {
             $validate_code = Municipality::where('code', $request->code)->first();
-            if($validate_code){
-                $municipality = Municipality::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            if ($validate_code) {
+                $municipality = Municipality::updateOrCreate(['id' => $request->get('id')], $request->all());
                 return ($municipality->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
             } else {
                 return $this->error('El código del Municipio ya existe', 423);
@@ -94,16 +94,17 @@ class MunicipalityController extends Controller
      * 25/10/22
      * Busca los munucipios de acuerdo el id de Estado
      */
-    public function show ($state_id)
+    public function show($state_id)
     {
         return $this->success(Municipality::where('department_id', $state_id)
-                                    ->orderBy('name', 'asc')
-                                    ->when(request()->get('name'),
-                                        function ($q, $fill){
-                                            $q->where('name', 'like', '%'.$fill.'%');
-                                        })
-                                    ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
-                                    //->get(['name as text', 'id as value']);
+            ->orderBy('name', 'asc')
+            ->when(
+                request()->get('name'),
+                function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                }
+            )
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
+        //->get(['name as text', 'id as value']);
     }
-
 }

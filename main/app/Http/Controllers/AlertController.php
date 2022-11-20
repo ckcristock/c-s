@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Alert;
 use App\Models\Person;
 use App\Traits\ApiResponser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -20,31 +21,34 @@ class AlertController extends Controller
         $temp = $alerts->get();
         $data = $alerts->limit(99)->get();
         $count = 0;
-        foreach($temp as $dat) {
-            if ($dat->read_boolean == 0){
+        foreach ($temp as $dat) {
+            if ($dat->read_boolean == 0) {
                 $count++;
             }
         }
         return $this->success(
-            $data, $count
+            $data,
+            $count
         );
     }
 
-    public function read(Request $request){
+    public function read(Request $request)
+    {
         $alert = Alert::where('id', $request->id)->first();
         $alert->update(['read_boolean' => 1]);
-        
+
         $alerts = Alert::where('user_id', $request->user_id)->with('transmitter')->orderByDesc('created_at');
         $temp = $alerts->get();
         $data = $alerts->limit(99)->get();
         $count = 0;
-        foreach($temp as $dat) {
-            if ($dat->read_boolean == 0){
+        foreach ($temp as $dat) {
+            if ($dat->read_boolean == 0) {
                 $count++;
             }
         }
         return $this->success(
-            $data, $count
+            $data,
+            $count
         );
     }
 
@@ -72,6 +76,8 @@ class AlertController extends Controller
 
     public function store(Request $request)
     {
+        // ! Validar el recorrido de los contratos
+        $today = Carbon::now();
         $person_id = request()->get("person_id");
         $type = request()->get("type");
         $user_id = request()->get("user_id");
@@ -139,6 +145,10 @@ class AlertController extends Controller
             }
         } else {
             $people = DB::table("work_contracts")
+                ->where(function ($query) use ($today) {
+                    $query->where("date_end", null)
+                        ->orWhere("date_end", '>', $today);
+                })
                 ->get();
             foreach ($people as $person) {
                 $user_id = $person->person_id;
