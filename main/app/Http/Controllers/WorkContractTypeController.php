@@ -18,18 +18,18 @@ class WorkContractTypeController extends Controller
     public function index(Request $request)
     {
         return $this->success(
-           WorkContractType::all(['id as value','name as text','conclude'])
-         );
+            WorkContractType::with('contractTerms')->get()
+        );
     }
 
     public function paginate()
     {
         return $this->success(
-            WorkContractType::with('contractTerms')->when( Request()->get('name') , function($q, $fill)
-            {
-                $q->where('name','like','%'.$fill.'%');
-            })
-            ->paginate(Request()->get('pageSize', 5), ['*'], 'page', Request()->get('page', 1))
+            WorkContractType::with('contractTerms')
+                ->when(Request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->paginate(Request()->get('pageSize', 5), ['*'], 'page', Request()->get('page', 1))
         );
     }
 
@@ -52,7 +52,7 @@ class WorkContractTypeController extends Controller
     public function store(Request $request)
     {
         try {
-            $typeContract  = WorkContractType::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            $typeContract  = WorkContractType::updateOrCreate(['id' => $request->get('id')], $request->all());
             $typeContract->contractTerms()->detach();
             $typeContract->contractTerms()->attach($request->contract_terms);
             return ($typeContract->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
@@ -105,5 +105,4 @@ class WorkContractTypeController extends Controller
     {
         //
     }
-
 }

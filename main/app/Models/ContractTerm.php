@@ -11,14 +11,16 @@ class ContractTerm extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id',
         'name',
         'status'
     ];
 
+    protected $table = 'contract_terms';
+
     public function workContractTypes ()
     {
-        $this->belongsToMany(WorkContractType::class)
-             ->withPivot('id', 'name', 'status')
+        return $this->belongsToMany(WorkContractType::class)
              ->withTimestamps();
     }
 

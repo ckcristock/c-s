@@ -30,6 +30,7 @@ class RotatingHourService
 					->orWhere("w.date_end", '>', $today);
 			})
 			->where("w.company_id", $company_id)
+			->where("p.status", 'Activo')
 			->when( Request()->get('person') , function($q, $fill)
             {
                 $q->where(DB::raw('concat(p.first_name, " ",p.first_surname)'), 'like', '%' . $fill . '%');
@@ -48,5 +49,5 @@ class RotatingHourService
 
 	//Consulta Turnos rotativos
 
-	
+
 }

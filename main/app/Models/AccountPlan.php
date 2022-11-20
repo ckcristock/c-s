@@ -9,7 +9,7 @@ class AccountPlan extends Model
 {
     use HasFactory;
 
-    protected $table = 'plan_cuentas';
+    protected $table = 'Plan_Cuentas';
 
     protected $primaryKey  ='Id_Plan_Cuentas';
 

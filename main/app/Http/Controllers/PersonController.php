@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Intervention\Image\Facades\Image;
 
 class PersonController extends Controller
 {
@@ -25,6 +26,8 @@ class PersonController extends Controller
 	public $azure_grupo = "personalnuevo";
 	public $uriBase = "https://facemaqymon2021.cognitiveservices.azure.com/face/v1.0";
 	use ApiResponser;
+
+    // ! Al liquidar un funcionario tendríamos que validar si este es responsable de algo en algún lado
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -33,9 +36,11 @@ class PersonController extends Controller
 	public function index()
 	{
 		return $this->success(
-			Person::all([
+			Person::
+            where('status', 'Activo')
+            ->get([
 				"id as value",
-				DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '),
+				DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),
 			])
 		);
 	}
@@ -63,6 +68,9 @@ class PersonController extends Controller
 			Person::with('work_contract')
 				->when($request->name, function ($q, $fill) {
 					$q->where("identifier", "like", "%" . $fill . "%")
+						->orWhere(DB::raw('CONCAT_WS(" ", first_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
+						->orWhere(DB::raw('CONCAT_WS(" ", second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
+						->orWhere(DB::raw('CONCAT_WS(" ", first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
 						->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%");
 				})
 				->when($request->dependency_id, function ($q, $fill) {
@@ -144,11 +152,12 @@ class PersonController extends Controller
 			Person::select(
 				"id as value",
                 "identifier",
-				DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '))
+				DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '))
 				->when(request('search'), function ($q, $fill) {
 					$q->where(DB::raw('identifier'), 'like', '%' .$fill. '%')
-					  ->orWhere(DB::raw('concat(first_name," ",first_surname)'), 'like', '%'.$fill.'%');
+					  ->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), 'like', '%'.$fill.'%');
 				})
+                ->where('status', 'Activo')
 				->get()
 		);
     }
@@ -184,7 +193,7 @@ class PersonController extends Controller
 					"p.id as value",
 					"p.passport_number",
 					"p.visa",
-					DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '),
+					DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),
 					"c.name as company",
 					DB::raw("w.id AS work_contract_id"),
 					DB::raw("'Funcionario' AS type")
@@ -216,6 +225,7 @@ class PersonController extends Controller
 					"p.first_name",
 					"p.first_surname",
 					"p.id",
+                    "p.identifier",
 					"p.image",
 					"p.second_name",
 					"p.second_surname",
@@ -265,7 +275,8 @@ class PersonController extends Controller
 					"p.status",
 					"p.visa",
 					"p.passport_number",
-					"p.title"
+					"p.title",
+                    "p.address"
 
 				)
 				->join("work_contracts as w", function ($join) {
@@ -290,7 +301,10 @@ class PersonController extends Controller
 					"w.date_end",
 					"w.salary",
 					"wc.name as contract_type",
+					"ct.name as contract_term",
+					"ct.conclude",
 					"w.work_contract_type_id",
+					"w.contract_term_id",
 					"w.id"
 				)
 				->join("work_contracts as w", function ($join) {
@@ -303,6 +317,9 @@ class PersonController extends Controller
 				})
 				->join("work_contract_types as wc", function ($join) {
 					$join->on("wc.id", "=", "w.work_contract_type_id");
+				})
+				->leftJoin("contract_terms as ct", function ($join) {
+					$join->on("ct.id", "=", "w.contract_term_id");
 				})
 				->where("p.id", "=", $id)
 				->first()
@@ -434,6 +451,7 @@ class PersonController extends Controller
 	{
 		try {
 			$person = Person::find($id);
+
 			$personData = $request->all();
 			$cognitive = new CognitiveService();
 			if (!$person->personId) {
@@ -442,28 +460,35 @@ class PersonController extends Controller
 				$person->save();
 				$cognitive->deleteFace($person);
 			}
-			if (request()->get("image")) {
-				if (request()->get("image") != $person->image) {
-					$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
-					$faceUri = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
-					$person->update($personData);
-
-					$cognitive->deleteFace($person);
-					$person->persistedFaceId = $cognitive->createFacePoints($person);
-					$person->save();
-					$cognitive->train();
-				} else {
-					$person->update($personData);
-				}
-			} else {
-				$person->update($personData);
-			}
+			if ($request->image != $person->image) {
+                $personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
+                $person->update($personData);
+                $cognitive->deleteFace($person);
+                $person->persistedFaceId = $cognitive->createFacePoints($person); //esta línea está dando un error
+                $person->save();
+                $cognitive->train();
+            } else {
+                $person->update($personData);
+            }
 
 			return response()->json($person);
 		} catch (\Throwable $th) {
 			return $this->error($th->getMessage(), 500);
 		}
 	}
+
+
+    public function updateFilePermission(Request $request)
+    {
+        $person = Person::where('id', $request->id)->first();
+        $person->update(['folder_id' => $request->folder_id]);
+    }
+
+    public function getFilePermission($id)
+    {
+        $person = Person::where('id', $id)->pluck('folder_id')->first();
+        return $this->success($person);
+    }
 
 	/**
 	 * Store a newly created resource in storage.

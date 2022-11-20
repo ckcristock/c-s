@@ -16,6 +16,7 @@ class WorkContract extends Model
         'salary',
         'turn_type',
         'work_contract_type_id',
+        'contract_term_id',
         'rotating_turn_id',
         'company_id',
         'fixed_turn_id',

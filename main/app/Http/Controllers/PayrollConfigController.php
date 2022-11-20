@@ -7,6 +7,7 @@ use App\Models\CountableDeduction;
 use App\Models\CountableLiquidation;
 use App\Models\CountableSalary;
 use App\Models\DisabilityLeave;
+use App\Models\PayrollManager;
 use App\Models\PayrollOvertime;
 use App\Models\PayrollParafiscal;
 use App\Models\PayrollRisksArl;
@@ -15,10 +16,60 @@ use App\Models\PayrollSocialSecurityPerson;
 use App\Models\PayrollDisabilityLeave;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PayrollConfigController extends Controller
 {
     use ApiResponser;
+
+    public function getParametrosNomina()
+    {
+        $responsables = PayrollManager::with(['responsable' => function ($q){
+                        $q->select(
+                            'id',
+                            'identifier',
+                            DB::raw('CONCAT_WS(" ",first_name,first_surname) as text'));
+                        }])->get();
+
+        $salarios = CountableSalary::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                              'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+
+        $extras = PayrollOvertime::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+
+        $segSocFunc = PayrollSocialSecurityPerson::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                                        'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+
+        $segSocEmp = PayrollSocialSecurityCompany::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                                        'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+
+        $riesgos = PayrollRisksArl::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                         'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+
+        $parafiscales = PayrollParafiscal::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                                'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+
+        $novedades = DisabilityLeave::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+
+        $ingresos = Countable_income::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+
+        $egresos = CountableDeduction::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+
+        $liquidacion = CountableLiquidation::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+
+        return $this->success([
+            'responsables'=> $responsables,
+            'salarios'=> $salarios,
+            'extras'=> $extras,
+            'segSocFunc'=> $segSocFunc,
+            'segSocEmp'=> $segSocEmp,
+            'riesgos'=> $riesgos,
+            'parafiscales'=> $parafiscales,
+            'novedades'=> $novedades,
+            'ingresos'=> $ingresos,
+            'egresos'=> $egresos,
+            'liquidacion'=> $liquidacion,
+        ]);
+    }
 
     public function horasExtrasDatos()
     {
@@ -103,7 +154,8 @@ class PayrollConfigController extends Controller
 
     public function SalariosSubsidiosDatos()
     {
-        return CountableSalary::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
+        return CountableSalary::with('cuentaContable:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif',
+                                     'contrapartida:Id_Plan_Cuentas,Codigo_Niif,Nombre_Niif')->get();
     }
 
     /*
