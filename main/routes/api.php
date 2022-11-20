@@ -585,8 +585,10 @@ Route::group(
         Route::get('epss', [PersonController::class, 'epss']);
         Route::get('fixed_turn', [PersonController::class, 'fixed_turn']);
         Route::post('enterpriseData', [WorkContractController::class, 'updateEnterpriseData']);
+        Route::post('finish-contract', [WorkContractController::class, 'finishContract']);
         Route::get('countable_income', [BonificationsController::class, 'countable_income']);
         Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
+        Route::get('contractRevewal/{id}', [WorkContractController::class, 'contractRevewal']);
         Route::get('preLiquidado', [WorkContractController::class, 'getPreliquidated']);
         Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
         Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);

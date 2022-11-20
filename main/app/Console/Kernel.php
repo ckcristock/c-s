@@ -2,7 +2,8 @@
 
 namespace App\Console;
 
-use App\Models\RotatingTurn;
+use App\Console\Commands\ContractFinish as CommandsContractFinish;
+use App\Jobs\ContractFinish;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -14,7 +15,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        CommandsContractFinish::class
     ];
 
     /**
@@ -26,7 +27,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('listarUsers')->everyMinute()->sendOutputTo('../../prueba.json');
+        // $schedule->command('listarUsers')->everyMinute()->sendOutputTo('../../prueba.json');
+         $schedule->command('contract:finish')->everyMinute()->sendOutputTo('../../prueba.json');
     }
 
     /**
