@@ -61,4 +61,8 @@ class Company extends Model
         return $this->hasOne(PayConfigurationCompany::class);
     }
 
+    public function payCompanyConfiguration()
+    {
+        return $this->hasOne(CompanyPaymentConfiguration::class, 'company_id', 'id');
+    }
 }

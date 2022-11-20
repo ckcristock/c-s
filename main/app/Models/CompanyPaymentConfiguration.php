@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class CompanyPaymentConfiguration extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'calculate_work_disability',
         'pay_deductions',
@@ -18,4 +18,9 @@ class CompanyPaymentConfiguration extends Model
         'pay_vacations',
         'company_id'
     ];
+
+    public function companyConfPayment()
+    {
+        return $this->belongsTo(Company::class, 'id', 'company_id');
+    }
 }

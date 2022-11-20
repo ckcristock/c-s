@@ -41,9 +41,7 @@ class CompanyPaymentConfigurationController extends Controller
     public function store(Request $request)
     {
         try {
-            $companyConfiguration = $this->success(
-                CompanyPaymentConfiguration::updateOrCreate([ 'company_id'=> $request->get('company_id') ], $request->all())
-            );
+            $companyConfiguration = CompanyPaymentConfiguration::updateOrCreate([ 'company_id'=> $request->get('company_id') ], $request->all());
             return ($companyConfiguration->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
