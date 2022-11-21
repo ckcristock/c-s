@@ -132,6 +132,7 @@ use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
+use App\Models\ThirdParty;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -609,6 +610,7 @@ Route::group(
         Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
         Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
         Route::get('cities-by-municipalities/{id}', [CityController::class, 'showByMunicipality']);
+        Route::get('countries-with-departments', [CountryController::class, 'allCountries']);
         // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
         /** Tutas de Empresas  */
@@ -651,13 +653,14 @@ Route::group(
 
         Route::resource("category", CategoryController::class);
 
+        //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
         Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
         Route::get('all-zones', [ZonesController::class, 'allZones']);
         Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
         Route::get('municipalities-for-dep/{id}', [MunicipalityController::class, 'municipalitiesForDep']);
-        //Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
+        Route::get('account-plan', [AccountPlanController::class, 'accountPlan']); //!Se debería usar la que está en php
         Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
         Route::put('state-change', [LunchController::class, 'activateOrInactivate']);
         Route::get('filter-all-depencencies', [DependencyController::class, 'dependencies']);
