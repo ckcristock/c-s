@@ -9,6 +9,8 @@ class Premium extends Model
 {
     use HasFactory;
 
+    protected $table = 'premiums';
+
     protected $fillable = [
         'person_id',
         'premium',

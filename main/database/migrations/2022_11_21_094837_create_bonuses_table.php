@@ -16,8 +16,13 @@ class CreateBonusesTable extends Migration
         Schema::create('bonuses', function (Blueprint $table) {
             $table->id();
             $table->string('description');
-            $table->float('total_bonuses');
+            $table->double('total_bonuses');
             $table->integer('total_employees');
+            $table->dateTime('period');
+            $table->dateTime('payment_date');
+            $table->enum('status', ['pendiente', 'pagado']);
+            $table->string('payer');
+            $table->string('observations');
             $table->timestamps();
         });
     }
