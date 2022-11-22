@@ -88,7 +88,7 @@ class ContractFinish extends Command
                         'user_id' => 1,
                         'modal' => 0,
                         'type' => 'Notificación',
-                        'description' => 'El funcionario con el contrato número '. $contrato->contract_id.' fue notificado
+                        'description' => 'El funcionario con el contrato número CON'. $contrato->contract_id.' fue notificado
                         de su finalización para el día ' . $contrato->date_end
                     ]);
                     WorkContractFinishConditions::create([
@@ -108,7 +108,6 @@ class ContractFinish extends Command
                     unset($condicionesContratoARenovar->contract_id);
                     unset($condicionesContratoARenovar->created_at);
                     unset($condicionesContratoARenovar->updated_at);
-                    //echo gettype($condicionesContratoARenovar->toArray());
                     WorkContract::create($condicionesContratoARenovar->toArray());
                 }
                 Alert::create([
@@ -116,8 +115,8 @@ class ContractFinish extends Command
                     'user_id' => 1,
                     'modal' => 0,
                     'type' => 'Notificación',
-                    'description' => ($contrato->renewed == 0)?'El funcionario con el contrato número '. $contrato->contract_id.' fue preliquidado
-                    y su contrato finalizado.':'El contrato número '. $contrato->contract_id.' fue renovado.'
+                    'description' => ($contrato->renewed == 0)?'El funcionario con el contrato número CON'. $contrato->contract_id.' fue preliquidado
+                    y su contrato finalizado.':'El contrato número CON'. $contrato->contract_id.' fue renovado.'
                 ]);
                 WorkContract::where('id', $contrato->contract_id)
                 ->update(["liquidated" => 1]);
@@ -125,7 +124,5 @@ class ContractFinish extends Command
                 ->delete();
             }
         });
-
-        //echo $contratosAFinalizar;
     }
 }

@@ -145,15 +145,22 @@ class WorkContractController extends Controller
         );
     }
 
-    public function contractRevewal($process_id){
+    public function contractRenewal($process_id){
         return $this->success(
             DB::table('work_contract_finish_conditions as w')
             ->select(
-                DB::raw("concat(p.first_name,if(p.second_name!='',' ',''),p.second_name,' ',p.first_surname,
-                    if(p.second_surname!='',' ',''),p.second_surname) AS name"),
+                DB::raw("concat(
+                    p.first_name,
+                  IF(ifnull(p.second_name,'') != '',' ',''),
+                    ifnull(p.second_name,''),
+                    ' ',
+                    p.first_surname,
+                  IF(ifnull(p.second_surname,'') != '',' ',''),
+                    ifnull(p.second_surname,'')
+                ) as name"),
                 'c.name as company_name',
                 'w.*',
-                DB::raw("DATEDIFF(date_end,date_of_admission) AS date_diff")
+                DB::raw("DATEDIFF(date_end, old_date_end) AS date_diff")
             )
             ->join('people as p', function ($join) {
                 $join->on('p.id', '=', 'w.person_id');
@@ -285,8 +292,15 @@ class WorkContractController extends Controller
             DB::table('people as p')
                 ->select(
                     'p.id as person_id',
-                    DB::raw("concat(p.first_name,if(p.second_name!='',' ',''),p.second_name,' ',p.first_surname,
-                    if(p.second_surname!='',' ',''),p.second_surname) AS name"),
+                    DB::raw("concat(
+                        p.first_name,
+                      IF(ifnull(p.second_name,'') != '',' ',''),
+                        ifnull(p.second_name,''),
+                        ' ',
+                        p.first_surname,
+                      IF(ifnull(p.second_surname,'') != '',' ',''),
+                        ifnull(p.second_surname,'')
+                    ) as name"),
                     'posi.name as position_name',
                     'd.name as dependency_name',
                     'gr.name as group_name',
@@ -303,9 +317,9 @@ class WorkContractController extends Controller
                     'w.position_id',
                     'w.company_id',
                     DB::raw("DATEDIFF(w.date_end,w.date_of_admission) AS date_diff"),
-                    'w.date_end as date_of_admission',
-                    'w.date_end as old_date_end',
+                    DB::raw('ADDDATE(w.date_end,1) as date_of_admission'),
                     DB::raw("ADDDATE(w.date_end,DATEDIFF(w.date_end,w.date_of_admission)) AS date_end"),
+                    'w.date_end as old_date_end',
                     'w.salary',
                     'w.id'
                 )

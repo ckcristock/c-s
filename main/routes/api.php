@@ -600,7 +600,7 @@ Route::group(
         Route::post('finish-contract', [WorkContractController::class, 'finishContract']);
         Route::get('countable_income', [BonificationsController::class, 'countable_income']);
         Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
-        Route::get('contractRevewal/{id}', [WorkContractController::class, 'contractRevewal']);
+        Route::get('contractRenewal/{id}', [WorkContractController::class, 'contractRenewal']);
         Route::get('preLiquidado', [WorkContractController::class, 'getPreliquidated']);
         Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
         Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
