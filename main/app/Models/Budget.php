@@ -18,7 +18,7 @@ class Budget extends Model
         return $this->belongsTo( User::class );
     }
     public function destiny (){
-        return $this->belongsTo( City::class, 'destinity_id', 'id' );
+        return $this->belongsTo( Municipality::class, 'destinity_id', 'id' );
     }
     public function items (){
         return $this->hasMany( BudgetItem::class );
