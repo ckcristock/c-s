@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         // $schedule->command('listarUsers')->everyMinute()->sendOutputTo('../../prueba.json');
-         $schedule->command('contract:finish')->everyMinute();
+         $schedule->command('contract:finish')->daily();
     }
 
     /**
