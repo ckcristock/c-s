@@ -724,5 +724,7 @@ Route::group(
         Route::get('php/genericos/departamentos.php', [CategoriaNuevaController::class, 'getDepartamentos']);
         Route::get('php/categoria_nueva/detalle_categoria_nueva_departamento.php', [CategoriaNuevaController::class, 'categoriaDepartamento']);
         Route::get('php/comprasnacionales/lista_compras', [ListaComprasController::class, 'index']);
+        Route::get('php/rotativoscompras/lista_pre_compra', [ListaComprasController::class, 'preCompras']);
+        Route::get('php/funcionarios/lista_funcionarios', [ListaComprasController::class, 'getFuncionarios']);
     }
 );
