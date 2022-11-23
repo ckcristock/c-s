@@ -193,6 +193,19 @@ class TaskController extends Controller
                 }
             }
         }
+        $task_types = TaskType::get();
+        $id_is_negocios = '';
+        foreach($task_types as $task_type){
+            if($task_type->name == 'Negocios'){
+                $id_is_negocios = $task_type->id;
+            }
+        }
+        if($request->type_id == $id_is_negocios){
+            DB::table('business_task')->insert([
+                'task_id' => $task_id,
+                'business_id' => $request->business_id
+            ]);
+        }
         $asignador = Person::where('id', $data['id_asignador'])->first();
         Alert::create([
             'user_id' => $data['id_realizador'],

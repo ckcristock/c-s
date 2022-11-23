@@ -24,7 +24,7 @@ class TravelExpense extends Model
 	}
 	public function person()
 	{
-		return $this->belongsTo(Person::class);
+		return $this->belongsTo(Person::class)->with('contractultimate');
 	}
 	public function transports()
 	{

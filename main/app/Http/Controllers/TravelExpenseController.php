@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\TravelExpense;
 use App\Models\TravelExpenseFeeding;
 use App\Models\TravelExpenseHotel;
@@ -200,7 +201,8 @@ class TravelExpenseController extends Controller
 	{
 		//
 		$data = TravelExpenseService::show($id);
-		$pdf = PDF::loadView('pdf.travel_expense', ['data'=>$data]);
+        $company = Company::where('id', 1)->first();
+		$pdf = PDF::loadView('pdf.travel_expense', ['data'=>$data, 'company'=>$company]);
 		return $pdf->download('travel_expense.pdf');
 	}
 

@@ -531,6 +531,7 @@ Route::group(
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class,'paginate']);
+        Route::get('loan-paginate', [LoanController::class, 'paginate']);
         Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class,'paginate']);
         Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class,'paginate']);
         Route::get('paginateThickness', [ThicknessController::class, 'paginate']);
@@ -720,7 +721,7 @@ Route::group(
         Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
-        Route::get('get-tasks/{id}', [BudgetController::class, 'getTasks']);
+        Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
 
         /************RUTAS PHP************/
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);
