@@ -630,7 +630,6 @@ Route::group(
         Route::post('person/set-board/{personId}/{board}', [BoardController::class, 'setBoardsPerson']);
         Route::get('person/get-boards/{personId}', [BoardController::class, 'personBoards']);
 
-
         //tareas
         Route::get('taskview/{id}', [TaskController::class, 'taskView']);
         Route::post('newtask', [TaskController::class, 'new']);

@@ -9,7 +9,7 @@ use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class BonusController extends Controller
+class BonusCosekecctroller extends Controller
 {
     use ApiResponser;
     /**
