@@ -19,6 +19,7 @@ use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BenefitIncomeController;
 use App\Http\Controllers\BenefitNotIncomeController;
 use App\Http\Controllers\BonificationsController;
+use App\Http\Controllers\BonusController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CalculationBaseController;
@@ -74,6 +75,7 @@ use App\Http\Controllers\PayrollFactorController;
 use App\Http\Controllers\PensionFundController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\PremiumController;
 use App\Http\Controllers\ProductDotationTypeController;
 use App\Http\Controllers\ReporteHorariosController;
 use App\Http\Controllers\RotatingTurnController;
@@ -525,6 +527,8 @@ Route::group(
         Route::resource('quotations', QuotationController::class);
         Route::resource('contract-terms', ContractTermController::class)->except(['create', 'edit']);
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
+        Route::resource('premium', PremiumController::class)->except(['create', 'edit']);
+        Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
@@ -615,7 +619,7 @@ Route::group(
         Route::get('countries-with-departments', [CountryController::class, 'allCountries']);
         // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
-        /** Tutas de Empresas  */
+        /** Rutas de Empresas  */
         Route::get('companyData', [CompanyController::class, 'getBasicData']);
         Route::get('companyAll', [CompanyController::class, 'getAllCompanies']);
         Route::get('companyData/{id}', [CompanyController::class, 'getBasicDataForId']);
@@ -629,7 +633,6 @@ Route::group(
         Route::get("board", [BoardController::class, "getData"]);
         Route::post('person/set-board/{personId}/{board}', [BoardController::class, 'setBoardsPerson']);
         Route::get('person/get-boards/{personId}', [BoardController::class, 'personBoards']);
-
 
         //tareas
         Route::get('taskview/{id}', [TaskController::class, 'taskView']);
