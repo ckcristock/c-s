@@ -673,6 +673,7 @@ Route::group(
         Route::get('users/{id}', [PersonController::class, 'user']);
         Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
         Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
+        Route::get('third-party-provider', [ThirdPartyController::class, 'thirdPartyProvider']);
         Route::get('peopleSelects', [PersonController::class, 'peopleSelects']); //mismo servicio que people->index pero hasta 100 registros
         Route::put('act-inact-medidas', [MeasureController::class, 'changeState']);
         /****** Rutas del modulo APU PIEZA ******/
@@ -726,5 +727,6 @@ Route::group(
         Route::get('php/comprasnacionales/lista_compras', [ListaComprasController::class, 'index']);
         Route::get('php/rotativoscompras/lista_pre_compra', [ListaComprasController::class, 'preCompras']);
         Route::get('php/funcionarios/lista_funcionarios', [ListaComprasController::class, 'getFuncionarios']);
+        Route::get('php/rotativoscompras/detalle_pre_compra/{id}', [ListaComprasController::class, 'detallePreCompra']);
     }
 );
