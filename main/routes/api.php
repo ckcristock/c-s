@@ -132,6 +132,7 @@ use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
+use App\Models\ThirdParty;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -415,6 +416,7 @@ Route::group(
 
         Route::post('update-file-permission', [PersonController::class, 'updateFilePermission']);
         Route::get('get-file-permission/{id}', [PersonController::class, 'getFilePermission']);
+        Route::get('third-party-person-for-third/{id}', [ThirdPartyPersonController::class, 'getThirdPartyPersonForThird']);
 
 
 
@@ -529,6 +531,7 @@ Route::group(
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class,'paginate']);
+        Route::get('loan-paginate', [LoanController::class, 'paginate']);
         Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class,'paginate']);
         Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class,'paginate']);
         Route::get('paginateThickness', [ThicknessController::class, 'paginate']);
@@ -609,6 +612,7 @@ Route::group(
         Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
         Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
         Route::get('cities-by-municipalities/{id}', [CityController::class, 'showByMunicipality']);
+        Route::get('countries-with-departments', [CountryController::class, 'allCountries']);
         // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
         /** Tutas de Empresas  */
@@ -651,13 +655,14 @@ Route::group(
 
         Route::resource("category", CategoryController::class);
 
+        //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
         Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
         Route::get('all-zones', [ZonesController::class, 'allZones']);
         Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
         Route::get('municipalities-for-dep/{id}', [MunicipalityController::class, 'municipalitiesForDep']);
-        //Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
+        Route::get('account-plan', [AccountPlanController::class, 'accountPlan']); //!Se debería usar la que está en php
         Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
         Route::put('state-change', [LunchController::class, 'activateOrInactivate']);
         Route::get('filter-all-depencencies', [DependencyController::class, 'dependencies']);
@@ -716,7 +721,7 @@ Route::group(
         Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
-        Route::get('get-tasks/{id}', [BudgetController::class, 'getTasks']);
+        Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
 
         /************RUTAS PHP************/
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);

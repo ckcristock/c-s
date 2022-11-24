@@ -126,4 +126,9 @@ class BusinessController extends Controller
     {
         //
     }
+
+    public function getTasks($id)
+    {
+        return $this->success(Business::with('tasks')->where('id', $id)->first());
+    }
 }

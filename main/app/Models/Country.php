@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Country extends Model
 {
     use HasFactory;
+    protected $table = 'countries';
     protected $fillable = [
         'name',
         'state',
@@ -16,7 +17,11 @@ class Country extends Model
         'code_phone',
     ];
 
-
-
-    protected $table = 'countries';
+    public function departments()
+    {
+        return $this->hasMany(Department::class)->orderBy('name')
+            ->with(['municipalities' => function ($q) {
+                $q->select('*', 'name as text', 'id as value');
+            }]);
+    }
 }

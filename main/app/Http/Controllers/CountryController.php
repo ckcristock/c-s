@@ -27,6 +27,18 @@ class CountryController extends Controller
         }
     }
 
+    public function allCountries()
+    {
+        return $this->success(
+            Country::where('state', 'Activo')
+                ->with(['departments' => function ($q) {
+                    $q->select('*', 'name as text', 'id as value');
+                }])
+                ->orderBy('name')
+                ->get(['*', 'name as text', 'id as value'])
+            );
+    }
+
     public function paginate()
     {
         return $this->success(

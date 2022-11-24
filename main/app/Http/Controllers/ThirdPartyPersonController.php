@@ -57,6 +57,12 @@ class ThirdPartyPersonController extends Controller
         );
     }
 
+
+    public function getThirdPartyPersonForThird($id)
+    {
+        return $this->success(ThirdPartyPerson::where('third_party_id', $id)->get(['*','id as value','name as text']));
+    }
+
     /**
      * Show the form for creating a new resource.
      *

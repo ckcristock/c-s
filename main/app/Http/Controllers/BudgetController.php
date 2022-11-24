@@ -75,42 +75,19 @@ class BudgetController extends Controller
 
     public function saveTask(Request $request)
     {
-      /*  $data = $request->get('data');
+        /*  $data = $request->get('data');
 
         $businesstask = BusinessTask::create($data);
 */
         try {
-			BusinessTask::updateOrCreate(['id' => $request->get('id')],$request->all());
-			return $this->success('Creado con éxito');
-		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
-		}
+            BusinessTask::updateOrCreate(['id' => $request->get('id')], $request->all());
+            return $this->success('Creado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
-    public function getTasks($id)
-    {
-        $page = Request()->get('page');
-        $page = $page ? $page : 1;
-        $pageSize = Request()->get('pageSize');
-        $pageSize = $pageSize ? $pageSize : 10;
-
-        $d = DB::table('business_task AS D')
-           // ->join('people AS PF', 'PF.id', '=', 'D.person_id')
-          //  ->join('business_budgets AS BB', 'BB.id', '=', 'D.business_budget_id')
-            ->select(
-               // DB::raw(' CONCAT(PF.first_name," ",PF.first_surname) as funcionario '),
-                'D.created_at',
-                'D.id',
-                'D.person_id',
-                'D.description',
-                'D.completed',
-            )
-            ->where('D.business_budget_id',$id)
-            ->orderBy('D.created_at', 'DESC')
-            ->paginate($pageSize, '*', 'page', $page);
-
-        return $this->success($d);
-    }
+    
 
     /**
      * Show the form for creating a new resource.

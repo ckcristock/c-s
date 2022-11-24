@@ -43,7 +43,7 @@ class ApuSet extends Model
 
     public function city()
 	{
-		return $this->belongsTo(City::class);
+		return $this->belongsTo(Municipality::class, 'city_id', 'id');
 	}
 
     public function person()
@@ -64,7 +64,7 @@ class ApuSet extends Model
     public function setpartlist()
 	{
 		return $this->hasMany(ApuSetPartList::class);
-        
+
 	}
 
     public function external()

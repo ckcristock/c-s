@@ -16,4 +16,9 @@ class Department extends Model
         'dian_code',
         'dane_code',
     ];
+
+    public function municipalities()
+    {
+        return $this->hasMany(Municipality::class)->orderBy('name');
+    }
 }
