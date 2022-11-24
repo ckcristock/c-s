@@ -19,6 +19,7 @@ use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BenefitIncomeController;
 use App\Http\Controllers\BenefitNotIncomeController;
 use App\Http\Controllers\BonificationsController;
+use App\Http\Controllers\BonusController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CalculationBaseController;
@@ -74,6 +75,7 @@ use App\Http\Controllers\PayrollFactorController;
 use App\Http\Controllers\PensionFundController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\PremiumController;
 use App\Http\Controllers\ProductDotationTypeController;
 use App\Http\Controllers\ReporteHorariosController;
 use App\Http\Controllers\RotatingTurnController;
@@ -126,6 +128,7 @@ use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\CategoriaNuevaController;
+use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\QuotationController;
@@ -525,6 +528,8 @@ Route::group(
         Route::resource('quotations', QuotationController::class);
         Route::resource('contract-terms', ContractTermController::class)->except(['create', 'edit']);
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
+        Route::resource('premium', PremiumController::class)->except(['create', 'edit']);
+        Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
@@ -603,7 +608,7 @@ Route::group(
         Route::post('finish-contract', [WorkContractController::class, 'finishContract']);
         Route::get('countable_income', [BonificationsController::class, 'countable_income']);
         Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
-        Route::get('contractRevewal/{id}', [WorkContractController::class, 'contractRevewal']);
+        Route::get('contractRenewal/{id}', [WorkContractController::class, 'contractRenewal']);
         Route::get('preLiquidado', [WorkContractController::class, 'getPreliquidated']);
         Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
         Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
@@ -615,7 +620,7 @@ Route::group(
         Route::get('countries-with-departments', [CountryController::class, 'allCountries']);
         // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
-        /** Tutas de Empresas  */
+        /** Rutas de Empresas  */
         Route::get('companyData', [CompanyController::class, 'getBasicData']);
         Route::get('companyAll', [CompanyController::class, 'getAllCompanies']);
         Route::get('companyData/{id}', [CompanyController::class, 'getBasicDataForId']);
@@ -629,7 +634,6 @@ Route::group(
         Route::get("board", [BoardController::class, "getData"]);
         Route::post('person/set-board/{personId}/{board}', [BoardController::class, 'setBoardsPerson']);
         Route::get('person/get-boards/{personId}', [BoardController::class, 'personBoards']);
-
 
         //tareas
         Route::get('taskview/{id}', [TaskController::class, 'taskView']);
@@ -727,5 +731,8 @@ Route::group(
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);
         Route::get('php/genericos/departamentos.php', [CategoriaNuevaController::class, 'getDepartamentos']);
         Route::get('php/categoria_nueva/detalle_categoria_nueva_departamento.php', [CategoriaNuevaController::class, 'categoriaDepartamento']);
+        Route::get('php/comprasnacionales/lista_compras', [ListaComprasController::class, 'index']);
+        Route::get('php/rotativoscompras/lista_pre_compra', [ListaComprasController::class, 'preCompras']);
+        Route::get('php/funcionarios/lista_funcionarios', [ListaComprasController::class, 'getFuncionarios']);
     }
 );

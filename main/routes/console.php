@@ -24,7 +24,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('listarUsers', function () {
+/* Artisan::command('listarUsers', function () {
     $contratosNotificados = WorkContract::select(
         "work_contracts.person_id as persona",
         "date_end",
@@ -86,4 +86,4 @@ Artisan::command('listarUsers', function () {
     });
 
     echo "{\"prueba\": $contratos }";
-})->purpose('Display a list of users');
+})->purpose('Display a list of users'); */
