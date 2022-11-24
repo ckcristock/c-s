@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Alert;
+use App\Models\Person;
 use App\Models\WorkContract;
 use App\Models\WorkContractFinishConditions;
 use Illuminate\Console\Command;
@@ -56,14 +57,25 @@ class ContractFinish extends Command
             $query->select("user_id")->from(with(new Alert)->getTable())->get();
         })->union($contratosNotificados);
 
-        $contratosAFinalizar = DB::table($contratosYNotificaciones)
-            ->whereNotNull('date_end')->orderBy('date_end', 'Desc')
-            ->whereBetween('dayDiff', [0, 45])->get();
+        $contratosAFinalizarSinDefinir = DB::table($contratosYNotificaciones,"contracts")
+        ->select("contracts.*",DB::raw("null as renewed"))
+        ->whereNotIn("contracts.contract_id", function ($query) {
+            $query->select("contract_id")->from(with(new WorkContractFinishConditions)->getTable())->get();
+        });
+
+        $contratosAFinalizar = DB::table($contratosYNotificaciones,"contracts")
+        ->select("contracts.*","wc.renewed")
+        ->join('work_contract_finish_conditions as wc', 'contracts.contract_id', '=', 'wc.contract_id')
+        ->union($contratosAFinalizarSinDefinir);
+
+        $contratosAFinalizar = DB::table($contratosAFinalizar)
+        ->whereNotNull('date_end')->orderBy('date_end', 'Desc')
+        ->whereIn('dayDiff', [30, 0])->get();
 
         // Se procede a registrar la notificación si no se ha hecho ya.
         $contratosAFinalizar->each(function ($contrato) {
             if ($contrato->dayDiff == 30) {
-                if ($contrato->fecha_notif == null) {
+                if ($contrato->renewed == null) {
                     Alert::create([
                         'person_id' => 1,
                         'user_id' => $contrato->persona,
@@ -71,15 +83,46 @@ class ContractFinish extends Command
                         'type' => 'Notificación',
                         'description' => 'Se le informa que su contrato finalizará el día ' . $contrato->date_end
                     ]);
-                    WorkContractFinishConditions::create([
+                    Alert::create([
                         'person_id' => 1,
+                        'user_id' => 1,
+                        'modal' => 0,
+                        'type' => 'Notificación',
+                        'description' => 'El funcionario con el contrato número CON'. $contrato->contract_id.' fue notificado
+                        de su finalización para el día ' . $contrato->date_end
+                    ]);
+                    WorkContractFinishConditions::create([
+                        'person_id' => $contrato->persona,
                         'contract_id' => $contrato->contract_id,
                         'renewed' => 0
                     ]);
                 }
+            } else { // Si dayDiff == 0 (Último día del contrato)
+                if ($contrato->renewed == 0) { // Preliquidado?
+                    Person::where('id', $contrato->persona)
+                    ->update(["status" => "PreLiquidado"]);
+                }else{ // Renovado
+                    $condicionesContratoARenovar = WorkContractFinishConditions::where('contract_id', $contrato->contract_id)
+                    ->first();
+                    unset($condicionesContratoARenovar->id);
+                    unset($condicionesContratoARenovar->contract_id);
+                    unset($condicionesContratoARenovar->created_at);
+                    unset($condicionesContratoARenovar->updated_at);
+                    WorkContract::create($condicionesContratoARenovar->toArray());
+                }
+                Alert::create([
+                    'person_id' => 1,
+                    'user_id' => 1,
+                    'modal' => 0,
+                    'type' => 'Notificación',
+                    'description' => ($contrato->renewed == 0)?'El funcionario con el contrato número CON'. $contrato->contract_id.' fue preliquidado
+                    y su contrato finalizado.':'El contrato número CON'. $contrato->contract_id.' fue renovado.'
+                ]);
+                WorkContract::where('id', $contrato->contract_id)
+                ->update(["liquidated" => 1]);
+                WorkContractFinishConditions::where('contract_id', $contrato->contract_id)
+                ->delete();
             }
         });
-
-        echo $contratosAFinalizar;
     }
 }

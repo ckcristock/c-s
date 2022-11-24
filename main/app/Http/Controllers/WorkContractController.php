@@ -96,32 +96,9 @@ class WorkContractController extends Controller
         $pageSize = key_exists('pageSize', $data) ? $data['pageSize'] : 2;
 
         // Contamos los contratos renovados con esa persona (No incluye el original).
-        $renewedContractsCount = WorkContract::select("person_id", DB::raw("count(id)-1 as cantidad"))
+        $renewedContractsCount = WorkContract::select("person_id", DB::raw("count(id) as cantidad"))
+        ->where("liquidated",1)
         ->groupBy("person_id");
-
-        $peopleToLiquidate=DB::table('people as p')
-        ->select(
-            'p.id',
-            'p.first_name',
-            'p.second_name',
-            'p.first_surname',
-            'p.second_surname',
-            'p.image',
-            'w.id as contract_id',
-            'w.date_of_admission',
-            'w.date_end',
-            DB::raw('null as renewed'),
-            'rc.cantidad',
-            DB::raw('null as process_id')
-        )
-        ->join('work_contracts as w', function ($join) {
-            $join->on('w.person_id', '=', 'p.id')
-                ->whereNotNull('date_end')->whereBetween('date_end', [Carbon::now(), Carbon::now()->addDays(45)]);
-        })->joinSub($renewedContractsCount,'rc', function ($join) {
-            $join->on('rc.person_id', '=', 'p.id');
-        })->whereNotIn("p.id", function ($query) {
-            $query->select("person_id")->from(with(new WorkContractFinishConditions)->getTable())->get();
-        });
 
         $peopleRenewedContract=DB::table('people as p')
         ->select(
@@ -134,19 +111,18 @@ class WorkContractController extends Controller
             'w.id as contract_id',
             'w.date_of_admission',
             'w.date_end',
-            'wc.renewed',
-            'rc.cantidad',
-            'wc.id as process_id'
+            DB::raw('wc.renewed'),
+            DB::raw('ifnull(rc.cantidad,0) AS cantidad'),
+            DB::raw('wc.id as process_id')
         )
         ->join('work_contracts as w', function ($join) {
             $join->on('w.person_id', '=', 'p.id')
-                ->whereNotNull('date_end')->whereBetween('date_end', [Carbon::now(), Carbon::now()->addDays(45)]);
-        })->joinSub($renewedContractsCount,'rc', function ($join) {
+                ->where("liquidated",0)->whereNotNull('date_end')->whereBetween('date_end', [Carbon::now(), Carbon::now()->addDays(45)]);
+        })->leftJoinSub($renewedContractsCount,'rc', function ($join) {
             $join->on('rc.person_id', '=', 'p.id');
-        })
-        ->join('work_contract_finish_conditions as wc', function ($join) {
-            $join->on('wc.person_id', '=', 'p.id');
-        })->unionAll($peopleToLiquidate)->orderBy('id', 'Desc');
+        })->leftJoin("work_contract_finish_conditions as wc", function ($join) {
+            $join->on("wc.person_id", "=", "p.id");
+        });
 
 
         return $this->success(
@@ -169,15 +145,22 @@ class WorkContractController extends Controller
         );
     }
 
-    public function contractRevewal($process_id){
+    public function contractRenewal($process_id){
         return $this->success(
             DB::table('work_contract_finish_conditions as w')
             ->select(
-                DB::raw("concat(p.first_name,if(p.second_name!='',' ',''),p.second_name,' ',p.first_surname,
-                    if(p.second_surname!='',' ',''),p.second_surname) AS name"),
+                DB::raw("concat(
+                    p.first_name,
+                  IF(ifnull(p.second_name,'') != '',' ',''),
+                    ifnull(p.second_name,''),
+                    ' ',
+                    p.first_surname,
+                  IF(ifnull(p.second_surname,'') != '',' ',''),
+                    ifnull(p.second_surname,'')
+                ) as name"),
                 'c.name as company_name',
                 'w.*',
-                DB::raw("DATEDIFF(date_end,date_of_admission) AS date_diff")
+                DB::raw("DATEDIFF(date_end, old_date_end) AS date_diff")
             )
             ->join('people as p', function ($join) {
                 $join->on('p.id', '=', 'w.person_id');
@@ -309,8 +292,15 @@ class WorkContractController extends Controller
             DB::table('people as p')
                 ->select(
                     'p.id as person_id',
-                    DB::raw("concat(p.first_name,if(p.second_name!='',' ',''),p.second_name,' ',p.first_surname,
-                    if(p.second_surname!='',' ',''),p.second_surname) AS name"),
+                    DB::raw("concat(
+                        p.first_name,
+                      IF(ifnull(p.second_name,'') != '',' ',''),
+                        ifnull(p.second_name,''),
+                        ' ',
+                        p.first_surname,
+                      IF(ifnull(p.second_surname,'') != '',' ',''),
+                        ifnull(p.second_surname,'')
+                    ) as name"),
                     'posi.name as position_name',
                     'd.name as dependency_name',
                     'gr.name as group_name',
@@ -327,9 +317,9 @@ class WorkContractController extends Controller
                     'w.position_id',
                     'w.company_id',
                     DB::raw("DATEDIFF(w.date_end,w.date_of_admission) AS date_diff"),
-                    'w.date_end as date_of_admission',
-                    'w.date_end as old_date_end',
+                    DB::raw('ADDDATE(w.date_end,1) as date_of_admission'),
                     DB::raw("ADDDATE(w.date_end,DATEDIFF(w.date_end,w.date_of_admission)) AS date_end"),
+                    'w.date_end as old_date_end',
                     'w.salary',
                     'w.id'
                 )
