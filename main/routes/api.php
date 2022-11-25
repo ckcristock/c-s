@@ -527,6 +527,8 @@ Route::group(
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
         Route::resource('premium', PremiumController::class)->except(['create', 'edit']);
         Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
+        Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
+        Route::get('check-bonuses/{period}', [BonusController::class, 'checkBonuses']);
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
