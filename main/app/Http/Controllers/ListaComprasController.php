@@ -66,31 +66,38 @@ class ListaComprasController extends Controller
     public function detallePreCompra($id)
     {
         $encabezado = DB::table("Pre_Compra","PC")
-            ->select(
-                "PC.*", "pr.nit",
-                DB::raw("ifnull(pr.social_reason,concat(
-                    pr.first_name,
-                    IF(ifnull(pr.second_name,'') != '',' ',''),
-                    ifnull(pr.second_name,''),
-                    ' ',
-                    pr.first_surname,
-                    IF(ifnull(pr.second_surname,'') != '',' ',''),
-                    ifnull(pr.second_surname,'')
-                )) as NombreProveedor"))
-            ->joinSub($this->proveedores,"pr", function ($join) {
-                $join->on("pr.nit", "PC.Id_Proveedor");
-            })
-            ->when($id, function ($q, $fill) {
-                $q->where('PC.Id_Pre_Compra', $fill);
-            });
+        ->select(
+            "PC.*", "pr.nit",
+            DB::raw("ifnull(pr.social_reason,concat(
+                pr.first_name,
+                IF(ifnull(pr.second_name,'') != '',' ',''),
+                ifnull(pr.second_name,''),
+                ' ',
+                pr.first_surname,
+                IF(ifnull(pr.second_surname,'') != '',' ',''),
+                ifnull(pr.second_surname,'')
+            )) as NombreProveedor"))
+        ->joinSub($this->proveedores,"pr", function ($join) {
+            $join->on("pr.nit", "PC.Id_Proveedor");
+        })
+        ->when($id, function ($q, $fill) {
+            $q->where('PC.Id_Pre_Compra', $fill);
+        });
 
-            $proveedor = DB::query()->select(
-                "PR.nit as Id_Proveedor",
-                DB::raw("CONCAT(PR.NombreProveedor,' - ',PR.nit) as NombreProveedor")
-            )
-            ->fromSub($encabezado,"PR");
+        $proveedor = DB::query()->select(
+            "PR.nit as Id_Proveedor",
+            DB::raw("CONCAT(PR.NombreProveedor,' - ',PR.nit) as NombreProveedor")
+        )
+        ->fromSub($encabezado,"PR");
 
-        return $this->success(["encabezado" =>$encabezado->get(), "proveedor" =>$proveedor->get()]);
+        $productos = DB::table("Producto_Pre_Compra","POCN")
+        ->join("producto as p", function ($join) {
+            $join->on("p.Id_Producto", "POCN.Id_Producto");
+        })
+        ->when($id, function ($q, $fill) {
+            $q->where('POCN.Id_Pre_Compra', $fill);
+        });
+        return $this->success(["Datos" =>$encabezado->get(), "Proveedor" =>$proveedor->get(), "Productos" =>$productos->get()]);
     }
 
     public function preCompras(){

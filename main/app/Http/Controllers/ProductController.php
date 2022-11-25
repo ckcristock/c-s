@@ -88,6 +88,49 @@ class ProductController extends Controller
         );
     }
 
+    public function listarProductos(){
+        return $this->success(
+           Product::from('producto as P')
+            ->select(
+                "P.Nombre_Comercial","P.Codigo_Cum",
+                DB::raw("IF(ifnull(CONCAT(P.Nombre_Comercial, P.Cantidad, P.Unidad_Medida, P.Principio_Activo, P.Presentacion, P.Concentracion),'') = '',
+                    P.Nombre_Comercial,
+                    CONCAT(P.Nombre_Comercial,' ', P.Cantidad,' ', P.Unidad_Medida, ' (',P.Principio_Activo, ' ', P.Presentacion, ' ', P.Concentracion,')'
+                    )) as Nombre"),
+                "P.Nombre_Comercial","P.Laboratorio_Comercial","P.Laboratorio_Generico","P.Id_Producto","P.Embalaje","P.Cantidad_Presentacion",
+                DB::raw("IFNULL(cp.Costo_Promedio,0) AS Costo")
+            )
+            ->leftJoin("costo_promedio AS cp", function($join){
+                $join->on("cp.Id_Producto","P.Id_Producto");
+            })
+            ->whereNotNull("P.Codigo_Barras")
+            ->where("P.Estado","=","Activo")
+            ->where("P.Codigo_Barras", "!=", "''")
+            ->where(function($query){
+                $query->where("P.Embalaje","NOT LIKE","MUESTRA MEDICA%")
+                ->orWhereNull("P.Embalaje")->orWhere("P.Embalaje","''");
+            })
+            ->when(request()->get("nom"), function ($q, $fill) {
+                $q->where("P.Principio_Activo",'like','%'.$fill.'%')
+                ->orWhere("P.Presentacion",'like','%'.$fill.'%')
+                ->orWhere("P.Concentracion",'like','%'.$fill.'%')
+                ->orWhere("P.Nombre_Comercial",'like','%'.$fill.'%')
+                ->orWhere("P.Cantidad",'like','%'.$fill.'%')
+                ->orWhere("P.Unidad_Medida",'like','%'.$fill.'%');
+            })
+            ->when(request()->get("lab_com"), function ($q, $fill) {
+                $q->where("P.Laboratorio_Comercial",'like','%'.$fill.'%');
+            })
+            ->when(request()->get("lab_gen"), function ($q, $fill) {
+                $q->where("P.Laboratorio_Generico",'like','%'.$fill.'%');
+            })
+            ->when(request()->get("cum"), function ($q, $fill) {
+                $q->where("P.Codigo_Cum",'like','%'.$fill.'%');
+            })
+            ->get()
+        );
+    }
+
     /**
      * Show the form for creating a new resource.
      *

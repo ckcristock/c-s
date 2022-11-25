@@ -728,5 +728,8 @@ Route::group(
         Route::get('php/rotativoscompras/lista_pre_compra', [ListaComprasController::class, 'preCompras']);
         Route::get('php/funcionarios/lista_funcionarios', [ListaComprasController::class, 'getFuncionarios']);
         Route::get('php/rotativoscompras/detalle_pre_compra/{id}', [ListaComprasController::class, 'detallePreCompra']);
+        Route::get('impuestos', [BodegasController::class, 'impuestos']);
+        Route::get('php/inventario_fisico_puntos/lista_punto_funcionario', [PersonController::class, 'funcionarioPunto']);
+        Route::get('php/comprasnacionales/lista_productos', [ProductController::class, 'listarProductos']);
     }
 );
