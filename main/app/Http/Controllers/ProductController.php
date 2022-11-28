@@ -104,19 +104,21 @@ class ProductController extends Controller
                 $join->on("cp.Id_Producto","P.Id_Producto");
             })
             ->whereNotNull("P.Codigo_Barras")
-            ->where("P.Estado","=","Activo")
-            ->where("P.Codigo_Barras", "!=", "''")
+            ->whereRaw("P.Estado='Activo'")
+            ->whereRaw("P.Codigo_Barras!=''")
             ->where(function($query){
-                $query->where("P.Embalaje","NOT LIKE","MUESTRA MEDICA%")
-                ->orWhereNull("P.Embalaje")->orWhere("P.Embalaje","''");
+                $query->whereRaw("P.Embalaje NOT LIKE 'MUESTRA MEDICA%'")
+                ->orWhereNull("P.Embalaje")->orWhereRaw("P.Embalaje=''");
             })
-            ->when(request()->get("nom"), function ($q, $fill) {
-                $q->where("P.Principio_Activo",'like','%'.$fill.'%')
-                ->orWhere("P.Presentacion",'like','%'.$fill.'%')
-                ->orWhere("P.Concentracion",'like','%'.$fill.'%')
-                ->orWhere("P.Nombre_Comercial",'like','%'.$fill.'%')
-                ->orWhere("P.Cantidad",'like','%'.$fill.'%')
-                ->orWhere("P.Unidad_Medida",'like','%'.$fill.'%');
+            ->when(request()->get("nombre"), function ($q, $fill) {
+                $q->where(function($query) use ($fill){
+                    $query->where("P.Principio_Activo",'like','%'.$fill.'%')
+                    ->orWhere("P.Presentacion",'like','%'.$fill.'%')
+                    ->orWhere("P.Concentracion",'like','%'.$fill.'%')
+                    ->orWhere("P.Nombre_Comercial",'like','%'.$fill.'%')
+                    ->orWhere("P.Cantidad",'like','%'.$fill.'%')
+                    ->orWhere("P.Unidad_Medida",'like','%'.$fill.'%');
+                });
             })
             ->when(request()->get("lab_com"), function ($q, $fill) {
                 $q->where("P.Laboratorio_Comercial",'like','%'.$fill.'%');
@@ -126,6 +128,9 @@ class ProductController extends Controller
             })
             ->when(request()->get("cum"), function ($q, $fill) {
                 $q->where("P.Codigo_Cum",'like','%'.$fill.'%');
+            })
+            ->when(request()->get("catalogo"), function ($q, $fill) {
+                $q->where("P.Tipo_Catalogo",'=',$fill);
             })
             ->get()
         );
