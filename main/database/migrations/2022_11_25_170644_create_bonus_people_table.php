@@ -15,7 +15,7 @@ class CreateBonusPeopleTable extends Migration
     {
         Schema::create('bonus_people', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('bonuses_id');
+            $table->unsignedBigInteger('bonus_id');
             $table->unsignedBigInteger('person_id');
             $table->string('identifier');
             $table->string('fullname');

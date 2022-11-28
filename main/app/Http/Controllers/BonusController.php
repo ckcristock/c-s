@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Bonus;
 use App\Models\BonusPerson;
 use App\Models\Person;
-use App\Models\WorkContract;
+use App\Exports\BonusExport;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BonusController extends Controller
 {
@@ -21,6 +22,11 @@ class BonusController extends Controller
     public function index()
     {
         return $this->success(Bonus::all());
+    }
+
+    public function test($anio= 2022, $period=2)
+    {
+        return Bonus::where('period', $anio.'-'.$period)->with('bonusPerson', 'personPayer')->first();
     }
 
     /**
@@ -41,11 +47,7 @@ class BonusController extends Controller
             'second_surname',
             'identifier'
             )->find($id);
-            //->select('id', 'first_name', 'second_name', 'first_surname', 'second_surname', 'identifier');
-            /* return ($responsable['first_name'].' '.
-                                $responsable['second_name'].' '.
-                                $responsable['first_surname'].' '.
-                                $responsable['second_surname']); */
+
         $nuevo = Bonus::updateOrCreate([
             'period' => $request->period
         ], [
@@ -65,10 +67,10 @@ class BonusController extends Controller
         $empleados = $data['empleados'];
         foreach ($empleados as $empleado) {
             $person_bonus = BonusPerson::updateOrCreate([
-                'bonuses_id' => $nuevo->id,
+                'bonus_id' => $nuevo->id,
                 'person_id' => $empleado['id'],
             ],[
-                'bonuses_id' => $nuevo->id,
+                'bonus_id' => $nuevo->id,
                 'person_id' => $empleado['id'],
                 'identifier' => $empleado['identifier'],
                 'fullname' => $empleado['first_name'].' '.
@@ -93,11 +95,27 @@ class BonusController extends Controller
 
     public function consultaPrima(Request $request)
     {
-        $data = $this->calcularPrimas($request);
-        return $this->success($data);
+        $period = $request->period;
+        $existe = Bonus::where('period', $period)->with('bonusPerson', 'personPayer')->first();
+        if ($existe){
+            $empleados = array();
+            foreach ($existe->bonusPerson as $bonus) {
+                $empleado = $bonus->person;
+                $empleado->avg_salary = $bonus->average_amount;
+                $empleado->worked_days = $bonus->worked_days;
+                $empleado->bonus = $bonus->amount;
+                array_push($empleados, $empleado);
+            }
+            $existe->empleados = $empleados;
+            $existe->total_primas = $existe->total_bonuses;
+            return $this->success($existe);
+        }
+        else {
+            return $this->success($this->calcularPrimas($request));
+        }
     }
 
-    public function calcularPrimas(Request $request)
+    private function calcularPrimas(Request $request)
     {
         /// cuando se seleccione el período en el front, se deben enviar estas fechas,
         //para comparar con las fechas del contrato si son mayores o menores
@@ -167,6 +185,8 @@ class BonusController extends Controller
             'total_primas' => $total_primas,
             'total_empleados' => count($employees),
             'recorridos' => $recorridos,
+            'status'=> 'pendiente',
+            'periodo'=>$request->period,
             'empleados' => $employees,
         ];
     }
@@ -179,7 +199,18 @@ class BonusController extends Controller
      */
     public function show(Bonus $bonus)
     {
+        $bonus = Bonus::with('bonusPerson', 'personPayer')->get();
         return $this->success($bonus);
+    }
+
+    /**
+     * To download report
+     */
+    public function reportBonus($anio, $period)
+    {
+        /* $bonusReport = Bonus::where('period', $anio.'-'.$period)->with('bonusPerson', 'personPayer')->first();
+        return $bonusReport->bonusPerson; */
+        return Excel::download(new BonusExport($anio, $period), 'bonus_report.xlsx');
     }
 
     /**

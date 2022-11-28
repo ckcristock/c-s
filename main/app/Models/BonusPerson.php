@@ -10,7 +10,7 @@ class BonusPerson extends Model
     use HasFactory;
 
     protected $fillable = [
-        'bonuses_id',
+        'bonus_id',
         'person_id',
         'identifier',
         'fullname',
@@ -20,4 +20,14 @@ class BonusPerson extends Model
         'average_amount',
         'payment_date'
     ];
+
+    public function bonus()
+    {
+        return $this->belongsTo(Bonus::class);
+    }
+
+    public function person()
+    {
+        return $this->belongsTo(Person::class);
+    }
 }

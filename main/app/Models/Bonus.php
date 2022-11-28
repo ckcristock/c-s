@@ -22,4 +22,13 @@ class Bonus extends Model
         'observations',
     ];
 
+    public function bonusPerson(){
+        return $this->hasMany(BonusPerson::class)->with('person');
+    }
+
+    public function personPayer()
+    {
+        return $this->belongsTo(Person::class, 'payer', 'id');
+    }
+
 }

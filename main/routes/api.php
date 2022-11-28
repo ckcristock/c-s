@@ -529,6 +529,8 @@ Route::group(
         Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
         Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
         Route::get('check-bonuses/{period}', [BonusController::class, 'checkBonuses']);
+        Route::get('bonuses-report/{anio}/{period}', [BonusController::class, 'reportBonus']);
+        Route::get('test', [BonusController::class, 'test']);
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
