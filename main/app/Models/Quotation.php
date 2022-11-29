@@ -10,8 +10,13 @@ class Quotation extends Model
     use HasFactory;
 
     protected $fillable = [
+        'money_type',
+        'customer_id',
+        'destinity_id',
+        'line',
+        'trm',
+        'project',
         'date',
-        'municipality_id',
         'code',
         'client_id',
         'description',
@@ -20,11 +25,11 @@ class Quotation extends Model
 
     public function municipality()
     {
-        return $this->belongsTo(Municipality::class);
+        return $this->belongsTo(Municipality::class, 'destinity_id', 'id');
     }
 
     public function client()
     {
-        return $this->belongsTo(ThirdParty::class);
+        return $this->hasOne(ThirdParty::class, 'id', 'customer_id');
     }
 }

@@ -32,6 +32,10 @@ class BudgetController extends Controller
                 $q->where('destinity_id', $fill);
             })->when($request->customer_id, function ($q, $fill) {
                 $q->where('customer_id', $fill);
+            })->when($request->line, function ($q, $fill) {
+                $q->where('line', 'like', '%' . $fill . '%');
+            })->when($request->project, function ($q, $fill) {
+                $q->where('project', 'like', '%' . $fill . '%');
             })->with(
                 [
                     'destiny' => function ($q) {
@@ -48,9 +52,10 @@ class BudgetController extends Controller
                     'customer' => function ($q) {
                         $q->select('id', 'nit')
                             ->selectRaw('IFNULL(social_reason, CONCAT_WS(" ",first_name, first_name) ) as name');
-                    }
+                    },
+                    'items'
                 ]
-            )->get('*', 'id as value', 'line as text')
+            )->name()->get()
         );
     }
     public function paginate()
