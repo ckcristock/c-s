@@ -159,7 +159,7 @@ Route::get('/', function () {
 
     $exitCode = Artisan::call('config:cache');
 
-    return 'DONE'; //Return anything
+    return 'DONE'; //Return anythingb
 
 });
 Route::get('/generate-users', function () {
@@ -530,7 +530,9 @@ Route::group(
         Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
         Route::get('check-bonuses/{period}', [BonusController::class, 'checkBonuses']);
         Route::get('bonuses-report/{anio}/{period}', [BonusController::class, 'reportBonus']);
-        Route::get('test', [BonusController::class, 'test']);
+        Route::get('bonus-stubs/{anio}/{period}', [BonusController::class, 'pdfGenerate']);
+
+        Route::get('test', [BonusController::class, 'test']);//borrar esta ruta
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
@@ -592,6 +594,7 @@ Route::group(
         Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
         Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
         Route::get('paginate-locations', [LocationController::class, 'paginate']);
+        Route::get('paginate-bonuses', [BonusController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);

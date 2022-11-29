@@ -13,6 +13,14 @@
         <table>
             <thead>
                 <tr>
+                    <th
+                        style="font-weight: bold;
+                               font-size: 14px;
+                               text-align: center;"
+                        colspan="6"
+                    >RESUMEN DE PRIMAS {{$bonuses->period}}</th>
+                </tr>
+                <tr>
                     <th style="font-weight: bold;text-align: center;">#</th>
                     <th style="font-weight: bold;text-align: center;">Documento</th>
                     <th style="font-weight: bold;text-align: center;">Persona</th>
@@ -34,7 +42,7 @@
                 @endforeach
                 <tr>
                     <td colspan="5" style="text-align: right;"><B>TOTAL</B></td>
-                    <td>=SUM(F2:F{{$bonuses->total_employees+1}})</td>
+                    <td>=SUM(F3:F{{$bonuses->total_employees+2}})</td>
                 </tr>
             </tbody>
         </table>

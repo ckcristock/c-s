@@ -10,6 +10,7 @@ use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class BonusController extends Controller
 {
@@ -22,6 +23,12 @@ class BonusController extends Controller
     public function index()
     {
         return $this->success(Bonus::all());
+    }
+
+    public function paginate()
+    {
+        return $this->success(Bonus::orderByDesc('period')
+            ->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1)));
     }
 
     public function test($anio= 2022, $period=2)
@@ -84,7 +91,9 @@ class BonusController extends Controller
                 'payment_date' => $nuevo['payment_date']
             ]);
         }
-        return ($nuevo->wasRecentlyCreated && $person_bonus->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+        return ($nuevo->wasRecentlyCreated && $person_bonus->wasRecentlyCreated)
+                ? $this->success(['message'=>'Creado con éxito', "responsable"=>$responsable])
+                : $this->success(['message'=>'Actualizado con éxito', "responsable"=>$responsable]);
     }
 
     public function checkBonuses($period)
@@ -211,6 +220,25 @@ class BonusController extends Controller
         /* $bonusReport = Bonus::where('period', $anio.'-'.$period)->with('bonusPerson', 'personPayer')->first();
         return $bonusReport->bonusPerson; */
         return Excel::download(new BonusExport($anio, $period), 'bonus_report.xlsx');
+    }
+
+    public function pdfGenerate($anio, $period)
+    {
+
+        $bonuses = Bonus::with('bonusPerson', 'personPayer')->get();
+        //$bonuses = Person::with('bonusPerson')->get();
+        //return $bonuses;
+
+        $arrayPdfs = array();
+
+        //foreach ($bonuses->bonus_person as $bonus) {
+            $pdf = PDF::loadView('pdf.bonus_tickets', compact('bonuses'))
+                        ->setPaper([0,0,614.295,397.485]);
+          //  array_push($arrayPdfs, $pdf);
+        //}
+
+        return $pdf->stream('colilla_prima.pdf');
+        //return 'hello '.$anio.'-'.$period;
     }
 
     /**
