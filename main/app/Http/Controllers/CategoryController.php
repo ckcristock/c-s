@@ -19,6 +19,50 @@ class CategoryController extends Controller
     public function index()
     {
         return $this->success(
+            NewCategory::select(['C.*' , 'D.Nombre as NombreDepartamento' , 'M.Nombre as NombreMunicipio'])
+            ->from("Categoria_Nueva as C")
+            ->join("Departments as D", function($join){
+                $join->on("D.id","C.Departamento");
+            })
+            ->leftJoin("Municipalities as M", function($join){
+                $join->on("M.id","C.Municipio");
+            })->get()
+        );
+    }
+
+    public function paginate()
+    {
+        return $this->success(
+            NewCategory::select(['C.*' , 'D.name as NombreDepartamento' , 'M.name as NombreMunicipio'])
+            ->from("Categoria_Nueva as C")
+            ->join("Departments as D", function($join){
+                $join->on("D.id","C.Departamento");
+            })
+            ->leftJoin("Municipalities as M", function($join){
+                $join->on("M.id","C.Municipio");
+            })
+            ->when(request()->get("nombre"), function ($q, $fill) {
+                $q->where("C.Nombre",'like','%'.$fill.'%');
+            })
+            ->when(request()->get("departamento"), function ($q, $fill) {
+                $q->where("D.name",'like','%'.$fill.'%');
+            })
+            ->when(request()->get("municipio"), function ($q, $fill) {
+                $q->where("M.name",'like','%'.$fill.'%');
+            })
+            ->when(request()->get("direccion"), function ($q, $fill) {
+                $q->where("Direccion",'like','%'.$fill.'%');
+            })
+            ->when(request()->get("telefono"), function ($q, $fill) {
+                $q->where("Telefono",'like','%'.$fill.'%');
+            })
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
+    }
+
+    public function listCategories()
+    {
+        return $this->success(
             NewCategory::orderBy('Id_Categoria_Nueva', 'ASC')->get(['Nombre As text', 'Id_Categoria_Nueva As value'])
         );
     }
