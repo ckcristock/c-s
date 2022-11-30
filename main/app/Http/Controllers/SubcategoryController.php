@@ -22,13 +22,17 @@ class SubcategoryController extends Controller
         $q = Subcategory::when(request()->get("nombre"), function ($q, $fill) {
             $q->where("Nombre",'like','%'.$fill.'%');
         })
+        ->when(request()->get("idSubcategoria"), function ($q, $fill) {
+            $q->where("Id_Subcategoria",'=',$fill);
+        })
         ->when(request()->get("categoria"), function ($q, $fill) {
             $q->where("Id_Categoria_Nueva",'=',$fill);
         })
         ->when(request()->get("separable"), function ($q, $fill) {
             $q->where("Separable",'=',$fill);
-        })
+        })->with("subcategoryVariable")
         ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+
        /*  $q = DB::table('Subcategoria as S')
                 ->leftJoin('Plan_Cuentas as CII','CII.Id_Plan_Cuentas','S.Cuenta_Ingreso_Id')
                 ->leftJoin('Plan_Cuentas as CI','CI.Id_Plan_Cuentas','S.Cuenta_Inventario_Id')
@@ -112,10 +116,10 @@ class SubcategoryController extends Controller
     {
         return $this->success(
 			DB::table("subcategoria as s")
-				->select("s.Nombre As text","s.Id_Subcategoria As value")
-                ->join("categoria_nueva as c", "c.Id_Categoria_nueva", "s.Id_Categoria_nueva")
-				->where("s.Id_Categoria_nueva", $id)
-				->get()
+            ->select("s.Nombre As text","s.Id_Subcategoria As value")
+            ->join("categoria_nueva as c", "c.Id_Categoria_nueva", "s.Id_Categoria_nueva")
+            ->where("s.Id_Categoria_nueva", $id)
+            ->get()
 		);
 
     }
