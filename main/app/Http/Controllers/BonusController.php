@@ -225,20 +225,19 @@ class BonusController extends Controller
     public function pdfGenerate($anio, $period)
     {
 
-        $bonuses = Bonus::with('bonusPerson', 'personPayer')->get();
-        //$bonuses = Person::with('bonusPerson')->get();
-        //return $bonuses;
+        $data = Bonus::with('bonusPerson', 'personPayer')
+                        ->where('period', $anio.'-'.$period)
+                        ->first();
 
-        $arrayPdfs = array();
+        //nota, se le agrega a cada uno para que sirva desde el coponente individual
+        foreach ($data->bonusPerson as $bonus) {
+            $bonus->fecha_inicio = ($period==1) ? '01 Enero '.$anio : '01 Julio '.$anio ;
+        }
 
-        //foreach ($bonuses->bonus_person as $bonus) {
-            $pdf = PDF::loadView('pdf.bonus_tickets', compact('bonuses'))
-                        ->setPaper([0,0,614.295,397.485]);
-          //  array_push($arrayPdfs, $pdf);
-        //}
+        $pdf = PDF::loadView('pdf.bonus_tickets', ['data'=>$data])
+                    ->setPaper([0,0,614.295,397.485]);
 
-        return $pdf->stream('colilla_prima.pdf');
-        //return 'hello '.$anio.'-'.$period;
+        return $pdf->download('colilla_prima.pdf');
     }
 
     /**

@@ -20,6 +20,7 @@ use App\Http\Controllers\BenefitIncomeController;
 use App\Http\Controllers\BenefitNotIncomeController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\BonusController;
+use App\Http\Controllers\BonusPersonController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CalculationBaseController;
@@ -135,6 +136,7 @@ use App\Http\Controllers\TaskTypeController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\User;
+use App\Models\Bonus;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -531,7 +533,12 @@ Route::group(
         Route::get('check-bonuses/{period}', [BonusController::class, 'checkBonuses']);
         Route::get('bonuses-report/{anio}/{period}', [BonusController::class, 'reportBonus']);
         Route::get('bonus-stubs/{anio}/{period}', [BonusController::class, 'pdfGenerate']);
+        Route::get('bonus-stub/{id}/{period}', [BonusPersonController::class, 'pdfGenerate']);
 
+        Route::get('/t', function () {
+            $data = Bonus::with('bonusPerson', 'personPayer')->first();
+            return view('pdf.bonus_tickets', ['data'=>$data]);
+        });
         Route::get('test', [BonusController::class, 'test']);//borrar esta ruta
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
