@@ -20,6 +20,7 @@ use App\Http\Controllers\BenefitIncomeController;
 use App\Http\Controllers\BenefitNotIncomeController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\BonusController;
+use App\Http\Controllers\BonusPersonController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CalculationBaseController;
@@ -137,6 +138,7 @@ use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ThirdParty;
 use App\Models\User;
+use App\Models\Bonus;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -161,7 +163,7 @@ Route::get('/', function () {
 
     $exitCode = Artisan::call('config:cache');
 
-    return 'DONE'; //Return anything
+    return 'DONE'; //Return anythingb
 
 });
 Route::get('/generate-users', function () {
@@ -530,6 +532,11 @@ Route::group(
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
         Route::resource('premium', PremiumController::class)->except(['create', 'edit']);
         Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
+        Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
+        Route::get('check-bonuses/{period}', [BonusController::class, 'checkBonuses']);
+        Route::get('bonuses-report/{anio}/{period}/{pagado}', [BonusController::class, 'reportBonus']);
+        Route::get('bonus-stubs/{anio}/{period}', [BonusController::class, 'pdfGenerate']);
+        Route::get('bonus-stub/{id}/{period}', [BonusPersonController::class, 'pdfGenerate']);
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
@@ -592,6 +599,7 @@ Route::group(
         Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
         Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
         Route::get('paginate-locations', [LocationController::class, 'paginate']);
+        Route::get('paginate-bonuses', [BonusController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
