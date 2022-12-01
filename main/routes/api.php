@@ -621,7 +621,7 @@ Route::group(
         Route::get('/company-global', [CompanyController::class, 'getGlobal']);
 
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
-        Route::post("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
+        Route::delete("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
 
         //boards
         Route::get("board", [BoardController::class, "getData"]);
@@ -642,6 +642,7 @@ Route::group(
         Route::get('get-archivadas', [TaskController::class, 'getArchivadas']);
         Route::resource('task-types', TaskTypeController::class);
         Route::get('paginate-task-types', [TaskTypeController::class, 'paginate']);
+        Route::get("list-subcategories", [SubcategoryController::class, 'listSubcategories']);
 
         //se ejecuta al crear
         Route::get("subcategory-field/{id}", [SubcategoryController::class, 'getField']);

@@ -19,18 +19,19 @@ class SubcategoryController extends Controller
      */
     public function index()
     {
-        $q = Subcategory::when(request()->get("nombre"), function ($q, $fill) {
-            $q->where("Nombre",'like','%'.$fill.'%');
-        })
-        ->when(request()->get("idSubcategoria"), function ($q, $fill) {
+        $q = Subcategory::with("subcategoryVariables")
+       ->when(request()->get("idSubcategoria"), function ($q, $fill) {
             $q->where("Id_Subcategoria",'=',$fill);
+        })
+         ->when(request()->get("nombre"), function ($q, $fill) {
+            $q->where("Nombre",'like','%'.$fill.'%');
         })
         ->when(request()->get("categoria"), function ($q, $fill) {
             $q->where("Id_Categoria_Nueva",'=',$fill);
         })
         ->when(request()->get("separable"), function ($q, $fill) {
             $q->where("Separable",'=',$fill);
-        })->with("subcategoryVariable")
+        })
         ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
 
        /*  $q = DB::table('Subcategoria as S')
@@ -69,6 +70,14 @@ class SubcategoryController extends Controller
             ); */
 
             return $this->success($q);
+    }
+    public function listSubcategories()
+    {
+        return $this->success(
+			Subcategory::select(["Nombre","Id_Subcategoria"])
+            ->get()
+		);
+
     }
 
     /**

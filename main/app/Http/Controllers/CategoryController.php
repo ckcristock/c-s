@@ -19,42 +19,22 @@ class CategoryController extends Controller
     public function index()
     {
         return $this->success(
-            NewCategory::select(['C.*' , 'D.Nombre as NombreDepartamento' , 'M.Nombre as NombreMunicipio'])
-            ->from("Categoria_Nueva as C")
-            ->join("Departments as D", function($join){
-                $join->on("D.id","C.Departamento");
-            })
-            ->leftJoin("Municipalities as M", function($join){
-                $join->on("M.id","C.Municipio");
-            })->get()
+            NewCategory::with("subcategory")->get()
         );
     }
 
     public function paginate()
     {
         return $this->success(
-            NewCategory::select(['C.*' , 'D.name as NombreDepartamento' , 'M.name as NombreMunicipio'])
-            ->from("Categoria_Nueva as C")
-            ->join("Departments as D", function($join){
-                $join->on("D.id","C.Departamento");
-            })
-            ->leftJoin("Municipalities as M", function($join){
-                $join->on("M.id","C.Municipio");
-            })
+            NewCategory::with("subcategories")
             ->when(request()->get("nombre"), function ($q, $fill) {
-                $q->where("C.Nombre",'like','%'.$fill.'%');
+                $q->where("Nombre",'like','%'.$fill.'%');
             })
-            ->when(request()->get("departamento"), function ($q, $fill) {
-                $q->where("D.name",'like','%'.$fill.'%');
+            ->when(request()->get("compraInternacional"), function ($q, $fill) {
+                $q->where("Compra_Internacional","=",$fill);
             })
-            ->when(request()->get("municipio"), function ($q, $fill) {
-                $q->where("M.name",'like','%'.$fill.'%');
-            })
-            ->when(request()->get("direccion"), function ($q, $fill) {
-                $q->where("Direccion",'like','%'.$fill.'%');
-            })
-            ->when(request()->get("telefono"), function ($q, $fill) {
-                $q->where("Telefono",'like','%'.$fill.'%');
+            ->when(request()->get("separacionCategorias"), function ($q, $fill) {
+                $q->where("Aplica_Separacion_Categorias","=",$fill);
             })
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
@@ -86,7 +66,17 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-
+        try {
+            $value = NewCategory::updateOrCreate( [ 'Id_Categoria_Nueva'=> $request()->get('Id_Categoria_Nueva') ] , [
+                'Nombre'=> $request()->get('Nombre'),
+                'Compra_Internacional'=> $request()->get('compraInternacional'),
+                'Aplica_Separacion_Categorias'=> $request()->get('separacionCategorias')
+            ] );
+            $value->subcategories()->sync($request()->get("Subcategorias"));
+            return ($value->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->errorResponse( $th->getFile().$th->getMessage() );
+        }
     }
 
     /**

@@ -16,7 +16,7 @@ class Subcategory extends Model
         return $this->hasMany(Category::class, "Id_Subcategoria");
     }
 
-    public function subcategoryVariable()
+    public function subcategoryVariables()
     {
         return $this->hasMany(SubcategoryVariable::class, "subcategory_id");
     }
