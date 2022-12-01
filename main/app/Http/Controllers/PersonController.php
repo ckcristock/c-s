@@ -57,6 +57,19 @@ class PersonController extends Controller
 		);
 	}
 
+    public function funcionarioPunto(){
+        return $this->success(
+            DB::table("Funcionario_Punto", "FP")
+            ->select("PD.*")
+            ->join("Punto_Dispensacion as PD", function($join){
+                $join->on("FP.Id_Punto_Dispensacion", "PD.Id_Punto_Dispensacion");
+            })
+            ->when(request()->id, function ($q, $fill) {
+                $q->where("FP.Identificacion_Funcionario", $fill);
+            })->get()
+        );
+    }
+
 	/**
 	 * Display a listing of the resource paginated.
 	 *

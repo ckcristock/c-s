@@ -17,12 +17,12 @@ class FiscalResponsibilityController extends Controller
      */
     public function index()
     {
-        return $this->success(            
+        return $this->success(
             FiscalResponsibility::where('state', 'Activo')->get(['name as text', 'id as value', 'code'])
         );
     }
 
-    public function paginate()
+    public function paginate(Request $request)
     {
         return $this->success(
             DB::table('fiscal_responsibilities as f')
@@ -32,6 +32,12 @@ class FiscalResponsibilityController extends Controller
                 'f.name',
                 'f.state',
             )
+            ->when($request->name, function ($q, $fill) {
+                $q->where('f.name', 'like', '%' . $fill . '%');
+            })
+            ->when($request->state, function ($q, $fill) {
+                $q->where('f.state', $fill);
+            })
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }

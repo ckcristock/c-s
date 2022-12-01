@@ -17,7 +17,7 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        Quotation::get();
+        return $this->success(Quotation::get());
     }
 
     public function paginate(Request $request)
@@ -99,7 +99,10 @@ class QuotationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $quotation = Quotation::find($id);
+        $data = $request->all();
+        $quotation->fill($data)->save();
+        return $this->success('Actualizado con éxito');
     }
 
     /**

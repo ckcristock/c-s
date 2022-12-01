@@ -15,6 +15,8 @@ class Municipality extends Model
         'dane_code',
         'dian_code',
         'municipalities_id',
+        'percentage_product',
+        'percentage_service',
     ];
 
 

@@ -36,7 +36,7 @@ class DepartmentController extends Controller
                                         $q->where('name', 'like', '%'.$fill.'%');
                                     })
                                     ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
-                                    //->get(['name as text', 'id as value']);
+                                    //->get(['name as text', 'id as value']));
     }
 
     /**

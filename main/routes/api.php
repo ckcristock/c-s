@@ -129,12 +129,14 @@ use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\CategoriaNuevaController;
+use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
+use App\Models\ThirdParty;
 use App\Models\User;
 use App\Models\Bonus;
 use Illuminate\Support\Facades\Artisan;
@@ -419,6 +421,7 @@ Route::group(
 
         Route::post('update-file-permission', [PersonController::class, 'updateFilePermission']);
         Route::get('get-file-permission/{id}', [PersonController::class, 'getFilePermission']);
+        Route::get('third-party-person-for-third/{id}', [ThirdPartyPersonController::class, 'getThirdPartyPersonForThird']);
 
 
 
@@ -540,6 +543,8 @@ Route::group(
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class,'paginate']);
+        Route::get('category-paginate', [CategoryController::class,'paginate']);
+        Route::get('loan-paginate', [LoanController::class, 'paginate']);
         Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class,'paginate']);
         Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class,'paginate']);
         Route::get('paginateThickness', [ThicknessController::class, 'paginate']);
@@ -612,7 +617,7 @@ Route::group(
         Route::post('finish-contract', [WorkContractController::class, 'finishContract']);
         Route::get('countable_income', [BonificationsController::class, 'countable_income']);
         Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
-        Route::get('contractRevewal/{id}', [WorkContractController::class, 'contractRevewal']);
+        Route::get('contractRenewal/{id}', [WorkContractController::class, 'contractRenewal']);
         Route::get('preLiquidado', [WorkContractController::class, 'getPreliquidated']);
         Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
         Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
@@ -621,6 +626,7 @@ Route::group(
         Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
         Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
         Route::get('cities-by-municipalities/{id}', [CityController::class, 'showByMunicipality']);
+        Route::get('countries-with-departments', [CountryController::class, 'allCountries']);
         // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
         /** Rutas de Empresas  */
@@ -631,7 +637,7 @@ Route::group(
         Route::get('/company-global', [CompanyController::class, 'getGlobal']);
 
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
-        Route::post("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
+        Route::delete("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
 
         //boards
         Route::get("board", [BoardController::class, "getData"]);
@@ -651,6 +657,7 @@ Route::group(
         Route::get('get-archivadas', [TaskController::class, 'getArchivadas']);
         Route::resource('task-types', TaskTypeController::class);
         Route::get('paginate-task-types', [TaskTypeController::class, 'paginate']);
+        Route::get("list-subcategories", [SubcategoryController::class, 'listSubcategories']);
 
         //se ejecuta al crear
         Route::get("subcategory-field/{id}", [SubcategoryController::class, 'getField']);
@@ -661,14 +668,16 @@ Route::group(
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 
         Route::resource("category", CategoryController::class);
+        Route::get('list-categories', [CategoryController::class,'listCategories']);
 
+        //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
         Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
         Route::get('all-zones', [ZonesController::class, 'allZones']);
         Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
         Route::get('municipalities-for-dep/{id}', [MunicipalityController::class, 'municipalitiesForDep']);
-        //Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
+        Route::get('account-plan', [AccountPlanController::class, 'accountPlan']); //!Se debería usar la que está en php
         Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
         Route::put('state-change', [LunchController::class, 'activateOrInactivate']);
         Route::get('filter-all-depencencies', [DependencyController::class, 'dependencies']);
@@ -683,6 +692,7 @@ Route::group(
         Route::get('users/{id}', [PersonController::class, 'user']);
         Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
         Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
+        Route::get('third-party-provider', [ThirdPartyController::class, 'thirdPartyProvider']);
         Route::get('peopleSelects', [PersonController::class, 'peopleSelects']); //mismo servicio que people->index pero hasta 100 registros
         Route::put('act-inact-medidas', [MeasureController::class, 'changeState']);
         /****** Rutas del modulo APU PIEZA ******/
@@ -727,11 +737,18 @@ Route::group(
         Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
-        Route::get('get-tasks/{id}', [BudgetController::class, 'getTasks']);
+        Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
 
         /************RUTAS PHP************/
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);
         Route::get('php/genericos/departamentos.php', [CategoriaNuevaController::class, 'getDepartamentos']);
         Route::get('php/categoria_nueva/detalle_categoria_nueva_departamento.php', [CategoriaNuevaController::class, 'categoriaDepartamento']);
+        Route::get('php/comprasnacionales/lista_compras', [ListaComprasController::class, 'index']);
+        Route::get('php/rotativoscompras/lista_pre_compra', [ListaComprasController::class, 'preCompras']);
+        Route::get('php/funcionarios/lista_funcionarios', [ListaComprasController::class, 'getFuncionarios']);
+        Route::get('php/rotativoscompras/detalle_pre_compra/{id}', [ListaComprasController::class, 'detallePreCompra']);
+        Route::get('impuestos', [BodegasController::class, 'impuestos']);
+        Route::get('php/inventario_fisico_puntos/lista_punto_funcionario', [PersonController::class, 'funcionarioPunto']);
+        Route::get('php/comprasnacionales/lista_productos', [ProductController::class, 'listarProductos']);
     }
 );

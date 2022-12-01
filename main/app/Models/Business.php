@@ -34,4 +34,9 @@ class Business extends Model
     {
         return $this->hasMany(BusinessBudget::class)->with('budget');
     }
+
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class)->with('asignador', 'types', 'realizador');
+    }
 }
