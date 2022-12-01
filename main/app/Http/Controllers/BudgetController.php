@@ -25,27 +25,38 @@ class BudgetController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->success(Budget::with(
-            [
-                'destiny' => function ($q) {
-                    $q->select('*');
-                },
-                'user' => function ($q) {
-                    $q->select('id', 'usuario', 'person_id')
-                        ->with(
-                            ['person' => function ($q) {
-                                $q->select('id', 'first_name', 'first_surname');
-                            }]
-                        );;
-                },
-                'customer' => function ($q) {
-                    $q->select('id', 'nit')
-                        ->selectRaw('IFNULL(social_reason, CONCAT_WS(" ",first_name, first_name) ) as name');
-                }
-            ]
-        )->get());
+        return $this->success(
+            Budget::when($request->destinity_id, function ($q, $fill) {
+                $q->where('destinity_id', $fill);
+            })->when($request->customer_id, function ($q, $fill) {
+                $q->where('customer_id', $fill);
+            })->when($request->line, function ($q, $fill) {
+                $q->where('line', 'like', '%' . $fill . '%');
+            })->when($request->project, function ($q, $fill) {
+                $q->where('project', 'like', '%' . $fill . '%');
+            })->with(
+                [
+                    'destiny' => function ($q) {
+                        $q->select('*');
+                    },
+                    'user' => function ($q) {
+                        $q->select('id', 'usuario', 'person_id')
+                            ->with(
+                                ['person' => function ($q) {
+                                    $q->select('id', 'first_name', 'first_surname');
+                                }]
+                            );;
+                    },
+                    'customer' => function ($q) {
+                        $q->select('id', 'nit')
+                            ->selectRaw('IFNULL(social_reason, CONCAT_WS(" ",first_name, first_name) ) as name');
+                    },
+                    'items'
+                ]
+            )->name()->get()
+        );
     }
     public function paginate()
     {
@@ -87,7 +98,7 @@ class BudgetController extends Controller
         }
     }
 
-    
+
 
     /**
      * Show the form for creating a new resource.
