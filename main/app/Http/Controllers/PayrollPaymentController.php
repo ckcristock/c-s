@@ -17,6 +17,9 @@ class PayrollPaymentController extends Controller
      */
     public function getPagosNomina()
     {
-        return $this->success(  PayrollPayment::all() );
+        return $this->success(
+            PayrollPayment::orderBy('created_at')
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
     }
 }

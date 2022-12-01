@@ -95,7 +95,6 @@ class Person extends Model
         return $this->hasMany(LateArrival::class);
     }
 
-
     /**
      * Un funcionario puede tener varios diarios fijos (dias de un turno fijo) (1,2,3,4,5 ó 6 a la semana)
      *
@@ -124,7 +123,6 @@ class Person extends Model
         return $this->belongsTo(FixedTurn::class);
     }
 
-
     public function horariosTurnoRotativo()
     {
         return $this->hasMany(RotatingTurnHour::class);
@@ -152,6 +150,11 @@ class Person extends Model
     public function responsableNomina ()
     {
         return $this->belongsTo(PayrollManager::class,'identifier', 'manager');
+    }
+
+    public function bonusPerson ()
+    {
+        return $this->hasMany(BonusPerson::class);
     }
 
 }

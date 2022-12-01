@@ -62,8 +62,15 @@ class ThirdPartyController extends Controller
     {
         return $this->success(
             ThirdParty::select(
-                DB::raw('ifnull(social_reason, concat(first_name," ",first_surname) ) as name')
-            )
+
+                DB::raw('IFNULL(social_reason,concat(first_name," ",first_surname)) as text'),
+                'id as value',
+                'retefuente_percentage'
+            )->when(Request()->get('name'), function ($q, $fill) {
+                $q->where(DB::raw('concat(IFNULL(social_reason, " "), IFNULL(first_name,"")," ",IFNULL(first_surname,"") )'), 'like', '%' . $fill . '%');
+            })
+                ->where('state', 'Activo')
+                ->orderBy('text')
                 ->get()
         );
     }
@@ -93,8 +100,9 @@ class ThirdPartyController extends Controller
             )->when(Request()->get('name'), function ($q, $fill) {
                 $q->where(DB::raw('concat(IFNULL(social_reason, " "), IFNULL(first_name,"")," ",IFNULL(first_surname,"") )'), 'like', '%' . $fill . '%');
             })
-                // ->where('state', 'Activo')
+                ->where('state', 'Activo')
                 ->where('third_party_type', 'Cliente')
+                ->orderBy('text')
                 ->get()
         );
     }

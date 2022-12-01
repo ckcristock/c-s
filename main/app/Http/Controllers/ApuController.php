@@ -60,7 +60,7 @@ class ApuController extends Controller
     {
         $query = DB::table('apu_parts as ap')
             ->join('third_parties as tp', 'ap.third_party_id', 'tp.id')
-            ->join('cities as c', 'ap.city_id', 'c.id')
+            ->join('municipalities as c', 'ap.city_id', 'c.id')
             ->join('people as p', 'p.id', 'ap.person_id')
             ->select(
                 'ap.id as apu_id',
@@ -100,7 +100,7 @@ class ApuController extends Controller
 
         $querySets = DB::table('apu_sets as ap')
             ->join('third_parties as tp', 'ap.third_party_id', 'tp.id')
-            ->join('cities as c', 'ap.city_id', 'c.id')
+            ->join('municipalities as c', 'ap.city_id', 'c.id')
             ->join('people as p', 'p.id', 'ap.person_id')
             ->select(
                 'ap.id as apu_id',
@@ -139,7 +139,7 @@ class ApuController extends Controller
             );
         $queryService = DB::table('apu_services as ap')
             ->join('third_parties as tp', 'ap.third_party_id', 'tp.id')
-            ->join('cities as c', 'ap.city_id', 'c.id')
+            ->join('municipalities as c', 'ap.city_id', 'c.id')
             ->join('people as p', 'p.id', 'ap.person_id')
             ->select(
                 'ap.id as apu_id',
@@ -172,10 +172,10 @@ class ApuController extends Controller
             )
             ->when(request()->get('type'), function ($q, $fill) {
                 $q->where('typeapu_name', $fill);
-            })  
+            })
             ->when(request()->get('client'), function ($q, $fill) {
                 $q->where('tp.social_reason', 'like', '%' . $fill . '%');
-            })        
+            })
             ->union($querySets)
             ->union($query);
 
@@ -183,7 +183,7 @@ class ApuController extends Controller
         // $query->union($querySets);
         return $this->success(
             $queryService
-            
+
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }

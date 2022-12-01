@@ -19,6 +19,8 @@ use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BenefitIncomeController;
 use App\Http\Controllers\BenefitNotIncomeController;
 use App\Http\Controllers\BonificationsController;
+use App\Http\Controllers\BonusController;
+use App\Http\Controllers\BonusPersonController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CalculationBaseController;
@@ -74,6 +76,7 @@ use App\Http\Controllers\PayrollFactorController;
 use App\Http\Controllers\PensionFundController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\PremiumController;
 use App\Http\Controllers\ProductDotationTypeController;
 use App\Http\Controllers\ReporteHorariosController;
 use App\Http\Controllers\RotatingTurnController;
@@ -133,7 +136,9 @@ use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
+use App\Models\ThirdParty;
 use App\Models\User;
+use App\Models\Bonus;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -158,7 +163,7 @@ Route::get('/', function () {
 
     $exitCode = Artisan::call('config:cache');
 
-    return 'DONE'; //Return anything
+    return 'DONE'; //Return anythingb
 
 });
 Route::get('/generate-users', function () {
@@ -416,6 +421,7 @@ Route::group(
 
         Route::post('update-file-permission', [PersonController::class, 'updateFilePermission']);
         Route::get('get-file-permission/{id}', [PersonController::class, 'getFilePermission']);
+        Route::get('third-party-person-for-third/{id}', [ThirdPartyPersonController::class, 'getThirdPartyPersonForThird']);
 
 
 
@@ -524,6 +530,13 @@ Route::group(
         Route::resource('quotations', QuotationController::class);
         Route::resource('contract-terms', ContractTermController::class)->except(['create', 'edit']);
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
+        Route::resource('premium', PremiumController::class)->except(['create', 'edit']);
+        Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
+        Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
+        Route::get('check-bonuses/{period}', [BonusController::class, 'checkBonuses']);
+        Route::get('bonuses-report/{anio}/{period}/{pagado}', [BonusController::class, 'reportBonus']);
+        Route::get('bonus-stubs/{anio}/{period}', [BonusController::class, 'pdfGenerate']);
+        Route::get('bonus-stub/{id}/{period}', [BonusPersonController::class, 'pdfGenerate']);
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
@@ -531,6 +544,7 @@ Route::group(
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class,'paginate']);
         Route::get('category-paginate', [CategoryController::class,'paginate']);
+        Route::get('loan-paginate', [LoanController::class, 'paginate']);
         Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class,'paginate']);
         Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class,'paginate']);
         Route::get('paginateThickness', [ThicknessController::class, 'paginate']);
@@ -586,6 +600,7 @@ Route::group(
         Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
         Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
         Route::get('paginate-locations', [LocationController::class, 'paginate']);
+        Route::get('paginate-bonuses', [BonusController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -611,9 +626,10 @@ Route::group(
         Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
         Route::put('process/{processId}', [DisciplinaryProcessController::class, 'update']);
         Route::get('cities-by-municipalities/{id}', [CityController::class, 'showByMunicipality']);
+        Route::get('countries-with-departments', [CountryController::class, 'allCountries']);
         // !sugerencia Route::get('processByPerson/{id}', [DisciplinaryProcessController::class, 'process']);
 
-        /** Tutas de Empresas  */
+        /** Rutas de Empresas  */
         Route::get('companyData', [CompanyController::class, 'getBasicData']);
         Route::get('companyAll', [CompanyController::class, 'getAllCompanies']);
         Route::get('companyData/{id}', [CompanyController::class, 'getBasicDataForId']);
@@ -627,7 +643,6 @@ Route::group(
         Route::get("board", [BoardController::class, "getData"]);
         Route::post('person/set-board/{personId}/{board}', [BoardController::class, 'setBoardsPerson']);
         Route::get('person/get-boards/{personId}', [BoardController::class, 'personBoards']);
-
 
         //tareas
         Route::get('taskview/{id}', [TaskController::class, 'taskView']);
@@ -655,13 +670,14 @@ Route::group(
         Route::resource("category", CategoryController::class);
         Route::get('list-categories', [CategoryController::class,'listCategories']);
 
+        //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
         Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
         Route::get('all-zones', [ZonesController::class, 'allZones']);
         Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
         Route::get('municipalities-for-dep/{id}', [MunicipalityController::class, 'municipalitiesForDep']);
-        //Route::get('account-plan', [AccountPlanController::class, 'accountPlan']);
+        Route::get('account-plan', [AccountPlanController::class, 'accountPlan']); //!Se debería usar la que está en php
         Route::get('third-parties-list', [ThirdPartyController::class, 'thirdParties']);
         Route::put('state-change', [LunchController::class, 'activateOrInactivate']);
         Route::get('filter-all-depencencies', [DependencyController::class, 'dependencies']);
@@ -721,7 +737,7 @@ Route::group(
         Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
-        Route::get('get-tasks/{id}', [BudgetController::class, 'getTasks']);
+        Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
 
         /************RUTAS PHP************/
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);

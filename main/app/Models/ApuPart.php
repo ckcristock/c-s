@@ -60,7 +60,7 @@ class ApuPart extends Model
 
     public function city()
 	{
-		return $this->belongsTo(City::class);
+		return $this->belongsTo(Municipality::class, 'city_id', 'id');
 	}
 
     public function person()
