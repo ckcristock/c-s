@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Clases\stdObject;
 use App\Models\Bonus;
 use App\Models\BonusPerson;
 use App\Models\Person;
@@ -29,11 +30,6 @@ class BonusController extends Controller
     {
         return $this->success(Bonus::orderByDesc('period')
             ->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1)));
-    }
-
-    public function test($anio= 2022, $period=2)
-    {
-        return Bonus::where('period', $anio.'-'.$period)->with('bonusPerson', 'personPayer')->first();
     }
 
     /**
@@ -215,11 +211,51 @@ class BonusController extends Controller
     /**
      * To download report
      */
-    public function reportBonus($anio, $period)
+    public function reportBonus($anio, $period, $pagado)
     {
-        /* $bonusReport = Bonus::where('period', $anio.'-'.$period)->with('bonusPerson', 'personPayer')->first();
-        return $bonusReport->bonusPerson; */
-        return Excel::download(new BonusExport($anio, $period), 'bonus_report.xlsx');
+        if ($pagado) {
+            $bonuses = Bonus::where('period', $this->anio.'-'.$this->period)->with('bonusPerson', 'personPayer')->first();
+            return Excel::download(new BonusExport($bonuses), 'bonus_report.xlsx');
+        } else {
+            $fechaInicio = "";
+            $fechaFin = "";
+            if ($period==1){
+                $fechaInicio = "01/01/".$anio;
+                $fechaFin = "06/30/".$anio;
+            } else {
+                $fechaInicio = "07/01/".$anio;
+                $fechaFin = "12/30/".$anio;
+            }
+            $datos = new Request([
+                "fecha_inicio"=> $fechaInicio,
+                "fecha_fin"=> $fechaFin,
+                "funcionario"=> 1,
+                "period"=> $anio.'-'.$period
+            ]);
+            $primas = $this->calcularPrimas($datos);
+
+            $bonusPerson =array();
+
+            foreach ($primas['empleados'] as $empleado) {
+                $nuevo = new stdObject();
+                $nuevo->identifier = $empleado->identifier;
+                $nuevo->fullname = $empleado->first_name.' '.$empleado->second_name.' '.$empleado->first_surname.' '.$empleado->second_surname;
+                $nuevo->average_amount = $empleado->avg_salary;
+                $nuevo->worked_days = $empleado->worked_days;
+                $nuevo->amount = $empleado->bonus;
+
+                array_push($bonusPerson, $nuevo);
+            }
+            $reportPrimas = new stdObject();
+            $reportPrimas->total_bonuses = $primas['total_primas'];
+            $reportPrimas->total_employees= $primas['total_empleados'];
+            $reportPrimas->period= $primas['periodo'];
+            $reportPrimas->payment_date= null;
+            $reportPrimas->status= 'pendiente';
+            $reportPrimas->bonusPerson = $bonusPerson;
+
+            return Excel::download(new BonusExport($reportPrimas), 'bonus_report.xlsx');
+        }
     }
 
     public function pdfGenerate($anio, $period)

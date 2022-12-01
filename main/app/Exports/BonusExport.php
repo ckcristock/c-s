@@ -13,15 +13,20 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 class BonusExport implements FromView, WithEvents, ShouldAutoSize, WithColumnFormatting
 {
 
-    public function __construct($anio, $period)
+    /* public function __construct($anio, $period)
     {
         $this->anio = $anio;
         $this->period = $period;
+    } */
+    public function __construct($bonuses)
+    {
+        $this->bonuses = $bonuses;
     }
 
     public function view(): View
     {
-        return view('exports.BonusReport', ['bonuses'=>Bonus::where('period', $this->anio.'-'.$this->period)->with('bonusPerson', 'personPayer')->first()]);
+        //return view('exports.BonusReport', ['bonuses'=>Bonus::where('period', $this->anio.'-'.$this->period)->with('bonusPerson', 'personPayer')->first()]);
+        return view('exports.BonusReport', ['bonuses'=>$this->bonuses]);
     }
 
     public function registerEvents(): array

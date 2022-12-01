@@ -531,15 +531,9 @@ Route::group(
         Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
         Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
         Route::get('check-bonuses/{period}', [BonusController::class, 'checkBonuses']);
-        Route::get('bonuses-report/{anio}/{period}', [BonusController::class, 'reportBonus']);
+        Route::get('bonuses-report/{anio}/{period}/{pagado}', [BonusController::class, 'reportBonus']);
         Route::get('bonus-stubs/{anio}/{period}', [BonusController::class, 'pdfGenerate']);
         Route::get('bonus-stub/{id}/{period}', [BonusPersonController::class, 'pdfGenerate']);
-
-        Route::get('/t', function () {
-            $data = Bonus::with('bonusPerson', 'personPayer')->first();
-            return view('pdf.bonus_tickets', ['data'=>$data]);
-        });
-        Route::get('test', [BonusController::class, 'test']);//borrar esta ruta
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
