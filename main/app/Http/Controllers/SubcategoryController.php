@@ -19,8 +19,22 @@ class SubcategoryController extends Controller
      */
     public function index()
     {
-        //
-        $q = DB::table('Subcategoria as S')
+        $q = Subcategory::with("subcategoryVariables")
+       ->when(request()->get("idSubcategoria"), function ($q, $fill) {
+            $q->where("Id_Subcategoria",'=',$fill);
+        })
+         ->when(request()->get("nombre"), function ($q, $fill) {
+            $q->where("Nombre",'like','%'.$fill.'%');
+        })
+        ->when(request()->get("categoria"), function ($q, $fill) {
+            $q->where("Id_Categoria_Nueva",'=',$fill);
+        })
+        ->when(request()->get("separable"), function ($q, $fill) {
+            $q->where("Separable",'=',$fill);
+        })
+        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+
+       /*  $q = DB::table('Subcategoria as S')
                 ->leftJoin('Plan_Cuentas as CII','CII.Id_Plan_Cuentas','S.Cuenta_Ingreso_Id')
                 ->leftJoin('Plan_Cuentas as CI','CI.Id_Plan_Cuentas','S.Cuenta_Inventario_Id')
                 ->leftJoin('Plan_Cuentas as CG','CG.Id_Plan_Cuentas','S.Cuenta_Gasto_Id')
@@ -37,7 +51,7 @@ class SubcategoryController extends Controller
                 ->leftJoin('Plan_Cuentas as CV','CV.Id_Plan_Cuentas','S.Cuenta_Reteiva_Venta_Id')
                 ->leftJoin('Plan_Cuentas as CC','CC.Id_Plan_Cuentas','S.Cuenta_Reteiva_Compra_Id')
             ->select(
-                'S.*', 
+                'S.*',
                 'CII.Codigo as Cuenta_Ingreso',
                 'CI.Codigo as Cuenta_Inventario',
                 'CG.Codigo as Cuenta_Gasto',
@@ -53,9 +67,17 @@ class SubcategoryController extends Controller
                 'CRIC.Codigo as Cuenta_Reteica_Compra',
                 'CV.Codigo as Cuenta_Reteiva_Venta',
                 'CC.Codigo as Cuenta_Reteiva_Compra',
-            );
+            ); */
 
-            return $this->success($q->get());
+            return $this->success($q);
+    }
+    public function listSubcategories()
+    {
+        return $this->success(
+			Subcategory::select(["Nombre","Id_Subcategoria"])
+            ->get()
+		);
+
     }
 
     /**
@@ -103,10 +125,10 @@ class SubcategoryController extends Controller
     {
         return $this->success(
 			DB::table("subcategoria as s")
-				->select("s.Nombre As text","s.Id_Subcategoria As value")
-                ->join("categoria_nueva as c", "c.Id_Categoria_nueva", "s.Id_Categoria_nueva")
-				->where("s.Id_Categoria_nueva", $id)
-				->get()
+            ->select("s.Nombre As text","s.Id_Subcategoria As value")
+            ->join("categoria_nueva as c", "c.Id_Categoria_nueva", "s.Id_Categoria_nueva")
+            ->where("s.Id_Categoria_nueva", $id)
+            ->get()
 		);
 
     }

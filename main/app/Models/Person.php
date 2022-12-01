@@ -152,4 +152,9 @@ class Person extends Model
         return $this->belongsTo(PayrollManager::class,'identifier', 'manager');
     }
 
+    public function bonusPerson ()
+    {
+        return $this->hasMany(BonusPerson::class);
+    }
+
 }

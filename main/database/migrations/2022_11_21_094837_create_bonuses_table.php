@@ -18,10 +18,11 @@ class CreateBonusesTable extends Migration
             $table->string('description');
             $table->double('total_bonuses');
             $table->integer('total_employees');
-            $table->dateTime('period');
+            $table->string('period');
             $table->dateTime('payment_date');
             $table->enum('status', ['pendiente', 'pagado']);
             $table->string('payer');
+            $table->string('payer_identifier');
             $table->string('observations');
             $table->timestamps();
         });

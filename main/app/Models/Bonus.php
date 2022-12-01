@@ -17,7 +17,18 @@ class Bonus extends Model
         'payment_date',
         'status',
         'payer',
+        'payer_identifier',
+        'payer_fullname',
         'observations',
     ];
-    
+
+    public function bonusPerson(){
+        return $this->hasMany(BonusPerson::class)->with('person');
+    }
+
+    public function personPayer()
+    {
+        return $this->belongsTo(Person::class, 'payer', 'id');
+    }
+
 }

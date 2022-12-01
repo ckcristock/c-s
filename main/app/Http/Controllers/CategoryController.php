@@ -19,6 +19,30 @@ class CategoryController extends Controller
     public function index()
     {
         return $this->success(
+            NewCategory::with("subcategory")->get()
+        );
+    }
+
+    public function paginate()
+    {
+        return $this->success(
+            NewCategory::with("subcategories")
+            ->when(request()->get("nombre"), function ($q, $fill) {
+                $q->where("Nombre",'like','%'.$fill.'%');
+            })
+            ->when(request()->get("compraInternacional"), function ($q, $fill) {
+                $q->where("Compra_Internacional","=",$fill);
+            })
+            ->when(request()->get("separacionCategorias"), function ($q, $fill) {
+                $q->where("Aplica_Separacion_Categorias","=",$fill);
+            })
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
+    }
+
+    public function listCategories()
+    {
+        return $this->success(
             NewCategory::orderBy('Id_Categoria_Nueva', 'ASC')->get(['Nombre As text', 'Id_Categoria_Nueva As value'])
         );
     }
@@ -42,7 +66,17 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-
+        try {
+            $value = NewCategory::updateOrCreate( [ 'Id_Categoria_Nueva'=> $request()->get('Id_Categoria_Nueva') ] , [
+                'Nombre'=> $request()->get('Nombre'),
+                'Compra_Internacional'=> $request()->get('compraInternacional'),
+                'Aplica_Separacion_Categorias'=> $request()->get('separacionCategorias')
+            ] );
+            $value->subcategories()->sync($request()->get("Subcategorias"));
+            return ($value->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->errorResponse( $th->getFile().$th->getMessage() );
+        }
     }
 
     /**

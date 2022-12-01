@@ -62,6 +62,7 @@ class ThirdPartyController extends Controller
     {
         return $this->success(
             ThirdParty::select(
+
                 DB::raw('IFNULL(social_reason,concat(first_name," ",first_surname)) as text'),
                 'id as value',
                 'retefuente_percentage'
@@ -70,6 +71,21 @@ class ThirdPartyController extends Controller
             })
                 ->where('state', 'Activo')
                 ->orderBy('text')
+                ->get()
+        );
+    }
+
+    public function thirdPartyProvider()
+    {
+        return $this->success(
+            ThirdParty::select(
+                DB::raw('IFNULL(social_reason,concat(first_name," ",first_surname)) as text'),
+                'id as value'
+            )->when(Request()->get('name'), function ($q, $fill) {
+                $q->where(DB::raw('concat(IFNULL(social_reason, " "), IFNULL(first_name,"")," ",IFNULL(first_surname,"") )'), 'like', '%' . $fill . '%');
+            })
+                ->where('state', 'Activo')
+                ->where('third_party_type', 'Proveedor')
                 ->get()
         );
     }
