@@ -14,7 +14,7 @@ class NewCategory extends Model
         return $this->belongsToMany(Subcategory::class,"categoria_nueva_subcategoria","Id_Categoria_Nueva","Id_Subcategoria");
     }
 
-    public function subcategory(){
+    /* public function subcategory(){
         return $this->hasMany(Subcategory::class,"Id_Categoria_Nueva");
-    }
+    } */
 }

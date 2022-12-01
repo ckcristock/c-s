@@ -19,7 +19,7 @@ class SubcategoryController extends Controller
      */
     public function index()
     {
-        $q = Subcategory::with("subcategoryVariables")
+        $q = Subcategory::with("categories","subcategoryVariables")
        ->when(request()->get("idSubcategoria"), function ($q, $fill) {
             $q->where("Id_Subcategoria",'=',$fill);
         })
