@@ -8,6 +8,7 @@ use App\Models\GrupoEstiba;
 use App\Models\Estiba;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 
 class BodegasController extends Controller
@@ -79,6 +80,10 @@ class BodegasController extends Controller
                 break;
         }
 
+    }
+
+    public function impuestos(){
+        return $this->success(DB::table("Impuesto")->select("Valor")->get());
     }
 
     /**
