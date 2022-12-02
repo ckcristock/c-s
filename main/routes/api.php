@@ -637,6 +637,7 @@ Route::group(
         Route::get('/company-global', [CompanyController::class, 'getGlobal']);
 
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
+        Route::put("subcategory-active/{id}", [SubcategoryController::class, 'turningOnOff']);
         Route::delete("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
 
         //boards
@@ -669,6 +670,7 @@ Route::group(
 
         Route::resource("category", CategoryController::class);
         Route::get('list-categories', [CategoryController::class,'listCategories']);
+        Route::put("category-active/{id}", [CategoryController::class, 'turningOnOff']);
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
