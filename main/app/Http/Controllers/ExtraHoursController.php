@@ -87,11 +87,11 @@ class ExtraHoursController extends Controller
 				$query->whereBetween('date', [$fechaInicio, $fechaFin])->orderBy('date');
 			};
 
-
 			//dd(request()->get('tipo' ));
 			switch (request()->get('tipo')) {
-				case 'Fijo':
-					$funcionario =  $this->extrasService->funcionarioFijo($filtroDiarioFecha);
+                case 'Fijo':
+					$funcionario =  $this->extrasService->funcionarioFijo($filtroDiarioFecha, $fechaInicio, $fechaFin);
+                    //return $funcionario;
 					return $this->success($this->extrasService->calcularExtras($funcionario));
 					break;
 				case 'Rotativo':
@@ -103,8 +103,8 @@ class ExtraHoursController extends Controller
 					break;
 			}
 		} catch (\Throwable $th) {
-			//throw $th;
-			return $th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile();
+			return $th;
+			//return $th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile();
 		}
 	}
 

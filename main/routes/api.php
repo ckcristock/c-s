@@ -294,6 +294,7 @@ Route::group(
         Route::get('dotations/download/{inicio?}/{fin?}', [InventaryDotationController::class, 'download']);
         Route::get('downloadeliveries/download/{inicio?}/{fin?}', [InventaryDotationController::class, 'downloadeliveries']);
 
+        Route::get('listado-horarios', [ReporteHorariosController::class, 'pruebaPrueba']);
 
         /** end*/
 

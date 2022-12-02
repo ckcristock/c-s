@@ -71,16 +71,16 @@ class ExtraHoursService
              ->join('work_contracts as w', function ($join) use ($dates) {
                 $join->on('p.id', '=', 'w.person_id')
                     ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                join people as u2 on u2.id = a2.person_id 
-                join work_contract_types as wt on a2. work_contract_type_id = wt.id 
-                WHERE date(a2.date_of_admission) <= "' . $dates[1] . '" 
+                join people as u2 on u2.id = a2.person_id
+                join work_contract_types as wt on a2. work_contract_type_id = wt.id
+                WHERE date(a2.date_of_admission) <= "' . $dates[1] . '"
                     and(
                         date(a2.date_end) >= "' . $dates[0] . '"  or  a2.date_end is null
                     )
                 group by u2.id
-           
+
                 )');
-            }) 
+            })
             ->join('positions as ps', 'ps.id', '=', 'w.position_id')
             ->where('ps.dependency_id', $id)
             ->where('w.company_id', $company_id)
@@ -133,19 +133,22 @@ class ExtraHoursService
     {
         //Tiempo Asignado
         $tiempoAsignado = Company::first()->toArray()['work_time'];
-        return $funcionario;
+
+        //dd($funcionario);
         foreach ($funcionario['daysWork'] as $ky => $day) {
-            return $day;
+            //return $day;
+            //dd($day);
             $descansa = false;
             switch ($descansa) {
                 case true:
                     break;
                 case false:
                     if (isset($day)) {
-
+                        //dd($day['day']);
                         //Seteo valores
                         $toleranciaSalida = 0;
-                        $laborado = $day[0]['day'];
+                        //$laborado = $day[0]['day'];
+                        $laborado = $day['day'];
 
                         $extras = new stdObject();
                         $extras->HorasExtrasNocturnas = 0;
@@ -165,7 +168,18 @@ class ExtraHoursService
                         //Asistencia
                         $turno = Request()->get('tipo');
                         $leaveTime = $turno === 'Fijo' ? 'leave_time_two' : 'leave_time_one';
+                        //dd($funcionario['turno_fijo']['horarios_turno_fijo'][$ky]);
+                        $turnoFijo = $funcionario['turno_fijo'] ?? 'empty';
+                        //dd($turnoFijo);
+                        //dd(strtoupper($laborado));
+                        //dd($funcionario['fecha_inicio']->isDayOfWeek());
+                        if ($turnoFijo!='empty') {
+                            //calcular Asistencia
+                            dd('por aca voy');
 
+                        } else {
+                            return 'es rotativo';
+                        }
 
                         [$asistencia, $salida, $fechaSalida] = $this->Asistencia($laborado['date'], $laborado['entry_time_one'], $laborado[$leaveTime]);
 
@@ -307,6 +321,7 @@ class ExtraHoursService
 
         return [$asistencia, $salida,  $fechaSalida];
     }
+
     public function setTiempoExtra($cantidadEnMinutos)
     {
         $this->tiempoParaExtras - $cantidadEnMinutos;
@@ -314,42 +329,65 @@ class ExtraHoursService
 
 
 
-    public function funcionarioFijo($filtroDiarioFecha)
+    public function funcionarioFijo($filtroDiarioFecha, $fechaInicio, $fechaFin)
     {
-        $translateService = new TranslateService();
+        try {
 
-        /*         $funcionario =  Person::with(['diariosTurnoRotativo' => $filtroDiarioFecha])
-        ->with(['horariosTurnoRotativo' => $filtroDiarioFecha])
-        ->find(request()->get('id'))->toArray(); */
+            $translateService = new TranslateService();
 
-        $funcionario =  Person::with(
+            /*         $funcionario =  Person::with(['diariosTurnoRotativo' => $filtroDiarioFecha])
+            ->with(['horariosTurnoRotativo' => $filtroDiarioFecha])
+            ->find(request()->get('id'))->toArray(); */
+
+       /*  $funcionario =  Person::with(
             ['diariosTurnoFijo' => $filtroDiarioFecha],
         )
             ->with('contractultimate', function ($q) {
                 $q->select('*')
                     ->with('fixedTurn.horariosTurnoFijo');
             })
-            ->find(request()->get('id'))->toArray();;
-        if (isset($funcionario['contractultimate']['fixed_turn']['horarios_turno_fijo'])) {
-            $funcionario['turno_fijo'] = $funcionario['contractultimate']['fixed_turn'];
-            unset($funcionario['contractultimate']);
+                ->find(request()->get('id')); */
+                $funcionario = Person::with([
+                    'diariosTurnoFijo'=>function($q) use ($filtroDiarioFecha){
+                        $q->select('*')
+                          ->where($filtroDiarioFecha);
+                    },
+                    'contractultimate'=>function($q){
+                        $q->select('*')
+                          ->with('fixedTurn');
+                    }
+                    ])->find(request()->get('id'))->toArray();
+                $funcionario['fecha_inicio'] = Carbon::create($fechaInicio)->locale('es_ES');
+                $funcionario['fecha_fin'] = Carbon::create($fechaFin)->locale('es_ES');
 
-            $funcionario['daysWork'] = $funcionario['turno_fijo']['horarios_turno_fijo'];
+                //dd($funcionario);
+//dd($funcionario[0]->contractultimate->fixedTurn->horariosTurnoFijo);
+//dd($funcionario->contractultimate->fixedTurn->horariosTurnoFijo);
+//dd($funcionario['contractultimate']['fixed_turn']['horarios_turno_fijo']);
+//
+            if (isset($funcionario['contractultimate']['fixed_turn']['horarios_turno_fijo'])) {
+                $funcionario['turno_fijo'] = $funcionario['contractultimate']['fixed_turn'];
+                unset($funcionario['contractultimate']);
 
-            foreach ($funcionario['diarios_turno_fijo']  as  $diario) {
-                foreach ($funcionario['turno_fijo']['horarios_turno_fijo'] as $ky => $turno) {
+                $funcionario['daysWork'] = $funcionario['turno_fijo']['horarios_turno_fijo'];
 
-                    if ($turno['day'] == $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek)) {
-                        array_push($funcionario['daysWork'][$ky], ['day' => $diario]);
+                foreach ($funcionario['diarios_turno_fijo']  as  $diario) {
+                    foreach ($funcionario['turno_fijo']['horarios_turno_fijo'] as $ky => $turno) {
+
+                        if ($turno['day'] == $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek)) {
+                            array_push($funcionario['daysWork'][$ky], ['day' => $diario]);
+                        }
                     }
                 }
+
+                unset($funcionario['diarios_turno_fijo']);
+            } else {
+                return response()->json('Horario no asignado ');
             }
 
-            unset($funcionario['diarios_turno_fijo']);
-        } else {
-            return response()->json('Horario no asignado ');
+            return $funcionario;
+        } catch (\Throwable $th) {
+            return $th;
         }
-
-        return $funcionario;
     }
 }
