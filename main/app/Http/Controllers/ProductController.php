@@ -110,7 +110,7 @@ class ProductController extends Controller
                 $query->whereRaw("P.Embalaje NOT LIKE 'MUESTRA MEDICA%'")
                 ->orWhereNull("P.Embalaje")->orWhereRaw("P.Embalaje=''");
             })
-            ->when(request()->get("nombre"), function ($q, $fill) {
+            /* ->when(request()->get("nombre"), function ($q, $fill) {
                 $q->where(function($query) use ($fill){
                     $query->where("P.Principio_Activo",'like','%'.$fill.'%')
                     ->orWhere("P.Presentacion",'like','%'.$fill.'%')
@@ -131,6 +131,12 @@ class ProductController extends Controller
             })
             ->when(request()->get("catalogo"), function ($q, $fill) {
                 $q->where("P.Tipo_Catalogo",'=',$fill);
+            }) */
+            ->when(request()->get("categoria"), function ($q, $fill) {
+                $q->where("P.Id_Categoria",'=',$fill);
+            })
+            ->when(request()->get("subcategoria"), function ($q, $fill) {
+                $q->where("P.Id_Subcategoria",'=',$fill);
             })
             ->get()
         );
