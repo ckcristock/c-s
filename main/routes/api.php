@@ -297,7 +297,7 @@ Route::group(
         Route::get('downloadeliveries/download/{inicio?}/{fin?}', [InventaryDotationController::class, 'downloadeliveries']);
 
         Route::get('listado-horarios', [ReporteHorariosController::class, 'pruebaPrueba']);//eliminar esta ruta
-        Route::get('pruebas', [ExtraHoursService::class, 'prueba']);
+        Route::post('pruebas', [ExtraHoursService::class, 'prueba']);
 
         /** end*/
 
