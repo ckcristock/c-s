@@ -752,5 +752,8 @@ Route::group(
         Route::get('impuestos', [BodegasController::class, 'impuestos']);
         Route::get('php/inventario_fisico_puntos/lista_punto_funcionario', [PersonController::class, 'funcionarioPunto']);
         Route::get('php/comprasnacionales/lista_productos', [ProductController::class, 'listarProductos']);
+
+        Route::post('php/rotativoscompras/actualizar_estado', [ListaComprasController::class, 'actualizarEstadoPreCompra']);
+        Route::post('php/comprasnacionales/guardar_compra_nacional', [ListaComprasController::class, 'wasRecentlyCreated']);
     }
 );

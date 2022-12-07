@@ -152,4 +152,56 @@ class ListaComprasController extends Controller
 		);
 	}
 
+    public function actualizarEstadoPreCompra($id){
+        return $this->success(
+            DB::table("Pre_Compra")
+            ->where('Id_Pre_Compra',request()->get('id_pre_compra'))
+            ->update(['Estado' => 'Solicitada'])
+        );
+    }
+
+    public function storeCompra(){
+        try{
+            $result = DB::table("Orden_Compra_Nacional")->updateOrCreate(
+                [ 'Id_Orden_Compra_Nacional'=> request()->get('id') ],
+                request()->get('datos')
+            );
+            DB::table("Orden_Compra_Nacional")
+            ->where('Id_Orden_Compra_Nacional',$result->Id_Orden_Compra_Nacional)
+            ->update(['Codigo' => 'OC'.$result->Id_Orden_Compra_Nacional]);
+
+            if(request()->get('id_pre_compra')){
+                DB::table("Pre_Compra")->updateOrCreate(
+                    ['Id_Pre_Compra' => request()->get('id_pre_compra')],
+                    ['Id_Orden_Compra_Nacional' => $result->Id_Orden_Compra_Nacional]
+                );
+            }
+
+            foreach (request()->get('productos') as $producto) {
+                $producto['Id_Orden_Compra_Nacional'] = $result->Id_Orden_Compra_Nacional;
+                DB::table("Producto_Orden_Compra_Nacional")->updateOrCreate(
+                    ['Id_Producto_Orden_Compra_Nacional' => $producto->Id_Producto],
+                    $producto
+                );
+            }
+
+            if($result->wasRecentlyCreated){
+                DB::table("Actividad_Orden_Compra")->updateOrCreate(
+                    ['Id_Actividad_Orden_Compra' => request()->get('id_pre_compra')],
+                    [
+                        'Id_Orden_Compra_Nacional' => $result->Id_Orden_Compra_Nacional,
+                        'Identificacion_Funcionario' => $result->Identificacion_Funcionario,
+                        'Detalles' => "Se ".(($result->wasRecentlyCreated) ? 'creó' : 'editó')." la orden de compra con codigo OC".$result->Id_Orden_Compra_Nacional,
+                        'Fecha' => date("Y-m-d H:i:s"),
+                        'Estado' => ($result->wasRecentlyCreated) ? 'Creación' : 'Edición'
+                    ]
+                );
+            }
+
+            return $this->success('Orden de compra '.(($result->wasRecentlyCreated) ? 'creada' : 'actualizada').' con éxito');
+        } catch (\Throwable $th) {
+            return $this->errorResponse( [ "file" => $th->getFile(),"text" => $th->getMessage()]);
+        }
+    }
+
 }
