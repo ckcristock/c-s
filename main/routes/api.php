@@ -754,6 +754,6 @@ Route::group(
         Route::get('php/comprasnacionales/lista_productos', [ProductController::class, 'listarProductos']);
 
         Route::post('php/rotativoscompras/actualizar_estado', [ListaComprasController::class, 'actualizarEstadoPreCompra']);
-        Route::post('php/comprasnacionales/guardar_compra_nacional', [ListaComprasController::class, 'wasRecentlyCreated']);
+        Route::post('php/comprasnacionales/guardar_compra_nacional', [ListaComprasController::class, 'storeCompra']);
     }
 );

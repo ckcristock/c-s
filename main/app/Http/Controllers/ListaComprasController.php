@@ -6,6 +6,7 @@ use App\Models\Person;
 use Illuminate\Http\Request;
 use App\Models\ThirdParty;
 use App\Traits\ApiResponser;
+use Hamcrest\Core\IsTypeOf;
 use Illuminate\Support\Facades\DB;
 
 class ListaComprasController extends Controller
@@ -162,43 +163,58 @@ class ListaComprasController extends Controller
 
     public function storeCompra(){
         try{
-            $result = DB::table("Orden_Compra_Nacional")->updateOrCreate(
-                [ 'Id_Orden_Compra_Nacional'=> request()->get('id') ],
-                request()->get('datos')
+            $datos=json_decode(request()->get('datos'),true);
+            $result = DB::table("Orden_Compra_Nacional")->updateOrInsert(
+                [ 'Id_Orden_Compra_Nacional'=> $datos['Id_Orden_Compra_Nacional'] ],
+                $datos
             );
+            $ordenNueva = (!isset($datos['Id_Orden_Compra_Nacional']));
+            $result=($ordenNueva)?
+                DB::table('Orden_Compra_Nacional')
+                ->latest('Id_Orden_Compra_Nacional')->first()
+            :
+                DB::table('Orden_Compra_Nacional')
+                ->where('Id_Orden_Compra_Nacional',$datos['Id_Orden_Compra_Nacional'])->get();
+
             DB::table("Orden_Compra_Nacional")
             ->where('Id_Orden_Compra_Nacional',$result->Id_Orden_Compra_Nacional)
-            ->update(['Codigo' => 'OC'.$result->Id_Orden_Compra_Nacional]);
+            ->update(['Codigo' => "OC".$result->Id_Orden_Compra_Nacional]);
 
             if(request()->get('id_pre_compra')){
-                DB::table("Pre_Compra")->updateOrCreate(
+                DB::table("Pre_Compra")->updateOrInsert(
                     ['Id_Pre_Compra' => request()->get('id_pre_compra')],
                     ['Id_Orden_Compra_Nacional' => $result->Id_Orden_Compra_Nacional]
                 );
             }
 
-            foreach (request()->get('productos') as $producto) {
+            $productos = json_decode(request()->get('productos'),true);
+            foreach ($productos as $producto) {
+                unset($producto['producto']);
+                unset($producto['Presentacion']);
+                unset($producto['Rotativo']);
+                unset($producto['Iva_Disa']);
+                unset($producto['editar']);
+                unset($producto['delete']);
+                unset($producto['Iva_Acu']);
+                unset($producto['Embalaje']);
                 $producto['Id_Orden_Compra_Nacional'] = $result->Id_Orden_Compra_Nacional;
-                DB::table("Producto_Orden_Compra_Nacional")->updateOrCreate(
-                    ['Id_Producto_Orden_Compra_Nacional' => $producto->Id_Producto],
+                DB::table("Producto_Orden_Compra_Nacional")->updateOrInsert(
+                    ['Id_Producto_Orden_Compra_Nacional' => $producto['Id_Producto']],
                     $producto
                 );
             }
 
-            if($result->wasRecentlyCreated){
-                DB::table("Actividad_Orden_Compra")->updateOrCreate(
-                    ['Id_Actividad_Orden_Compra' => request()->get('id_pre_compra')],
-                    [
-                        'Id_Orden_Compra_Nacional' => $result->Id_Orden_Compra_Nacional,
-                        'Identificacion_Funcionario' => $result->Identificacion_Funcionario,
-                        'Detalles' => "Se ".(($result->wasRecentlyCreated) ? 'creó' : 'editó')." la orden de compra con codigo OC".$result->Id_Orden_Compra_Nacional,
-                        'Fecha' => date("Y-m-d H:i:s"),
-                        'Estado' => ($result->wasRecentlyCreated) ? 'Creación' : 'Edición'
-                    ]
-                );
-            }
+            DB::table("Actividad_Orden_Compra")->insert(
+                [
+                    'Id_Orden_Compra_Nacional' => $result->Id_Orden_Compra_Nacional,
+                    'Identificacion_Funcionario' => $result->Identificacion_Funcionario,
+                    'Detalles' => "Se ".(($ordenNueva) ? 'creó' : 'editó')." la orden de compra con codigo OC".$result->Id_Orden_Compra_Nacional,
+                    'Fecha' => date("Y-m-d H:i:s"),
+                    'Estado' => ($ordenNueva) ? 'Creación' : 'Edición'
+                ]
+            );
 
-            return $this->success('Orden de compra '.(($result->wasRecentlyCreated) ? 'creada' : 'actualizada').' con éxito');
+            return $this->success('Orden de compra '.(($ordenNueva) ? 'creada' : 'actualizada').' con éxito');
         } catch (\Throwable $th) {
             return $this->errorResponse( [ "file" => $th->getFile(),"text" => $th->getMessage()]);
         }
