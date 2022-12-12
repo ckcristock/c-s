@@ -16,10 +16,15 @@ class Quotation extends Model
         'line',
         'trm',
         'project',
+        'budget_included',
+        'budget_id',
+        'observation',
+        'total_cop',
+        'total_usd',
         'date',
         'code',
+        'status',
         'client_id',
-        'description',
         'status',
     ];
 
@@ -32,4 +37,11 @@ class Quotation extends Model
     {
         return $this->hasOne(ThirdParty::class, 'id', 'customer_id');
     }
+
+    public function items()
+    {
+        return $this->hasMany(QuotationItem::class)->with('subItems');
+    }
+
+
 }

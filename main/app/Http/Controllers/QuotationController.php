@@ -17,7 +17,7 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        return $this->success(Quotation::get());
+        return $this->success(Quotation::with('municipality', 'client', 'items')->get());
     }
 
     public function paginate(Request $request)
@@ -65,7 +65,14 @@ class QuotationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        $items = $request->items;
+        $quotation = Quotation::create($data);
+        $item = $quotation->items()->createMany($items);
+        foreach ($item as $index => $subitem) {
+            $subitem->subItems()->createMany($request->items[$index]['subItems']);
+        }
+        return $this->success('Creado con éxito');
     }
 
     /**
