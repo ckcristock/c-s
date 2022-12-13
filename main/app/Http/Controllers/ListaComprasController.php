@@ -156,6 +156,10 @@ class ListaComprasController extends Controller
         return $this->success(["status" => ($numregQuery>0)]);
     }
 
+    public function detalleRechazo(){
+        return $this->success(DB::table("Tipo_Rechazo")->get());
+    }
+
     public function detallePreCompra($id)
     {
         $encabezado = DB::table("Pre_Compra","PC")
@@ -305,4 +309,50 @@ class ListaComprasController extends Controller
         }
     }
 
+    public function actualizarCompra(){
+        try{
+            $camposAModificar = [
+                'Estado' => "Recibida",
+                'Aprobacion' => request()->get("estado")
+            ];
+            if(request()->get("estado")!="Aprobada"){
+                $camposAModificar['Estado'] = "Anulada";
+            }
+            DB::table("Orden_Compra_Nacional")
+            ->where('Id_Orden_Compra_Nacional',request()->get("id"))
+            ->update($camposAModificar);
+
+            $motivo="";
+            if(request()->get("motivo") != ""){
+                $motivo=" con el siguiente motivo: ".DB::table("Tipo_Rechazo")
+                    ->where("Id_Tipo_Rechazo",request()->get("motivo"))->first()->Nombre;
+            }
+
+            DB::table("Actividad_Orden_Compra")->insert(
+                [
+                    'Id_Orden_Compra_Nacional' => request()->get("id"),
+                    'Identificacion_Funcionario' => request()->get("funcionario"),
+                    'Detalles' => 'Esta orden de compra ha sido '.request()->get("estado").' exitosamente'.$motivo.'.',
+                    'Fecha' => date("Y-m-d H:i:s"),
+                    'Estado' => (request()->get("estado")=="Aprobada") ? 'Aprobación' : 'Rechazo'
+                ]
+            );
+
+            return $this->success([
+                "mensaje" => 'Esta orden de compra ha sido '.request()->get("estado").' exitosamente'.$motivo.'.',
+                "tipo" => "success",
+                "titulo" => "Operación exitosa"
+            ]);
+        } catch (\Throwable $th) {
+            return $this->errorResponse([
+                "file" => $th->getFile().":".$th->getLine(),
+                "err" => $th->getCode(),
+                "data" => [
+                    "mensaje" => $th->getMessage(),
+                    "tipo" => "error",
+                    "titulo" => "Error en la operación"
+                ]
+            ]);
+        }
+    }
 }

@@ -749,6 +749,7 @@ Route::group(
         Route::get('php/comprasnacionales/datos_compras_nacionales', [ListaComprasController::class, 'datosComprasNacionales']);
         Route::get('php/comprasnacionales/detalles_compras_nacionales', [ListaComprasController::class, 'detallesComprasNacionales']);
         Route::get('php/comprasnacionales/detalle_perfil', [ListaComprasController::class, 'detallePerfil']);
+        Route::get('php/comprasnacionales/detalle_rechazo', [ListaComprasController::class, 'detalleRechazo']);
         Route::get('php/comprasnacionales/actividad_orden_compra', [ListaComprasController::class, 'actividadOrdenCompra']);
         Route::get('php/comprasnacionales/lista_productos', [ProductController::class, 'listarProductos']);
         Route::get('php/rotativoscompras/lista_pre_compra', [ListaComprasController::class, 'preCompras']);
@@ -759,5 +760,6 @@ Route::group(
 
         Route::post('php/rotativoscompras/actualizar_estado', [ListaComprasController::class, 'actualizarEstadoPreCompra']);
         Route::post('php/comprasnacionales/guardar_compra_nacional', [ListaComprasController::class, 'storeCompra']);
+        Route::post('php/comprasnacionales/actualiza_compra', [ListaComprasController::class, 'actualizarCompra']);
     }
 );
