@@ -167,11 +167,11 @@ class ListaComprasController extends Controller
             "PC.*", "pr.nit",
             DB::raw("ifnull(pr.social_reason,concat(
                 pr.first_name,
-                IF(ifnull(pr.second_name,'') != '',' ',''),
+                IF(isnull(pr.second_name) = 0,' ',''),
                 ifnull(pr.second_name,''),
                 ' ',
                 pr.first_surname,
-                IF(ifnull(pr.second_surname,'') != '',' ',''),
+                IF(isnull(pr.second_surname) = 0,' ',''),
                 ifnull(pr.second_surname,'')
             )) as NombreProveedor"))
         ->joinSub($this->proveedores,"pr", function ($join) {
@@ -204,7 +204,7 @@ class ListaComprasController extends Controller
                 "PC.*",
                 "p.image",
                 "pr.social_reason as Nombre ",
-                DB::raw("ifnull(CONCAT('OP',OP.Id_Orden_Pedido),'') as Orden_Pedido"))
+                DB::raw("CONCAT('OP',ifnull(OP.Id_Orden_Pedido,'')) as Orden_Pedido"))
             ->join("people as p",function($join){
                 $join->on("p.id", "PC.Identificacion_Funcionario");
             })
@@ -228,11 +228,11 @@ class ListaComprasController extends Controller
 			Person::select("id as value",
             DB::raw("concat(
                 first_name,
-              IF(ifnull(second_name,'') != '',' ',''),
+              IF(isnull(second_name) = 0,' ',''),
                 ifnull(second_name,''),
                 ' ',
                 first_surname,
-              IF(ifnull(second_surname,'') != '',' ',''),
+              IF(isnull(second_surname) = 0,' ',''),
                 ifnull(second_surname,'')
             ) as text")
             )
@@ -299,7 +299,7 @@ class ListaComprasController extends Controller
                     'Identificacion_Funcionario' => $result->Identificacion_Funcionario,
                     'Detalles' => "Se ".(($ordenNueva) ? 'creó' : 'editó')." la orden de compra con codigo OC".$result->Id_Orden_Compra_Nacional,
                     'Fecha' => date("Y-m-d H:i:s"),
-                    'Estado' => ($ordenNueva) ? 'Creación' : 'Edición'
+                    'Estado' => ($ordenNueva) ? 'Creacion' : 'Edicion'
                 ]
             );
 
@@ -311,35 +311,31 @@ class ListaComprasController extends Controller
 
     public function actualizarCompra(){
         try{
-            $camposAModificar = [
-                'Estado' => "Recibida",
-                'Aprobacion' => request()->get("estado")
-            ];
-            if(request()->get("estado")!="Aprobada"){
-                $camposAModificar['Estado'] = "Anulada";
-            }
             DB::table("Orden_Compra_Nacional")
             ->where('Id_Orden_Compra_Nacional',request()->get("id"))
-            ->update($camposAModificar);
+            ->update([ 'Estado' => request()->get("estado") ]);
+
 
             $motivo="";
-            if(request()->get("motivo") != ""){
-                $motivo=" con el siguiente motivo: ".DB::table("Tipo_Rechazo")
-                    ->where("Id_Tipo_Rechazo",request()->get("motivo"))->first()->Nombre;
+            if(in_array(request()->get("estado"),['Aprobada', 'Rechazada'])){
+                if(request()->get("motivo") != ""){
+                    $motivo=" con el siguiente motivo: ".DB::table("Tipo_Rechazo")
+                        ->where("Id_Tipo_Rechazo",request()->get("motivo"))->first()->Nombre;
+                }
+
+                DB::table("Actividad_Orden_Compra")->insert(
+                    [
+                        'Id_Orden_Compra_Nacional' => request()->get("id"),
+                        'Identificacion_Funcionario' => request()->get("funcionario"),
+                        'Detalles' => 'Esta orden de compra ha sido '.strtolower(request()->get("estado")).' exitosamente'.$motivo.'.',
+                        'Fecha' => date("Y-m-d H:i:s"),
+                        'Estado' => (request()->get("estado")=="Aprobada") ? 'Aprobacion' : 'Rechazada'
+                    ]
+                );
             }
 
-            DB::table("Actividad_Orden_Compra")->insert(
-                [
-                    'Id_Orden_Compra_Nacional' => request()->get("id"),
-                    'Identificacion_Funcionario' => request()->get("funcionario"),
-                    'Detalles' => 'Esta orden de compra ha sido '.request()->get("estado").' exitosamente'.$motivo.'.',
-                    'Fecha' => date("Y-m-d H:i:s"),
-                    'Estado' => (request()->get("estado")=="Aprobada") ? 'Aprobación' : 'Rechazo'
-                ]
-            );
-
             return $this->success([
-                "mensaje" => 'Esta orden de compra ha sido '.request()->get("estado").' exitosamente'.$motivo.'.',
+                "mensaje" => 'Esta orden de compra ha sido '.strtolower(request()->get("estado")).' exitosamente'.$motivo.'.',
                 "tipo" => "success",
                 "titulo" => "Operación exitosa"
             ]);
