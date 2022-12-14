@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Quotation;
+use App\Models\QuotationItem;
+use App\Models\QuotationItemSubitem;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use PHPUnit\Framework\MockObject\Api;
@@ -17,13 +19,13 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        return $this->success(Quotation::with('municipality', 'client', 'items')->get());
+        return $this->success(Quotation::with('municipality', 'client', 'items')->name()->get());
     }
 
     public function paginate(Request $request)
     {
         return $this->success(
-            Quotation::with('municipality', 'client')
+            Quotation::with('municipality', 'client', 'items')
                 ->when($request->city, function ($q, $fill) {
                     $q->whereHas('municipality', function ($query) use ($fill) {
                         $query->where('name', 'like', '%' . $fill . '%');
@@ -43,6 +45,7 @@ class QuotationController extends Controller
                 ->when($request->status, function ($q, $fill) {
                     $q->where('status', $fill);
                 })
+                ->orderByDesc('created_at')
                 ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
         );
     }
@@ -67,12 +70,23 @@ class QuotationController extends Controller
     {
         $data = $request->all();
         $items = $request->items;
-        $quotation = Quotation::create($data);
-        $item = $quotation->items()->createMany($items);
-        foreach ($item as $index => $subitem) {
-            $subitem->subItems()->createMany($request->items[$index]['subItems']);
+        $quotation = Quotation::updateOrCreate(['id' => $request->id], $data);
+        if ($quotation->wasRecentlyCreated) {
+            $item = $quotation->items()->createMany($items);
+            foreach ($item as $index => $subitem) {
+                $subitem->subItems()->createMany($request->items[$index]['subItems']);
+            }
+            return $this->success('Creado con éxito');
+        } else {
+            $deleted = QuotationItem::where('quotation_id', $quotation->id)->pluck('id');
+            QuotationItemSubitem::whereIn('quotation_item_id', $deleted)->delete();
+            QuotationItem::where('quotation_id', $quotation->id)->delete();
+            $item = $quotation->items()->createMany($items);
+            foreach ($item as $index => $subitem) {
+                $subitem->subItems()->createMany($request->items[$index]['subItems']);
+            }
+            return $this->success('Actualizado con éxito');
         }
-        return $this->success('Creado con éxito');
     }
 
     /**
@@ -83,7 +97,7 @@ class QuotationController extends Controller
      */
     public function show($id)
     {
-        //
+        return $this->success(Quotation::where('id', $id)->with('municipality', 'client', 'items')->first());
     }
 
     /**

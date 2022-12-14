@@ -23,4 +23,5 @@ class QuotationItem extends Model
     {
         return $this->hasMany(QuotationItemSubitem::class);
     }
+
 }

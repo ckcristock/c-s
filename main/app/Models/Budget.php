@@ -34,6 +34,6 @@ class Budget extends Model
     }
     public function scopeName($q)
     {
-        return $q->select('*',DB::raw('CONCAT_WS("-", line, project) as name'));
+        return $q->select('*', DB::raw('CONCAT_WS("-", line, project) as name'));
     }
 }

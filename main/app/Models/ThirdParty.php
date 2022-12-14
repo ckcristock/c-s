@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ThirdParty extends Model
 {
@@ -73,6 +74,10 @@ class ThirdParty extends Model
     public function accountPlan()
     {
         return $this->belongsTo(AccountPlan::class);
+    }
+    public function scopeName($q)
+    {
+        return $q->select('*',DB::raw('CONCAT_WS("-", first_name, first_surname) as full_name'));
     }
 
 }
