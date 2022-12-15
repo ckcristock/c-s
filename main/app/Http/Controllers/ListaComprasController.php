@@ -309,7 +309,19 @@ class ListaComprasController extends Controller
         }
     }
 
-    public function actualizarCompra(){
+    public function getEstadosCompra(){
+        $listaRaw=explode(",",DB::table('information_schema.COLUMNS as c')
+        ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_estados")
+        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)="sigmaqmo_db-orden_compra_nacional-estado"')
+        ->first()->lista_estados);
+        $lista=[];
+        foreach($listaRaw as $value){
+            $lista[]=["estado"=>str_replace("'","",$value)];
+        }
+        return $this->success($lista);
+    }
+
+    public function setEstadoCompra(){
         try{
             DB::table("Orden_Compra_Nacional")
             ->where('Id_Orden_Compra_Nacional',request()->get("id"))

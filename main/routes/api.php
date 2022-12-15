@@ -757,9 +757,10 @@ Route::group(
         Route::get('php/rotativoscompras/detalle_pre_compra/{id}', [ListaComprasController::class, 'detallePreCompra']);
         Route::get('impuestos', [BodegasController::class, 'impuestos']);
         Route::get('php/inventario_fisico_puntos/lista_punto_funcionario', [PersonController::class, 'funcionarioPunto']);
+        Route::get('get-estados-compra', [ListaComprasController::class, 'getEstadosCompra']);
 
         Route::post('php/rotativoscompras/actualizar_estado', [ListaComprasController::class, 'actualizarEstadoPreCompra']);
         Route::post('php/comprasnacionales/guardar_compra_nacional', [ListaComprasController::class, 'storeCompra']);
-        Route::post('php/comprasnacionales/actualiza_compra', [ListaComprasController::class, 'actualizarCompra']);
+        Route::post('php/comprasnacionales/actualiza_compra', [ListaComprasController::class, 'setEstadoCompra']);
     }
 );
