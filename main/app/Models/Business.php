@@ -12,7 +12,7 @@ class Business extends Model
 
     public function thirdParty()
     {
-        return $this->belongsTo(ThirdParty::class);
+        return $this->belongsTo(ThirdParty::class)->name();
     }
 
     public function thirdPartyPerson()
@@ -33,6 +33,11 @@ class Business extends Model
     public function businessBudget()
     {
         return $this->hasMany(BusinessBudget::class)->with('budget');
+    }
+
+    public function quotations()
+    {
+        return $this->belongsToMany(Quotation::class)->name()->with('municipality', 'client');
     }
 
     public function tasks()

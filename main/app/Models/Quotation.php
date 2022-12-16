@@ -23,7 +23,7 @@ class Quotation extends Model
         'observation',
         'total_cop',
         'total_usd',
-        'commercial_terms ',
+        'commercial_terms',
         'date',
         'code',
         'status',

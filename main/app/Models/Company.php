@@ -41,7 +41,8 @@ class Company extends Model
       'account_number',
       'account_type',
       'logo',
-      'page_heading'
+      'page_heading',
+      'commercial_terms'
     ];
 
 
