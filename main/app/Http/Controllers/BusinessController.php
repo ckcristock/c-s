@@ -109,6 +109,23 @@ class BusinessController extends Controller
         }
     }
 
+    public function newBusinessQuotation(Request $request)
+    {
+        try {
+            $business = Business::where('id', $request->business_id)->first();
+            $business->update(['quotation_value' => $request->quotation_value]);
+            foreach ($request->quotations as $quotation) {
+                BusinessQuotation::create([
+                    'quotation_id' => $quotation['quotation_id'],
+                    'business_id' =>  $quotation['business_id']
+                ]);
+            }
+            return $this->success('Creado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
     /**
      * Display the specified resource.
      *
@@ -121,7 +138,8 @@ class BusinessController extends Controller
             ->with('thirdParty', 'thirdPartyPerson', 'country', 'city', 'businessBudget', 'quotations')
             ->first();
         $codeQR = new DNS2D();
-        $codeQRc = $codeQR->getBarcodePNG('1', 'QRCODE', 10, 10);
+        $business2 = Business::where('id', $id)->first();
+        $codeQRc = $codeQR->getBarcodePNG(json_encode($business2), 'QRCODE', 10, 10);
         return $this->success(
             $business, $codeQRc
         );

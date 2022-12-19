@@ -8,7 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class Business extends Model
 {
     use HasFactory;
-    protected $fillable = ['code', 'name', 'third_party_id', 'third_party_person_id', 'country_id', 'description', 'status', 'city_id', 'date', 'budget_value'];
+    protected $fillable = [
+        'code',
+        'name',
+        'third_party_id',
+        'third_party_person_id',
+        'country_id',
+        'description',
+        'status',
+        'city_id',
+        'date',
+        'budget_value',
+        'quotation_value',
+    ];
 
     public function thirdParty()
     {

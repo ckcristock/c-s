@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ApuPart;
+use App\Models\ApuService;
+use App\Models\ApuSet;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,6 +61,17 @@ class ApuController extends Controller
 
     public function paginate()
     {
+        /* $query = ApuPart::with('thirdParty', 'city:id,name', 'person')
+            ->extra()
+            ->select('id as apu_id', 'name', 'code', 'observation', 'line');
+        $querySets = ApuSet::with('thirdParty', 'city:id,name', 'person')
+            ->extra()
+            ->select('id as apu_id', 'name', 'code', 'observation', 'line')
+            ->union($query)
+            ->get();
+        $queryService = ApuService::with('thirdParty', 'city:id,name', 'person')->select('line')->extra()->get();
+        //$combinedQuery = $query->union($querySets)->union($queryService);
+        return ($queryService); */
         $query = DB::table('apu_parts as ap')
             ->join('third_parties as tp', 'ap.third_party_id', 'tp.id')
             ->join('municipalities as c', 'ap.city_id', 'c.id')
@@ -96,7 +110,7 @@ class ApuController extends Controller
                 'IFNULL(tp.social_reason, CONCAT_WS(" ",tp.first_name,tp.first_name) ) as custumer,
                      "apu_part" as type_module, "P" as type,
                      "Pieza" as type_name, c.name as city , false as selected'
-            );
+            )->get();
 
         $querySets = DB::table('apu_sets as ap')
             ->join('third_parties as tp', 'ap.third_party_id', 'tp.id')
@@ -184,7 +198,7 @@ class ApuController extends Controller
         return $this->success(
             $queryService
 
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 

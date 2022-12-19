@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ApuPart extends Model
 {
@@ -65,19 +66,23 @@ class ApuPart extends Model
 
     public function person()
 	{
-		return $this->belongsTo(Person::class);
+		return $this->belongsTo(Person::class)->name();
 	}
 
     public function thirdParty()
 	{
-		return $this->belongsTo(ThirdParty::class);
+		return $this->belongsTo(ThirdParty::class)->name();
 	}
+
+    public function scopeExtra($q)
+    {
+        return $q->select('*', DB::raw('"apu_part" as type_module, "P" as type, "Pieza" as type_name, false as selected'));
+    }
 
     public function user()
 	{
 		return $this->belongsTo(User::class)->with('person');
 	}
-
 
     public function files()
 	{

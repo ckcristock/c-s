@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ApuSet extends Model
 {
@@ -48,13 +49,18 @@ class ApuSet extends Model
 
     public function person()
 	{
-		return $this->belongsTo(Person::class);
+		return $this->belongsTo(Person::class)->name();
 	}
 
     public function thirdParty()
 	{
-		return $this->belongsTo(ThirdParty::class);
+		return $this->belongsTo(ThirdParty::class)->name();
 	}
+
+    public function scopeExtra($q)
+    {
+        return $q->select('*', DB::raw('"apu_set" as type_module, "C" as type, "Conjunto" as type_name, false as selected'));
+    }
 
     public function machine()
 	{

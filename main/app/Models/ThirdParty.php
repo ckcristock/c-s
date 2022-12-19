@@ -77,7 +77,6 @@ class ThirdParty extends Model
     }
     public function scopeName($q)
     {
-        return $q->select('*',DB::raw('CONCAT_WS("-", first_name, first_surname) as full_name'));
-    }
+        return $q->addSelect(DB::raw('*, IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as full_name'));    }
 
 }

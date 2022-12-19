@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ApuService extends Model
 {
@@ -42,13 +43,18 @@ class ApuService extends Model
 
     public function person()
 	{
-		return $this->belongsTo(Person::class);
+		return $this->belongsTo(Person::class)->name();
 	}
 
     public function thirdParty()
 	{
-		return $this->belongsTo(ThirdParty::class);
+		return $this->belongsTo(ThirdParty::class)->name();
 	}
+
+    public function scopeExtra($q)
+    {
+        return $q->select('*', DB::raw('"apu_service" as type_module, "S" as type, "Servicio" as type_name, false as selected'));
+    }
 
     public function dimensionalValidation()
 	{

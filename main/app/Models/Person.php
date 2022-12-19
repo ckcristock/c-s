@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Http\Controllers\LateArrivalController;
 use App\Services\RotatingHourService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Person extends Model
 {
@@ -155,6 +156,11 @@ class Person extends Model
     public function bonusPerson ()
     {
         return $this->hasMany(BonusPerson::class);
+    }
+
+    public function scopeName($q)
+    {
+        return $q->select('*', DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
     }
 
 }

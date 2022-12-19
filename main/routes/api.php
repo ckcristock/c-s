@@ -739,6 +739,7 @@ Route::group(
         Route::put('legal_document/{id}', [DisciplinaryProcessController::class, 'InactiveDOcument']);
         Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
+        Route::post('new-business-quotation', [BusinessController::class, 'newBusinessQuotation']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
         Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
 

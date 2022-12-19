@@ -48,6 +48,7 @@ class QuotationController extends Controller
                 ->when($request->third_party_id, function ($q, $fill) {
                     $q->where('customer_id', $fill);
                 })
+                ->name()
                 ->orderByDesc('created_at')
                 ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
         );

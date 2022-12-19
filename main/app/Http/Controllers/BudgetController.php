@@ -79,9 +79,17 @@ class BudgetController extends Controller
                             ->selectRaw('IFNULL(social_reason, CONCAT_WS(" ",first_name, first_name) ) as name');
                     }
                 ]
-            )->when($request->third_party_id, function ($q, $fill) {
-                $q->where('customer_id', $fill);
-            })->orderBy('id', 'desc')
+            )
+                ->when($request->customer, function ($q, $fill) {
+                    return $q->whereHas('customer', function ($q) use ($fill) {
+                        $q->where('social_reason', 'like', "%$fill%")
+                            ->orWhereRaw("CONCAT_WS(' ', first_name, first_surname) = '%$fill%'");
+                    });
+                })
+                ->when($request->third_party_id, function ($q, $fill) {
+                    $q->where('customer_id', $fill);
+                })
+                ->orderBy('id', 'desc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
