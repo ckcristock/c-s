@@ -57,9 +57,46 @@ class ApuSet extends Model
 		return $this->belongsTo(ThirdParty::class)->name();
 	}
 
-    public function scopeExtra($q)
+    public function scopeExtra($q, $request)
     {
-        return $q->select('*', DB::raw('"apu_set" as type_module, "C" as type, "Conjunto" as type_name, false as selected'));
+        return $q->select(
+            DB::raw('
+                "apu_set" as type_module,
+                "C" as type,
+                "Conjunto" as type_name,
+                false as selected,
+                id as apu_id,
+                name,
+                code,
+                observation,
+                line,
+                city_id,
+                created_at,
+                person_id,
+                typeapu_name,
+                total_direct_cost as unit_cost,
+                third_party_id
+            ')
+        )->when($request->code, function ($q, $fill) {
+            $q->where('code', 'like', "%$fill%");
+        })
+        ->when($request->name, function ($q, $fill) {
+            $q->where('name', 'like', "%$fill%");
+        })
+        ->when($request->line, function ($q, $fill) {
+            $q->where('line', 'like', "%$fill%");
+        })
+        ->when($request->description, function ($q, $fill) {
+            $q->where('observation', 'like', "%$fill%");
+        })
+        ->when($request->type, function ($q, $fill) {
+            $q->where('typeapu_name', $fill);
+        })
+        ->when($request->date_one, function ($q) use($request) {
+            $q->whereBetween('created_at', [$request->date_one, $request->date_two])
+            ->orWhereDate('created_at', date($request->date_one))
+            ->orWhereDate('created_at', date($request->date_two));
+        });
     }
 
     public function machine()

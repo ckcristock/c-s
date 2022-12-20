@@ -726,7 +726,7 @@ Route::group(
         Route::post('calculation-bases-update', [CalculationBaseController::class, 'updateAll']);
         /****** End Rutas del modulo APU CONJUNTO ******/
 
-        Route::get('budgets-download-client', [BudgetController::class, 'downloadClient']);
+        Route::post('budgets-download-client', [BudgetController::class, 'downloadClient']);
         /****** Rutas del modulo APU Servicio ******/
         Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
         /****** End Rutas del modulo APU Servicio ******/
