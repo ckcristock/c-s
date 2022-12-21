@@ -188,7 +188,7 @@ class ListaComprasController extends Controller
         ->fromSub($encabezado,"PR");
 
         $productos = DB::table("Producto_Pre_Compra","PPC")
-        ->join("producto as p", function ($join) {
+        ->join("Producto as p", function ($join) {
             $join->on("p.Id_Producto", "PPC.Id_Producto");
         })
         ->when($id, function ($q, $fill) {
