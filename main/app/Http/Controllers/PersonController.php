@@ -60,7 +60,7 @@ class PersonController extends Controller
     public function funcionarioPunto(){
         return $this->success(
             DB::table("Funcionario_Punto", "FP")
-            ->select("PD.*")
+            ->select("PD.Id_Punto_Dispensacion","PD.Nombre")
             ->join("Punto_Dispensacion as PD", function($join){
                 $join->on("FP.Id_Punto_Dispensacion", "PD.Id_Punto_Dispensacion");
             })
