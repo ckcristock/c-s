@@ -136,7 +136,7 @@ class ListaComprasController extends Controller
         ->when(request()->get('id'), function ($q, $fill) {
             $q->where("AR.Id_Orden_Compra_Nacional",$fill);
         })
-        ->orderBy('Fecha', 'asc')
+        ->orderBy('Fecha', 'desc')
         ->orderBy('Estado2', 'asc');
         return $this->success($query->get());
     }
@@ -259,7 +259,7 @@ class ListaComprasController extends Controller
 
     public function storeCompra(){
         try{
-            $datos=json_decode(request()->get('datos'),true);
+            $datos=request()->get('datos');
             $productos = $datos['Productos'];
             unset($datos['Productos']);
             $result = DB::table("Orden_Compra_Nacional")->updateOrInsert(
