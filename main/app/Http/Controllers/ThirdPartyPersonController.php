@@ -15,52 +15,40 @@ class ThirdPartyPersonController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         return $this->success(
-            DB::table('third_party_people as tp')
-            ->select(
-                'tp.id', 'tp.name', 'tp.observation', 'tp.cell_phone', 'tp.email', 'tp.position', 'tp.n_document', 'tp.third_party_id',
-                DB::raw('(CASE WHEN (tp.third_party_id=0) THEN "Sin tercero" ELSE concat(t.first_name," ",t.first_surname) END) as third_party'),
-            )
-            ->when(request()->get('third'), function($q, $fill)
-            {
-                $q->where(DB::raw('concat(t.first_name," ",t.first_surname)'), 'like','%'.$fill.'%');
-            })
-            ->when(request()->get('name'), function($q, $fill)
-            {
-                $q->where('tp.name', 'like','%'.$fill.'%');
-            })
-            ->when(request()->get('phone'), function($q, $fill)
-            {
-                $q->where('tp.cell_phone', 'like','%'.$fill.'%');
-            })
-            ->when(request()->get('email'), function($q, $fill)
-            {
-                $q->where('tp.email', 'like','%'.$fill.'%');
-            })
-            ->when(request()->get('cargo'), function($q, $fill)
-            {
-                $q->where('tp.position', 'like','%'.$fill.'%');
-            })
-            ->when(request()->get('observacion'), function($q, $fill)
-            {
-                $q->where('tp.observation', 'like','%'.$fill.'%');
-            })
-            ->when(request()->get('documento'), function($q, $fill)
-            {
-                $q->where('tp.n_document', 'like','%'.$fill.'%');
-            })
-            ->leftJoin('third_parties as t', 't.id', '=', 'tp.third_party_id')
-            ->orderBy('name', 'asc')
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            ThirdPartyPerson::with('thirdParty')
+                ->orderBy('name', 'asc')
+                ->when($request->third, function ($q, $fill) {
+                    $q->where('third_party_id', $fill);
+                })
+                ->when($request->name, function ($q, $fill) {
+                    $q->where('name', 'like', "%$fill%");
+                })
+                ->when($request->phone, function ($q, $fill) {
+                    $q->where('cell_phone', 'like', "%$fill%");
+                })
+                ->when($request->email, function ($q, $fill) {
+                    $q->where('email', 'like', "%$fill%");
+                })
+                ->when($request->cargo, function ($q, $fill) {
+                    $q->where('position', 'like', "%$fill%");
+                })
+                ->when($request->observacion, function ($q, $fill) {
+                    $q->where('observation', 'like', "%$fill%");
+                })
+                ->when($request->documento, function ($q, $fill) {
+                    $q->where('n_document', 'like', "%$fill%");
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
 
     public function getThirdPartyPersonForThird($id)
     {
-        return $this->success(ThirdPartyPerson::where('third_party_id', $id)->get(['*','id as value','name as text']));
+        return $this->success(ThirdPartyPerson::where('third_party_id', $id)->get(['*', 'id as value', 'name as text']));
     }
 
     /**

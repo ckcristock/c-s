@@ -19,14 +19,14 @@ class CategoryController extends Controller
     public function index()
     {
         return $this->success(
-            NewCategory::with("subcategory")->get()
+            NewCategory::with("subcategory")->active()->get()
         );
     }
 
     public function paginate()
     {
         return $this->success(
-            NewCategory::with("subcategories")
+            NewCategory::with("subcategory")
             ->when(request()->get("nombre"), function ($q, $fill) {
                 $q->where("Nombre",'like','%'.$fill.'%');
             })
@@ -43,7 +43,7 @@ class CategoryController extends Controller
     public function listCategories()
     {
         return $this->success(
-            NewCategory::orderBy('Id_Categoria_Nueva', 'ASC')->get(['Nombre As text', 'Id_Categoria_Nueva As value'])
+            NewCategory::orderBy('Id_Categoria_Nueva', 'ASC')->active()->get(['Nombre As text', 'Id_Categoria_Nueva As value'])
         );
     }
 
@@ -67,15 +67,30 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         try {
-            $value = NewCategory::updateOrCreate( [ 'Id_Categoria_Nueva'=> $request()->get('Id_Categoria_Nueva') ] , [
-                'Nombre'=> $request()->get('Nombre'),
-                'Compra_Internacional'=> $request()->get('compraInternacional'),
-                'Aplica_Separacion_Categorias'=> $request()->get('separacionCategorias')
+            $value = NewCategory::updateOrCreate( [ 'Id_Categoria_Nueva'=> request()->get('Id_Categoria_Nueva') ] , [
+                'Nombre'=> request()->get('Nombre'),
+                'Compra_Internacional'=> request()->get('compraInternacional'),
+                'Aplica_Separacion_Categorias'=> request()->get('separacionCategorias')
             ] );
-            $value->subcategories()->sync($request()->get("Subcategorias"));
+           /*  $id=($value->wasRecentlyCreated)?$value->Id_Categoria_Nueva:request()->get('Id_Categoria_Nueva');
+
+            $category=NewCategory::find($id);
+            $category->subcategories()->sync(request()->get("Subcategorias")); */
             return ($value->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
-            return $this->errorResponse( $th->getFile().$th->getMessage() );
+            return $this->errorResponse( $th->getFile()." - ".$th->getMessage() );
+        }
+    }
+
+    public function turningOnOff($id,Request $request){
+        try{
+            $category=NewCategory::find($id);
+            $category->Activo = $request->activo;
+            $category->save();
+            $category->subcategory()->update(['Activo' => $request->activo]);
+            return  $this->success('Categoría '.(($request->activo == 0)?'anulada':'reactivada').' con éxito');
+        } catch (\Throwable $th) {
+            return $this->errorResponse( $th->getFile()." - ".$th->getMessage() );
         }
     }
 

@@ -25,7 +25,7 @@ class ProductController extends Controller
 
         $tipoCatalogo = Request()->get('tipo');
 
-        $data = DB::table('producto as p')->join('Subcategoria as s', 's.Id_Subcategoria', 'p.Id_Subcategoria')
+        $data = DB::table('Producto as p')->join('Subcategoria as s', 's.Id_Subcategoria', 'p.Id_Subcategoria')
             ->join('Categoria_Nueva as c', 'c.Id_Categoria_Nueva', 's.Id_Categoria_Nueva')
             ->leftJoin('product_dotation_types as pdt', 'pdt.id', 'p.Producto_Dotation_Type_Id')
             ->leftJoin('inventary_dotations as ido', 'ido.product_id', 'p.Id_Producto')
@@ -90,7 +90,7 @@ class ProductController extends Controller
 
     public function listarProductos(){
         return $this->success(
-           Product::from('producto as P')
+           Product::from('Producto as P')
             ->select(
                 "P.Nombre_Comercial","P.Codigo_Cum",
                 DB::raw("IF(ifnull(CONCAT(P.Nombre_Comercial, P.Cantidad, P.Unidad_Medida, P.Principio_Activo, P.Presentacion, P.Concentracion),'') = '',
@@ -100,7 +100,7 @@ class ProductController extends Controller
                 "P.Nombre_Comercial","P.Laboratorio_Comercial","P.Laboratorio_Generico","P.Id_Producto","P.Embalaje","P.Cantidad_Presentacion",
                 DB::raw("IFNULL(cp.Costo_Promedio,0) AS Costo")
             )
-            ->leftJoin("costo_promedio AS cp", function($join){
+            ->leftJoin("Costo_Promedio AS cp", function($join){
                 $join->on("cp.Id_Producto","P.Id_Producto");
             })
             ->whereNotNull("P.Codigo_Barras")
@@ -110,7 +110,7 @@ class ProductController extends Controller
                 $query->whereRaw("P.Embalaje NOT LIKE 'MUESTRA MEDICA%'")
                 ->orWhereNull("P.Embalaje")->orWhereRaw("P.Embalaje=''");
             })
-            ->when(request()->get("nombre"), function ($q, $fill) {
+            /* ->when(request()->get("nombre"), function ($q, $fill) {
                 $q->where(function($query) use ($fill){
                     $query->where("P.Principio_Activo",'like','%'.$fill.'%')
                     ->orWhere("P.Presentacion",'like','%'.$fill.'%')
@@ -131,6 +131,12 @@ class ProductController extends Controller
             })
             ->when(request()->get("catalogo"), function ($q, $fill) {
                 $q->where("P.Tipo_Catalogo",'=',$fill);
+            }) */
+            ->when(request()->get("categoria"), function ($q, $fill) {
+                $q->where("P.Id_Categoria",'=',$fill);
+            })
+            ->when(request()->get("subcategoria"), function ($q, $fill) {
+                $q->where("P.Id_Subcategoria",'=',$fill);
             })
             ->get()
         );

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Http\Controllers\LateArrivalController;
 use App\Services\RotatingHourService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Person extends Model
 {
@@ -48,9 +49,14 @@ class Person extends Model
         'folder_id'
     ];
 
-    public function getFullNameAttribute()
+    /* public function getFullNameAttribute()
     {
         return $this->attributes['first_name'] . ' ' . $this->attributes['first_surname'];
+    }
+     */
+    public function scopeFullName($q)
+    {
+        return $q->select('*', DB::raw("CONCAT_WS(' ', first_name, second_name, first_surname, second_surname) as full_names"));
     }
 
     public function contractultimate()
@@ -155,6 +161,11 @@ class Person extends Model
     public function bonusPerson ()
     {
         return $this->hasMany(BonusPerson::class);
+    }
+
+    public function scopeName($q)
+    {
+        return $q->select('*', DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
     }
 
 }

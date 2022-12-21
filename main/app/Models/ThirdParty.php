@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ThirdParty extends Model
 {
@@ -56,13 +57,13 @@ class ThirdParty extends Model
     ]; */
 
     protected $hidden = [
-        "updated_at","created_at",
+        "updated_at", "created_at",
     ];
 
 
     public function thirdPartyPerson()
     {
-        return $this->hasMany(ThirdPartyPerson::class);
+        return $this->hasMany(ThirdPartyPerson::class)->with('thirdParty');
     }
 
     public function municipality()
@@ -74,5 +75,51 @@ class ThirdParty extends Model
     {
         return $this->belongsTo(AccountPlan::class);
     }
+    public function scopeName($q)
+    {
+        return $q->addSelect(DB::raw('*, IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as full_name'));
+    }
 
+    public function quotations()
+    {
+        return $this->hasMany(Quotation::class, 'customer_id')->with('municipality', 'client', 'items');
+    }
+    public function budgets()
+    {
+        return $this->hasMany(Budget::class, 'customer_id')->with(
+            [
+                'destiny' => function ($q) {
+                    $q->select('*');
+                },
+                'user' => function ($q) {
+                    $q->select('id', 'usuario', 'person_id')
+                        ->with(
+                            ['person' => function ($q) {
+                                $q->select('id', 'first_name', 'first_surname');
+                            }]
+                        );;
+                },
+                'customer' => function ($q) {
+                    $q->select('id', 'nit')
+                        ->selectRaw('IFNULL(social_reason, CONCAT_WS(" ",first_name, first_name) ) as name');
+                }
+            ]
+        );
+    }
+    public function business()
+    {
+        return $this->hasMany(Business::class)->with('thirdParty', 'thirdPartyPerson', 'country', 'city', 'businessBudget');
+    }
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+    public function document_type_()
+    {
+        return $this->belongsTo(DocumentTypes::class, 'document_type');
+    }
 }
