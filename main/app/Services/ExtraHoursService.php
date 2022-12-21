@@ -235,7 +235,7 @@ class ExtraHoursService
 
         $intSalida = $this->redondearHora($diferenciaReal, $toleranciaSalida);
 
-        $horasExtras = $this->clasificacionHorasExtras($intSalida, $diferenciaReal, $toleranciaSalida, $cantHorasDiario ,$diario, $realOutDos, $comienzoDia, $finDia);
+        $horasExtras = $this->clasificacionHorasExtras($intSalida, $cantHorasDiario ,$diario, $realOutDos, $comienzoDia, $finDia);
 
         $diferencias = new stdObject([
             'day' => $horario['day'],
@@ -312,7 +312,7 @@ class ExtraHoursService
      * función para clasificar cada una de las horas extras, recibe:
      * @param
      */
-    public function clasificacionHorasExtras($intSalida, $diferenciaReal, $toleranciaSalida, $cantHorasDiario ,$diario, $salida, $comienzoDia, $finDia )
+    public function clasificacionHorasExtras($intSalida, $cantHorasDiario ,$diario, $salida, $comienzoDia, $finDia )
     {
         //$intSalida = $this->redondearHora($diferenciaReal, $toleranciaSalida);
         $horasExtras = new stdObject([
@@ -353,7 +353,7 @@ class ExtraHoursService
         return $horasExtras;
     }
 
-     public function clasificacionHorasRecargo($intSalida, $diferenciaReal, $toleranciaSalida, $cantHorasDiario ,$diario, $salida, $comienzoDia, $finDia)
+     public function clasificacionHorasRecargo($intSalida, $diario, $salida, $comienzoDia, $finDia)
     {
         $horasRecargo = new stdObject([
             "hrndf" => 0,
@@ -417,7 +417,7 @@ class ExtraHoursService
         $intSalida = $this->redondearHora($diferenciaReal, $sumTolerancia);
         $sali = $realOut;
 
-        $horasExtras = $this->clasificacionHorasExtras($intSalida, $diferenciaReal, $sumTolerancia, $cantHorasDiario, $horario, $sali, $comienzoDia, $finDia);
+        $horasExtras = $this->clasificacionHorasExtras($intSalida, $cantHorasDiario, $horario, $sali, $comienzoDia, $finDia);
 
         $horasRecargo = new stdObject([
             "hrndf" => 0,
@@ -426,7 +426,7 @@ class ExtraHoursService
         ]);
         if ($intSalida == 0 && $realOut>$finDia) {
             $recargo = $realOut->diffInHours($finDia);
-            $horasRecargo = $this->clasificacionHorasRecargo($recargo, $diferenciaReal, $sumTolerancia, $cantHorasDiario, $horario, $realOut, $comienzoDia, $finDia);
+            $horasRecargo = $this->clasificacionHorasRecargo($recargo, $horario, $realOut, $comienzoDia, $finDia);
         }
 
         $diferencias = new stdObject([
