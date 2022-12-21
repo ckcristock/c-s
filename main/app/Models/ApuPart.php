@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ApuPart extends Model
 {
     use HasFactory;
-	protected $guarded = ['id'];
+    protected $guarded = ['id'];
 
     protected $fillable = [
         'name',
@@ -59,74 +60,116 @@ class ApuPart extends Model
     // ];
 
     public function city()
-	{
-		return $this->belongsTo(Municipality::class, 'city_id', 'id');
-	}
+    {
+        return $this->belongsTo(Municipality::class, 'city_id', 'id');
+    }
 
     public function person()
-	{
-		return $this->belongsTo(Person::class);
-	}
+    {
+        return $this->belongsTo(Person::class)->name();
+    }
 
     public function thirdParty()
-	{
-		return $this->belongsTo(ThirdParty::class);
-	}
+    {
+        return $this->belongsTo(ThirdParty::class)->name();
+    }
+
+    public function scopeExtra($q, $request)
+    {
+        //dd($request);
+        return $q->select(
+            DB::raw(
+                '"apu_part" as type_module,
+                "P" as type,
+                "Pieza" as type_name,
+                false as selected,
+                id as apu_id,
+                name,
+                code,
+                observation,
+                line,
+                city_id,
+                created_at,
+                person_id,
+                typeapu_name,
+                unit_direct_cost as unit_cost,
+                third_party_id'
+            )
+        )
+            ->when($request->code, function ($q, $fill) {
+                $q->where('code', 'like', "%$fill%");
+            })
+            ->when($request->name, function ($q, $fill) {
+                $q->where('name', 'like', "%$fill%");
+            })
+            ->when($request->line, function ($q, $fill) {
+                $q->where('line', 'like', "%$fill%");
+            })
+            ->when($request->description, function ($q, $fill) {
+                $q->where('observation', 'like', "%$fill%");
+            })
+            ->when($request->type, function ($q, $fill) {
+                $q->where('typeapu_name', $fill);
+            })
+            ->when($request->date_one, function ($q) use($request) {
+                $q->whereBetween('created_at', [$request->date_one, $request->date_two])
+                ->orWhereDate('created_at', date($request->date_one))
+                ->orWhereDate('created_at', date($request->date_two));
+            });
+    }
 
     public function user()
-	{
-		return $this->belongsTo(User::class)->with('person');
-	}
-
+    {
+        return $this->belongsTo(User::class)->with('person');
+    }
 
     public function files()
-	{
-		return $this->hasMany(ApuPartFile::class);
-	}
+    {
+        return $this->hasMany(ApuPartFile::class);
+    }
 
     public function rawmaterial()
-	{
-		return $this->hasMany(ApuPartRawMaterial::class);
-	}
+    {
+        return $this->hasMany(ApuPartRawMaterial::class);
+    }
 
     public function commercial()
-	{
-		return $this->hasMany(ApuPartCommercialMaterial::class);
-	}
+    {
+        return $this->hasMany(ApuPartCommercialMaterial::class);
+    }
 
     public function cutwater()
-	{
-		return $this->hasMany(ApuPartCutWater::class);
-	}
+    {
+        return $this->hasMany(ApuPartCutWater::class);
+    }
 
     public function cutlaser()
-	{
-		return $this->hasMany(ApuPartCutLaser::class);
-	}
+    {
+        return $this->hasMany(ApuPartCutLaser::class);
+    }
 
     public function machine()
-	{
-		return $this->hasMany(ApuPartMachineTool::class);
-	}
+    {
+        return $this->hasMany(ApuPartMachineTool::class);
+    }
 
     public function external()
-	{
-		return $this->hasMany(ApuPartExternalProcess::class);
-	}
+    {
+        return $this->hasMany(ApuPartExternalProcess::class);
+    }
 
     public function internal()
-	{
-		return $this->hasMany(ApuPartInternalProcess::class);
-	}
+    {
+        return $this->hasMany(ApuPartInternalProcess::class);
+    }
 
     public function other()
-	{
-		return $this->hasMany(ApuPartOther::class);
-	}
+    {
+        return $this->hasMany(ApuPartOther::class);
+    }
 
     public function indirect()
-	{
-		return $this->hasMany(ApuPartIndirectCost::class);
-	}
-
+    {
+        return $this->hasMany(ApuPartIndirectCost::class);
+    }
 }

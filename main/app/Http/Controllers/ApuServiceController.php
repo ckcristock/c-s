@@ -28,28 +28,26 @@ class ApuServiceController extends Controller
     {
         return $this->success(
             ApuService::select([
-            "id","third_party_id","person_id","city_id","name", "code", "line","created_at", "state"
+                "id", "third_party_id", "person_id", "city_id", "name", "code", "line", "created_at", "state"
             ])
-            ->with([
-            'person' => function ($q) {
-                $q->select("id", DB::raw('concat(first_name, " ", first_surname) as name'));
-            },
-            'city' => function ($q) {
-                $q->select("id", "name");
-            },
-            'thirdparty' => function ($q) {
-                $q->select("id", DB::raw('concat(first_name, " ", first_surname) as name'));
-            }
-            ])
-            ->when( request()->get('name'), function($q, $fill)
-            {
-                $q->where('name','like','%'.$fill.'%');
-            })
-            ->when( request()->get('creation_date'), function($q, $fill)
-            {
-                $q->where('created_at', 'like','%'.$fill.'%');
-            })
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->with([
+                    'person' => function ($q) {
+                        $q->select("id", DB::raw('concat(first_name, " ", first_surname) as name'));
+                    },
+                    'city' => function ($q) {
+                        $q->select("id", "name");
+                    },
+                    'thirdparty' => function ($q) {
+                        $q->select("id", DB::raw('concat(first_name, " ", first_surname) as name'));
+                    }
+                ])
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get('creation_date'), function ($q, $fill) {
+                    $q->where('created_at', 'like', '%' . $fill . '%');
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -86,23 +84,23 @@ class ApuServiceController extends Controller
             $apuservice["code"] = 'S' . $id;
             $apuservice->save();
 
-            foreach ($calculate_labor as $cl){
-				$cl["apu_service_id"] = $id;
-				$dimsionalValid = ApuServiceDimensionalValidation::create($cl);
+            foreach ($calculate_labor as $cl) {
+                $cl["apu_service_id"] = $id;
+                $dimsionalValid = ApuServiceDimensionalValidation::create($cl);
                 foreach ($cl["viatic_estimation"] as $value) {
                     $value["apu_service_dimensional_validation_id"] = $dimsionalValid["id"];
                     ApuServiceTravelEstimationDimensionalValidation::create($value);
                 }
-			}
+            }
 
-            foreach ($mpm_calculate_labor as $mpm_cl){
-				$mpm_cl["apu_service_id"] = $id;
-				$assemblyStart = ApuServiceAssemblyStartUp::create($mpm_cl);
+            foreach ($mpm_calculate_labor as $mpm_cl) {
+                $mpm_cl["apu_service_id"] = $id;
+                $assemblyStart = ApuServiceAssemblyStartUp::create($mpm_cl);
                 foreach ($mpm_cl["viatic_estimation"] as $value) {
                     $value["apu_service_assembly_start_up_id"] = $assemblyStart["id"];
                     ApuServiceTravelEstimationAssemblyStartUp::create($value);
                 }
-			}
+            }
 
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
@@ -125,25 +123,25 @@ class ApuServiceController extends Controller
                     $q->select('id', DB::raw('concat(first_name, " ", first_surname) as name'));
                 },
                 "thirdparty" => function ($q) {
-                    $q->select('id', DB::raw('concat(first_name, " ", first_surname) as name'));
+                    $q->select('id', DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as name'));
                 },
-                "dimensionalValidation" => function ($q){
+                "dimensionalValidation" => function ($q) {
                     $q->select("*")
-                    ->with('profiles');
+                        ->with('profiles');
                 },
-                "dimensionalValidation.travelEstimationDimensionalValidations" => function ($q){
+                "dimensionalValidation.travelEstimationDimensionalValidations" => function ($q) {
                     $q->select("*");
                 },
-                "assembliesStartUp" => function ($q){
+                "assembliesStartUp" => function ($q) {
                     $q->select("*")
-                    ->with('profiles');
+                        ->with('profiles');
                 },
-                "assembliesStartUp.travelEstimationAssembliesStartUp" => function ($q){
+                "assembliesStartUp.travelEstimationAssembliesStartUp" => function ($q) {
                     $q->select("*");
                 }
             ])
-            ->where("id", $id)
-            ->first()
+                ->where("id", $id)
+                ->first()
         );
     }
 
@@ -167,13 +165,13 @@ class ApuServiceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+
         try {
             $data = $request->except([
                 "calculate_labor",
                 "mpm_calculate_labor"
             ]);
-    
+
             $calculate_labor = request()->get("calculate_labor");
             $mpm_calculate_labor = request()->get("mpm_calculate_labor");
 
@@ -185,7 +183,7 @@ class ApuServiceController extends Controller
                     ApuServiceTravelEstimationDimensionalValidation::where("apu_service_dimensional_validation_id",  $value["id"])->delete();
                 }
                 ApuServiceDimensionalValidation::where("apu_service_id", $id)->delete();
-                foreach ($calculate_labor as $cl){
+                foreach ($calculate_labor as $cl) {
                     $cl["apu_service_id"] = $id;
                     $dimsionalValid = ApuServiceDimensionalValidation::create($cl);
                     foreach ($cl["viatic_estimation"] as $value) {
@@ -201,7 +199,7 @@ class ApuServiceController extends Controller
                     ApuServiceTravelEstimationAssemblyStartUp::where("apu_service_assembly_start_up_id",  $value["id"])->delete();
                 }
                 ApuServiceAssemblyStartUp::where("apu_service_id", $id)->delete();
-                foreach ($mpm_calculate_labor as $mpm_cl){
+                foreach ($mpm_calculate_labor as $mpm_cl) {
                     $mpm_cl["apu_service_id"] = $id;
                     $assemblyStart = ApuServiceAssemblyStartUp::create($mpm_cl);
                     foreach ($mpm_cl["viatic_estimation"] as $value) {

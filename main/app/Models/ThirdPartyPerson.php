@@ -19,4 +19,9 @@ class ThirdPartyPerson extends Model
         'third_party_id'
     ];
 
+    public function thirdParty()
+    {
+        return $this->belongsTo(ThirdParty::class)->name();
+    }
+
 }

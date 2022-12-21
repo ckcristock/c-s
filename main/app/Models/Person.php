@@ -163,4 +163,9 @@ class Person extends Model
         return $this->hasMany(BonusPerson::class);
     }
 
+    public function scopeName($q)
+    {
+        return $q->select('*', DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
+    }
+
 }

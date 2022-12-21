@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Exports\FixedTurnDiaryExport;
 use App\Exports\RotatingTurnDiaryExport;
 use App\Models\Company;
+use App\Models\FixedTurn;
+use App\Models\RotatingTurn;
 use App\Services\DiaryService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -98,4 +100,9 @@ class ReporteHorariosController extends Controller
 			return Excel::download(new FixedTurnDiaryExport($dates), 'users.xlsx');
         }
 	}
+
+    public function pruebaPrueba (){
+        
+        return RotatingTurn::all();
+    }
 }

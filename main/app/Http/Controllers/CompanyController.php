@@ -66,6 +66,24 @@ class CompanyController extends Controller
         //
     }
 
+
+    public function commercialTermsSave(Request $request, $id)
+    {
+        try {
+            Company::find($id)->update(['commercial_terms' => $request->commercial_terms]);
+            return $this->success('Actualizado correctamente');
+        } catch (\Throwable $th) {
+        }
+    }
+
+    public function getCommercialTerms(Request $request)
+    {
+        try {
+            return $this->success(Company::where('id', $request->id)->first('commercial_terms'));
+        } catch (\Throwable $th) {
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *

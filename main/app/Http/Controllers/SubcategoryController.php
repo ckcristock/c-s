@@ -19,9 +19,9 @@ class SubcategoryController extends Controller
      */
     public function index()
     {
-        $q = Subcategory::from("subcategoria as s")
+        $q = Subcategory::from("Subcategoria as s")
         ->select(["s.*","c.Nombre as categoria"])->with(/* "categories", */"subcategoryVariables")
-        ->join("categoria_nueva as c", function ($join) {
+        ->join("Categoria_Nueva as c", function ($join) {
             $join->on("s.Id_Categoria_Nueva",'=',"c.Id_Categoria_Nueva");
         })
         ->when(request()->get("idSubcategoria"), function ($q, $fill) {
