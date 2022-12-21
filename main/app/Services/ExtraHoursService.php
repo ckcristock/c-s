@@ -12,6 +12,7 @@ use App\Traits\CalculateRotativoExtras;
 use App\Traits\CalculateRotativoRecargos;
 use App\Traits\Festivos;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ExtraHoursService
@@ -61,33 +62,31 @@ class ExtraHoursService
             ->get();
     }
 
-
-
     /**Arrivals */
 
     public function getPeople($id, $turn, $company_id, $dates)
     {
         $query = DB::table('people as p')
-             ->join('work_contracts as w', function ($join) use ($dates) {
+            ->join('work_contracts as w', function ($join) use ($dates) {
                 $join->on('p.id', '=', 'w.person_id')
                     ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                join people as u2 on u2.id = a2.person_id 
-                join work_contract_types as wt on a2. work_contract_type_id = wt.id 
-                WHERE date(a2.date_of_admission) <= "' . $dates[1] . '" 
+                join people as u2 on u2.id = a2.person_id
+                join work_contract_types as wt on a2. work_contract_type_id = wt.id
+                WHERE date(a2.date_of_admission) <= "' . $dates[1] . '"
                     and(
                         date(a2.date_end) >= "' . $dates[0] . '"  or  a2.date_end is null
                     )
                 group by u2.id
-           
+
                 )');
-            }) 
+            })
             ->join('positions as ps', 'ps.id', '=', 'w.position_id')
             ->where('ps.dependency_id', $id)
             ->where('w.company_id', $company_id)
             ->where('w.turn_type', $turn)
             ->where('p.status', '!=', 'liquidado')
             ->when(Request()->get('person_id'), function ($q, $fill) {
-                $q->where('p.id',$fill);
+                $q->where('p.id', $fill);
             });
         if ($turn == 'rotativo') {
             $query->whereExists(function ($query) use ($dates) {
@@ -102,138 +101,354 @@ class ExtraHoursService
             ->get();
     }
 
-    public function funcionarioRotativo($filtroDiarioFecha)
-    {
-        $translateService = new TranslateService();
-        /* return Person::with('diariosTurnoRotativo')->get(); */
-        $funcionario =  Person::with(['diariosTurnoRotativo' => $filtroDiarioFecha])
-            ->with(['horariosTurnoRotativo' => $filtroDiarioFecha])
-            ->find(request()->get('id'))->toArray();
-        if (isset($funcionario['horarios_turno_rotativo'])) {
-
-            $funcionario['daysWork'] = $funcionario['horarios_turno_rotativo'];
-            foreach ($funcionario['diarios_turno_rotativo']  as  $diario) {
-                foreach ($funcionario['horarios_turno_rotativo'] as $ky => $turno) {
-
-                    if ($turno['date'] == $diario['date']) {
-                        $diario['nombreDia'] = $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek);
-                        $diario['turnoOficial'] = RotatingTurn::find($turno['rotating_turn_id'])->toArray();
-                        array_push($funcionario['daysWork'][$ky], ['day' => $diario]);
-                    }
-                }
-            }
-            unset($funcionario['diarios_turno_rotativo']);
-        } else {
-            return false;
-        }
-        return $funcionario;
-    }
-
     public function calcularExtras($funcionario)
     {
-        //Tiempo Asignado
-        $tiempoAsignado = Company::first()->toArray()['work_time'];
-        return $funcionario;
-        foreach ($funcionario['daysWork'] as $ky => $day) {
-            return $day;
-            $descansa = false;
-            switch ($descansa) {
-                case true:
-                    break;
-                case false:
-                    if (isset($day)) {
+        //Elimino la cosulta para evitar incrementar el tiempo de respuesta
+        //Esto es el máximo de la empresa semanal
+        //$tiempoAsignado = Company::first()->toArray()['work_time'];
+        $tiempoAsignado = $funcionario['company_worked']['work_time'];
 
-                        //Seteo valores
-                        $toleranciaSalida = 0;
-                        $laborado = $day[0]['day'];
+        $listaExtras = Array();
 
-                        $extras = new stdObject();
-                        $extras->HorasExtrasNocturnas = 0;
-                        $extras->HorasExtrasDiurnas = 0;
-                        $extras->HorasExtrasNocturnasDominicales = 0;
-                        $extras->HorasExtrasDiurnasDominicales = 0;
-                        $extras->horasExtrasDominicalesFestivasNocturnas = 0;
-                        $extras->horasExtrasDominicalesFestivasDiurnas = 0;
+        /**
+         * Evaluar si el horario permite horas extras
+         * sino, no calcular
+         * Se toma en cuenta el horario para saber si es hora extra o recargo
+         * aunque llegue temprano, no se toma como extra hasta que cumpla
+         * las horas estipuladas para el turno
+         */
+        foreach ($funcionario['days_work'] as $day) {
 
+            if (isset($day)) {
 
-                        $recargos = new stdObject();
-                        $recargos->horasRecargoDominicalNocturna = 0;
-                        $recargos->horasRecargoNocturna = 0;
-                        $recargos->horasRecargoFestivo = 0;
-                        $recargos->horasRecargoDominicalDiurno = 0;
+                $turno = Request()->get('tipo');
 
-                        //Asistencia
-                        $turno = Request()->get('tipo');
-                        $leaveTime = $turno === 'Fijo' ? 'leave_time_two' : 'leave_time_one';
+                $diario = isset($day[0]) ? $day[0]['day'] : null;
 
+                if (!is_null($diario)){
+                    $dayStart = Carbon::create($diario['date'].' '.$funcionario['company_worked']['night_end_time']);
+                    $dayEnd = Carbon::create($diario['date'].' '.$funcionario['company_worked']['night_start_time']);
 
-                        [$asistencia, $salida, $fechaSalida] = $this->Asistencia($laborado['date'], $laborado['entry_time_one'], $laborado[$leaveTime]);
-
-                        #dd($laborado['entry_time_one']);
-                        //Tiempo Laborado
-                        $tiempoLaborado = 0;
-                        ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! aca mejorar con los horarios
-                        $tiempoLaborado = $this->workedTime($laborado, $asistencia, $salida);
-
-                        ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        /*    if($day['id'] == 10){
-                            dd($laborado);
-                        } */
-
-                        /*  $fechaSalida = $this->getLeaveDate($laborado); */
-                        //dd($fechaSalida);
-                        $FinTurnoOficcial =  $asistencia->copy()->addMinutes($tiempoAsignado);
-                        $FinTurnoReal =  $asistencia->copy()->addMinutes($tiempoLaborado);
-
-
-                        //Se arma el objecto que sera enviado como parametro
-                        $argumentos = new stdObject();
-                        $argumentos->tiempoAsignado = $tiempoAsignado;
-                        $argumentos->toleranciaSalida = $toleranciaSalida;
-                        $argumentos->tiempoLaborado = $tiempoLaborado;
-                        $argumentos->FinTurnoOficcial = $FinTurnoOficcial;
-                        $argumentos->FinTurnoReal = $FinTurnoReal;
-                        $argumentos->fechaSalida = $fechaSalida;
-                        $argumentos->asistencia = $asistencia;
-
-                        //Compruebo si trabajo mas del tiempo fijado y la tolerancia (Si trabajó extras)
-                        /*    dd($tiempoLaborado); */
-                        if ($tiempoLaborado > ($tiempoAsignado + $toleranciaSalida)) {
-                            $recargos = $this->getDataRecargo($argumentos);
-                            $extras = $this->getDataExtra($argumentos);
-                        }
-
-                        if ($tiempoLaborado <= ($tiempoAsignado + $toleranciaSalida)) {
-                            $recargos = $this->getDataRecargoSinExtras($argumentos);
-                        }
-
-                        $funcionario['daysWork'][$ky]['tiempoLaborado'] = roundInHalf($tiempoLaborado / 60);
-                        $funcionario['daysWork'][$ky]['tiempoAsignado'] = roundInHalf($tiempoAsignado / 60);
-                        $funcionario['daysWork'][$ky]['horasRecargoDominicalNocturna'] = roundInHalf($recargos->horasRecargoDominicalNocturna / 60);
-                        //se comenta por que no funciona
-                        //$funcionario['daysWork'][$ky]['horasRecargoNocturna'] = roundInHalf($recargos->horasRecargoNocturna / 60);
-                        $funcionario['daysWork'][$ky]['horasRecargoNocturna'] = 0;
-                        $funcionario['daysWork'][$ky]['horasRecargoFestivo'] = roundInHalf($recargos->horasRecargoFestivo / 60);
-
-                        $funcionario['daysWork'][$ky]['horasRecargoDominicalDiurno'] = roundInHalf($recargos->horasRecargoDominicalDiurno / 60);
-                        $funcionario['daysWork'][$ky]['HorasExtrasNocturnas'] = roundInHalf($extras->HorasExtrasNocturnas / 60);
-                        $funcionario['daysWork'][$ky]['HorasExtrasDiurnas'] = roundInHalf($extras->HorasExtrasDiurnas / 60);
-                        $funcionario['daysWork'][$ky]['HorasExtrasNocturnasDominicales'] = roundInHalf($extras->HorasExtrasNocturnasDominicales / 60);
-                        $funcionario['daysWork'][$ky]['HorasExtrasDiurnasDominicales'] = roundInHalf($extras->HorasExtrasDiurnasDominicales / 60);
-
-                        $funcionario['daysWork'][$ky]['horasExtrasDominicalesFestivasNocturnas'] = roundInHalf($extras->horasExtrasDominicalesFestivasNocturnas / 60);
-                        $funcionario['daysWork'][$ky]['horasExtrasDominicalesFestivasDiurnas'] = roundInHalf($extras->horasExtrasDominicalesFestivasDiurnas / 60);
-                    } else {
-
-                        // No trabajó
-
+                    if ($turno == 'Fijo') {
+                        $horasExtras = $funcionario['turno_fijo']['extra_hours'];
+                        $toleranciaSalida = $funcionario['turno_fijo']['leave_tolerance'];
+                        $toleranciaEntrada = $funcionario['turno_fijo']['entry_tolerance'];
+                    } elseif ($turno =='Rotativo') {
+                        $toleranciaSalida = $diario['turnoOficial']['entry_tolerance'];
+                        $toleranciaEntrada =  $diario['turnoOficial']['leave_tolerance'];
+                        $horasExtras = $diario['turnoOficial']['extra_hours'];
                     }
-                    break;
+                } else { //sino hay diario, no se registró ingreso a la empresa
+                    $horasExtras = false;
+                    $semDia = Carbon::create($day['date']);
+                    $translateService = new TranslateService();
+                    $diferencias = new stdObject([
+                        'day' => $semDia,
+                        'date' => $translateService->traslateIntDay($semDia->dayOfWeek), //traslateInDay
+                        'extras' => 'No hay asistencia este día'
+                    ]);
+                    array_push($listaExtras, $diferencias);
+                }
+
+
+                /**
+                 * sino es fijo, es rotativo, entonces le asigno la tolerancia del rotativo
+                 * (06-12-22) aún no evalúo el rotativo, pendiente
+                 */
+
+                if ($turno == 'Fijo' && !is_null($diario) && $horasExtras == true) {
+                    $diferenciasDia = $this->diferenciaHorariosFijo($day, $toleranciaEntrada, $toleranciaSalida, $dayStart, $dayEnd);
+                    array_push($listaExtras, $diferenciasDia);
+                    //calculo horas extras
+                } elseif ($turno == 'Rotativo' && !is_null($diario) ) {
+                  /*   dd($diario);
+                    dd('calcular horas rotativas'); */
+                    $diferenciasDia = $this->diferenciaHorariosRotativo($diario, $toleranciaEntrada, $toleranciaSalida, $dayStart, $dayEnd);
+                    array_push($listaExtras, $diferenciasDia);
+                    //Este turno no posee Horas Extras
+                }
+
+                //dd('por aca voy -  realmente');
+                //OJO, debe retornar $funcionario
+
+
+
+            } else {
+
+                // No trabajó
+
             }
         }
+        $funcionario['extras'] = $listaExtras;
         return $funcionario;
     }
 
+    /**
+     * función para calcular la direfencia entre los horarios y las horas reales
+     * recibe el horario en arreglo por día y el diario de horas reales,
+     * devuelve un arreglo por día con su Hora Extra u Hora Recargo
+     * //primero se está considerando solo los fijos
+     */
+    public function diferenciaHorariosFijo($horario, $toleranciaEntrada, $toleranciaSalida, $comienzoDia, $finDia)
+    {
+        $diario = $horario[0]['day'];
+
+        //horario mañana
+        $esperadoIn = Carbon::create($diario['date'] . $horario['entry_time_one']);
+        $realIn = Carbon::create($diario['date'] . $diario['entry_time_one']);
+
+        $esperadoOut = Carbon::create($diario['date'] . $horario['leave_time_one']);
+        $realOut = Carbon::create($diario['date'] . $diario['leave_time_one']);
+
+        $cantHorasHorario = new stdObject([
+            'horas'=> intval($esperadoIn->diff($esperadoOut)->format('%H')),
+            'minutos'=> intval($esperadoIn->diff($esperadoOut)->format('%i')),
+            'segundos'=> intval($esperadoIn->diff($esperadoOut)->format('%s'))
+        ]);
+
+        $cantHorasDiario = new stdObject([  //horas trabajadas
+            'horas'=> intval($realIn->diff($realOut)->format('%H')),
+            'minutos'=> intval($realIn->diff($realOut)->format('%i')),
+            'segundos'=> intval($realIn->diff($realOut)->format('%s'))
+        ]);
+
+        ////horario tarde
+        $esperadoInDos = Carbon::create($diario['date'] . $horario['entry_time_two']);
+        $realInDos = Carbon::create($diario['date'] . $diario['entry_time_two']);
+
+        $esperadoOutDos = Carbon::create($diario['date'] . $horario['leave_time_two']);
+        $realOutDos = Carbon::create($diario['date'] . $diario['leave_time_two']);
+
+        $cantHorasHorario->horas += intval($esperadoInDos->diff($esperadoOutDos)->format('%H'));
+        $cantHorasHorario->minutos += intval($esperadoInDos->diff($esperadoOutDos)->format('%i'));
+        $cantHorasHorario->segundos += intval($esperadoInDos->diff($esperadoOutDos)->format('%s'));
+
+        $cantHorasDiario->horas += intval($realInDos->diff($realOutDos)->format('%H'));
+        $cantHorasDiario->minutos += intval($realInDos->diff($realOutDos)->format('%i'));
+        $cantHorasDiario->segundos += intval($realInDos->diff($realOutDos)->format('%s'));
+
+        $diferenciaReal = new stdObject([
+            'horas'=> $cantHorasDiario->horas - $cantHorasHorario->horas,
+            'minutos'=> $cantHorasDiario->minutos - $cantHorasHorario->minutos,
+            'segundos'=> $cantHorasDiario->segundos - $cantHorasHorario->segundos
+        ]);
+
+        $intSalida = $this->redondearHora($diferenciaReal, $toleranciaSalida);
+
+        $horasExtras = $this->clasificacionHorasExtras($intSalida, $cantHorasDiario ,$diario, $realOutDos, $comienzoDia, $finDia);
+
+        $diferencias = new stdObject([
+            'day' => $horario['day'],
+            'date' => $diario['date'],
+            'schedule_in' => $esperadoIn->toDateTimeString(),
+            'hour_in' => $realIn->toDateTimeString(),
+            'schedule_out' => $esperadoOutDos->toDateTimeString(),
+            'hour_out' => $realOutDos->toDateTimeString(),
+            'hours_schedule' => $cantHorasHorario,
+            'extras' => $intSalida,
+            'lista' => $horasExtras
+        ]);
+        return $diferencias;
+    }
+
+    /**
+     * función para calcular de acuerdo a la tolerancia si es ua hora o no
+     * @param $diferencia // tipo: array['horas'= int, 'minutos'=int, 'segundos'=int]
+     * Dy
+     */
+    public function redondearHora($diferencia, $tolerancia)
+    {
+        //la tolerancia viene en minutos
+        $horaExtra = 0;
+        //dd($diferencia->minutos + $tolerancia);
+
+        if ($tolerancia <> 0) {
+            $horaExtra = $diferencia->horas;
+            if ( $diferencia->minutos > $tolerancia ) {
+                $horaExtra++;
+            }
+        }
+        return $horaExtra;
+    }
+
+    /**
+     * función para clasificar el tipo de hora
+     * recibe la fecha, hora inicio jornada diurna, hora fin jornada diurna
+     * devuelve un arreglo  boolean con la clasificación de hora [siEsDomingo, siEsFeriado, siEsDiurno ]
+     * la fecha debe ser del mismo día
+     * @param $fecha //ejemplo "2022-12-11"
+     * @param $hora  //ejemplo Carbon::create("2022-12-11 05:01:43")
+     * @param $comienzoDia  //ejemplo "2022-12-11 06:01:00"
+     * @param $finDia  //ejemplo  "2022-12-11 21:01:00"
+     * Dy (07-12-2022 9:40am)
+     */
+    public function tipoHora($fecha, $hora, $comienzoDia, $finDia)
+    {
+        $fecha = Carbon::create($fecha);
+
+        $domingo = $fecha->dayOfWeek == 0 ? true : false;
+
+        //formato de festivos "YYY-mm-dd"
+        $festivosAnio = $this->getFestivos();
+        $festivo = false;
+        foreach ($festivosAnio as $festive) {
+            $festCarbon = Carbon::create($festive);
+            if ($fecha == $festCarbon){
+                $festivo = true;
+            }
+        }
+
+        //Hora se recibe en formato Carbon::create("2022-12-11 05:01:43")
+        //por ello no se convierte acá
+        $diurno = false;
+        if ($hora->betweenIncluded($comienzoDia, $finDia)) {
+            $diurno = true;
+        }
+
+        return [$domingo, $festivo, $diurno];
+    }
+
+    /**
+     * función para clasificar cada una de las horas extras, recibe:
+     * @param
+     */
+    public function clasificacionHorasExtras($intSalida, $cantHorasDiario ,$diario, $salida, $comienzoDia, $finDia )
+    {
+        //$intSalida = $this->redondearHora($diferenciaReal, $toleranciaSalida);
+        $horasExtras = new stdObject([
+            "ht" => $cantHorasDiario->horas,
+            "hed" => 0,
+            "hen" => 0,
+            "heddf" => 0,
+            "hendf" => 0,
+        ]);
+            //dd($salida);
+        $aux = $salida;
+        for($i = 1; $i<= $intSalida; $i++ ) {
+            $array = $this->tipoHora($diario['date'], $aux->subHours($i-1), $comienzoDia, $finDia);
+            //dd($array);
+
+            array_push($array, true);
+            //dd($array);
+
+            if (($array <=> [false, false, true, true])==0) {    //H E D
+                $horasExtras->hed++;
+            } elseif (($array <=> [false, false, false, true])==0) {  //H E N
+                $horasExtras->hen++;
+            } elseif (($array <=> [true, true, true, true])==0) {  //H E D DF
+                $horasExtras->heddf++;
+            } elseif (($array <=> [true, true, false, true])==0) {  //H E N DF
+                $horasExtras->hendf++;
+            } elseif (($array <=> [true, false, false, true])==0) {  //H E N DF
+                $horasExtras->hendf++;
+            } elseif (($array <=> [false, true, false, true])==0) {  //H E N DF
+                $horasExtras->hendf++;
+            } elseif (($array <=> [false, true, true, true])==0) {  //H E D DF
+                $horasExtras->heddf++;
+            } elseif (($array <=> [true, false, true, true])==0) {  //H E D DF
+                $horasExtras->heddf++;
+            }
+            $salida->addHours($i-1);
+        }
+        return $horasExtras;
+    }
+
+     public function clasificacionHorasRecargo($intSalida, $diario, $salida, $comienzoDia, $finDia)
+    {
+        $horasRecargo = new stdObject([
+            "hrndf" => 0,
+            "hrn" => 0,
+            "hrddf" => 0
+        ]);
+
+        $aux = $salida;
+        for($i = 1; $i<= $intSalida; $i++ ) {
+            $array = $this->tipoHora($diario['date'], $aux->subHours($i-1), $comienzoDia, $finDia);
+            array_push($array, false);
+
+            if (($array <=> [true, true, false, false])==0) {  //H R N DF
+                $horasRecargo->hrndf++;
+            } elseif (($array <=> [false, false, false, false])==0) {  //H R N
+                $horasRecargo->hrn++;
+            } elseif (($array <=> [true, true, true, false])==0) {  //H R D DF
+                $horasRecargo->hrddf++;
+            } elseif (($array <=> [true, false, false, false])==0) {  //H R N
+                $horasRecargo->hrn++;
+            } elseif (($array <=> [false, true, false, false])==0) {  //H R N
+                $horasRecargo->hrn++;
+            } elseif (($array <=> [true, false, true, false])==0) {  //H R D DF
+                $horasRecargo->hrddf++;
+            } elseif (($array <=> [false, true, true, false])==0) {  //H R D DF
+                $horasRecargo->hrddf++;
+            }
+            $salida->addHours($i-1);
+        }
+        return $horasRecargo;
+    }
+
+    public function diferenciaHorariosRotativo($horario, $toleranciaEntrada, $toleranciaSalida, $comienzoDia, $finDia)
+    {
+        $horarioTurno = $horario['turnoOficial'];
+        $sumTolerancia = $toleranciaEntrada + $toleranciaSalida;
+
+        $esperadoIn = Carbon::create( $horario['date'].' '.$horarioTurno['entry_time']);
+        $realIn = Carbon::create( $horario['date'].' '.$horario['entry_time_one']);
+        $esperadoOut = Carbon::create( $horario['leave_date'].' '.$horarioTurno['leave_time']);
+        $realOut = Carbon::create( $horario['leave_date'].' '.$horario['leave_time_one']);
+
+        $cantHorasHorario = new stdObject([
+            'horas'=> intval($esperadoIn->diff($esperadoOut)->format('%H')),
+            'minutos'=> intval($esperadoIn->diff($esperadoOut)->format('%i')),
+            'segundos'=> intval($esperadoIn->diff($esperadoOut)->format('%s'))
+        ]);
+
+        $cantHorasDiario = new stdObject([  //horas trabajadas
+            'horas'=> intval($realIn->diff($realOut)->format('%H')),
+            'minutos'=> intval($realIn->diff($realOut)->format('%i')),
+            'segundos'=> intval($realIn->diff($realOut)->format('%s'))
+        ]);
+
+        $diferenciaReal = new stdObject([
+            'horas'=> $cantHorasDiario->horas - $cantHorasHorario->horas,
+            'minutos'=> $cantHorasDiario->minutos - $cantHorasHorario->minutos,
+            'segundos'=> $cantHorasDiario->segundos - $cantHorasHorario->segundos
+        ]);
+
+        $intSalida = $this->redondearHora($diferenciaReal, $sumTolerancia);
+        $sali = $realOut;
+
+        $horasExtras = $this->clasificacionHorasExtras($intSalida, $cantHorasDiario, $horario, $sali, $comienzoDia, $finDia);
+
+        $horasRecargo = new stdObject([
+            "hrndf" => 0,
+            "hrn" => 0,
+            "hrddf" => 0
+        ]);
+        if ($intSalida == 0 && $realOut>$finDia) {
+            $recargo = $realOut->diffInHours($finDia);
+            $horasRecargo = $this->clasificacionHorasRecargo($recargo, $horario, $realOut, $comienzoDia, $finDia);
+        }
+
+        $diferencias = new stdObject([
+            'day' => $horario['nombreDia'],
+            'date' => $horario['date'],
+            'schedule_in' => $esperadoIn->toDateTimeString(),
+            'hour_in' => $realIn->toDateTimeString(),
+            'schedule_out' => $esperadoOut->toDateTimeString(),
+            'hour_out' => $realOut->toDateTimeString(),
+            'hours_schedule' => $cantHorasHorario,
+            'extras' => $intSalida,
+            'hours_extra' => $horasExtras,
+            'hours_recharge' => $horasRecargo
+        ]);
+
+        return $diferencias;
+    }
+
+
+
+
+    //convierte strings a Carbon
     private function getLeaveDate($laborado)
     {
         $date = '';
@@ -250,6 +465,10 @@ class ExtraHoursService
 
         return  Carbon::parse($date);
     }
+
+    /**
+     * este parece útil, pero solo calcula uno a la vez
+     */
     public function workedTime($laborado, $asistencia, $salida)
     {
 
@@ -290,11 +509,9 @@ class ExtraHoursService
         return $diffTotal;
     }
 
-
-
+    //no le veo utiliddad a esta función
     public function Asistencia($fecha, $horaEntrada, $horaSalida)
     {
-
 
         $asistencia = Carbon::parse($fecha . $horaEntrada);
         $salida =  Carbon::parse($fecha . $horaSalida);
@@ -307,6 +524,7 @@ class ExtraHoursService
 
         return [$asistencia, $salida,  $fechaSalida];
     }
+
     public function setTiempoExtra($cantidadEnMinutos)
     {
         $this->tiempoParaExtras - $cantidadEnMinutos;
@@ -314,42 +532,109 @@ class ExtraHoursService
 
 
 
-    public function funcionarioFijo($filtroDiarioFecha)
+    public function prueba(Request $request)  //esto se borra
+    {
+        $fechaInicio = "2022-06-12";
+        $fechaFin = "2022-06-18";
+
+        $filtroDiarioFecha = function ($query) use ($fechaInicio, $fechaFin) {
+            $query->whereBetween('date', [$fechaInicio, $fechaFin])->orderBy('date');
+        };
+        $funcionario = $this->funcionarioFijo($filtroDiarioFecha, $fechaInicio, $fechaFin);
+
+        /* $fecha = "2022-06-13";
+        $hora = Carbon::create('2022-06-13 06:40:43');
+        $diaIni = '2022-06-13 06:01:00';
+        $diaFin = '2022-06-13 21:01:00'; */
+        $fecha = $request->fecha;
+        $hora = Carbon::create($request->hora);
+        $diaIni = $request->diaIni;
+        $diaFin = $request->diaFin;
+        dd($this->tipoHora($fecha, $hora, $diaIni, $diaFin));
+
+        return $this->calcularExtras($funcionario);
+    }
+
+    public function funcionarioRotativo($filtroDiarioFecha)
     {
         $translateService = new TranslateService();
+        $funcionario =  Person::with(['diariosTurnoRotativo' => $filtroDiarioFecha])
+            ->with(['horariosTurnoRotativo' => $filtroDiarioFecha])
+            ->with('companyWorked')
+            ->find(request()->get('id'))->toArray();
 
-        /*         $funcionario =  Person::with(['diariosTurnoRotativo' => $filtroDiarioFecha])
-        ->with(['horariosTurnoRotativo' => $filtroDiarioFecha])
-        ->find(request()->get('id'))->toArray(); */
+        if (isset($funcionario['horarios_turno_rotativo'])) {
 
-        $funcionario =  Person::with(
+            $funcionario['days_work'] = $funcionario['horarios_turno_rotativo'];
+            foreach ($funcionario['diarios_turno_rotativo']  as  $diario) {
+                foreach ($funcionario['horarios_turno_rotativo'] as $ky => $turno) {
+
+                    if ($turno['date'] == $diario['date']) {
+                        $diario['nombreDia'] = $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek);
+                        $diario['turnoOficial'] = RotatingTurn::find($turno['rotating_turn_id'])->first();
+                        array_push($funcionario['days_work'][$ky], ['day' => $diario]);
+                    }
+                }
+            }
+            unset($funcionario['diarios_turno_rotativo']);
+        } else {
+            return response()->json(['msg'=> 'Horario no asignado']);
+        }
+        return $funcionario;
+    }
+
+    public function funcionarioFijo($filtroDiarioFecha, $fechaInicio, $fechaFin)
+    {
+        try {
+            $translateService = new TranslateService();
+
+            $funcionario = Person::with([
+                'diariosTurnoFijo' => function ($q) use ($filtroDiarioFecha) {
+                    $q->select('*')->where($filtroDiarioFecha);
+                },
+                'contractultimate' => function ($q) {
+                    $q->select('*')->with('fixedTurn');
+                }])->with('companyWorked')
+                ->find(request()->get('id'))->toArray();
+            $funcionario['fecha_inicio'] = Carbon::create($fechaInicio)->locale('es_ES');
+            $funcionario['fecha_fin'] = Carbon::create($fechaFin)->locale('es_ES');
+
+            if (isset($funcionario['contractultimate']['fixed_turn']['horarios_turno_fijo'])) {
+                $funcionario['turno_fijo'] = $funcionario['contractultimate']['fixed_turn'];
+                unset($funcionario['contractultimate']);
+
+                $funcionario['days_work'] = $funcionario['turno_fijo']['horarios_turno_fijo'];
+                foreach ($funcionario['diarios_turno_fijo']  as  $diario) {
+                    foreach ($funcionario['turno_fijo']['horarios_turno_fijo'] as $ky => $turno) {
+                        if ($turno['day'] == $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek)) {
+                            array_push($funcionario['days_work'][$ky], ['day' => $diario]);
+                        }
+                    }
+                }
+                unset($funcionario['diarios_turno_fijo']);
+            } else {
+                return response()->json(['msg'=> 'Horario no asignado']);
+            }
+
+            return $funcionario;
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+}
+
+
+            /*
+            Turno fijo
+                     $funcionario =  Person::with(['diariosTurnoRotativo' => $filtroDiarioFecha])
+            ->with(['horariosTurnoRotativo' => $filtroDiarioFecha])
+            ->find(request()->get('id'))->toArray(); */
+
+            /*  $funcionario =  Person::with(
             ['diariosTurnoFijo' => $filtroDiarioFecha],
         )
             ->with('contractultimate', function ($q) {
                 $q->select('*')
                     ->with('fixedTurn.horariosTurnoFijo');
             })
-            ->find(request()->get('id'))->toArray();;
-        if (isset($funcionario['contractultimate']['fixed_turn']['horarios_turno_fijo'])) {
-            $funcionario['turno_fijo'] = $funcionario['contractultimate']['fixed_turn'];
-            unset($funcionario['contractultimate']);
-
-            $funcionario['daysWork'] = $funcionario['turno_fijo']['horarios_turno_fijo'];
-
-            foreach ($funcionario['diarios_turno_fijo']  as  $diario) {
-                foreach ($funcionario['turno_fijo']['horarios_turno_fijo'] as $ky => $turno) {
-
-                    if ($turno['day'] == $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek)) {
-                        array_push($funcionario['daysWork'][$ky], ['day' => $diario]);
-                    }
-                }
-            }
-
-            unset($funcionario['diarios_turno_fijo']);
-        } else {
-            return response()->json('Horario no asignado ');
-        }
-
-        return $funcionario;
-    }
-}
+                ->find(request()->get('id')); */

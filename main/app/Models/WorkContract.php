@@ -59,7 +59,7 @@ class WorkContract extends Model
      */
     public function fixedTurn()
     {
-        return $this->belongsTo(FixedTurn::class);
+        return $this->belongsTo(FixedTurn::class)->with('horariosTurnoFijo');
     }
     /**
      * Get the user that owns the WorkContract

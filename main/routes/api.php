@@ -144,6 +144,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
+use App\Services\ExtraHoursService ;//eliminar este
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -294,6 +296,8 @@ Route::group(
         Route::get('dotations/download/{inicio?}/{fin?}', [InventaryDotationController::class, 'download']);
         Route::get('downloadeliveries/download/{inicio?}/{fin?}', [InventaryDotationController::class, 'downloadeliveries']);
 
+        Route::get('listado-horarios', [ReporteHorariosController::class, 'pruebaPrueba']);//eliminar esta ruta
+        Route::post('pruebas', [ExtraHoursService::class, 'prueba']);
 
         /** end*/
 

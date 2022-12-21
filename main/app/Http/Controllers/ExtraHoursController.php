@@ -12,6 +12,8 @@ use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use function PHPUnit\Framework\isJson;
+
 class ExtraHoursController extends Controller
 {
 	use ApiResponser;
@@ -78,7 +80,6 @@ class ExtraHoursController extends Controller
 	public function getInfoTotal()
 	{
 		try {
-			//code...
 
 			$fechaInicio = request()->get('pd');
 			$fechaFin = request()->get('ud');
@@ -87,15 +88,22 @@ class ExtraHoursController extends Controller
 				$query->whereBetween('date', [$fechaInicio, $fechaFin])->orderBy('date');
 			};
 
-
-			//dd(request()->get('tipo' ));
-			switch (request()->get('tipo')) {
-				case 'Fijo':
-					$funcionario =  $this->extrasService->funcionarioFijo($filtroDiarioFecha);
+            $tipo = request()->get('tipo');
+			switch ($tipo) {
+                case 'Fijo':
+					$funcionario =  $this->extrasService->funcionarioFijo($filtroDiarioFecha, $fechaInicio, $fechaFin);
+                    //if (isset($funcionario->getData()->msg)){
+                    if (isJson($funcionario)->toString() == "is valid JSON"){
+                        return $this->error($funcionario->getData()->msg,442);
+                    }
 					return $this->success($this->extrasService->calcularExtras($funcionario));
 					break;
-				case 'Rotativo':
-					$funcionario =   $this->extrasService->funcionarioRotativo($filtroDiarioFecha);
+                case 'Rotativo':
+                    $funcionario = $this->extrasService->funcionarioRotativo($filtroDiarioFecha);
+                    //dd( isJson($funcionario)->toString() == "is valid JSON");
+                    /* if (isJson($funcionario)->toString() == "is valid JSON"){
+                        return $this->error($funcionario->getData()->msg,206);
+                    } */
 					return $this->success($this->extrasService->calcularExtras($funcionario));
 					break;
 				default:
@@ -103,7 +111,7 @@ class ExtraHoursController extends Controller
 					break;
 			}
 		} catch (\Throwable $th) {
-			//throw $th;
+			//return $th;
 			return $th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile();
 		}
 	}
@@ -111,7 +119,7 @@ class ExtraHoursController extends Controller
 	public function store()
 	{
 		try {
-			//code...
+
 			$atributos = request()->validate([
 				'person_id' => 'required',
 				'date' => 'required',
