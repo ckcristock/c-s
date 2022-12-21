@@ -644,6 +644,7 @@ Route::group(
         Route::get('/company-global', [CompanyController::class, 'getGlobal']);
 
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
+        Route::put("subcategory-active/{id}", [SubcategoryController::class, 'turningOnOff']);
         Route::delete("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
 
         //boards
@@ -676,6 +677,7 @@ Route::group(
 
         Route::resource("category", CategoryController::class);
         Route::get('list-categories', [CategoryController::class,'listCategories']);
+        Route::put("category-active/{id}", [CategoryController::class, 'turningOnOff']);
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
@@ -752,11 +754,21 @@ Route::group(
         Route::get('php/genericos/departamentos.php', [CategoriaNuevaController::class, 'getDepartamentos']);
         Route::get('php/categoria_nueva/detalle_categoria_nueva_departamento.php', [CategoriaNuevaController::class, 'categoriaDepartamento']);
         Route::get('php/comprasnacionales/lista_compras', [ListaComprasController::class, 'index']);
+        Route::get('php/comprasnacionales/datos_compras_nacionales', [ListaComprasController::class, 'datosComprasNacionales']);
+        Route::get('php/comprasnacionales/detalles_compras_nacionales', [ListaComprasController::class, 'detallesComprasNacionales']);
+        Route::get('php/comprasnacionales/detalle_perfil', [ListaComprasController::class, 'detallePerfil']);
+        Route::get('php/comprasnacionales/detalle_rechazo', [ListaComprasController::class, 'detalleRechazo']);
+        Route::get('php/comprasnacionales/actividad_orden_compra', [ListaComprasController::class, 'actividadOrdenCompra']);
+        Route::get('php/comprasnacionales/lista_productos', [ProductController::class, 'listarProductos']);
         Route::get('php/rotativoscompras/lista_pre_compra', [ListaComprasController::class, 'preCompras']);
         Route::get('php/funcionarios/lista_funcionarios', [ListaComprasController::class, 'getFuncionarios']);
         Route::get('php/rotativoscompras/detalle_pre_compra/{id}', [ListaComprasController::class, 'detallePreCompra']);
         Route::get('impuestos', [BodegasController::class, 'impuestos']);
         Route::get('php/inventario_fisico_puntos/lista_punto_funcionario', [PersonController::class, 'funcionarioPunto']);
-        Route::get('php/comprasnacionales/lista_productos', [ProductController::class, 'listarProductos']);
+        Route::get('get-estados-compra', [ListaComprasController::class, 'getEstadosCompra']);
+
+        Route::post('php/rotativoscompras/actualizar_estado', [ListaComprasController::class, 'actualizarEstadoPreCompra']);
+        Route::post('php/comprasnacionales/guardar_compra_nacional', [ListaComprasController::class, 'storeCompra']);
+        Route::post('php/comprasnacionales/actualiza_compra', [ListaComprasController::class, 'setEstadoCompra']);
     }
 );

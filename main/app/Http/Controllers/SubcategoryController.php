@@ -19,15 +19,22 @@ class SubcategoryController extends Controller
      */
     public function index()
     {
-        $q = Subcategory::with("subcategoryVariables")
-       ->when(request()->get("idSubcategoria"), function ($q, $fill) {
+        $q = Subcategory::from("subcategoria as s")
+        ->select(["s.*","c.Nombre as categoria"])->with(/* "categories", */"subcategoryVariables")
+        ->join("categoria_nueva as c", function ($join) {
+            $join->on("s.Id_Categoria_Nueva",'=',"c.Id_Categoria_Nueva");
+        })
+        ->when(request()->get("idSubcategoria"), function ($q, $fill) {
             $q->where("Id_Subcategoria",'=',$fill);
         })
          ->when(request()->get("nombre"), function ($q, $fill) {
             $q->where("Nombre",'like','%'.$fill.'%');
         })
         ->when(request()->get("categoria"), function ($q, $fill) {
-            $q->where("Id_Categoria_Nueva",'=',$fill);
+            /* $q->whereHas('categories',function($q) use ($fill){
+                $q->where('categoria_nueva_subcategoria.Id_Categoria_nueva', $fill);
+            }); */
+            $q->where("s.Id_Categoria_Nueva",'=',$fill);
         })
         ->when(request()->get("separable"), function ($q, $fill) {
             $q->where("Separable",'=',$fill);
@@ -74,7 +81,7 @@ class SubcategoryController extends Controller
     public function listSubcategories()
     {
         return $this->success(
-			Subcategory::select(["Nombre","Id_Subcategoria"])
+			Subcategory::active()->select(["Nombre","Id_Subcategoria"])
             ->get()
 		);
 
@@ -98,7 +105,7 @@ class SubcategoryController extends Controller
      */
     public function store(Request $request)
     {
-        try {
+        /* try {
             $data = $request->except(["dynamic"]);
             $subcategory = Subcategory::create($data);
             $dynamic = request()->get("dynamic");
@@ -111,8 +118,33 @@ class SubcategoryController extends Controller
 
         } catch (\Throwable $th) {
             return $this->error(['message' => $th->getMessage(), $th->getLine(), $th->getFile()], 400);
+        } */
+        try {
+            $data = $request->except(["dynamic"/* ,"Categorias" */]);
+            $subcategory = Subcategory::updateOrCreate(["Id_Subcategoria" => request()->get("Id_Subcategoria")],$data);
+            $dynamic = request()->get("dynamic");
+
+            /* $categories=Subcategory::find($subcategory->Id_Subcategoria);
+            $categories->categories()->sync(request()->get("Categorias")); */
+            foreach($dynamic as $d){
+				$d["subcategory_id"] = $subcategory->Id_Subcategoria;
+				SubcategoryVariable::updateOrCreate([ 'id'=> $d["id"] ],$d);
+			}
+            return $this->success("guardado con éxito");
+
+        } catch (\Throwable $th) {
+            return $this->error(['message' => $th->getMessage(), $th->getLine(), $th->getFile()], 400);
         }
 
+    }
+
+    public function turningOnOff($id,Request $request){
+        try{
+            Subcategory::where('Id_Subcategoria', $id)->update(['Activo' => $request->activo]);
+            return  $this->success('Subcategoría '.(($request->activo == 0)?'anulada':'reactivada').' con éxito');
+        } catch (\Throwable $th) {
+            return $this->errorResponse( $th->getFile()." - ".$th->getMessage() );
+        }
     }
 
     /**
@@ -124,7 +156,12 @@ class SubcategoryController extends Controller
     public function show($id)
     {
         return $this->success(
-			DB::table("subcategoria as s")
+            /* Subcategory::select("Nombre As text","Id_Subcategoria As value")
+            ->whereHas('categories',function($q) use ($id){
+                $q->where('categoria_nueva_subcategoria.Id_Categoria_nueva', $id);
+            })->get() */
+
+			DB::table("subcategoria as s")->active()
             ->select("s.Nombre As text","s.Id_Subcategoria As value")
             ->join("categoria_nueva as c", "c.Id_Categoria_nueva", "s.Id_Categoria_nueva")
             ->where("s.Id_Categoria_nueva", $id)
@@ -183,7 +220,7 @@ class SubcategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try {
+        /* try {
             $data = $request->except(["dynamic"]);
             Subcategory::where('Id_Subcategoria', $id)->update($data);
             $dynamic = request()->get("dynamic");
@@ -196,8 +233,7 @@ class SubcategoryController extends Controller
 
         } catch (\Throwable $th) {
             return $this->error(['message' => $th->getMessage(), $th->getLine(), $th->getFile()], 400);
-        }
-
+        } */
     }
 
     public function deleteVariable($id){

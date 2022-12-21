@@ -74,16 +74,17 @@ class ContractFinish extends Command
 
         // Se procede a registrar la notificación si no se ha hecho ya.
         $contratosAFinalizar->each(function ($contrato) {
+            $person = Person::fullName()
+            ->where('id', $contrato->persona )->first();
             if ($contrato->dayDiff == 30) {
                 if ($contrato->renewed == null) {
-                    $person = Person::where('id', $contrato->persona )->first();
                     Alert::create([
                         'person_id' => 1,
                         'user_id' => $contrato->persona,
                         'modal' => 0,
                         'icon' => 'fas fa-file-contract',
                         'type' => 'Notificación',
-                        'description' => 'Se le informa que su contrato finalizará el día ' . $contrato->date_end
+                        'description' => 'Se le informa que su contrato finalizará el día '.$contrato->date_end
                     ]);
                     Alert::create([
                         'person_id' => 1,
@@ -91,8 +92,8 @@ class ContractFinish extends Command
                         'modal' => 0,
                         'icon' => 'fas fa-file-contract',
                         'type' => 'Notificación',
-                        'description' => 'El funcionario ' . $person->fist_name . ' ' . $person->first_surname  . ' con el contrato número CON'. $contrato->contract_id.' fue notificado
-                        de su finalización para el día ' . $contrato->date_end
+                        'description' => 'El funcionario '.$person->full_names.' con el contrato número CON'.$contrato->contract_id.' fue notificado
+                        de su finalización para el día '.$contrato->date_end
                     ]);
                     WorkContractFinishConditions::create([
                         'person_id' => $contrato->persona,
@@ -113,15 +114,15 @@ class ContractFinish extends Command
                     unset($condicionesContratoARenovar->updated_at);
                     WorkContract::create($condicionesContratoARenovar->toArray());
                 }
-                $person = Person::where('id', $contrato->persona )->first();
                 Alert::create([
                     'person_id' => 1,
                     'user_id' => 1,
                     'modal' => 0,
                     'icon' => 'fas fa-file-contract',
                     'type' => 'Notificación',
-                    'description' => ($contrato->renewed == 0)?'El funcionario ' . $person->fist_name . ' ' . $person->first_surname  . ' con el contrato número CON'. $contrato->contract_id.' fue preliquidado
-                    y su contrato finalizado.':'El contrato número CON'. $contrato->contract_id.' fue renovado.'
+                    'url' => ($contrato->renewed == 0)?'/rrhh/liquidados':'/ajustes/informacion-base/funcionario/'.$contrato->persona,
+                    'description' => ($contrato->renewed == 0)?'El funcionario '.$person->full_names.' con el contrato número CON'.$contrato->contract_id.' fue preliquidado
+                    y su contrato finalizado.':'El contrato número CON'.$contrato->contract_id.' con el funcionario '.$person->full_names.' fue renovado.'
                 ]);
                 WorkContract::where('id', $contrato->contract_id)
                 ->update(["liquidated" => 1]);

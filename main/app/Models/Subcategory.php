@@ -6,23 +6,27 @@ use Illuminate\Database\Eloquent\Model;
 
 class Subcategory extends Model
 {
-    protected $table = 'subcategoria';
+    protected $table = 'Subcategoria';
     protected $primaryKey = 'Id_Subcategoria';
 
-    protected $fillable = ['Nombre', 'Separable'];
+    protected $fillable = ['Nombre', 'Id_Categoria_Nueva', 'Separable'];
 
-    public function category()
+    /* public function category()
     {
         return $this->hasMany(Category::class, "Id_Subcategoria");
-    }
+    } */
 
     public function subcategoryVariables()
     {
         return $this->hasMany(SubcategoryVariable::class, "subcategory_id");
     }
 
-    public function subcategories(){
-        return $this->belongsToMany(NewCategory::class,"categoria_nueva_subcategoria","Id_Subcategoria","Id_Categoria_Nueva");
+    public function scopeActive($query){
+        $query->where('Activo', 1);
     }
+
+    /* public function categories(){
+        return $this->belongsToMany(NewCategory::class,"categoria_nueva_subcategoria","Id_Subcategoria","Id_Categoria_Nueva");
+    } */
 
 }
