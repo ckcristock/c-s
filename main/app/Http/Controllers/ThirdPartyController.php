@@ -51,7 +51,7 @@ class ThirdPartyController extends Controller
                         $q->where('name', 'like', '%' . \Request()->get('municipio') . '%');
                     });
                 })
-                ->select("*", DB::raw('IFNULL(social_reason, concat(first_name," ",first_surname) ) as name'))
+                ->select("*", DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as name'))
                 ->orderBy('state', 'asc')
                 ->orderBy('name', 'asc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
@@ -63,7 +63,7 @@ class ThirdPartyController extends Controller
         return $this->success(
             ThirdParty::select(
 
-                DB::raw('IFNULL(social_reason,concat(first_name," ",first_surname)) as text'),
+                DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as text'),
                 'id as value',
                 'retefuente_percentage'
             )->when(Request()->get('name'), function ($q, $fill) {
@@ -170,9 +170,24 @@ class ThirdPartyController extends Controller
      */
     public function show($id)
     {
+        $third_party_query = ThirdParty::with('country', 'document_type_', 'municipality', 'department')
+            ->name()
+            ->find($id);
+        $third_party = ThirdParty::find($id);
+        $third_party_fields = ThirdPartyField::get();
+        $quotations = $third_party->quotations()->paginate(Request()->get('pageSizeQuotation', 10), ['*'], 'pageQuotation', Request()->get('pageQuotation', 1));
+        $business = $third_party->business()->paginate(Request()->get('pageSizeBusiness', 10), ['*'], 'pageBusiness', Request()->get('pageBusiness', 1));
+        $budgets = $third_party->budgets()->paginate(Request()->get('pageSizeBudgets', 10), ['*'], 'pageBudgets', Request()->get('pageBudgets', 1));
+        $people = $third_party->thirdPartyPerson()->paginate(Request()->get('pageSizePeople', 10), ['*'], 'pagePeople', Request()->get('pagePeople', 1));
         return $this->success(
-            ThirdParty::with('thirdPartyPerson')
-                ->find($id)
+            [
+                "third_party_query" => $third_party_query,
+                "quotations" => $quotations,
+                "business" => $business,
+                "budgets" => $budgets,
+                "people" => $people,
+                "third_party_fields" => $third_party_fields
+            ]
         );
     }
 
@@ -184,7 +199,10 @@ class ThirdPartyController extends Controller
      */
     public function edit($id)
     {
-        //
+        return $this->success(
+            ThirdParty::with('thirdPartyPerson')
+                ->find($id)
+        );
     }
 
     /**

@@ -556,6 +556,7 @@ Route::group(
         Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
         Route::get('paginateQuotations', [QuotationController::class, 'paginate']);
         Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
+        Route::get('paginateBusiness', [BusinessController::class, 'paginate']);
         Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
         Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
         Route::get('paginateDocumentType', [DocumentTypesController::class, 'paginate']);
@@ -615,6 +616,8 @@ Route::group(
         Route::get('fixed_turn', [PersonController::class, 'fixed_turn']);
         Route::post('enterpriseData', [WorkContractController::class, 'updateEnterpriseData']);
         Route::post('finish-contract', [WorkContractController::class, 'finishContract']);
+        Route::post('commercial-terms/{id}', [CompanyController::class, 'commercialTermsSave']);
+        Route::get('commercial-terms', [CompanyController::class, 'getCommercialTerms']);
         Route::get('countable_income', [BonificationsController::class, 'countable_income']);
         Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
         Route::get('contractRenewal/{id}', [WorkContractController::class, 'contractRenewal']);
@@ -723,7 +726,7 @@ Route::group(
         Route::post('calculation-bases-update', [CalculationBaseController::class, 'updateAll']);
         /****** End Rutas del modulo APU CONJUNTO ******/
 
-        Route::get('budgets-download-client', [BudgetController::class, 'downloadClient']);
+        Route::post('budgets-download-client', [BudgetController::class, 'downloadClient']);
         /****** Rutas del modulo APU Servicio ******/
         Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
         /****** End Rutas del modulo APU Servicio ******/
@@ -736,6 +739,7 @@ Route::group(
         Route::put('legal_document/{id}', [DisciplinaryProcessController::class, 'InactiveDOcument']);
         Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
+        Route::post('new-business-quotation', [BusinessController::class, 'newBusinessQuotation']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
         Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
 
