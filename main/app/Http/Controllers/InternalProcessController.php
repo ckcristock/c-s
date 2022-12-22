@@ -17,13 +17,13 @@ class InternalProcessController extends Controller
      */
     public function index()
     {
-        return InternalProcess::with(
+        return $this->success(InternalProcess::with(
             [
             'unit' => function($q){
                 $q->select('id', 'name');
             },
             ]
-        )->get(['id','name','unit_cost','unit_id','name As text', 'id As value']);
+        )->get(['id','name','unit_cost','unit_id','name As text', 'id As value']));
     }
 
     /**

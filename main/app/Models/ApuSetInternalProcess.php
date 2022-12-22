@@ -12,7 +12,7 @@ class ApuSetInternalProcess extends Model
     protected $fillable = [
         "apu_set_id",
         "description",
-        "unit",
+        "unit_id",
         "amount",
         "unit_cost",
         "total"
@@ -21,6 +21,16 @@ class ApuSetInternalProcess extends Model
     public function apuset()
 	{
 		return $this->belongsTo(ApuSet::class);
+	}
+
+    public function internal()
+	{
+		return $this->belongsTo(InternalProcess::class, 'description');
+	}
+
+    public function unit()
+	{
+		return $this->belongsTo(Unit::class);
 	}
 
 }

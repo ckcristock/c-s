@@ -17,7 +17,7 @@ class ExternalProcessController extends Controller
      */
     public function index()
     {
-        return ExternalProcess::with(
+        return $this->success(ExternalProcess::with(
             [
             'unit' => function($q){
                 $q->select('id', 'name');
@@ -25,7 +25,7 @@ class ExternalProcessController extends Controller
             },
             ]
 
-        )->get(['id','name','unit_cost','unit_id','name As text', 'id As value']);
+        )->get(['id','name','unit_cost','unit_id','name As text', 'id As value']));
     }
 
     /**
