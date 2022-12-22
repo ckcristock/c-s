@@ -101,23 +101,23 @@ class ApuSet extends Model
 
     public function machine()
 	{
-		return $this->hasMany(ApuSetMachineTool::class);
+		return $this->hasMany(ApuSetMachineTool::class)->with('machine', 'unit');
 	}
 
     public function setpartlist()
 	{
-		return $this->hasMany(ApuSetPartList::class);
+		return $this->hasMany(ApuSetPartList::class)->with('unit');
 
 	}
 
     public function external()
 	{
-		return $this->hasMany(ApuSetExternalProcess::class);
+		return $this->hasMany(ApuSetExternalProcess::class)->with('external', 'unit');
 	}
 
     public function internal()
 	{
-		return $this->hasMany(ApuSetInternalProcess::class);
+		return $this->hasMany(ApuSetInternalProcess::class)->with('internal', 'unit');
 	}
 
     public function other()

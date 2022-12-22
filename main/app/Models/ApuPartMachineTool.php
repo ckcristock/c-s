@@ -34,6 +34,11 @@ class ApuPartMachineTool extends Model
 	{
 		return $this->belongsTo(Unit::class);
 	}
+
+    public function machine()
+	{
+		return $this->belongsTo(MachineTool::class, 'description');
+	}
 }
 
 

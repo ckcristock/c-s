@@ -61,7 +61,7 @@ class ApuController extends Controller
 
     public function paginate(Request $request)
     {
-        $query = ApuPart::with('thirdParty','city:id,name','person:id,first_name,first_surname,full_name')
+        $query = ApuPart::with('thirdParty', 'city:id,name', 'person:id,first_name,first_surname,full_name')
             ->extra($request)
             ->when($request->city, function ($q, $fill) {
                 $q->whereHas('city', function ($query) use ($fill) {
@@ -74,7 +74,7 @@ class ApuController extends Controller
                 });
             });
 
-        $querySets = ApuSet::with('thirdParty','city:id,name','person:id,first_name,first_surname,full_name')
+        $querySets = ApuSet::with('thirdParty', 'city:id,name', 'person:id,first_name,first_surname,full_name')
             ->extra($request)
             ->when($request->city, function ($q, $fill) {
                 $q->whereHas('city', function ($query) use ($fill) {
@@ -87,7 +87,7 @@ class ApuController extends Controller
                 });
             });
 
-        $queryService = ApuService::with('thirdParty','city:id,name','person:id,first_name,first_surname,full_name')
+        $queryService = ApuService::with('thirdParty', 'city:id,name', 'person:id,first_name,first_surname,full_name')
             ->extra($request)
             ->when($request->city, function ($q, $fill) {
                 $q->whereHas('city', function ($query) use ($fill) {
@@ -98,11 +98,17 @@ class ApuController extends Controller
                 $q->whereHas('thirdParty', function ($query) use ($fill) {
                     $query->where('social_reason', 'like', "%$fill%");
                 });
-            })
-            ->union($query)
-            ->union($querySets);
+            });
+        if ($request->type_multiple == 'pyc') {
+            $query_total = $query->union($querySets);
+        } else {
+            $query_total = $queryService
+                ->union($query)
+                ->union($querySets);
+        }
+
         return $this->success(
-            $queryService->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            $query_total->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 

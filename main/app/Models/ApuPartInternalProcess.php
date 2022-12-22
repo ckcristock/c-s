@@ -33,4 +33,9 @@ class ApuPartInternalProcess extends Model
 	{
 		return $this->belongsTo(Unit::class);
 	}
+
+    public function internal()
+	{
+		return $this->belongsTo(InternalProcess::class, 'description');
+	}
 }
