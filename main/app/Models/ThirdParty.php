@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ThirdParty extends Model
 {
@@ -75,9 +76,16 @@ class ThirdParty extends Model
     {
         return $this->belongsTo(AccountPlan::class);
     }
-    public function scopeName($q)
+    public function scopeName($q, $alias='full_name')
     {
-        return $q->addSelect(DB::raw('*, IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as full_name'));
+        // Si se envió 'select *' retire 'social_reason' de la lista de campos
+        if(is_null($q->getQuery()->columns)){
+            $q2=DB::query()->fromSub($q,"s")->get();
+            $columnas = array_keys((array) $q2->first());
+            $columnas = array_diff($columnas,["social_reason"]);
+            $q->select($columnas);
+        }
+        return $q->addSelect(DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname, second_name, second_surname)) as '.$alias));
     }
 
     public function quotations()
