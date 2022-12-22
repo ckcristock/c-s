@@ -79,9 +79,8 @@ class ThirdPartyController extends Controller
     {
         return $this->success(
             ThirdParty::select(
-                DB::raw('IFNULL(social_reason,concat(first_name," ",first_surname)) as text'),
-                'id as value'
-            )->when(Request()->get('name'), function ($q, $fill) {
+                DB::raw('id as value'))->name("text")
+            ->when(Request()->get('name'), function ($q, $fill) {
                 $q->where(DB::raw('concat(IFNULL(social_reason, " "), IFNULL(first_name,"")," ",IFNULL(first_surname,"") )'), 'like', '%' . $fill . '%');
             })
                 ->where('state', 'Activo')
