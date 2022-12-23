@@ -93,9 +93,11 @@ class ExtraHoursController extends Controller
                 case 'Fijo':
 					$funcionario =  $this->extrasService->funcionarioFijo($filtroDiarioFecha, $fechaInicio, $fechaFin);
                     //if (isset($funcionario->getData()->msg)){
+                       /*  dd(isJson($funcionario)->toString());
                     if (isJson($funcionario)->toString() == "is valid JSON"){
                         return $this->error($funcionario->getData()->msg,442);
-                    }
+                    } */
+                    //dd($funcionario);
 					return $this->success($this->extrasService->calcularExtras($funcionario));
 					break;
                 case 'Rotativo':

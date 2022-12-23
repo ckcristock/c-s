@@ -117,6 +117,7 @@ class ExtraHoursService
          * aunque llegue temprano, no se toma como extra hasta que cumpla
          * las horas estipuladas para el turno
          */
+        //dd($funcionario);
         foreach ($funcionario['days_work'] as $day) {
 
             if (isset($day)) {
@@ -134,13 +135,18 @@ class ExtraHoursService
                         $toleranciaSalida = $funcionario['turno_fijo']['leave_tolerance'];
                         $toleranciaEntrada = $funcionario['turno_fijo']['entry_tolerance'];
                     } elseif ($turno =='Rotativo') {
+                        $horasExtras = $diario['turnoOficial']['extra_hours'];
                         $toleranciaSalida = $diario['turnoOficial']['entry_tolerance'];
                         $toleranciaEntrada =  $diario['turnoOficial']['leave_tolerance'];
-                        $horasExtras = $diario['turnoOficial']['extra_hours'];
                     }
                 } else { //sino hay diario, no se registró ingreso a la empresa
                     $horasExtras = false;
-                    $semDia = Carbon::create($day['date']);
+                    //dd(is_string($day['date']));
+                    if(is_string($day['date'])){
+                        $semDia = Carbon::create($day['date']);
+                    }else {
+                        $semDia = $day['date'];
+                    }
                     $translateService = new TranslateService();
                     $diferencias = new stdObject([
                         'day' => $semDia,
@@ -167,16 +173,12 @@ class ExtraHoursService
                     array_push($listaExtras, $diferenciasDia);
                     //Este turno no posee Horas Extras
                 }
-
                 //dd('por aca voy -  realmente');
                 //OJO, debe retornar $funcionario
-
-
-
             } else {
-
                 // No trabajó
-
+                $funcionario['extras'] = $listaExtras;
+                return $funcionario;
             }
         }
         $funcionario['extras'] = $listaExtras;
@@ -599,19 +601,25 @@ class ExtraHoursService
             $funcionario['fecha_inicio'] = Carbon::create($fechaInicio)->locale('es_ES');
             $funcionario['fecha_fin'] = Carbon::create($fechaFin)->locale('es_ES');
 
+
             if (isset($funcionario['contractultimate']['fixed_turn']['horarios_turno_fijo'])) {
                 $funcionario['turno_fijo'] = $funcionario['contractultimate']['fixed_turn'];
                 unset($funcionario['contractultimate']);
 
                 $funcionario['days_work'] = $funcionario['turno_fijo']['horarios_turno_fijo'];
+                foreach ($funcionario['days_work'] as $clave => $dayWork) {
+                    $funcionario['days_work'][$clave]['date'] = Carbon::create($fechaInicio)->addDays($clave);
+                }
                 foreach ($funcionario['diarios_turno_fijo']  as  $diario) {
                     foreach ($funcionario['turno_fijo']['horarios_turno_fijo'] as $ky => $turno) {
                         if ($turno['day'] == $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek)) {
+                            //$funcionario['days_work'][$ky]['day'] = $diario; //esta es la forma óptima
                             array_push($funcionario['days_work'][$ky], ['day' => $diario]);
                         }
                     }
                 }
                 unset($funcionario['diarios_turno_fijo']);
+                //dd($funcionario['days_work']);
             } else {
                 return response()->json(['msg'=> 'Horario no asignado']);
             }
