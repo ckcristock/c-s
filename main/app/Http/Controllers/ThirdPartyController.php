@@ -175,6 +175,10 @@ class ThirdPartyController extends Controller
             ->find($id);
         $third_party = ThirdParty::find($id);
         $third_party_fields = ThirdPartyField::get();
+        $quotations2 = $third_party->quotations()->get();
+        $groupedQuotations = $quotations2->groupBy(function ($item) {
+            return $item->created_at->month;
+        });
         $quotations = $third_party->quotations()->paginate(Request()->get('pageSizeQuotation', 10), ['*'], 'pageQuotation', Request()->get('pageQuotation', 1));
         $business = $third_party->business()->paginate(Request()->get('pageSizeBusiness', 10), ['*'], 'pageBusiness', Request()->get('pageBusiness', 1));
         $budgets = $third_party->budgets()->paginate(Request()->get('pageSizeBudgets', 10), ['*'], 'pageBudgets', Request()->get('pageBudgets', 1));
@@ -186,7 +190,8 @@ class ThirdPartyController extends Controller
                 "business" => $business,
                 "budgets" => $budgets,
                 "people" => $people,
-                "third_party_fields" => $third_party_fields
+                "third_party_fields" => $third_party_fields,
+                "chart_quotations" => $groupedQuotations
             ]
         );
     }
