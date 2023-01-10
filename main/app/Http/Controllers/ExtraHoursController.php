@@ -92,20 +92,10 @@ class ExtraHoursController extends Controller
 			switch ($tipo) {
                 case 'Fijo':
 					$funcionario =  $this->extrasService->funcionarioFijo($filtroDiarioFecha, $fechaInicio, $fechaFin);
-                    //if (isset($funcionario->getData()->msg)){
-                       /*  dd(isJson($funcionario)->toString());
-                    if (isJson($funcionario)->toString() == "is valid JSON"){
-                        return $this->error($funcionario->getData()->msg,442);
-                    } */
-                    //dd($funcionario);
 					return $this->success($this->extrasService->calcularExtras($funcionario));
 					break;
                 case 'Rotativo':
                     $funcionario = $this->extrasService->funcionarioRotativo($filtroDiarioFecha);
-                    //dd( isJson($funcionario)->toString() == "is valid JSON");
-                    /* if (isJson($funcionario)->toString() == "is valid JSON"){
-                        return $this->error($funcionario->getData()->msg,206);
-                    } */
 					return $this->success($this->extrasService->calcularExtras($funcionario));
 					break;
 				default:
@@ -113,7 +103,6 @@ class ExtraHoursController extends Controller
 					break;
 			}
 		} catch (\Throwable $th) {
-			//return $th;
 			return $th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile();
 		}
 	}
@@ -163,7 +152,8 @@ class ExtraHoursController extends Controller
 			return response()->json(['message' => 'Horas extras validadas correctamente']);
 		} catch (\Throwable $th) {
 			//throw $th;
-			return response($th->getMessage());
+			//return response($th->getMessage());
+            return $this->error($th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 401);
 		}
 	}
 	public function update($id, Request $request)

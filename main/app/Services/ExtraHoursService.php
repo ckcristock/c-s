@@ -141,7 +141,6 @@ class ExtraHoursService
                     }
                 } else { //sino hay diario, no se registró ingreso a la empresa
                     $horasExtras = false;
-                    //dd(is_string($day['date']));
                     if(is_string($day['date'])){
                         $semDia = Carbon::create($day['date']);
                     }else {
@@ -149,9 +148,9 @@ class ExtraHoursService
                     }
                     $translateService = new TranslateService();
                     $diferencias = new stdObject([
-                        'day' => $semDia,
-                        'date' => $translateService->traslateIntDay($semDia->dayOfWeek), //traslateInDay
-                        'extras' => 'No hay asistencia este día'
+                        'date' => $semDia,
+                        'day' => $translateService->traslateIntDay($semDia->dayOfWeek), //traslateInDay
+                        'extras' => 'No hay asistencia este día',
                     ]);
                     array_push($listaExtras, $diferencias);
                 }
@@ -167,13 +166,11 @@ class ExtraHoursService
                     array_push($listaExtras, $diferenciasDia);
                     //calculo horas extras
                 } elseif ($turno == 'Rotativo' && !is_null($diario) ) {
-                  /*   dd($diario);
-                    dd('calcular horas rotativas'); */
+
                     $diferenciasDia = $this->diferenciaHorariosRotativo($diario, $toleranciaEntrada, $toleranciaSalida, $dayStart, $dayEnd);
                     array_push($listaExtras, $diferenciasDia);
                     //Este turno no posee Horas Extras
                 }
-                //dd('por aca voy -  realmente');
                 //OJO, debe retornar $funcionario
             } else {
                 // No trabajó
@@ -236,19 +233,21 @@ class ExtraHoursService
         ]);
 
         $intSalida = $this->redondearHora($diferenciaReal, $toleranciaSalida);
-
-        $horasExtras = $this->clasificacionHorasExtras($intSalida, $cantHorasDiario ,$diario, $realOutDos, $comienzoDia, $finDia);
+        //dd($cantHorasDiario);
+        $cantDiarios = $this->redondearHora($cantHorasDiario, $toleranciaSalida);
+        //dd($cantDiarios);
+        $horasExtras = $this->clasificacionHorasExtras($intSalida, $cantDiarios ,$diario, $realOutDos, $comienzoDia, $finDia);
 
         $diferencias = new stdObject([
-            'day' => $horario['day'],
             'date' => $diario['date'],
-            'schedule_in' => $esperadoIn->toDateTimeString(),
+            'day' => $horario['day'],
+            'extras' => $intSalida,
             'hour_in' => $realIn->toDateTimeString(),
-            'schedule_out' => $esperadoOutDos->toDateTimeString(),
             'hour_out' => $realOutDos->toDateTimeString(),
             'hours_schedule' => $cantHorasHorario,
-            'extras' => $intSalida,
-            'lista' => $horasExtras
+            'lista' => $horasExtras,
+            'schedule_in' => $esperadoIn->toDateTimeString(),
+            'schedule_out' => $esperadoOutDos->toDateTimeString()
         ]);
         return $diferencias;
     }
@@ -261,11 +260,11 @@ class ExtraHoursService
     public function redondearHora($diferencia, $tolerancia)
     {
         //la tolerancia viene en minutos
-        $horaExtra = 0;
+        //$horaExtra = 0;
         //dd($diferencia->minutos + $tolerancia);
 
+        $horaExtra = $diferencia->horas;
         if ($tolerancia <> 0) {
-            $horaExtra = $diferencia->horas;
             if ( $diferencia->minutos > $tolerancia ) {
                 $horaExtra++;
             }
@@ -290,15 +289,18 @@ class ExtraHoursService
 
         $domingo = $fecha->dayOfWeek == 0 ? true : false;
 
-        //formato de festivos "YYY-mm-dd"
         $festivosAnio = $this->getFestivos();
         $festivo = false;
-        foreach ($festivosAnio as $festive) {
-            $festCarbon = Carbon::create($festive);
-            if ($fecha == $festCarbon){
-                $festivo = true;
+        if (!$domingo) {
+            foreach ($festivosAnio as $festive) {
+                $festCarbon = Carbon::create($festive);
+                if ($fecha == $festCarbon){
+                    $festivo = true;
+                    $domingo = true;
+                }
             }
         }
+        //formato de festivos "YYY-mm-dd"
 
         //Hora se recibe en formato Carbon::create("2022-12-11 05:01:43")
         //por ello no se convierte acá
@@ -307,7 +309,7 @@ class ExtraHoursService
             $diurno = true;
         }
 
-        return [$domingo, $festivo, $diurno];
+        return [$domingo, $diurno];
     }
 
     /**
@@ -316,39 +318,28 @@ class ExtraHoursService
      */
     public function clasificacionHorasExtras($intSalida, $cantHorasDiario ,$diario, $salida, $comienzoDia, $finDia )
     {
-        //$intSalida = $this->redondearHora($diferenciaReal, $toleranciaSalida);
+        //dd( $this->redondearHora($cantHorasDiario));
+        //dd('asd', $cantHorasDiario);
         $horasExtras = new stdObject([
-            "ht" => $cantHorasDiario->horas,
+            "ht" => $cantHorasDiario,
             "hed" => 0,
             "hen" => 0,
             "heddf" => 0,
             "hendf" => 0,
         ]);
-            //dd($salida);
+
         $aux = $salida;
         for($i = 1; $i<= $intSalida; $i++ ) {
             $array = $this->tipoHora($diario['date'], $aux->subHours($i-1), $comienzoDia, $finDia);
-            //dd($array);
 
-            array_push($array, true);
-            //dd($array);
-
-            if (($array <=> [false, false, true, true])==0) {    //H E D
+            if (($array <=> [false, true])==0) {    //H E D
                 $horasExtras->hed++;
-            } elseif (($array <=> [false, false, false, true])==0) {  //H E N
+            } elseif (($array <=> [false, false])==0) {  //H E N
                 $horasExtras->hen++;
-            } elseif (($array <=> [true, true, true, true])==0) {  //H E D DF
+            } elseif (($array <=> [true, true])==0) {  //H E D DF
                 $horasExtras->heddf++;
-            } elseif (($array <=> [true, true, false, true])==0) {  //H E N DF
+            } elseif (($array <=> [true, false])==0) {  //H E N DF
                 $horasExtras->hendf++;
-            } elseif (($array <=> [true, false, false, true])==0) {  //H E N DF
-                $horasExtras->hendf++;
-            } elseif (($array <=> [false, true, false, true])==0) {  //H E N DF
-                $horasExtras->hendf++;
-            } elseif (($array <=> [false, true, true, true])==0) {  //H E D DF
-                $horasExtras->heddf++;
-            } elseif (($array <=> [true, false, true, true])==0) {  //H E D DF
-                $horasExtras->heddf++;
             }
             $salida->addHours($i-1);
         }
@@ -366,21 +357,12 @@ class ExtraHoursService
         $aux = $salida;
         for($i = 1; $i<= $intSalida; $i++ ) {
             $array = $this->tipoHora($diario['date'], $aux->subHours($i-1), $comienzoDia, $finDia);
-            array_push($array, false);
 
-            if (($array <=> [true, true, false, false])==0) {  //H R N DF
+            if (($array <=> [true, false])==0) {  //H R N DF
                 $horasRecargo->hrndf++;
-            } elseif (($array <=> [false, false, false, false])==0) {  //H R N
+            } elseif (($array <=> [false, false])==0) {  //H R N
                 $horasRecargo->hrn++;
-            } elseif (($array <=> [true, true, true, false])==0) {  //H R D DF
-                $horasRecargo->hrddf++;
-            } elseif (($array <=> [true, false, false, false])==0) {  //H R N
-                $horasRecargo->hrn++;
-            } elseif (($array <=> [false, true, false, false])==0) {  //H R N
-                $horasRecargo->hrn++;
-            } elseif (($array <=> [true, false, true, false])==0) {  //H R D DF
-                $horasRecargo->hrddf++;
-            } elseif (($array <=> [false, true, true, false])==0) {  //H R D DF
+            } elseif (($array <=> [true, true])==0) {  //H R D DF
                 $horasRecargo->hrddf++;
             }
             $salida->addHours($i-1);
@@ -417,31 +399,31 @@ class ExtraHoursService
         ]);
 
         $intSalida = $this->redondearHora($diferenciaReal, $sumTolerancia);
+        $cantDiarios = $this->redondearHora($cantHorasDiario, $sumTolerancia);
         $sali = $realOut;
-
-        $horasExtras = $this->clasificacionHorasExtras($intSalida, $cantHorasDiario, $horario, $sali, $comienzoDia, $finDia);
+        $horasExtras = $this->clasificacionHorasExtras($intSalida, $cantDiarios, $horario, $sali, $comienzoDia, $finDia);
 
         $horasRecargo = new stdObject([
             "hrndf" => 0,
             "hrn" => 0,
             "hrddf" => 0
         ]);
-        if ($intSalida == 0 && $realOut>$finDia) {
-            $recargo = $realOut->diffInHours($finDia);
+        if ($realOut>$finDia) {
+            $recargo = ($esperadoOut->diffInHours($finDia));
             $horasRecargo = $this->clasificacionHorasRecargo($recargo, $horario, $realOut, $comienzoDia, $finDia);
         }
 
         $diferencias = new stdObject([
-            'day' => $horario['nombreDia'],
             'date' => $horario['date'],
-            'schedule_in' => $esperadoIn->toDateTimeString(),
-            'hour_in' => $realIn->toDateTimeString(),
-            'schedule_out' => $esperadoOut->toDateTimeString(),
-            'hour_out' => $realOut->toDateTimeString(),
-            'hours_schedule' => $cantHorasHorario,
+            'day' => $horario['nombreDia'],
             'extras' => $intSalida,
+            'hour_in' => $realIn->toDateTimeString(),
+            'hour_out' => $realOut->toDateTimeString(),
             'hours_extra' => $horasExtras,
-            'hours_recharge' => $horasRecargo
+            'hours_recharge' => $horasRecargo,
+            'hours_schedule' => $cantHorasHorario,
+            'schedule_in' => $esperadoIn->toDateTimeString(),
+            'schedule_out' => $esperadoOut->toDateTimeString()
         ]);
 
         return $diferencias;
@@ -469,7 +451,7 @@ class ExtraHoursService
     }
 
     /**
-     * este parece útil, pero solo calcula uno a la vez
+     * este parece útil
      */
     public function workedTime($laborado, $asistencia, $salida)
     {
@@ -511,7 +493,7 @@ class ExtraHoursService
         return $diffTotal;
     }
 
-    //no le veo utiliddad a esta función
+    //no le veo utiliddad a esta función _dy
     public function Asistencia($fecha, $horaEntrada, $horaSalida)
     {
 
@@ -552,7 +534,7 @@ class ExtraHoursService
         $hora = Carbon::create($request->hora);
         $diaIni = $request->diaIni;
         $diaFin = $request->diaFin;
-        dd($this->tipoHora($fecha, $hora, $diaIni, $diaFin));
+        //dd($this->tipoHora($fecha, $hora, $diaIni, $diaFin));
 
         return $this->calcularExtras($funcionario);
     }
@@ -573,14 +555,15 @@ class ExtraHoursService
 
                     if ($turno['date'] == $diario['date']) {
                         $diario['nombreDia'] = $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek);
-                        $diario['turnoOficial'] = RotatingTurn::find($turno['rotating_turn_id'])->first();
+                        $diario['turnoOficial'] = RotatingTurn::find($turno['rotating_turn_id']);
                         array_push($funcionario['days_work'][$ky], ['day' => $diario]);
                     }
                 }
             }
             unset($funcionario['diarios_turno_rotativo']);
         } else {
-            return response()->json(['msg'=> 'Horario no asignado']);
+            $funcionario['days_work'] = array();
+            //return response()->json(['msg'=> 'Horario no asignado']);
         }
         return $funcionario;
     }
@@ -614,14 +597,15 @@ class ExtraHoursService
                     foreach ($funcionario['turno_fijo']['horarios_turno_fijo'] as $ky => $turno) {
                         if ($turno['day'] == $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek)) {
                             //$funcionario['days_work'][$ky]['day'] = $diario; //esta es la forma óptima
-                            array_push($funcionario['days_work'][$ky], ['day' => $diario]);
+                            array_push($funcionario['days_work'][$ky], ['day' => $diario]); //asín lo está leyendo el front
                         }
                     }
                 }
                 unset($funcionario['diarios_turno_fijo']);
                 //dd($funcionario['days_work']);
             } else {
-                return response()->json(['msg'=> 'Horario no asignado']);
+                $funcionario['days_work'] = array();
+                //return response()->json(['msg'=> 'Horario no asignado']);
             }
 
             return $funcionario;
