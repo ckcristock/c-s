@@ -23,7 +23,7 @@ class ProductController extends Controller
     public function index()
     {
 
-        $tipoCatalogo = Request()->get('tipo');
+        //$tipoCatalogo = Request()->get('tipo');
 
         $data = DB::table('Producto as p')->join('Subcategoria as s', 's.Id_Subcategoria', 'p.Id_Subcategoria')
             ->join('Categoria_Nueva as c', 'c.Id_Categoria_Nueva', 's.Id_Categoria_Nueva')
@@ -44,7 +44,7 @@ class ProductController extends Controller
                 'p.Invima as Invima',
                 'p.Imagen as Foto',
                 'p.Producto_Dotation_Type_Id',
-                'p.Nombre_Comercial as Nombre_Comercial',
+                'p.Nombre_Comercial',
                 'p.Id_Producto',
                 'p.Embalaje',
                 'p.Tipo as Tipo',
@@ -59,20 +59,18 @@ class ProductController extends Controller
 
         /*  if ($tipoCatalogo == 'Medicamento' || $tipoCatalogo == 'Material' ) { */
         # code...
-        $data->selectRaw('
-            CONCAT(
-                ifnull(p.Principio_Activo,""), " ",
-                ifnull(p.Presentacion,""), " ",
-                ifnull(p.Concentracion,""), " ",
-                ifnull(p.Nombre_Comercial,"")," ",
-                ifnull(p.Unidad_Medida,""),
+        $data->selectRaw(
+            'LTRIM(CONCAT(
+                ifnull(p.Principio_Activo,""), if(isnull(p.Presentacion),""," "),
+                ifnull(p.Presentacion,""), if(isnull(p.Concentracion),""," "),
+                ifnull(p.Concentracion,""), if(isnull(p.Nombre_Comercial),""," "),
+                ifnull(p.Nombre_Comercial,""), if(isnull(p.Unidad_Medida),""," "),
+                ifnull(p.Unidad_Medida,""), if(isnull(p.Embalaje),""," "),
                 ifnull(p.Embalaje,"")
-                ) as Nombre,
-
-                s.Nombre as Subcategoria,
-                c.Nombre as Categoria
-
-                 ');
+            )) as Nombre,
+            s.Nombre as Subcategoria,
+            c.Nombre as Categoria'
+        );
         /*    } */
 
 
@@ -81,12 +79,37 @@ class ProductController extends Controller
             $data->when(request()->get("tipo"), function ($q, $fill) {
                 $q->where("p.Tipo_Catalogo", $fill);
             })
-                ->when(request()->get("company_id"), function ($q, $fill) {
-                    $q->where("p.company_id", $fill);
-                })
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            ->when(request()->get("company_id"), function ($q, $fill) {
+                $q->where("p.company_id", $fill);
+            })
+            ->when(request()->get("categoria"), function ($q, $fill) {
+                $q->where("p.Id_Categoria",'=',$fill);
+            })
+            ->when(request()->get("subcategoria"), function ($q, $fill) {
+                $q->where("P.Id_Subcategoria",'=',$fill);
+            })
+            ->when(request()->get("nombre"), function ($q, $fill) {
+                $q->where("p.Nombre_Comercial",'like',"%$fill%");
+            })
+            ->when(request()->get("tipo_catalogo"), function ($q, $fill) {
+                $q->where("p.Tipo_Catalogo",'=',$fill);
+            })
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
+
+    public function getTiposCatalogo(){
+        $listaRaw=explode(",",DB::table('information_schema.COLUMNS as c')
+        ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_tiposCatalogo")
+        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)="sigmaqmo_db-producto-Tipo_Catalogo"')
+        ->first()->lista_tiposCatalogo);
+        $lista=[];
+        foreach($listaRaw as $value){
+            $lista[]=["text"=>str_replace(["'","_"],[""," "],$value),"value"=>str_replace("'","",$value)];
+        }
+        return $this->success($lista);
+    }
+
 
     public function listarProductos(){
         return $this->success(

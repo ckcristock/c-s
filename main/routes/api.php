@@ -673,6 +673,7 @@ Route::group(
         //se ejecuta al editar
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
+        Route::get("lista-tipos-catalogo", [ProductController::class,'getTiposCatalogo']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 
         Route::resource("category", CategoryController::class);
