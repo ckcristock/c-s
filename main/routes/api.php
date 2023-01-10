@@ -684,6 +684,8 @@ Route::group(
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
         Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
+        
+        Route::get('get-estados-producto', [ProductController::class, 'getEstados']);
         Route::get('all-zones', [ZonesController::class, 'allZones']);
         Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
         Route::get('municipalities-for-dep/{id}', [MunicipalityController::class, 'municipalitiesForDep']);
