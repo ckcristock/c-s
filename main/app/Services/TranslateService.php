@@ -14,7 +14,7 @@ class TranslateService
                 return 'Martes';
                 break;
             case 'Wednesday':
-                return 'Miércoles';
+                return 'Miercoles';
                 break;
             case 'Thursday':
                 return 'Jueves';
@@ -26,7 +26,7 @@ class TranslateService
                 return 'Sabado';
                 break;
             case 'Sunday':
-                return 'Dommingo';
+                return 'Domingo';
                 break;
             default:
                 break;

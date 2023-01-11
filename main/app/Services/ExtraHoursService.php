@@ -141,15 +141,20 @@ class ExtraHoursService
                     }
                 } else { //sino hay diario, no se registró ingreso a la empresa
                     $horasExtras = false;
-                    if(is_string($day['date'])){
-                        $semDia = Carbon::create($day['date']);
-                    }else {
-                        $semDia = $day['date'];
+                    //dd('144', $day);
+                    if(isset($day['date'])){
+                        if(is_string($day['date'])){
+                            $semDia = Carbon::create($day['date']);
+                        }else {
+                            $semDia = $day['date'];
+                        }
                     }
+                   /*  dd($day);
+                    dd($semDia); */
                     $translateService = new TranslateService();
                     $diferencias = new stdObject([
-                        'date' => $semDia,
-                        'day' => $translateService->traslateIntDay($semDia->dayOfWeek), //traslateInDay
+                        'date' => $semDia ?? $day['day'],
+                        'day' => isset($semDia) ? $translateService->traslateIntDay($semDia->dayOfWeek) : $day['day'], //traslateInDay
                         'extras' => 'No hay asistencia este día',
                     ]);
                     array_push($listaExtras, $diferencias);
@@ -233,10 +238,17 @@ class ExtraHoursService
         ]);
 
         $intSalida = $this->redondearHora($diferenciaReal, $toleranciaSalida);
-        //dd($cantHorasDiario);
         $cantDiarios = $this->redondearHora($cantHorasDiario, $toleranciaSalida);
-        //dd($cantDiarios);
         $horasExtras = $this->clasificacionHorasExtras($intSalida, $cantDiarios ,$diario, $realOutDos, $comienzoDia, $finDia);
+        $horasRecargo = new stdObject([
+            "hrndf" => 0,
+            "hrn" => 0,
+            "hrddf" => 0
+        ]);
+        if ($realOut>$finDia) {
+            $recargo = ($esperadoOut->diffInHours($finDia));
+            $horasRecargo = $this->clasificacionHorasRecargo($recargo, $horario, $realOut, $comienzoDia, $finDia);
+        }
 
         $diferencias = new stdObject([
             'date' => $diario['date'],
@@ -244,11 +256,13 @@ class ExtraHoursService
             'extras' => $intSalida,
             'hour_in' => $realIn->toDateTimeString(),
             'hour_out' => $realOutDos->toDateTimeString(),
+            'hours_extra' => $horasExtras,
+            'hours_recharge' => $horasRecargo,
             'hours_schedule' => $cantHorasHorario,
-            'lista' => $horasExtras,
             'schedule_in' => $esperadoIn->toDateTimeString(),
             'schedule_out' => $esperadoOutDos->toDateTimeString()
         ]);
+
         return $diferencias;
     }
 
@@ -318,8 +332,6 @@ class ExtraHoursService
      */
     public function clasificacionHorasExtras($intSalida, $cantHorasDiario ,$diario, $salida, $comienzoDia, $finDia )
     {
-        //dd( $this->redondearHora($cantHorasDiario));
-        //dd('asd', $cantHorasDiario);
         $horasExtras = new stdObject([
             "ht" => $cantHorasDiario,
             "hed" => 0,
@@ -584,25 +596,39 @@ class ExtraHoursService
             $funcionario['fecha_inicio'] = Carbon::create($fechaInicio)->locale('es_ES');
             $funcionario['fecha_fin'] = Carbon::create($fechaFin)->locale('es_ES');
 
-
             if (isset($funcionario['contractultimate']['fixed_turn']['horarios_turno_fijo'])) {
                 $funcionario['turno_fijo'] = $funcionario['contractultimate']['fixed_turn'];
                 unset($funcionario['contractultimate']);
 
                 $funcionario['days_work'] = $funcionario['turno_fijo']['horarios_turno_fijo'];
-                foreach ($funcionario['days_work'] as $clave => $dayWork) {
-                    $funcionario['days_work'][$clave]['date'] = Carbon::create($fechaInicio)->addDays($clave);
+//dd($funcionario['days_work']);
+                //aca le está poniendo la fecha que no corresponde al día de la semana
+                $dias =$funcionario['fecha_fin']->diffInDays($funcionario['fecha_inicio']);
+                $rgoFecha = array();
+                for ($i=0; $i <=$dias ; $i++) {
+                    $fecha = Carbon::create($fechaInicio)->addDays($i);
+                    array_push($rgoFecha, $fecha);
                 }
+                //dd($rgoFecha);
+               /*  foreach ($funcionario['days_work'] as $clave => $dayWork) {
+                    $funcionario['days_work'][$clave]['date'] = $fecha;
+                } */
+
+                /**
+                 * Si no hay diarios de entrada, este arreglo es vacío
+                 * dd($funcionario['diarios_turno_fijo']);
+                 */
+                //dd($funcionario['diarios_turno_fijo']);
                 foreach ($funcionario['diarios_turno_fijo']  as  $diario) {
                     foreach ($funcionario['turno_fijo']['horarios_turno_fijo'] as $ky => $turno) {
                         if ($turno['day'] == $translateService->translateDay(Carbon::create($diario['date'])->englishDayOfWeek)) {
+                            $funcionario['days_work'][$ky]['date'] = Carbon::create($diario['date']); //esta es la forma óptima
                             //$funcionario['days_work'][$ky]['day'] = $diario; //esta es la forma óptima
                             array_push($funcionario['days_work'][$ky], ['day' => $diario]); //asín lo está leyendo el front
                         }
                     }
                 }
                 unset($funcionario['diarios_turno_fijo']);
-                //dd($funcionario['days_work']);
             } else {
                 $funcionario['days_work'] = array();
                 //return response()->json(['msg'=> 'Horario no asignado']);

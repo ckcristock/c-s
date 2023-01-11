@@ -9,10 +9,12 @@ class FixedTurn extends Model
 {
 	use HasFactory;
 	protected $fillable = [
-		"entry_tolerance",
-		"extra_hours",
-		"leave_tolerance",
 		"name",
+		"extra_hours",
+		"entry_tolerance",
+		"leave_tolerance",
+        "color",
+        "state",
 	];
 	public function horariosTurnoFijo()
 	{
