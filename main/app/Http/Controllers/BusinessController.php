@@ -9,6 +9,7 @@ use App\Models\BusinessHistory;
 use App\Models\BusinessQuotation;
 use App\Models\BusinessTask;
 use App\Models\Person;
+use App\Models\Quotation;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use \Milon\Barcode\DNS1D;
@@ -81,19 +82,27 @@ class BusinessController extends Controller
             $business = Business::create($request->except('budgets'));
             $business['code'] = '#NZ' . $business->id;
             $business->save();
-            $person = Person::find($request->person_id)->fullName()->first();
+            $person = Person::where('id', $request->person_id)->fullName()->first();
             $this->addEventToHistroy([
                 'business_id' => $business->id,
                 'icon' => 'fas fa-business-time',
                 'title' => 'Se ha creado el negocio',
                 'person_id' => $request->person_id,
-                'description' => $person->full_name . ' ha creado el negocio.'
+                'description' => $person->full_names . ' ha creado el negocio.'
             ]);
             if ($quotations) {
                 foreach ($quotations as $key => $value) {
                     BusinessQuotation::create([
                         'quotation_id' => $value['id'],
                         'business_id' =>  $business->id
+                    ]);
+                    $quotation = Quotation::where('id', $value['id'])->first();
+                    $this->addEventToHistroy([
+                        'business_id' => $business->id,
+                        'icon' => 'fas fa-money-check-alt',
+                        'title' => 'Se ha agregado una cotización',
+                        'person_id' => $request->person_id,
+                        'description' => $person->full_names . ' ha añadido la cotización ' . $quotation->line . ' - ' . $quotation->project . '.'
                     ]);
                 }
             }
@@ -102,6 +111,14 @@ class BusinessController extends Controller
                     BusinessBudget::create([
                         'budget_id' => $budget['id'],
                         'business_id' =>  $business->id
+                    ]);
+                    $budget_ = Budget::where('id', $budget['id'])->first();
+                    $this->addEventToHistroy([
+                        'business_id' => $business->id,
+                        'icon' => 'fas fa-money-bill',
+                        'title' => 'Se ha agregado un presupuesto',
+                        'person_id' => $request->person_id,
+                        'description' => $person->full_names . ' ha añadido el presupuesto ' . $budget_->line . ' - ' . $budget_->project . '.'
                     ]);
                 }
             }
@@ -114,11 +131,20 @@ class BusinessController extends Controller
     public function newBusinessBudget(Request $request)
     {
         try {
+            $person = Person::where('id', $request->person_id)->fullName()->first();
             Business::where('id', $request->business_id)->update(['budget_value' => $request->budget_value]);
             foreach ($request->get('budgets') as $budget) {
                 BusinessBudget::create([
                     'budget_id' => $budget['budget_id'],
                     'business_id' =>  $budget['business_budget_id']
+                ]);
+                $budget_ = Budget::where('id', $budget['budget_id'])->first();
+                $this->addEventToHistroy([
+                    'business_id' => $request->business_id,
+                    'icon' => 'fas fa-money-bill',
+                    'title' => 'Se ha agregado un presupuesto',
+                    'person_id' => $request->person_id,
+                    'description' => $person->full_names . ' ha añadido el presupuesto ' . $budget_->line . ' - ' . $budget_->project . '.'
                 ]);
             }
             return $this->success('Creado con éxito');
@@ -130,6 +156,7 @@ class BusinessController extends Controller
     public function newBusinessQuotation(Request $request)
     {
         try {
+            $person = Person::where('id', $request->person_id)->fullName()->first();
             $business = Business::where('id', $request->business_id)->first();
             $business->update(['quotation_value' => $request->quotation_value]);
             foreach ($request->quotations as $quotation) {
@@ -137,11 +164,31 @@ class BusinessController extends Controller
                     'quotation_id' => $quotation['quotation_id'],
                     'business_id' =>  $quotation['business_id']
                 ]);
+                $quotation = Quotation::where('id', $quotation['quotation_id'])->first();
+                $this->addEventToHistroy([
+                    'business_id' => $business->id,
+                    'icon' => 'fas fa-money-check-alt',
+                    'title' => 'Se ha agregado una cotización',
+                    'person_id' => $request->person_id,
+                    'description' => $person->full_names . ' ha añadido la cotización ' . $quotation->line . ' - ' . $quotation->project . '.'
+                ]);
             }
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
+    }
+
+    public function changeStatusInBusiness(Request $request)
+    {
+        if ($request->label == 'budget') {
+            $aux = BusinessBudget::where('id', $request->item['id'])->first();
+            $aux->update(['status' => $request->status]);
+        } else if ($request->label == 'quotation') {
+            $aux = BusinessQuotation::where('id', $request->item['id'])->first();
+            $aux->update(['status' => $request->status]);
+        }
+        return $this->success('holi');
     }
 
     /**

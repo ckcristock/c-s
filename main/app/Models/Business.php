@@ -44,12 +44,12 @@ class Business extends Model
 
     public function businessBudget()
     {
-        return $this->hasMany(BusinessBudget::class)->with('budget');
+        return $this->hasMany(BusinessBudget::class)->with('budget')->orderByDesc('status');
     }
 
     public function quotations()
     {
-        return $this->belongsToMany(Quotation::class)->name()->with('municipality', 'client');
+        return $this->belongsToMany(Quotation::class)->name()->with('municipality', 'client')->withPivot('status');
     }
 
     public function tasks()

@@ -749,6 +749,7 @@ Route::group(
         Route::post('save-task', [BudgetController::class, 'saveTask']);
         Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
         Route::get('get-history-business/{id}', [BusinessController::class, 'getHistory']);
+        Route::post('change-status-in-business', [BusinessController::class, 'changeStatusInBusiness']);
 
         /************RUTAS PHP************/
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);

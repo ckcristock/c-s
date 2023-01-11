@@ -42,6 +42,12 @@ class QuotationController extends Controller
                 ->when($request->code, function ($q, $fill) {
                     $q->where('code', 'like', '%' . $fill . '%');
                 })
+                ->when($request->line, function ($q, $fill) {
+                    $q->where('line', 'like', "%$fill%");
+                })
+                ->when($request->date_start, function ($q, $fill) use($request) {
+                    $q->whereBetween('created_at', [$fill, $request->date_end]);
+                })
                 ->when($request->status, function ($q, $fill) {
                     $q->where('status', $fill);
                 })

@@ -76,11 +76,12 @@ class TaskController extends Controller
     {
         $task = Task::where('id', $request->id)->with('realizador')->first();
         Task::where('id', $request->id)->update(['estado' => $request->status]);
+        $person = Person::where('id', $task->realizador->id)->fullName()->first();
         Alert::create([
             'user_id' => $task->id_asignador,
             'person_id' => $task->id_realizador,
             'type' => 'Cambio de estado de la tarea',
-            'description' => $task->realizador->full_name . ' ha cambiado el estado de la tarea ' . strtolower($task->titulo) . ' a ' . strtolower($request->status),
+            'description' => $person->full_names . ' ha cambiado el estado de la tarea ' . strtolower($task->titulo) . ' a ' . strtolower($request->status),
             'url' => '/' . 'task/' . $task->id,
             'icon' => 'fas fa-arrow-right',
 
@@ -88,7 +89,7 @@ class TaskController extends Controller
         TaskTimeline::create([
             'icon' => 'fas fa-arrow-right',
             'title' => 'Cambio de estado',
-            'description' => $task->realizador->full_name . ' cambió el estado a ' . strtolower($request->status),
+            'description' => $person->full_names . ' cambió el estado a ' . strtolower($request->status),
             'task_id' => $request->id,
             'person_id' => $task->id_asignador,
 
@@ -129,11 +130,12 @@ class TaskController extends Controller
 
     private function alertComment($user_id, $person, $task)
     {
+        $person_ = Person::where('id', $person->id)->fullName()->first();
         Alert::create([
             'user_id' => $user_id,
             'person_id' => $person->id,
             'type' => 'Nuevo comentario',
-            'description' => $person->full_name
+            'description' => $person_->full_names
                 . ' ha publicado un nuevo comentario en la tarea: '
                 . strtolower($task->titulo),
             'url' => '/' . 'task/' . $task->id,
@@ -142,7 +144,7 @@ class TaskController extends Controller
         TaskTimeline::create([
             'icon' => 'fas fa-comments',
             'title' => 'Nuevo comentario',
-            'description' => $person->full_name
+            'description' => $person_->full_names
                 . ' publicó un nuevo comentario',
             'task_id' => $task->id,
             'person_id' => $person->id,
@@ -153,12 +155,12 @@ class TaskController extends Controller
     {
         $comment = TaskComment::where('id', $id)->first();
         $task_id = $comment->task_id;
-        $person = Person::where('id', $comment->person_id)->first();
+        $person = Person::where('id', $comment->person_id)->fullName()->first();
         $comment->delete();
         TaskTimeline::create([
             'icon' => 'fas fa-trash',
             'title' => 'Comentario eliminado',
-            'description' => $person->fullname . ' eliminó un comentario ',
+            'description' => $person->full_names . ' eliminó un comentario ',
             'task_id' => $task_id,
             'person_id' => $person->id,
 
