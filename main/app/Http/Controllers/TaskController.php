@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alert;
+use App\Models\BusinessTask;
 use App\Models\Person;
 use Illuminate\Http\Request;
 use App\Models\Task;
@@ -193,25 +194,19 @@ class TaskController extends Controller
                 }
             }
         }
-        $task_types = TaskType::get();
-        $id_is_negocios = '';
-        foreach($task_types as $task_type){
-            if($task_type->name == 'Negocios'){
-                $id_is_negocios = $task_type->id;
-            }
-        }
-        if($request->type_id == $id_is_negocios){
-            DB::table('business_task')->insert([
+
+        if ($request->category == 'Negocios') {
+            BusinessTask::create([
                 'task_id' => $task_id,
                 'business_id' => $request->business_id
             ]);
         }
-        $asignador = Person::where('id', $data['id_asignador'])->first();
+        $asignador = Person::where('id', $data['id_asignador'])->fullName()->first();
         Alert::create([
             'user_id' => $data['id_realizador'],
             'person_id' => $data['id_asignador'],
             'type' => 'Nueva tarea',
-            'description' => $asignador->full_name . ' te ha asignado una nueva tarea.',
+            'description' => $asignador->full_names . ' te ha asignado una nueva tarea.',
             'url' => '/' . 'task/' . $task_id,
             'icon' => 'fas fa-tasks',
 
@@ -219,7 +214,7 @@ class TaskController extends Controller
         TaskTimeline::create([
             'icon' => 'fas fa-tasks',
             'title' => 'Nueva tarea',
-            'description' => $asignador->full_name . ' creó la tarea.',
+            'description' => $asignador->full_names . ' creó la tarea.',
             'task_id' => $task_id,
             'person_id' => $asignador->id,
 

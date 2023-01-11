@@ -56,4 +56,14 @@ class Business extends Model
     {
         return $this->belongsToMany(Task::class)->with('asignador', 'types', 'realizador');
     }
+
+    public function timeline_tasks()
+    {
+        return $this->belongsToMany(Task::class)->with('timeline');
+    }
+
+    public function history()
+    {
+        return $this->hasMany(BusinessHistory::class)->with('person');
+    }
 }

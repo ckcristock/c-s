@@ -70,11 +70,9 @@ class ThirdPartyPersonController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        $data["third_party_id"] = 0;
-        /* return $this->success($request->all()); */
         try {
-            ThirdPartyPerson::create($data);
-            return $this->success('Creado con éxito');
+            $person = ThirdPartyPerson::updateOrCreate(['id'=> $request->id], $data);
+            return ($person->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage(), $th->getLine()]);
         }
