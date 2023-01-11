@@ -36,7 +36,8 @@ class ProductController extends Controller
                 'p.Principio_Activo',
                 'p.Descripcion_ATC',
                 'p.Codigo_Barras',
-                'p.Id_Producto',
+                'p.Presentacion',
+                'p.Unidad_Medida',
                 'p.Id_Categoria',
                 'p.Id_Subcategoria',
                 'p.Laboratorio_Generico as Generico',
@@ -45,7 +46,6 @@ class ProductController extends Controller
                 'p.Imagen as Foto',
                 'p.Producto_Dotation_Type_Id',
                 'p.Nombre_Comercial',
-                'p.Id_Producto',
                 'p.Embalaje',
                 'p.Tipo as Tipo',
                 'p.Tipo_Catalogo',
@@ -74,7 +74,6 @@ class ProductController extends Controller
         /*    } */
 
 
-
         return $this->success(
             $data->when(request()->get("tipo"), function ($q, $fill) {
                 $q->where("p.Tipo_Catalogo", $fill);
@@ -96,6 +95,21 @@ class ProductController extends Controller
             })
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
+    }
+
+    public function getSubcategoryVars(){
+        $valor = (request()->get('valor') !== null);
+        $query=($valor)?
+            DB::table("Variable_Products as vp")
+            ->select("vp.id as id_vp", "sv.id as sv_id", "label", "type", "required", "valor")
+            ->join('Subcategory_Variables as sv', 'sv.id', 'vp.subcategory_variables_id')
+            ->where("vp.product_id",request()->get('id'))->get()
+        :
+            DB::table("Subcategory_Variables as sv")
+            ->select("sv.id as sv_id", "label", "type", "required")
+            ->where("sv.Subcategory_Id",request()->get('id'))->get();
+
+        return $this->success($query);
     }
 
     public function getTiposCatalogo(){
