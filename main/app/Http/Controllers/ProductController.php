@@ -98,16 +98,25 @@ class ProductController extends Controller
     }
 
     public function getSubcategoryVars(){
-        $valor = (request()->get('valor') !== null);
-        $query=($valor)?
-            DB::table("Variable_Products as vp")
-            ->select("vp.id as id_vp", "sv.id as sv_id", "label", "type", "required", "valor")
+
+        $producto=request()->get('producto');
+        if($producto!==null){
+            $query=DB::table("Variable_Products as vp")
+            ->select("vp.id as vp_id", "sv.id as sv_id", "label", "type", "required", "valor")
             ->join('Subcategory_Variables as sv', 'sv.id', 'vp.subcategory_variables_id')
-            ->where("vp.product_id",request()->get('id'))->get()
-        :
-            DB::table("Subcategory_Variables as sv")
+            ->where("vp.product_id",$producto)->get();
+
+            if(count($query)==0){
+                $query=DB::table("Subcategory_Variables as sv")
+                ->select("sv.id as sv_id", "label", "type", "required")
+                ->join('Producto as p', 'p.Id_Subcategoria', 'sv.Subcategory_Id')
+                ->where("Id_Producto",$producto)->get();
+            }
+        }else{
+            $query=DB::table("Subcategory_Variables as sv")
             ->select("sv.id as sv_id", "label", "type", "required")
-            ->where("sv.Subcategory_Id",request()->get('id'))->get();
+            ->where("sv.Subcategory_Id",request()->get('subcategoria'))->get();
+        }
 
         return $this->success($query);
     }
@@ -211,7 +220,16 @@ class ProductController extends Controller
     {
         try {
 
-            $data = $request->except(["dynamic"]);
+            $data = $request->except(["camposSubcategoria"]);
+
+            $camposSubcat = request()->get("camposSubcategoria");
+            $product = Product::updateOrCreate(["Id_Producto" => $data["Id_Producto"]],$data);
+            foreach ($camposSubcat as $d) {
+                $d["product_id"] = $product->Id_Producto;
+                VariableProduct::updateOrCreate(['id' => $d["id"]],$d);
+            }
+
+            /* $data = $request->except(["dynamic"]);
 
             $dynamic = request()->get("dynamic");
             $product = Product::create($data);
@@ -229,7 +247,7 @@ class ProductController extends Controller
             $data['cost'] = 0;
             $data['stock'] = 0;
 
-            $product = InventaryDotation::create($data);
+            $product = InventaryDotation::create($data); */
 
             return $this->success("guardado con éxito");
         } catch (\Throwable $th) {
@@ -269,7 +287,15 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $datos = $request->all();
+            $data = $request->except(["CamposSubcategoria"]);
+            $camposSubcat = request()->get("CamposSubcategoria");
+            $product = Product::where('Id_Producto', $id)->update($data);
+
+            foreach ($camposSubcat as $d) {
+                $d['product_id'] = $id;
+                VariableProduct::updateOrCreate(['id' => $d["id"]], $d);
+            }
+            /* $datos = $request->all();
             $data = $request->except(["dynamic","Status","Codigo","Producto_Dotacion_Tipo","id_inventary_dotations"]);
             $dynamic = request()->get("dynamic");
             // var_dump($dynamic);
@@ -289,7 +315,7 @@ class ProductController extends Controller
             $datos['cost'] = 0;
             $datos['stock'] = 0;
 
-            InventaryDotation::updateOrCreate(['id' => $datos["id_inventary_dotations"]],$datos);
+            InventaryDotation::updateOrCreate(['id' => $datos["id_inventary_dotations"]],$datos); */
 
             return $this->success("guardado con éxito");
         } catch (\Throwable $th) {
