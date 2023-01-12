@@ -134,6 +134,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
+use App\Http\Controllers\WorkOrderController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ThirdParty;
@@ -447,6 +448,7 @@ Route::group(
         Route::resource('jobs', JobController::class);
         Route::resource('disability-leaves', DisabilityLeaveController::class);
         Route::resource('payroll-factor', PayrollFactorController::class);
+        Route::resource('work-orders', WorkOrderController::class);
 
         Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
 
@@ -606,6 +608,7 @@ Route::group(
         Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
         Route::get('paginate-locations', [LocationController::class, 'paginate']);
         Route::get('paginate-bonuses', [BonusController::class, 'paginate']);
+        Route::get('paginate-work-orders', [WorkOrderController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);

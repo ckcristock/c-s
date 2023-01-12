@@ -168,6 +168,7 @@ class ThirdPartyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
     public function show($id)
     {
         $third_party_query = ThirdParty::with('country', 'document_type_', 'municipality', 'department')
@@ -183,6 +184,9 @@ class ThirdPartyController extends Controller
         $business = $third_party->business()->paginate(Request()->get('pageSizeBusiness', 10), ['*'], 'pageBusiness', Request()->get('pageBusiness', 1));
         $budgets = $third_party->budgets()->paginate(Request()->get('pageSizeBudgets', 10), ['*'], 'pageBudgets', Request()->get('pageBudgets', 1));
         $people = $third_party->thirdPartyPerson()->paginate(Request()->get('pageSizePeople', 10), ['*'], 'pagePeople', Request()->get('pagePeople', 1));
+        $quotations_total = $third_party->quotations()->get();
+        $business_total = $third_party->business()->get();
+        $budgets_total = $third_party->budgets()->get();
         return $this->success(
             [
                 "third_party_query" => $third_party_query,
@@ -191,7 +195,10 @@ class ThirdPartyController extends Controller
                 "budgets" => $budgets,
                 "people" => $people,
                 "third_party_fields" => $third_party_fields,
-                "chart_quotations" => $groupedQuotations
+                "chart_quotations" => $groupedQuotations,
+                "quotations_total" => $quotations_total,
+                "business_total" => $business_total,
+                "budgets_total" => $budgets_total,
             ]
         );
     }
