@@ -109,8 +109,8 @@ class ExtraHoursController extends Controller
 
 	public function store()
 	{
-		try {
-
+        try {
+            //dd(request()->all());
 			$atributos = request()->validate([
 				'person_id' => 'required',
 				'date' => 'required',
@@ -128,8 +128,11 @@ class ExtraHoursController extends Controller
 				'rn_reales' => 'required',
 				'rf_reales' => 'required',
 			]);
-			ExtraHourReport::create($atributos);
-			$hed_reales = request()->get('hed_reales');
+            //dd($atributos);
+            $nuevo = ExtraHourReport::create($atributos);
+
+            //resisar este algoritmo
+			/* $hed_reales = request()->get('hed_reales');
 			$hen_reales = request()->get('hen_reales');
 			$hedfd_reales = request()->get('hedfd_reales');
 			$hedfn_reales = request()->get('hedfn_reales');
@@ -148,12 +151,17 @@ class ExtraHoursController extends Controller
 					]);
 					$lunch->update(['apply' => ('No')]);
 				}
-			}
-			return response()->json(['message' => 'Horas extras validadas correctamente']);
+			} */
+            if ($nuevo) {
+                return $this->success(['message' => 'Horas extras validadas correctamente']);
+            } else {
+                return $this->error('Hubo un error, no se pudo guardar', 201);
+            }
+			//return response()->json(['message' => 'Horas extras validadas correctamente']);
 		} catch (\Throwable $th) {
 			//throw $th;
 			//return response($th->getMessage());
-            return $this->error($th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 401);
+            return $this->error($th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 201);
 		}
 	}
 	public function update($id, Request $request)
@@ -200,16 +208,20 @@ class ExtraHoursController extends Controller
 					$lunch->update(['apply' => ('No')]);
 				}
 			}
-			return response()->json(['message' => 'Horas extras validadas correctamente']);
+            return $this->success(['message' => 'Horas extras validadas correctamente']);
 		} catch (\Throwable $th) {
 			//throw $th;
-			return response($th->getMessage());
+            return $this->error($th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 204);
 		}
 	}
 
 	public function getDataValid($person_id, $fecha)
 	{
 		$validada = ExtraHourReport::where('date', $fecha)->where('person_id', $person_id)->orderBy('date')->first();
-		return $this->success($validada);
+        if ($validada) {
+            return $this->success($validada);
+        } else {
+            return $this->error('Entrada no encontrada', 204);
+        }
 	}
 }

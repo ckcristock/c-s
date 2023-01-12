@@ -49,7 +49,7 @@ class RotatingTurnDiaryController extends Controller
      */
     public function show($id)
     {
-        //
+        return $this->success(DiarioTurnoRotativo::find($id));
     }
 
     /**

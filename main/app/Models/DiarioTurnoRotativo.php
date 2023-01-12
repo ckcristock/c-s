@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class DiarioTurnoRotativo extends Model
 {
     protected $table = 'rotating_turn_diaries';
-    protected $guarded = ['id'];
+    //protected $guarded = ['id'];
     protected $hidden = ['created_at', 'updated_at'];
 
 
