@@ -11,8 +11,7 @@ use App\Services\LateArrivalService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
-use function PHPUnit\Framework\isJson;
+use Illuminate\Support\Facades\Validator;
 
 class ExtraHoursController extends Controller
 {
@@ -117,22 +116,27 @@ class ExtraHoursController extends Controller
 				'ht' => 'required',
 				'hed' => 'required',
 				'hen' => 'required',
-				'hedfd' => 'required',
+                //'heddf' => 'required',
+                'hedfd' => 'required',
+                //'hendf' => 'required',
 				'hedfn' => 'required',
-				'rn' => 'required',
-				'rf' => 'required',
+				//'rn' => 'required',
+                'hrn' => 'required',
+				//'rf' => 'required',
+                'hrddf' => 'required',
+                'hrndf' => 'required',
 				'hed_reales' => 'required',
 				'hen_reales' => 'required',
 				'hedfd_reales' => 'required',
 				'hedfn_reales' => 'required',
 				'rn_reales' => 'required',
 				'rf_reales' => 'required',
+                'rnf_reales' => 'required'
 			]);
-            //dd($atributos);
             $nuevo = ExtraHourReport::create($atributos);
 
             //resisar este algoritmo
-			/* $hed_reales = request()->get('hed_reales');
+			$hed_reales = request()->get('hed_reales');
 			$hen_reales = request()->get('hen_reales');
 			$hedfd_reales = request()->get('hedfd_reales');
 			$hedfn_reales = request()->get('hedfn_reales');
@@ -151,25 +155,84 @@ class ExtraHoursController extends Controller
 					]);
 					$lunch->update(['apply' => ('No')]);
 				}
-			} */
+			}
             if ($nuevo) {
                 return $this->success(['message' => 'Horas extras validadas correctamente']);
             } else {
                 return $this->error('Hubo un error, no se pudo guardar', 201);
             }
-			//return response()->json(['message' => 'Horas extras validadas correctamente']);
 		} catch (\Throwable $th) {
-			//throw $th;
-			//return response($th->getMessage());
             return $this->error($th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 201);
 		}
 	}
+
+    public function storeWeek(Request $request)
+    {
+        try {
+            foreach ($request->all() as $valor) {
+                if(gettype(strtotime($valor['date']))=='integer'){
+                    if (!$valor['validada']) {
+                        $validator = Validator::make($valor,[
+                            'person_id' => 'required',
+                            'date' => 'required',
+                            'ht' => 'required',
+                            'hed' => 'required',
+                            'hen' => 'required',
+                            'heddf' => 'required',
+                            'hendf' => 'required',
+                            'hrn' => 'required',
+                            'hrndf' => 'required',
+                            'hrddf' => 'required',
+                            'hed_reales' => 'required',
+                            'hen_reales' => 'required',
+                            'hedfd_reales' => 'required',
+                            'hedfn_reales' => 'required',
+                            'rn_reales' => 'required',
+                            'rf_reales' => 'required',
+                            'rnf_reales' => 'required'
+                        ],[
+                            'required' => 'El campo :attribute es requerido.'
+                        ]);
+
+                        if ($validator->fails()) {
+                            return $this->error(['person_id'=> $valor['person_id'], 'errores'=> $validator->errors()], 204);
+                        }
+                        $nuevo = ExtraHourReport::updateOrCreate($validator->validated());
+                        $hed_reales = $request->hed_reales;
+                        $hen_reales = $request->hen_reales;
+                        $hedfd_reales = $request->hedfd_reales;
+                        $hedfn_reales = $request->hedfn_reales;
+                        $sum = ($hed_reales + $hen_reales + $hedfd_reales + $hedfn_reales);
+                        $lunch = Lunch::where('person_id', request()->get('person_id'))->first();
+                        if($sum >= 3.5){
+                            if (isset($lunch)) {
+                                $lunch->update(['apply' => ('Si')]);
+                            }
+                        } else {
+                            if (isset($lunch)) {
+                                Deduction::create([
+                                    'person_id' => request()->get('person_id'),
+                                    'countable_deduction_id' => 5,
+                                    'value' => $lunch->value
+                                ]);
+                                $lunch->update(['apply' => ('No')]);
+                            }
+                        }
+                    }
+                } else {
+                    return $this->error('La fecha a guardar no es válida', 205);
+                }
+            }
+            return $this->success('Semana de horas extras guardada exitosamente');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(). ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 204);
+        }
+    }
+
 	public function update($id, Request $request)
 	{
 		try {
 			$validada = ExtraHourReport::findOrFail($id);
-
-			//code...
 			$atributos = request()->validate([
 				'person_id' => 'required',
 				'date' => 'required',
@@ -210,7 +273,6 @@ class ExtraHoursController extends Controller
 			}
             return $this->success(['message' => 'Horas extras validadas correctamente']);
 		} catch (\Throwable $th) {
-			//throw $th;
             return $this->error($th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 204);
 		}
 	}
