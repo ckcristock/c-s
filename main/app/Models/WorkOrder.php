@@ -16,22 +16,28 @@ class WorkOrder extends Model
         'date',
         'third_party_id',
         'municipality_id',
-        'required_by',
+        'third_party_person_id',
         'observation',
         'code',
         'description',
         'technical_requirements',
         'legal_requirements',
         'status',
+        'type'
     ];
 
     public function city()
     {
-        return $this->belongsTo(Municipality::class);
+        return $this->belongsTo(Municipality::class, 'municipality_id');
     }
 
     public function third_party()
     {
         return $this->belongsTo(ThirdParty::class)->name();
+    }
+
+    public function third_party_person()
+    {
+        return $this->belongsTo(ThirdPartyPerson::class);
     }
 }

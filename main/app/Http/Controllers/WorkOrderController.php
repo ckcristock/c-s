@@ -28,7 +28,7 @@ class WorkOrderController extends Controller
     public function paginate(Request $request)
     {
         return $this->success(
-            WorkOrder::with('city', 'third_party')
+            WorkOrder::with('city', 'third_party', 'third_party_person')
                 ->when($request->city, function ($q, $fill) {
                     $q->whereHas('city', function ($query) use ($fill) {
                         $query->where('name', 'like', "%$fill%");
@@ -61,6 +61,13 @@ class WorkOrderController extends Controller
         );
     }
 
+
+    public function getLastId()
+    {
+        return $this->success(WorkOrder::all()->last());
+    }
+
+
     public function create()
     {
         //
@@ -74,7 +81,9 @@ class WorkOrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        WorkOrder::create($data);
+        return $this->success($request->all());
     }
 
     /**

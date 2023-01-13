@@ -427,6 +427,7 @@ Route::group(
         Route::post('update-file-permission', [PersonController::class, 'updateFilePermission']);
         Route::get('get-file-permission/{id}', [PersonController::class, 'getFilePermission']);
         Route::get('third-party-person-for-third/{id}', [ThirdPartyPersonController::class, 'getThirdPartyPersonForThird']);
+        Route::get('last-id-work-orders', [WorkOrderController::class, 'getLastId']);
 
 
 

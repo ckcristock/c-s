@@ -48,7 +48,7 @@ class Quotation extends Model
 
     public function scopeName($q)
     {
-        return $q->select('*', DB::raw('CONCAT_WS("-", line, project) as name', 'id as value'));
+        return $q->select('*', DB::raw('CONCAT_WS(" - ", line, project) as name', 'id as value'));
     }
 
 

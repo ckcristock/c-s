@@ -96,7 +96,8 @@ class ThirdPartyController extends Controller
             ThirdParty::select(
                 DB::raw('IFNULL(social_reason,concat(first_name," ",first_surname)) as text'),
                 'id as value',
-                'retefuente_percentage'
+                'retefuente_percentage',
+                'nit'
             )->when(Request()->get('name'), function ($q, $fill) {
                 $q->where(DB::raw('concat(IFNULL(social_reason, " "), IFNULL(first_name,"")," ",IFNULL(first_surname,"") )'), 'like', '%' . $fill . '%');
             })
