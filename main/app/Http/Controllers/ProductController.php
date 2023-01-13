@@ -53,6 +53,7 @@ class ProductController extends Controller
                 'ido.status',
                 'ido.id as id_inventary_dotations',
                 'ido.code as code_inventary_dotations',
+                'p.Estado',
                 'p.Referencia'
             );
 
@@ -92,6 +93,9 @@ class ProductController extends Controller
             })
             ->when(request()->get("tipo_catalogo"), function ($q, $fill) {
                 $q->where("p.Tipo_Catalogo",'=',$fill);
+            })
+            ->when(request()->get("estado"), function ($q, $fill) {
+                $q->where("p.Estado",'=',$fill);
             })
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
@@ -210,6 +214,15 @@ class ProductController extends Controller
         //
     }
 
+    public function cambiarEstado(Request $request){
+        try{
+            Product::where('Id_Producto', $request->id)->update(['Estado' => $request->estado]);
+            return  $this->success('Producto '.(($request->estado == "Inactivo")?'anulado':'activado').' con éxito');
+        } catch (\Throwable $th) {
+            return $this->errorResponse( $th->getFile()." - ".$th->getMessage() );
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -287,14 +300,6 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $data = $request->except(["CamposSubcategoria"]);
-            $camposSubcat = request()->get("CamposSubcategoria");
-            $product = Product::where('Id_Producto', $id)->update($data);
-
-            foreach ($camposSubcat as $d) {
-                $d['product_id'] = $id;
-                VariableProduct::updateOrCreate(['id' => $d["id"]], $d);
-            }
             /* $datos = $request->all();
             $data = $request->except(["dynamic","Status","Codigo","Producto_Dotacion_Tipo","id_inventary_dotations"]);
             $dynamic = request()->get("dynamic");

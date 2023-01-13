@@ -675,6 +675,7 @@ Route::group(
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
         Route::get("lista-tipos-catalogo", [ProductController::class,'getTiposCatalogo']);
         Route::get("vars-subcategoria-producto", [ProductController::class,'getSubcategoryVars']);
+        Route::post("cambiar-estado-producto", [ProductController::class,'cambiarEstado']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 
         Route::resource("category", CategoryController::class);
