@@ -15,8 +15,8 @@ class TaskComment extends Model
         'task_id',
     ];
 
-    public function autor() 
+    public function autor()
     {
-        return $this->hasOne(Person::class, 'id', 'person_id');
+        return $this->hasOne(Person::class, 'id', 'person_id')->fullName();
     }
 }

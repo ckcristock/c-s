@@ -134,6 +134,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
+use App\Http\Controllers\WorkOrderController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ThirdParty;
@@ -427,6 +428,7 @@ Route::group(
         Route::post('update-file-permission', [PersonController::class, 'updateFilePermission']);
         Route::get('get-file-permission/{id}', [PersonController::class, 'getFilePermission']);
         Route::get('third-party-person-for-third/{id}', [ThirdPartyPersonController::class, 'getThirdPartyPersonForThird']);
+        Route::get('last-id-work-orders', [WorkOrderController::class, 'getLastId']);
 
 
 
@@ -448,6 +450,7 @@ Route::group(
         Route::resource('jobs', JobController::class);
         Route::resource('disability-leaves', DisabilityLeaveController::class);
         Route::resource('payroll-factor', PayrollFactorController::class);
+        Route::resource('work-orders', WorkOrderController::class);
 
         Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
 
@@ -607,6 +610,7 @@ Route::group(
         Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
         Route::get('paginate-locations', [LocationController::class, 'paginate']);
         Route::get('paginate-bonuses', [BonusController::class, 'paginate']);
+        Route::get('paginate-work-orders', [WorkOrderController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -674,6 +678,9 @@ Route::group(
         //se ejecuta al editar
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
+        Route::get("lista-tipos-catalogo", [ProductController::class,'getTiposCatalogo']);
+        Route::get("vars-subcategoria-producto", [ProductController::class,'getSubcategoryVars']);
+        Route::post("cambiar-estado-producto", [ProductController::class,'cambiarEstado']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 
         Route::resource("category", CategoryController::class);
@@ -684,6 +691,8 @@ Route::group(
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
         Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
+
+        Route::get('get-estados-producto', [ProductController::class, 'getEstados']);
         Route::get('all-zones', [ZonesController::class, 'allZones']);
         Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
         Route::get('municipalities-for-dep/{id}', [MunicipalityController::class, 'municipalitiesForDep']);
@@ -749,6 +758,8 @@ Route::group(
         Route::post('new-business-quotation', [BusinessController::class, 'newBusinessQuotation']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
         Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
+        Route::get('get-history-business/{id}', [BusinessController::class, 'getHistory']);
+        Route::post('change-status-in-business', [BusinessController::class, 'changeStatusInBusiness']);
 
         /************RUTAS PHP************/
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);

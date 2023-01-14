@@ -17,10 +17,12 @@ class ThirdPartyFieldController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         return $this->success(
-            ThirdPartyField::all()
+            ThirdPartyField::when($request->name, function ($q, $fill) {
+                $q->where('name', 'like', '%' . $fill . '%');
+            })->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -41,15 +43,16 @@ class ThirdPartyFieldController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    function buildFieldName($field_name){
-		$palabras_campo = explode(" ", $field_name);
-		$nueva_palabra = '';
-		foreach ($palabras_campo as $palabra) {
-			$p = strtolower($palabra);
-			$nueva_palabra .= $p.'_';
-		}
-		return trim($nueva_palabra, "_");
-	}
+    function buildFieldName($field_name)
+    {
+        $palabras_campo = explode(" ", $field_name);
+        $nueva_palabra = '';
+        foreach ($palabras_campo as $palabra) {
+            $p = strtolower($palabra);
+            $nueva_palabra .= $p . '_';
+        }
+        return trim($nueva_palabra, "_");
+    }
 
     public function store(Request $request)
     {
@@ -65,16 +68,16 @@ class ThirdPartyFieldController extends Controller
                 $type = '';
                 if ($field->type == 'text') {
                     $type = ' VARCHAR(200)';
-                } elseif($field->type == 'number') {
+                } elseif ($field->type == 'number') {
                     if ($field->length > 10) {
                         $type = ' BIGINT(20)';
                     } else {
                         $type = ' INT(20)';
                     }
-                } elseif($field->type == 'date') {
+                } elseif ($field->type == 'date') {
                     $type = ' DATE';
                 }
-                $sql = DB::unprepared('ALTER TABLE `third_parties` ADD COLUMN'. ' '  . $this->buildFieldName($field->name) . $type . ' NULL DEFAULT NULL');
+                $sql = DB::unprepared('ALTER TABLE `third_parties` ADD COLUMN' . ' '  . $this->buildFieldName($field->name) . $type . ' NULL DEFAULT NULL');
             }
             return ($field->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {

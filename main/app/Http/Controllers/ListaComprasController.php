@@ -20,7 +20,7 @@ class ListaComprasController extends Controller
     protected $proveedores;
 
     public function __construct(){
-      $this->proveedores = ThirdParty::whereRaw("third_party_type = 'Proveedor'");
+      $this->proveedores = ThirdParty::name("social_reason")->whereRaw("third_party_type = 'Proveedor'");
     }
 
     public function index(){
