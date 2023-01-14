@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class BusinessBudget extends Model
 {
     use HasFactory;
-    protected $fillable = ['budget_id', 'business_id'];
+    protected $fillable = [
+        'budget_id',
+        'business_id',
+        'status'
+    ];
 
     public function budget()
     {

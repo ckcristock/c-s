@@ -150,17 +150,17 @@ class ApuPart extends Model
 
     public function machine()
     {
-        return $this->hasMany(ApuPartMachineTool::class);
+        return $this->hasMany(ApuPartMachineTool::class)->with('machine');
     }
 
     public function external()
     {
-        return $this->hasMany(ApuPartExternalProcess::class);
+        return $this->hasMany(ApuPartExternalProcess::class)->with('external');
     }
 
     public function internal()
     {
-        return $this->hasMany(ApuPartInternalProcess::class);
+        return $this->hasMany(ApuPartInternalProcess::class)->with('internal');
     }
 
     public function other()

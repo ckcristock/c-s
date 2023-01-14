@@ -131,7 +131,7 @@ class Person extends Model
 
     public function horariosTurnoRotativo()
     {
-        return $this->hasMany(RotatingTurnHour::class);
+        return $this->hasMany(RotatingTurnHour::class)->with('turnoRotativo');
     }
     public function documentType()
     {

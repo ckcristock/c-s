@@ -33,4 +33,9 @@ class ApuPartExternalProcess extends Model
 	{
 		return $this->belongsTo(Unit::class);
 	}
+
+    public function external()
+	{
+		return $this->belongsTo(ExternalProcess::class, 'description');
+	}
 }

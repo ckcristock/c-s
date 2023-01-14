@@ -14,7 +14,7 @@ class ApuSetPartList extends Model
         "apu_part_id",
         "apu_set_child_id",
         "apu_type",
-        "unit",
+        "unit_id",
         "amount",
         "unit_cost",
         "total"
@@ -26,9 +26,14 @@ class ApuSetPartList extends Model
 
 	}
 
+    public function unit()
+	{
+		return $this->belongsTo(Unit::class);
+	}
+
     public function apupart()
 	{
 		return $this->belongsTo(ApuPart::class, 'apu_part_id');
 	}
-    
+
 }

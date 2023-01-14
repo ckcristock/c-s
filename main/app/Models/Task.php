@@ -20,16 +20,17 @@ class Task extends Model
         'id_asignador',
         'hora',
         'estado',
+        'category'
     ];
 
-    public function asignador() 
+    public function asignador()
     {
-        return $this->hasOne(Person::class, 'id', 'id_asignador');
+        return $this->hasOne(Person::class, 'id', 'id_asignador')->fullName();
     }
 
-    public function realizador() 
+    public function realizador()
     {
-        return $this->hasOne(Person::class, 'id', 'id_realizador');
+        return $this->hasOne(Person::class, 'id', 'id_realizador')->fullName();
     }
 
     public function adjuntos()

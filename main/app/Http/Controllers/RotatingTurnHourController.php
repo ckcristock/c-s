@@ -84,6 +84,16 @@ class RotatingTurnHourController extends Controller
         return $this->success($companies);
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        return $this->success(RotatingTurnHour::all());
+    }
+
     public function store()
     {
         /*  $atributos = request()->validate([
@@ -111,6 +121,18 @@ class RotatingTurnHourController extends Controller
             return $this->error($th->getMessage(),401);
         }
     }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        return $this->success(RotatingTurnHour::find($id));
+    }
+
 
 
     public function update($id){

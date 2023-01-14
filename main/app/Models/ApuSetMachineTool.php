@@ -12,7 +12,7 @@ class ApuSetMachineTool extends Model
     protected $fillable = [
         "apu_set_id",
         "description",
-        "unit",
+        "unit_id",
         "amount",
         "unit_cost",
         "total"
@@ -21,5 +21,15 @@ class ApuSetMachineTool extends Model
     public function apuset()
 	{
 		return $this->belongsTo(ApuSet::class);
+	}
+
+    public function unit()
+	{
+		return $this->belongsTo(Unit::class);
+	}
+
+    public function machine()
+	{
+		return $this->belongsTo(MachineTool::class, 'description');
 	}
 }

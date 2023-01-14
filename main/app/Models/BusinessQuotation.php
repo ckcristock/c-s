@@ -13,5 +13,6 @@ class BusinessQuotation extends Model
         'id',
         'business_id',
         'quotation_id',
+        'status'
     ];
 }

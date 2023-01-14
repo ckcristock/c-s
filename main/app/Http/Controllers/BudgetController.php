@@ -86,8 +86,21 @@ class BudgetController extends Controller
                             ->orWhereRaw("CONCAT_WS(' ', first_name, first_surname) = '%$fill%'");
                     });
                 })
+                ->when($request->municipality_id, function ($q, $fill) {
+                    return $q->whereHas('destiny', function ($q) use ($fill) {
+                        $q->where('name', 'like', "%$fill%");
+                    });
+                })
+                ->when($request->person_id, function ($q, $fill) {
+                    return $q->whereHas('user', function ($q) use ($fill) {
+                        $q->where('person_id', $fill);
+                    });
+                })
                 ->when($request->third_party_id, function ($q, $fill) {
                     $q->where('customer_id', $fill);
+                })
+                ->when($request->line, function ($q, $fill) {
+                    $q->where('line', 'like', "%$fill%");
                 })
                 ->orderBy('id', 'desc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))

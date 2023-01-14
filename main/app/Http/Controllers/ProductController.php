@@ -86,7 +86,7 @@ class ProductController extends Controller
                 $q->where("p.Id_Categoria",'=',$fill);
             })
             ->when(request()->get("subcategoria"), function ($q, $fill) {
-                $q->where("P.Id_Subcategoria",'=',$fill);
+                $q->where("p.Id_Subcategoria",'=',$fill);
             })
             ->when(request()->get("nombre"), function ($q, $fill) {
                 $q->where("p.Nombre_Comercial",'like',"%$fill%");
@@ -107,17 +107,17 @@ class ProductController extends Controller
         if($producto!==null){
             $query=DB::table("Variable_Products as vp")
             ->select("vp.id as vp_id", "sv.id as sv_id", "label", "type", "required", "valor")
-            ->join('Subcategory_Variables as sv', 'sv.id', 'vp.subcategory_variables_id')
+            ->join('subcategory_variables as sv', 'sv.id', 'vp.subcategory_variables_id')
             ->where("vp.product_id",$producto)->get();
 
             if(count($query)==0){
-                $query=DB::table("Subcategory_Variables as sv")
+                $query=DB::table("subcategory_variables as sv")
                 ->select("sv.id as sv_id", "label", "type", "required")
                 ->join('Producto as p', 'p.Id_Subcategoria', 'sv.Subcategory_Id')
                 ->where("Id_Producto",$producto)->get();
             }
         }else{
-            $query=DB::table("Subcategory_Variables as sv")
+            $query=DB::table("subcategory_variables as sv")
             ->select("sv.id as sv_id", "label", "type", "required")
             ->where("sv.Subcategory_Id",request()->get('subcategoria'))->get();
         }
