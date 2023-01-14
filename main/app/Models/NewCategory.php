@@ -15,7 +15,7 @@ class NewCategory extends Model
     }
  */
     public function subcategory(){
-        return $this->hasMany(Subcategory::class,"Id_Categoria_Nueva")->active();
+        return $this->hasMany(Subcategory::class,"Id_Categoria_Nueva");
     }
 
     public function scopeActive($query){
