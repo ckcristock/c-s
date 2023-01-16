@@ -51,10 +51,10 @@ class WorkOrderController extends Controller
                 /* ->when($request->status, function ($q, $fill) {
                     $q->where('status', $fill);
                 }) */
-                ->when($request->start_date, function ($q, $fill) use($request) {
+                ->when($request->start_date, function ($q, $fill) use ($request) {
                     $q->whereBetween('date', [$fill, $request->date_end]);
                 })
-                ->when($request->start_delivery_date, function ($q, $fill) use($request) {
+                ->when($request->start_delivery_date, function ($q, $fill) use ($request) {
                     $q->whereBetween('delivery_date', [$fill, $request->end_delivery_date]);
                 })
                 ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
@@ -82,7 +82,7 @@ class WorkOrderController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        WorkOrder::create($data);
+        WorkOrder::updateOrCreate(['id' => $request->id], $data);
         return $this->success($request->all());
     }
 
@@ -92,9 +92,13 @@ class WorkOrderController extends Controller
      * @param  \App\Models\WorkOrder  $workOrder
      * @return \Illuminate\Http\Response
      */
-    public function show(WorkOrder $workOrder)
+    public function show($id)
     {
-        //
+        return $this->success(
+            WorkOrder::where('id', $id)
+                ->with('third_party', 'third_party_person', 'quotation', 'city:*,id,name as text,id as value')
+                ->first()
+        );
     }
 
     /**
@@ -117,7 +121,7 @@ class WorkOrderController extends Controller
      */
     public function update(Request $request, WorkOrder $workOrder)
     {
-        //
+        $workOrder->update($request->all());
     }
 
     /**

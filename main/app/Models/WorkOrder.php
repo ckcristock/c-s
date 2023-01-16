@@ -33,11 +33,16 @@ class WorkOrder extends Model
 
     public function third_party()
     {
-        return $this->belongsTo(ThirdParty::class)->name();
+        return $this->belongsTo(ThirdParty::class)->name2();
     }
 
     public function third_party_person()
     {
         return $this->belongsTo(ThirdPartyPerson::class);
+    }
+
+    public function quotation()
+    {
+        return $this->belongsTo(Quotation::class)->name();
     }
 }
