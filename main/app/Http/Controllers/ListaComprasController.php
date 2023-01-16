@@ -310,9 +310,9 @@ class ListaComprasController extends Controller
     }
 
     public function getEstadosCompra(){
-        $listaRaw=explode(",",DB::table('information_schema.COLUMNS as c')
+        $listaRaw=explode(",",DB::table('information_schema.COLUMNS')
         ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_estados")
-        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)="sigmaqmo_db-orden_compra_nacional-estado"')
+        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?',[env('DB_DATABASE')."-orden_compra_nacional-estado"])
         ->first()->lista_estados);
         $lista=[];
         foreach($listaRaw as $value){

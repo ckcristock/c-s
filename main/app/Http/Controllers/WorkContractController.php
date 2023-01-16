@@ -28,7 +28,7 @@ class WorkContractController extends Controller
         $page = key_exists('page', $data) ? $data['page'] : 1;
         $pageSize = key_exists('pageSize', $data) ? $data['pageSize'] : 20;
         return $this->success(
-            DB::table('people as p')
+            Person::alias('p')
                 ->select(
                     DB::raw('concat("CON", w.id) as code'),
                     'p.id',
@@ -100,7 +100,7 @@ class WorkContractController extends Controller
         ->where("liquidated",1)
         ->groupBy("person_id");
 
-        $peopleRenewedContract=DB::table('people as p')
+        $peopleRenewedContract=Person::alias('p')
         ->select(
             'p.id',
             'p.first_name',
@@ -147,7 +147,7 @@ class WorkContractController extends Controller
 
     public function contractRenewal($process_id){
         return $this->success(
-            DB::table('work_contract_finish_conditions as w')
+            WorkContractFinishConditions::alias('w')
             ->select(
                 DB::raw("concat(
                     p.first_name,
@@ -174,7 +174,7 @@ class WorkContractController extends Controller
 
     public function getPreliquidated()
     {
-        $people = DB::table('people as p')
+        $people = Person::alias('p')
             ->select(
                 'p.id',
                 'p.first_name',
@@ -211,7 +211,7 @@ class WorkContractController extends Controller
 
     public function getTrialPeriod()
     {
-        $contratoIndeDefinido = DB::table('people as p')
+        $contratoIndeDefinido = Person::alias('p')
             ->select(
                 'p.image',
                 'w.id',
@@ -232,7 +232,7 @@ class WorkContractController extends Controller
             })
             ->havingBetween('worked_days', [40, 60]);
 
-        $contratoFijo = DB::table('people as p')
+        $contratoFijo = Person::alias('p')
             ->select(
                 'p.image',
                 'w.id',
@@ -258,6 +258,7 @@ class WorkContractController extends Controller
             $contratoFijo
         );
     }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -289,7 +290,7 @@ class WorkContractController extends Controller
     public function show($id)
     {
         return $this->success(
-            DB::table('people as p')
+            Person::alias('p')
                 ->select(
                     'p.id as person_id',
                     DB::raw("concat(
@@ -352,9 +353,9 @@ class WorkContractController extends Controller
     }
 
     public function getTurnTypes(){
-        $listaRaw=explode(",",DB::table('information_schema.COLUMNS as c')
+        $listaRaw=explode(",",DB::table('information_schema.COLUMNS')
         ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_turnos")
-        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)="sigmaqmo_db-work_contracts-turn_type"')
+        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?',[env('DB_DATABASE')."-work_contracts-turn_type"])
         ->first()->lista_turnos);
         $lista=[];
         foreach($listaRaw as $value){

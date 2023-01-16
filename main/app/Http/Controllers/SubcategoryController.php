@@ -19,7 +19,7 @@ class SubcategoryController extends Controller
      */
     public function index()
     {
-        $q = Subcategory::from("Subcategoria as s")
+        $q = Subcategory::alias("s")
         ->select(["s.*","c.Nombre as categoria"])->with(/* "categories", */"subcategoryVariables")
         ->join("Categoria_Nueva as c", function ($join) {
             $join->on("s.Id_Categoria_Nueva",'=',"c.Id_Categoria_Nueva");
@@ -161,7 +161,7 @@ class SubcategoryController extends Controller
                 $q->where('categoria_nueva_subcategoria.Id_Categoria_nueva', $id);
             })->get() */
 
-			DB::table("subcategoria as s")->active()
+			Subcategory::alias("s")->active()
             ->select("s.Nombre As text","s.Id_Subcategoria As value")
             ->join("categoria_nueva as c", "c.Id_Categoria_nueva", "s.Id_Categoria_nueva")
             ->where("s.Id_Categoria_nueva", $id)
@@ -192,7 +192,7 @@ class SubcategoryController extends Controller
     public function getField($id)
     {
         return $this->success(
-			DB::table("subcategory_variables as sv")
+			SubcategoryVariable::alias("sv")
 				->select("sv.label","sv.type","sv.id")
                 ->join("subcategoria as s", "s.Id_Subcategoria", "sv.subcategory_id")
 				->where("sv.subcategory_id", $id)

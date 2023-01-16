@@ -13,4 +13,8 @@ class VariableProduct extends Model
         'valor'
 
     ];
+
+    public function scopeAlias($q, $alias){
+        return $q->from($q->getQuery()->from." as ".$alias);
+    }
 }

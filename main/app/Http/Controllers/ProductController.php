@@ -6,6 +6,7 @@ use App\Models\InventaryDotation;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use App\Models\Product;
+use App\Models\SubcategoryVariable;
 use App\Models\VariableProduct;
 use Illuminate\Support\Facades\DB;
 
@@ -25,7 +26,7 @@ class ProductController extends Controller
 
         //$tipoCatalogo = Request()->get('tipo');
 
-        $data = DB::table('Producto as p')->join('Subcategoria as s', 's.Id_Subcategoria', 'p.Id_Subcategoria')
+        $data = Product::alias('p')->join('subcategoria as s', 's.id_subcategoria', 'p.id_subcategoria')
             ->join('Categoria_Nueva as c', 'c.Id_Categoria_Nueva', 's.Id_Categoria_Nueva')
             ->leftJoin('product_dotation_types as pdt', 'pdt.id', 'p.Producto_Dotation_Type_Id')
             ->leftJoin('inventary_dotations as ido', 'ido.product_id', 'p.Id_Producto')
@@ -105,19 +106,19 @@ class ProductController extends Controller
 
         $producto=request()->get('producto');
         if($producto!==null){
-            $query=DB::table("Variable_Products as vp")
+            $query=VariableProduct::alias("vp")
             ->select("vp.id as vp_id", "sv.id as sv_id", "label", "type", "required", "valor")
             ->join('subcategory_variables as sv', 'sv.id', 'vp.subcategory_variables_id')
             ->where("vp.product_id",$producto)->get();
 
             if(count($query)==0){
-                $query=DB::table("subcategory_variables as sv")
+                $query=SubcategoryVariable::alias("sv")
                 ->select("sv.id as sv_id", "label", "type", "required")
                 ->join('Producto as p', 'p.Id_Subcategoria', 'sv.Subcategory_Id')
                 ->where("Id_Producto",$producto)->get();
             }
         }else{
-            $query=DB::table("subcategory_variables as sv")
+            $query=SubcategoryVariable::alias("sv")
             ->select("sv.id as sv_id", "label", "type", "required")
             ->where("sv.Subcategory_Id",request()->get('subcategoria'))->get();
         }
@@ -126,9 +127,9 @@ class ProductController extends Controller
     }
 
     public function getTiposCatalogo(){
-        $listaRaw=explode(",",DB::table('information_schema.COLUMNS as c')
+        $listaRaw=explode(",",DB::table('information_schema.COLUMNS')
         ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_tiposCatalogo")
-        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)="sigmaqmo_db-producto-Tipo_Catalogo"')
+        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?',[env('DB_DATABASE')."-producto-Tipo_Catalogo"])
         ->first()->lista_tiposCatalogo);
         $lista=[];
         foreach($listaRaw as $value){
@@ -140,7 +141,7 @@ class ProductController extends Controller
 
     public function listarProductos(){
         return $this->success(
-           Product::from('Producto as P')
+           Product::alias('P')
             ->select(
                 "P.Nombre_Comercial","P.Codigo_Cum",
                 DB::raw("IF(ifnull(CONCAT(P.Nombre_Comercial, P.Cantidad, P.Unidad_Medida, P.Principio_Activo, P.Presentacion, P.Concentracion),'') = '',
@@ -193,9 +194,9 @@ class ProductController extends Controller
     }
 
     public function getEstados(){
-        $listaRaw=explode(",",DB::table('information_schema.COLUMNS as c')
+        $listaRaw=explode(",",DB::table('information_schema.COLUMNS')
         ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_estados")
-        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)="sigmaqmo_db-producto-estado"')
+        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?',[env('DB_DATABASE')."-producto-estado"])
         ->first()->lista_estados);
         $lista=[];
         foreach($listaRaw as $value){

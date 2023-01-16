@@ -21,6 +21,10 @@ class Subcategory extends Model
         return $this->hasMany(SubcategoryVariable::class, "subcategory_id");
     }
 
+    public function scopeAlias($q, $alias){
+        return $q->from($q->getQuery()->from." as ".$alias);
+    }
+
     public function scopeActive($query){
         $query->where('Activo', 1);
     }
