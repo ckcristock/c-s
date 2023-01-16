@@ -31,6 +31,7 @@ class HotelController extends Controller
 	{
 		return $this->success(
 			Hotel::orderBy('type')
+            ->with('city')
 			->when( request()->get('tipo') , function($q, $fill)
 			{
 				$q->where('type','=',$fill);
@@ -58,10 +59,25 @@ class HotelController extends Controller
 	public function store(Request $request)
 	{
 		try {
-			Hotel::updateOrCreate(['id' => $request->get('id')],$request->all());
+			$nuevo = Hotel::updateOrCreate(['id' => $request->get('id')],[
+                'type' => $request->type,
+                'name' => $request->name,
+                'address' => $request->address,
+                //'rate' => $request->rate,
+                'phone' => $request->phone,
+                'landline' => $request->landline,
+                'city_id' => $request->city_id,
+                'simple_rate' => $request->simple_rate,
+                'double_rate' => $request->double_rate,
+                'breakfast' => $request->breakfast,
+                'accommodation' => $request->accommodation
+            ]);
+            dd($nuevo);
+
 			return $this->success('Creado con éxito');
 		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
+            //return $th;
+			return $this->error($th->getMessage(). ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 500);
 		}
 	}
 
