@@ -31,7 +31,7 @@ class HotelController extends Controller
 	{
 		return $this->success(
 			Hotel::orderBy('type')
-            ->with('city')
+            ->with('city', 'accommodations')
 			->when( request()->get('tipo') , function($q, $fill)
 			{
 				$q->where('type','=',$fill);
@@ -70,13 +70,18 @@ class HotelController extends Controller
                 'simple_rate' => $request->simple_rate,
                 'double_rate' => $request->double_rate,
                 'breakfast' => $request->breakfast,
-                'accommodation' => $request->accommodation
             ]);
-            dd($nuevo);
+            //dd($request->accommodation);
 
-			return $this->success('Creado con éxito');
+            $nuevo->accommodations()->detach();
+            $nuevo->accommodations()->attach($request->accommodation);
+
+			if ($nuevo) {
+				return $this->success('Creado con éxito');
+			} else {
+				return $this->error('Ocurrió un error inesperado y no se pudo guardar', 406);
+			}
 		} catch (\Throwable $th) {
-            //return $th;
 			return $this->error($th->getMessage(). ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 500);
 		}
 	}

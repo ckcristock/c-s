@@ -19,7 +19,7 @@ class Hotel extends Model
 		'simple_rate',
 		'double_rate',
 		'breakfast',
-		'accommodation_id',
+		//'accommodation_id',
 	];
 
 	public function city()
@@ -37,8 +37,7 @@ class Hotel extends Model
 
     public function accommodations()
     {
-        return $this->belongsTo(Accommodation::class);
+        return $this->belongsToMany(Accommodation::class)->withPivot('price');
     }
-
 
 }

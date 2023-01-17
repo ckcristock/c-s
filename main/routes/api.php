@@ -542,7 +542,10 @@ Route::group(
         Route::resource('premium', PremiumController::class)->except(['create', 'edit']);
         Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
         Route::resource('accommodations', AccommodationController::class)->except(['create', 'edit']);
+        Route::resource('accommodations', AccommodationController::class)->except(['create', 'edit']);
         Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
+
+
         Route::get('check-bonuses/{period}', [BonusController::class, 'checkBonuses']);
         Route::get('bonuses-report/{anio}/{period}/{pagado}', [BonusController::class, 'reportBonus']);
         Route::get('bonus-stubs/{anio}/{period}', [BonusController::class, 'pdfGenerate']);
@@ -550,6 +553,8 @@ Route::group(
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
+
+        Route::post('restore-accommodation', [AccommodationController::class, 'restore']);
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class,'paginate']);
@@ -613,6 +618,7 @@ Route::group(
         Route::get('paginate-locations', [LocationController::class, 'paginate']);
         Route::get('paginate-bonuses', [BonusController::class, 'paginate']);
         Route::get('paginate-work-orders', [WorkOrderController::class, 'paginate']);
+        Route::get('paginate-accommodations', [AccommodationController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
