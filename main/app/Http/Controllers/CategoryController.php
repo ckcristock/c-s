@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Models\CategoryVariable;
 use Illuminate\Http\Request;
 use App\Models\NewCategory;
 use App\Traits\ApiResponser;
@@ -26,7 +26,7 @@ class CategoryController extends Controller
     public function paginate()
     {
         return $this->success(
-            NewCategory::with("subcategory")
+            NewCategory::with("subcategory","categoryVariables")
             ->when(request()->get("nombre"), function ($q, $fill) {
                 $q->where("Nombre",'like','%'.$fill.'%');
             })
@@ -67,11 +67,17 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         try {
+            $dynamic = request()->get("dynamic");
             $value = NewCategory::updateOrCreate( [ 'Id_Categoria_Nueva'=> request()->get('Id_Categoria_Nueva') ] , [
                 'Nombre'=> request()->get('Nombre'),
                 'Compra_Internacional'=> request()->get('compraInternacional'),
-                'Aplica_Separacion_Categorias'=> request()->get('separacionCategorias')
+                'Aplica_Separacion_Categorias'=> request()->get('separacionCategorias'),
+                'Fijo'=> (request()->get('fijo')?1:0)
             ] );
+            foreach($dynamic as $d){
+				$d["category_id"] = $value->Id_Categoria_Nueva;
+				CategoryVariable::updateOrCreate([ 'id'=> $d["id"] ],$d);
+			}
            /*  $id=($value->wasRecentlyCreated)?$value->Id_Categoria_Nueva:request()->get('Id_Categoria_Nueva');
 
             $category=NewCategory::find($id);
@@ -105,6 +111,14 @@ class CategoryController extends Controller
 
     }
 
+    public function getField($id)
+    {
+        return $this->success(
+            CategoryVariable::select("id as cv_id", "label", "type", "required")
+            ->where("Category_Id",$id)->get()
+        );
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -126,6 +140,12 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         //
+    }
+
+    public function deleteVariable($id){
+
+        CategoryVariable::where("id", $id)->delete();
+
     }
 
     /**

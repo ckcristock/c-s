@@ -118,9 +118,8 @@ class ProductController extends Controller
                 ->where("Id_Producto",$producto)->get();
             }
         }else{
-            $query=SubcategoryVariable::alias("sv")
-            ->select("sv.id as sv_id", "label", "type", "required")
-            ->where("sv.Subcategory_Id",request()->get('subcategoria'))->get();
+            $query=SubcategoryVariable::select("id as sv_id", "label", "type", "required")
+            ->where("Subcategory_Id",request()->get('subcategoria'))->get();
         }
 
         return $this->success($query);
