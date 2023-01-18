@@ -28,7 +28,7 @@ class SubcategoryController extends Controller
             $q->where("Id_Subcategoria",'=',$fill);
         })
          ->when(request()->get("nombre"), function ($q, $fill) {
-            $q->where("Nombre",'like','%'.$fill.'%');
+            $q->where("s.Nombre",'like','%'.$fill.'%');
         })
         ->when(request()->get("categoria"), function ($q, $fill) {
             /* $q->whereHas('categories',function($q) use ($fill){
