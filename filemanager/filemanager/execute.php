@@ -3,10 +3,10 @@ $config = include 'config/config.php';
 
 include 'include/utils.php';
 
-if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
+/* if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
     response(trans('forbidden') . AddErrorLocation())->send();
     exit;
-}
+} */
 
 if (!checkRelativePath($_POST['path'])) {
     response(trans('wrong path') . AddErrorLocation())->send();

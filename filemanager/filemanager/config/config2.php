@@ -342,21 +342,21 @@ $config = array(
     //*************************
     //Permissions configuration
     //******************
-    'delete_files'                            => true,
-    'create_folders'                          => true,
-    'delete_folders'                          => true,
-    'upload_files'                            => true,
-    'rename_files'                            => true,
-    'rename_folders'                          => true,
-    'duplicate_files'                         => true,
-    'extract_files'                           => true,
-    'copy_cut_files'                          => true, // for copy/cut files
-    'copy_cut_dirs'                           => true, // for copy/cut directories
-    'chmod_files'                             => true, // change file permissions
-    'chmod_dirs'                              => true, // change folder permissions
+    'delete_files'                            => false,
+    'create_folders'                          => false,
+    'delete_folders'                          => false,
+    'upload_files'                            => false,
+    'rename_files'                            => false,
+    'rename_folders'                          => false,
+    'duplicate_files'                         => false,
+    'extract_files'                           => false,
+    'copy_cut_files'                          => false, // for copy/cut files
+    'copy_cut_dirs'                           => false, // for copy/cut directories
+    'chmod_files'                             => false, // change file permissions
+    'chmod_dirs'                              => false, // change folder permissions
     'preview_text_files'                      => true, // eg.: txt, log etc.
-    'edit_text_files'                         => true, // eg.: txt, log etc.
-    'create_text_files'                       => true, // only create files with exts. defined in $config['editable_text_file_exts']
+    'edit_text_files'                         => false, // eg.: txt, log etc.
+    'create_text_files'                       => false, // only create files with exts. defined in $config['editable_text_file_exts']
     'download_files'			              => true, // allow download files or just preview
 
     // you can preview these type of files if $preview_text_files is true

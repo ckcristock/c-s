@@ -1,9 +1,9 @@
 <?php
 
-if (!isset($_SESSION['RF']) || $_SESSION['RF']["verify"] != "RESPONSIVEfilemanager")
+/* if (!isset($_SESSION['RF']) || $_SESSION['RF']["verify"] != "RESPONSIVEfilemanager")
 {
 	die('forbiden');
-}
+} */
 require dirname(__FILE__) . '/Response.php';
 
 if ( ! function_exists('response'))

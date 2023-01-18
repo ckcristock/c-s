@@ -7,10 +7,10 @@ try {
 
     include 'include/utils.php';
 
-    if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
+    /* if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
         response(trans('forbidden') . AddErrorLocation(), 403)->send();
         exit;
-    }
+    } */
 
     include 'include/mime_type_lib.php';
 

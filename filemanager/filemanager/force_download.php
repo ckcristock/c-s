@@ -5,10 +5,10 @@ $config = include 'config/config.php';
 include 'include/utils.php';
 include 'include/mime_type_lib.php';
 
-if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
+/* if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
     response(trans('forbidden') . AddErrorLocation(), 403)->send();
     exit;
-}
+} */
 
 if (!checkRelativePath($_POST['path']) || strpos($_POST['path'], '/') === 0) {
     response(trans('wrong path') . AddErrorLocation(), 400)->send();

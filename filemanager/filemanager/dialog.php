@@ -1,8 +1,13 @@
 <?php
 error_reporting(E_ALL);
 $time = time();
-
-$config = include 'config/config.php';
+if (isset($_GET['config']) && $_GET['config'] == 2 ){
+    $config = include 'config/config2.php';
+} else if (isset($_GET['config']) && $_GET['config'] == 1) {
+    $config = include 'config/config.php';
+} else {
+    $config = include 'config/config.php';
+}
 
 $config['current_path'] .= $_GET['car'] . '/'; 
 $config['upload_dir'] .= $_GET['car'] . '/'; 
@@ -316,7 +321,8 @@ $get_params = array(
     'multiple'      => $multiple,
     'relative_url'  => $return_relative_url,
     'akey'          => (isset($_GET['akey']) && $_GET['akey'] != '' ? $_GET['akey'] : 'key'),
-    'fldr'          => ''
+    'config'  => (isset($_GET['config']) && $_GET['config'] != '' ? $_GET['config'] : 1),
+    'fldr'          => '',
 );
 if (isset($_GET['CKEditorFuncNum'])) {
     $get_params['CKEditorFuncNum'] = $_GET['CKEditorFuncNum'];
