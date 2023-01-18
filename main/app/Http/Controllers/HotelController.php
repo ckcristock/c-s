@@ -59,6 +59,16 @@ class HotelController extends Controller
 	public function store(Request $request)
 	{
 		try {
+            $accommodations = array();
+
+            foreach ($request->alojamientos as $values) {
+                $alojami = array(
+                    'accommodation_id'=>$values['id'],
+                    'price'=> $values['price']
+                );
+                array_push($accommodations, $alojami);
+            }
+            //dd($request->all(), $accommodations);
 			$nuevo = Hotel::updateOrCreate(['id' => $request->get('id')],[
                 'type' => $request->type,
                 'name' => $request->name,
@@ -67,17 +77,19 @@ class HotelController extends Controller
                 'phone' => $request->phone,
                 'landline' => $request->landline,
                 'city_id' => $request->city_id,
-                'simple_rate' => $request->simple_rate,
-                'double_rate' => $request->double_rate,
+                //'simple_rate' => $request->simple_rate,
+                //'double_rate' => $request->double_rate,
                 'breakfast' => $request->breakfast,
             ]);
-            //dd($request->accommodation);
+
 
             $nuevo->accommodations()->detach();
-            $nuevo->accommodations()->attach($request->accommodation);
+            $nuevo->accommodations()->attach($accommodations);
 
+            //$nuevo = Accommodation::updateOrCreate($request->all());
 			if ($nuevo) {
-				return $this->success('Creado con éxito');
+                return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+				//return $this->success('Creado con éxito');
 			} else {
 				return $this->error('Ocurrió un error inesperado y no se pudo guardar', 406);
 			}
