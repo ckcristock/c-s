@@ -9,6 +9,7 @@ class VariableProduct extends Model
     protected $fillable =
     [
         'product_id',
+        'category_variables_id',
         'subcategory_variables_id',
         'valor'
 

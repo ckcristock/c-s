@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CategoryVariable;
 use App\Models\InventaryDotation;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
@@ -80,87 +81,111 @@ class ProductController extends Controller
             $data->when(request()->get("tipo"), function ($q, $fill) {
                 $q->where("p.Tipo_Catalogo", $fill);
             })
-            ->when(request()->get("company_id"), function ($q, $fill) {
-                $q->where("p.company_id", $fill);
-            })
-            ->when(request()->get("categoria"), function ($q, $fill) {
-                $q->where("p.Id_Categoria",'=',$fill);
-            })
-            ->when(request()->get("subcategoria"), function ($q, $fill) {
-                $q->where("p.Id_Subcategoria",'=',$fill);
-            })
-            ->when(request()->get("nombre"), function ($q, $fill) {
-                $q->where("p.Nombre_Comercial",'like',"%$fill%");
-            })
-            ->when(request()->get("tipo_catalogo"), function ($q, $fill) {
-                $q->where("p.Tipo_Catalogo",'=',$fill);
-            })
-            ->when(request()->get("estado"), function ($q, $fill) {
-                $q->where("p.Estado",'=',$fill);
-            })
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->when(request()->get("company_id"), function ($q, $fill) {
+                    $q->where("p.company_id", $fill);
+                })
+                ->when(request()->get("categoria"), function ($q, $fill) {
+                    $q->where("p.Id_Categoria", '=', $fill);
+                })
+                ->when(request()->get("subcategoria"), function ($q, $fill) {
+                    $q->where("p.Id_Subcategoria", '=', $fill);
+                })
+                ->when(request()->get("nombre"), function ($q, $fill) {
+                    $q->where("p.Nombre_Comercial", 'like', "%$fill%");
+                })
+                ->when(request()->get("tipo_catalogo"), function ($q, $fill) {
+                    $q->where("p.Tipo_Catalogo", '=', $fill);
+                })
+                ->when(request()->get("estado"), function ($q, $fill) {
+                    $q->where("p.Estado", '=', $fill);
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
-    public function getSubcategoryVars(){
+    public function getVars()
+    {
 
-        $producto=request()->get('producto');
-        if($producto!==null){
-            $query=VariableProduct::alias("vp")
-            ->select("vp.id as vp_id", "sv.id as sv_id", "label", "type", "required", "valor")
-            ->join('subcategory_variables as sv', 'sv.id', 'vp.subcategory_variables_id')
-            ->where("vp.product_id",$producto)->get();
+        $producto = request()->get('producto');
+        $query = [];
+        if ($producto !== null) {
+            $query["cat"] = VariableProduct::alias("vp")
+                ->select("vp.id as vp_id", "cv.id as cv_id", "label", "type", "required", "valor")
+                ->join('category_variables as cv', 'cv.id', 'vp.category_variables_id')
+                ->where("vp.product_id", $producto)->get();
 
-            if(count($query)==0){
-                $query=SubcategoryVariable::alias("sv")
-                ->select("sv.id as sv_id", "label", "type", "required")
-                ->join('Producto as p', 'p.Id_Subcategoria', 'sv.Subcategory_Id')
-                ->where("Id_Producto",$producto)->get();
+            if (count($query["cat"]) == 0) {
+                $query["cat"] = CategoryVariable::alias("cv")
+                    ->select("cv.id as cv_id", "label", "type", "required")
+                    ->join('Producto as p', 'p.Id_Categoria', 'cv.category_Id')
+                    ->where("Id_Producto", $producto)->get();
             }
-        }else{
-            $query=SubcategoryVariable::select("id as sv_id", "label", "type", "required")
-            ->where("Subcategory_Id",request()->get('subcategoria'))->get();
-        }
 
+            $query["subcat"] = VariableProduct::alias("vp")
+                ->select("vp.id as vp_id", "sv.id as sv_id", "label", "type", "required", "valor")
+                ->join('subcategory_variables as sv', 'sv.id', 'vp.subcategory_variables_id')
+                ->where("vp.product_id", $producto)->get();
+
+            if (count($query["subcat"]) == 0) {
+                $query["subcat"] = SubcategoryVariable::alias("sv")
+                    ->select("sv.id as sv_id", "label", "type", "required")
+                    ->join('Producto as p', 'p.Id_Subcategoria', 'sv.Subcategory_Id')
+                    ->where("Id_Producto", $producto)->get();
+            }
+        } else {
+            $query["cat"] = CategoryVariable::select("id as cv_id", "label", "type", "required")
+                ->where("Category_Id", request()->get('categoria'))->get();
+
+            $query["subcat"] = SubcategoryVariable::select("id as sv_id", "label", "type", "required")
+                ->where("Subcategory_Id", request()->get('subcategoria'))->get();
+        }
         return $this->success($query);
     }
 
-    public function getTiposCatalogo(){
-        $listaRaw=explode(",",DB::table('information_schema.COLUMNS')
-        ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_tiposCatalogo")
-        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?',[env('DB_DATABASE')."-producto-Tipo_Catalogo"])
-        ->first()->lista_tiposCatalogo);
-        $lista=[];
-        foreach($listaRaw as $value){
-            $lista[]=["text"=>str_replace(["'","_"],[""," "],$value),"value"=>str_replace("'","",$value)];
+    public function getTiposCatalogo()
+    {
+        $listaRaw = explode(",", DB::table('information_schema.COLUMNS')
+            ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_tiposCatalogo")
+            ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?', [env('DB_DATABASE') . "-producto-Tipo_Catalogo"])
+            ->first()->lista_tiposCatalogo);
+        $lista = [];
+        foreach ($listaRaw as $value) {
+            $lista[] = ["text" => str_replace(["'", "_"], ["", " "], $value), "value" => str_replace("'", "", $value)];
         }
         return $this->success($lista);
     }
 
 
-    public function listarProductos(){
+    public function listarProductos()
+    {
         return $this->success(
-           Product::alias('P')
-            ->select(
-                "P.Nombre_Comercial","P.Codigo_Cum",
-                DB::raw("IF(ifnull(CONCAT(P.Nombre_Comercial, P.Cantidad, P.Unidad_Medida, P.Principio_Activo, P.Presentacion, P.Concentracion),'') = '',
+            Product::alias('P')
+                ->select(
+                    "P.Nombre_Comercial",
+                    "P.Codigo_Cum",
+                    DB::raw("IF(ifnull(CONCAT(P.Nombre_Comercial, P.Cantidad, P.Unidad_Medida, P.Principio_Activo, P.Presentacion, P.Concentracion),'') = '',
                     P.Nombre_Comercial,
                     CONCAT(P.Nombre_Comercial,' ', P.Cantidad,' ', P.Unidad_Medida, ' (',P.Principio_Activo, ' ', P.Presentacion, ' ', P.Concentracion,')'
                     )) as Nombre"),
-                "P.Nombre_Comercial","P.Laboratorio_Comercial","P.Laboratorio_Generico","P.Id_Producto","P.Embalaje","P.Cantidad_Presentacion",
-                DB::raw("IFNULL(cp.Costo_Promedio,0) AS Costo")
-            )
-            ->leftJoin("Costo_Promedio AS cp", function($join){
-                $join->on("cp.Id_Producto","P.Id_Producto");
-            })
-            ->whereNotNull("P.Codigo_Barras")
-            ->whereRaw("P.Estado='Activo'")
-            ->whereRaw("P.Codigo_Barras!=''")
-            ->where(function($query){
-                $query->whereRaw("P.Embalaje NOT LIKE 'MUESTRA MEDICA%'")
-                ->orWhereNull("P.Embalaje")->orWhereRaw("P.Embalaje=''");
-            })
-            /* ->when(request()->get("nombre"), function ($q, $fill) {
+                    "P.Nombre_Comercial",
+                    "P.Laboratorio_Comercial",
+                    "P.Laboratorio_Generico",
+                    "P.Id_Producto",
+                    "P.Embalaje",
+                    "P.Cantidad_Presentacion",
+                    DB::raw("IFNULL(cp.Costo_Promedio,0) AS Costo")
+                )
+                ->leftJoin("Costo_Promedio AS cp", function ($join) {
+                    $join->on("cp.Id_Producto", "P.Id_Producto");
+                })
+                ->whereNotNull("P.Codigo_Barras")
+                ->whereRaw("P.Estado='Activo'")
+                ->whereRaw("P.Codigo_Barras!=''")
+                ->where(function ($query) {
+                    $query->whereRaw("P.Embalaje NOT LIKE 'MUESTRA MEDICA%'")
+                        ->orWhereNull("P.Embalaje")->orWhereRaw("P.Embalaje=''");
+                })
+                /* ->when(request()->get("nombre"), function ($q, $fill) {
                 $q->where(function($query) use ($fill){
                     $query->where("P.Principio_Activo",'like','%'.$fill.'%')
                     ->orWhere("P.Presentacion",'like','%'.$fill.'%')
@@ -182,24 +207,25 @@ class ProductController extends Controller
             ->when(request()->get("catalogo"), function ($q, $fill) {
                 $q->where("P.Tipo_Catalogo",'=',$fill);
             }) */
-            ->when(request()->get("categoria"), function ($q, $fill) {
-                $q->where("P.Id_Categoria",'=',$fill);
-            })
-            ->when(request()->get("subcategoria"), function ($q, $fill) {
-                $q->where("P.Id_Subcategoria",'=',$fill);
-            })
-            ->get()
+                ->when(request()->get("categoria"), function ($q, $fill) {
+                    $q->where("P.Id_Categoria", '=', $fill);
+                })
+                ->when(request()->get("subcategoria"), function ($q, $fill) {
+                    $q->where("P.Id_Subcategoria", '=', $fill);
+                })
+                ->get()
         );
     }
 
-    public function getEstados(){
-        $listaRaw=explode(",",DB::table('information_schema.COLUMNS')
-        ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_estados")
-        ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?',[env('DB_DATABASE')."-producto-estado"])
-        ->first()->lista_estados);
-        $lista=[];
-        foreach($listaRaw as $value){
-            $lista[]=["estado"=>str_replace("'","",$value)];
+    public function getEstados()
+    {
+        $listaRaw = explode(",", DB::table('information_schema.COLUMNS')
+            ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_estados")
+            ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?', [env('DB_DATABASE') . "-producto-estado"])
+            ->first()->lista_estados);
+        $lista = [];
+        foreach ($listaRaw as $value) {
+            $lista[] = ["estado" => str_replace("'", "", $value)];
         }
         return $this->success($lista);
     }
@@ -214,12 +240,13 @@ class ProductController extends Controller
         //
     }
 
-    public function cambiarEstado(Request $request){
-        try{
+    public function cambiarEstado(Request $request)
+    {
+        try {
             Product::where('Id_Producto', $request->id)->update(['Estado' => $request->estado]);
-            return  $this->success('Producto '.(($request->estado == "Inactivo")?'anulado':'activado').' con éxito');
+            return  $this->success('Producto ' . (($request->estado == "Inactivo") ? 'anulado' : 'activado') . ' con éxito');
         } catch (\Throwable $th) {
-            return $this->errorResponse( $th->getFile()." - ".$th->getMessage() );
+            return $this->errorResponse($th->getFile() . " - " . $th->getMessage());
         }
     }
 
@@ -232,14 +259,17 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         try {
-
-            $data = $request->except(["camposSubcategoria"]);
-
-            $camposSubcat = request()->get("camposSubcategoria");
-            $product = Product::updateOrCreate(["Id_Producto" => $data["Id_Producto"]],$data);
-            foreach ($camposSubcat as $d) {
-                $d["product_id"] = $product->Id_Producto;
-                VariableProduct::updateOrCreate(['id' => $d["id"]],$d);
+            $data = $request->except(["camposCategoria", "camposSubcategoria"]);
+            $campos = [
+                "cat" => $request->camposCategoria,
+                "subcat" => $request->camposSubcategoria
+            ];
+            $product = Product::updateOrCreate(["Id_Producto" => $data["Id_Producto"]], $data);
+            foreach ($campos as $campo) {
+                foreach ($campo as $d) {
+                    $d["product_id"] = $product->Id_Producto;
+                    VariableProduct::updateOrCreate(['id' => $d["id"]], $d);
+                }
             }
 
             /* $data = $request->except(["dynamic"]);
