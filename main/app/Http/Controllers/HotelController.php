@@ -18,8 +18,8 @@ class HotelController extends Controller
 	public function index()
 	{
 		try {
-			$nacional = Hotel::with('city')->where('type', '=', 'Nacional')->get();
-			$internacional = Hotel::where('type', '=', 'Internacional')->get();
+			$nacional = Hotel::with('city', 'accommodations')->where('type', '=', 'Nacional')->get();
+			$internacional = Hotel::with('accommodations')->where('type', '=', 'Internacional')->get();
 
 			return $this->success(['nacional' => $nacional, 'internacional' => $internacional]);
 		} catch (\Throwable $th) {
@@ -68,7 +68,6 @@ class HotelController extends Controller
                 );
                 array_push($accommodations, $alojami);
             }
-            //dd($request->all(), $accommodations);
 			$nuevo = Hotel::updateOrCreate(['id' => $request->get('id')],[
                 'type' => $request->type,
                 'name' => $request->name,

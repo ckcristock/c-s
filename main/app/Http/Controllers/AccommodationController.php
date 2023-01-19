@@ -8,6 +8,11 @@ use App\Models\Accommodation;
 
 class AccommodationController extends Controller
 {
+    /**
+     * Se está manejando borrado lógico y restauración quitando
+     * la fecha del deleted_at
+     * Para borrado físico se debe hacer por BD
+     */
 
     use ApiResponser;
 
@@ -43,7 +48,11 @@ class AccommodationController extends Controller
     public function store(Request $request)
     {
         try {
-            $nuevo = Accommodation::updateOrCreate($request->all());
+            //dd(Accommodation::find($request->get('id')));
+            $nuevo = Accommodation:: withTrashed()->updateOrCreate(['id'=>$request->id],[
+                'name'=>$request->name
+            ]);
+            //dd($nuevo->wasRecentlyCreated, $nuevo);
             return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(). ' msg: ' . $th->getLine() . ' ' . $th->getFile(),204);
