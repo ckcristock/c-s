@@ -129,17 +129,20 @@ use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\CategoriaNuevaController;
+use App\Http\Controllers\ComprobanteConsecutivoController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
+use App\Http\Controllers\WorkOrderBlueprintController;
 use App\Http\Controllers\WorkOrderController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ThirdParty;
 use App\Models\User;
 use App\Models\Bonus;
+use App\Models\WorkOrderBlueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -451,6 +454,7 @@ Route::group(
         Route::resource('disability-leaves', DisabilityLeaveController::class);
         Route::resource('payroll-factor', PayrollFactorController::class);
         Route::resource('work-orders', WorkOrderController::class);
+        Route::resource('work-orders-blueprints', WorkOrderBlueprintController::class);
 
         Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
 
@@ -534,6 +538,7 @@ Route::group(
         Route::resource('apu-service', ApuServiceController::class);
         Route::resource('lunch-value', LunchValueController::class);
         Route::resource('annotation', PersonInvolvedController::class);
+        Route::resource('comprobante-consecutivo', ComprobanteConsecutivoController::class);
         Route::resource('business', BusinessController::class);
         Route::resource('quotations', QuotationController::class);
         Route::resource('contract-terms', ContractTermController::class)->except(['create', 'edit']);
@@ -611,6 +616,7 @@ Route::group(
         Route::get('paginate-locations', [LocationController::class, 'paginate']);
         Route::get('paginate-bonuses', [BonusController::class, 'paginate']);
         Route::get('paginate-work-orders', [WorkOrderController::class, 'paginate']);
+        Route::get('paginate-comprobante-consecutivo', [ComprobanteConsecutivoController::class, 'paginate']);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);

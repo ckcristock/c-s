@@ -96,7 +96,13 @@ class WorkOrderController extends Controller
     {
         return $this->success(
             WorkOrder::where('id', $id)
-                ->with('third_party', 'third_party_person', 'quotation', 'city:*,id,name as text,id as value')
+                ->with(
+                    'third_party',
+                    'third_party_person',
+                    'quotation',
+                    'blueprints',
+                    'city:*,id,name as text,id as value'
+                )
                 ->first()
         );
     }
