@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ComprobanteConsecutivo;
+use App\Models\Quotation;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
@@ -28,6 +29,10 @@ class ComprobanteConsecutivoController extends Controller
             })
             ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
         );
+    }
+
+    public function getConsecutive($table) {
+        return $this->success(getConsecutive($table));
     }
 
     /**
@@ -82,7 +87,8 @@ class ComprobanteConsecutivoController extends Controller
      */
     public function update(Request $request, ComprobanteConsecutivo $comprobanteConsecutivo)
     {
-        //
+        $comprobanteConsecutivo->update($request->all());
+        return $this->success('Consecutivo actualizado correctamente.');
     }
 
     /**

@@ -25,7 +25,8 @@ class WorkOrder extends Model
         'technical_requirements',
         'legal_requirements',
         'status',
-        'type'
+        'type',
+        'format_code'
     ];
 
     public function city()

@@ -194,12 +194,8 @@ class ApuPartController extends Controller
                 "others",
                 "indirect_cost",
             ]);
-
-
             $files = request()->get("files");
-
             $materia_prima = request()->get("materia_prima");
-
             $commercial_materials = request()->get("commercial_materials");
             $cut_water = request()->get("cut_water");
             $cut_laser = request()->get("cut_laser");
@@ -208,26 +204,18 @@ class ApuPartController extends Controller
             $external_proccesses = request()->get("external_proccesses");
             $others = request()->get("others");
             $indirect_cost = request()->get("indirect_cost");
-
             ApuPart::find($id)->update($data);
-
             if($files){
-
                 ApuPartFile::where("apu_part_id", $id)->delete();
-
                 foreach($files as $file){
                     $file["apu_part_id"] = $id;
                     ApuPartFile::create($file);
 			    }
             }
-
             if($materia_prima){
-
              ApuPartService::deleteMaterial($id);
-
             //  echo json_encode($materia_prima);
             foreach ($materia_prima as $mprima) {
-
                 $mprima["apu_part_id"] = $id;
                 $rmaterial = ApuPartRawMaterial::create($mprima);
                 foreach ($mprima["measures"] as $value) {
@@ -237,41 +225,31 @@ class ApuPartController extends Controller
                 }
             }
             }
-
             // foreach ($materia_prima as $mprima) {
             //     $mprima["apu_part_id"] = $apu->id;
             //     $rmaterial = ApuPartRawMaterial::create($mprima);
-                
+
             //     foreach ($mprima["measures"] as $value) {
             //         $value["apu_part_raw_material_id"] =  $rmaterial["id"];
             //         ApuPartRawMaterialMeasure::create($value);
             //     }
             //    }
-
             if($commercial_materials){
-
                 ApuPartCommercialMaterial::where("apu_part_id", $id)->delete();
-
                 foreach ($commercial_materials as $cmaterials){
                     $cmaterials["apu_part_id"] = $id;
                     ApuPartCommercialMaterial::create($cmaterials);
                 }
             }
-
             if( $cut_water){
-
                 ApuPartCutWater::where("apu_part_id", $id)->delete();
-
                 foreach ($cut_water as $cwater){
                     $cwater["apu_part_id"] = $id;
                     ApuPartCutWater::create($cwater);
                 }
             }
-
             if($cut_laser){
-
                 ApuPartCutLaser::where("apu_part_id", $id)->delete();
-
                 foreach ($cut_laser as $claser){
                     $claser["apu_part_id"] = $id;
                     ApuPartCutLaser::create($claser);
@@ -279,58 +257,44 @@ class ApuPartController extends Controller
 
             }
             if($machine_tools){
-
                 ApuPartMachineTool::where("apu_part_id", $id)->delete();
-
                 foreach ($machine_tools as $mtool){
                     $mtool["apu_part_id"] = $id;
                     ApuPartMachineTool::create($mtool);
 			}
             }
             if($internal_proccesses){
-
                 ApuPartInternalProcess::where("apu_part_id", $id)->delete();
-
                 foreach ($internal_proccesses as $iproccesses){
                     $iproccesses["apu_part_id"] = $id;
                     ApuPartInternalProcess::create($iproccesses);
                 }
             }
             if($external_proccesses){
-
                 ApuPartExternalProcess::where("apu_part_id", $id)->delete();
-
                 foreach ($external_proccesses as $eproccesses){
                     $eproccesses["apu_part_id"] = $id;
                     ApuPartExternalProcess::create($eproccesses);
                 }
             }
             if($others){
-
                 ApuPartOther::where("apu_part_id", $id)->delete();
-
                 foreach ($others as $other){
                     $other["apu_part_id"] = $id;
                     ApuPartOther::create($other);
                 }
             }
             if($indirect_cost){
-
                 ApuPartIndirectCost::where("apu_part_id", $id)->delete();
-
                 foreach ($indirect_cost as $icost){
                     $icost["apu_part_id"] = $id;
                     ApuPartIndirectCost::create($icost);
                 }
             }
-
 			return $this->success("guardado con éxito");
-
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage() . ' ' . $th->getLine(), $th->getFile(), 500);
-
         }
-
     }
 
     public function activateOrInactivate(Request $request)

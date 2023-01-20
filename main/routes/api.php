@@ -142,6 +142,7 @@ use App\Models\BusinessBudget;
 use App\Models\ThirdParty;
 use App\Models\User;
 use App\Models\Bonus;
+use App\Models\ComprobanteConsecutivo;
 use App\Models\WorkOrderBlueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -620,6 +621,7 @@ Route::group(
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
+        Route::get('get-consecutivo/{table}', [ComprobanteConsecutivoController::class, 'getConsecutive']);
         Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
         Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
         Route::get('salary/{id}', [PersonController::class, 'salary']);

@@ -57,6 +57,7 @@ class WorkOrderController extends Controller
                 ->when($request->start_delivery_date, function ($q, $fill) use ($request) {
                     $q->whereBetween('delivery_date', [$fill, $request->end_delivery_date]);
                 })
+                ->orderByDesc('created_at')
                 ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
         );
     }
@@ -82,7 +83,11 @@ class WorkOrderController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        WorkOrder::updateOrCreate(['id' => $request->id], $data);
+        if (!$request->id) {
+            $data['code'] = generateConsecutive('work_orders', 'BGA');
+        }
+        $updateOrCreate = WorkOrder::updateOrCreate(['id' => $request->id], $data);
+        $updateOrCreate->wasRecentlyCreated ? sumConsecutive('work_orders') : '';
         return $this->success($request->all());
     }
 
