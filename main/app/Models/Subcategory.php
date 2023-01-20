@@ -9,7 +9,7 @@ class Subcategory extends Model
     protected $table = 'Subcategoria';
     protected $primaryKey = 'Id_Subcategoria';
 
-    protected $fillable = ['Nombre', 'Id_Categoria_Nueva', 'Separable'];
+    protected $fillable = ['Nombre', 'Id_Categoria_Nueva', 'Separable','Fijo'];
 
     /* public function category()
     {

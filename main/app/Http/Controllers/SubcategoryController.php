@@ -38,7 +38,7 @@ class SubcategoryController extends Controller
         })
         ->when(request()->get("separable"), function ($q, $fill) {
             $q->where("Separable",'=',$fill);
-        })
+        })->orderBy('Fijo','desc')
         ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
 
        /*  $q = DB::table('Subcategoria as S')

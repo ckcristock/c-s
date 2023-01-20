@@ -35,7 +35,7 @@ class CategoryController extends Controller
             })
             ->when(request()->get("separacionCategorias"), function ($q, $fill) {
                 $q->where("Aplica_Separacion_Categorias","=",$fill);
-            })
+            })->orderBy('Fijo','desc')
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
@@ -68,12 +68,7 @@ class CategoryController extends Controller
     {
         try {
             $dynamic = request()->get("dynamic");
-            $value = NewCategory::updateOrCreate( [ 'Id_Categoria_Nueva'=> request()->get('Id_Categoria_Nueva') ] , [
-                'Nombre'=> request()->get('Nombre'),
-                'Compra_Internacional'=> request()->get('compraInternacional'),
-                'Aplica_Separacion_Categorias'=> request()->get('separacionCategorias'),
-                'Fijo'=> (request()->get('fijo')?1:0)
-            ] );
+            $value = NewCategory::updateOrCreate( [ 'Id_Categoria_Nueva'=> request()->get('Id_Categoria_Nueva') ] , $request->except(["dynamic"]));
             foreach($dynamic as $d){
 				$d["category_id"] = $value->Id_Categoria_Nueva;
 				CategoryVariable::updateOrCreate([ 'id'=> $d["id"] ],$d);
