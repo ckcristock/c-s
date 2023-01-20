@@ -40,4 +40,9 @@ class Hotel extends Model
         return $this->belongsToMany(Accommodation::class)->withPivot('price');
     }
 
+    public function alojamiento()
+    {
+        return $this->belongsToMany(Accommodation::class);
+    }
+
 }
