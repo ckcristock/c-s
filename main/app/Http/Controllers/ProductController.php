@@ -9,8 +9,9 @@ use App\Traits\ApiResponser;
 use App\Models\Product;
 use App\Models\SubcategoryVariable;
 use App\Models\VariableProduct;
+use Exception;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\URL;
 
 class ProductController extends Controller
 {
@@ -50,7 +51,6 @@ class ProductController extends Controller
                 'p.Nombre_Comercial',
                 'p.Embalaje',
                 'p.Tipo as Tipo',
-                'p.Tipo_Catalogo',
                 'p.Id_Tipo_Activo_Fijo',
                 'ido.status',
                 'ido.id as id_inventary_dotations',
@@ -78,28 +78,22 @@ class ProductController extends Controller
 
 
         return $this->success(
-            $data->when(request()->get("tipo"), function ($q, $fill) {
-                $q->where("p.Tipo_Catalogo", $fill);
+            $data->when(request()->get("company_id"), function ($q, $fill) {
+                $q->where("p.company_id", $fill);
             })
-                ->when(request()->get("company_id"), function ($q, $fill) {
-                    $q->where("p.company_id", $fill);
-                })
-                ->when(request()->get("categoria"), function ($q, $fill) {
-                    $q->where("p.Id_Categoria", '=', $fill);
-                })
-                ->when(request()->get("subcategoria"), function ($q, $fill) {
-                    $q->where("p.Id_Subcategoria", '=', $fill);
-                })
-                ->when(request()->get("nombre"), function ($q, $fill) {
-                    $q->where("p.Nombre_Comercial", 'like', "%$fill%");
-                })
-                ->when(request()->get("tipo_catalogo"), function ($q, $fill) {
-                    $q->where("p.Tipo_Catalogo", '=', $fill);
-                })
-                ->when(request()->get("estado"), function ($q, $fill) {
-                    $q->where("p.Estado", '=', $fill);
-                })
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            ->when(request()->get("categoria"), function ($q, $fill) {
+                $q->where("p.Id_Categoria", '=', $fill);
+            })
+            ->when(request()->get("subcategoria"), function ($q, $fill) {
+                $q->where("p.Id_Subcategoria", '=', $fill);
+            })
+            ->when(request()->get("nombre"), function ($q, $fill) {
+                $q->where("p.Nombre_Comercial", 'like', "%$fill%");
+            })
+            ->when(request()->get("estado"), function ($q, $fill) {
+                $q->where("p.Estado", '=', $fill);
+            })
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -140,19 +134,6 @@ class ProductController extends Controller
                 ->where("Subcategory_Id", request()->get('subcategoria'))->get();
         }
         return $this->success($query);
-    }
-
-    public function getTiposCatalogo()
-    {
-        $listaRaw = explode(",", DB::table('information_schema.COLUMNS')
-            ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_tiposCatalogo")
-            ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?', [env('DB_DATABASE') . "-producto-Tipo_Catalogo"])
-            ->first()->lista_tiposCatalogo);
-        $lista = [];
-        foreach ($listaRaw as $value) {
-            $lista[] = ["text" => str_replace(["'", "_"], ["", " "], $value), "value" => str_replace("'", "", $value)];
-        }
-        return $this->success($lista);
     }
 
 
@@ -203,9 +184,6 @@ class ProductController extends Controller
             })
             ->when(request()->get("cum"), function ($q, $fill) {
                 $q->where("P.Codigo_Cum",'like','%'.$fill.'%');
-            })
-            ->when(request()->get("catalogo"), function ($q, $fill) {
-                $q->where("P.Tipo_Catalogo",'=',$fill);
             }) */
                 ->when(request()->get("categoria"), function ($q, $fill) {
                     $q->where("P.Id_Categoria", '=', $fill);
@@ -264,6 +242,20 @@ class ProductController extends Controller
                 "cat" => $request->camposCategoria,
                 "subcat" => $request->camposSubcategoria
             ];
+
+            $type = $request->Foto["type"];
+            if(!is_null($type)){
+                if (in_array($type,['jpeg','jpg','png'])) {
+                    $base64 = saveBase64($request->Foto["file"], 'fotos_productos/', true, '.'. $type);
+                    $url=URL::to('/') . '/api/image?path=' . $base64;
+                } else {
+                    throw new Exception(
+                        "No se ha encontrado un formato de imagen válido ($type), revise e intente nuevamente"
+                    );
+                }
+                $data['Foto'] = $url;
+            }
+
             $product = Product::updateOrCreate(["Id_Producto" => $data["Id_Producto"]], $data);
             foreach ($campos as $campo) {
                 foreach ($campo as $d) {
