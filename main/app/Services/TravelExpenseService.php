@@ -25,19 +25,22 @@ class TravelExpenseService
             ->with("origin")
             /* ->with("user") */
             ->with("person.contractultimate")
-            ->with("hotels")
+            ->with("hotels.accommodations")
             ->with("transports")
             ->with("feedings")
+            ->with("te_hotel")
             ->where("id", $id)
             ->first();
     }
+
+
 
     static public function paginate(){
         return TravelExpense::with("destiny")
         ->with("origin")
         ->with("user")
         ->with("user.person")
-        ->with("person")
+        ->with("person", "hotels")
         ->when( request()->get('person_id'), function($q, $fill)
         {
             $q->where('person_id','like','%'.$fill.'%');
