@@ -18,8 +18,8 @@ class HotelController extends Controller
 	public function index()
 	{
 		try {
-			$nacional = Hotel::with('city')->where('type', '=', 'Nacional')->get();
-			$internacional = Hotel::where('type', '=', 'Internacional')->get();
+			$nacional = Hotel::with('city', 'accommodations')->where('type', '=', 'Nacional')->get();
+			$internacional = Hotel::with('accommodations')->where('type', '=', 'Internacional')->get();
 
 			return $this->success(['nacional' => $nacional, 'internacional' => $internacional]);
 		} catch (\Throwable $th) {
@@ -31,6 +31,7 @@ class HotelController extends Controller
 	{
 		return $this->success(
 			Hotel::orderBy('type')
+            ->with('city', 'accommodations')
 			->when( request()->get('tipo') , function($q, $fill)
 			{
 				$q->where('type','=',$fill);
@@ -58,10 +59,41 @@ class HotelController extends Controller
 	public function store(Request $request)
 	{
 		try {
-			Hotel::updateOrCreate(['id' => $request->get('id')],$request->all());
-			return $this->success('Creado con éxito');
+            $accommodations = array();
+
+            foreach ($request->alojamientos as $values) {
+                $alojami = array(
+                    'accommodation_id'=>$values['id'],
+                    'price'=> $values['price']
+                );
+                array_push($accommodations, $alojami);
+            }
+			$nuevo = Hotel::updateOrCreate(['id' => $request->get('id')],[
+                'type' => $request->type,
+                'name' => $request->name,
+                'address' => $request->address,
+                //'rate' => $request->rate,
+                'phone' => $request->phone,
+                'landline' => $request->landline,
+                'city_id' => $request->city_id,
+                //'simple_rate' => $request->simple_rate,
+                //'double_rate' => $request->double_rate,
+                'breakfast' => $request->breakfast,
+            ]);
+
+
+            $nuevo->accommodations()->detach();
+            $nuevo->accommodations()->attach($accommodations);
+
+            //$nuevo = Accommodation::updateOrCreate($request->all());
+			if ($nuevo) {
+                return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+				//return $this->success('Creado con éxito');
+			} else {
+				return $this->error('Ocurrió un error inesperado y no se pudo guardar', 406);
+			}
 		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
+			return $this->error($th->getMessage(). ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 500);
 		}
 	}
 

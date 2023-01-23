@@ -17,6 +17,7 @@ class Municipality extends Model
         'municipalities_id',
         'percentage_product',
         'percentage_service',
+        'abbreviation',
     ];
 
 

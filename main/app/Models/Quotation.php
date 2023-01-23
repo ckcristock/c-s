@@ -29,6 +29,7 @@ class Quotation extends Model
         'status',
         'client_id',
         'status',
+        'format_code'
     ];
 
     public function municipality()
@@ -51,5 +52,9 @@ class Quotation extends Model
         return $q->select('*', DB::raw('CONCAT_WS(" - ", line, project) as name', 'id as value'));
     }
 
+    public static function getTableName()
+{
+    return (new self())->getTable();
+}
 
 }

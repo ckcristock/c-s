@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,10 +37,25 @@ class TravelExpense extends Model
 	}
 	public function hotels()
 	{
-		return $this->belongsToMany(Hotel::class, 'travel_expense_hotels')->withPivot('who_cancels', 'n_night', 'breakfast', 'total', 'breakfast', 'rate', 'accommodation');
+		return $this->belongsToMany(Hotel::class, 'travel_expense_hotels')
+        ->with('accommodations')
+        ->withPivot('who_cancels', 'n_night', 'breakfast', 'total', 'breakfast', 'rate', 'accommodation');
+        /* ->with(['accommodations'=>function ($query){
+            $query->where('accommodation_hotel.id', '=', 'travel_expense_hotels.pivot.accommodation');
+        }]) */
 	}
 	public function expenseTaxiCities()
 	{
 		return $this->hasMany(TravelExpenseTaxiCity::class);
 	}
+
+ /*    public function accommodation ()
+    {
+        return $this->hasOne(Accommodation::class, 'id', 'accommodation');
+    } */
+
+    public function te_hotel ()
+    {
+        return $this->hasMany(TravelExpenseHotel::class)->with('accommodation');
+    }
 }

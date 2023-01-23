@@ -20,6 +20,7 @@ class Business extends Model
         'date',
         'budget_value',
         'quotation_value',
+        'format_code'
     ];
 
     public function thirdParty()
