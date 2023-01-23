@@ -34,7 +34,7 @@ class MunicipalityController extends Controller
             ->when(Request()->get('department_id'), function ($q, $param) {
                 $q->where('department_id', $param);
             })
-            ->get(['name As text', 'id As value', 'department_id', 'code']);
+            ->get(['name As text', 'id As value', 'department_id', 'code', 'abbreviation']);
         return $this->success($data);
     }
 

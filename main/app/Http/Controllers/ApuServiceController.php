@@ -7,6 +7,7 @@ use App\Models\ApuServiceAssemblyStartUp;
 use App\Models\ApuServiceDimensionalValidation;
 use App\Models\ApuServiceTravelEstimationAssemblyStartUp;
 use App\Models\ApuServiceTravelEstimationDimensionalValidation;
+use App\Models\Municipality;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -78,10 +79,15 @@ class ApuServiceController extends Controller
         $mpm_calculate_labor = request()->get("mpm_calculate_labor");
 
         try {
-
+            $consecutive = getConsecutive('apu_services');
+            if ($consecutive->city) {
+                $abbreviation = Municipality::where('id', $data['city_id'])->first()->abbreviation;
+                $data['code'] = generateConsecutive('apu_services', $abbreviation);
+            } else {
+                $data['code'] = generateConsecutive('apu_services');
+            }
             $apuservice = ApuService::create($data);
             $id = $apuservice->id;
-            $apuservice["code"] = 'S' . $id;
             $apuservice->save();
 
             foreach ($calculate_labor as $cl) {
@@ -101,7 +107,7 @@ class ApuServiceController extends Controller
                     ApuServiceTravelEstimationAssemblyStartUp::create($value);
                 }
             }
-
+            sumConsecutive('apu_services');
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

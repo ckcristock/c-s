@@ -108,7 +108,7 @@ class ApuController extends Controller
         }
 
         return $this->success(
-            $query_total->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            $query_total->orderByDesc('created_at')->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 

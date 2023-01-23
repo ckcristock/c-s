@@ -39,6 +39,7 @@ class ApuSet extends Model
         "trm" ,
         "sale_price_usd_withholding_total",
         "code",
+        'format_code',
         "state"
     ];
 

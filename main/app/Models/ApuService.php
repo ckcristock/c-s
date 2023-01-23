@@ -33,7 +33,8 @@ class ApuService extends Model
         'subtotal_travel_expense',
         'subtotal_travel_expense_mpm',
         'trm',
-        'code'
+        'code',
+        'format_code',
     ];
 
     public function city()

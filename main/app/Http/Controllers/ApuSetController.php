@@ -13,6 +13,7 @@ use App\Models\ApuSetInternalProcess;
 use App\Models\ApuSetMachineTool;
 use App\Models\ApuSetOther;
 use App\Models\ApuSetPartList;
+use App\Models\Municipality;
 use App\Services\ApuSetService;
 use Barryvdh\DomPDF\Facade as PDF;
 
@@ -72,10 +73,15 @@ class ApuSetController extends Controller
         $indirect_cost = request()->get("indirect_cost");
 
         try {
-
+            $consecutive = getConsecutive('apu_sets');
+            if ($consecutive->city) {
+                $abbreviation = Municipality::where('id', $data['city_id'])->first()->abbreviation;
+                $data['code'] = generateConsecutive('apu_sets', $abbreviation);
+            } else {
+                $data['code'] = generateConsecutive('apu_sets');
+            }
             $apuset = ApuSet::create($data);
             $id = $apuset->id;
-            $apuset["code"] = $id;
             $apuset->save();
 
             foreach ($files as $file){
@@ -109,7 +115,7 @@ class ApuSetController extends Controller
 				$ic["apu_set_id"] = $id;
 				ApuSetIndirectCost::create($ic);
 			}
-
+            sumConsecutive('apu_sets');
             return $this->success('Creado con éxito');
 
 
@@ -263,7 +269,7 @@ class ApuSetController extends Controller
             ->when( request()->get('name'), function($q, $fill)
             {
                 $q->where('name','like','%'.$fill.'%');
-                            
+
             })
             ->limit(100)
             ->get()
@@ -277,7 +283,7 @@ class ApuSetController extends Controller
             ->when( request()->get('name'), function($q, $fill)
             {
                 $q->where('name','like','%'.$fill.'%');
-                            
+
             })
             ->limit(100)
             ->get()

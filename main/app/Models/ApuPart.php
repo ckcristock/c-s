@@ -52,6 +52,7 @@ class ApuPart extends Model
         'sale_price_usd_withholding_total',
         'sale_value_usd_unit',
         'code',
+        'format_code',
         'state'
     ];
 
