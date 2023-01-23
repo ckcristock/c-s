@@ -22,7 +22,7 @@ if (!function_exists('getConsecutive')) {
 }
 
 if (!function_exists('generateConsecutive')) {
-    function generateConsecutive($table, $city)
+    function generateConsecutive($table, $city = '')
     {
         $consecutivo = ComprobanteConsecutivo::where('table_name', $table)->first();
         $today = Carbon::now();

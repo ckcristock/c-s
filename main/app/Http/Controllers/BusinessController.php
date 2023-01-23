@@ -8,6 +8,7 @@ use App\Models\BusinessBudget;
 use App\Models\BusinessHistory;
 use App\Models\BusinessQuotation;
 use App\Models\BusinessTask;
+use App\Models\Municipality;
 use App\Models\Person;
 use App\Models\Quotation;
 use App\Traits\ApiResponser;
@@ -79,8 +80,14 @@ class BusinessController extends Controller
     {
         try {
             $quotations = $request->quotations;
+            $consecutive = getConsecutive('businesses');
             $business = Business::create($request->except('budgets'));
-            $business['code'] = '#NZ' . $business->id;
+            if ($consecutive->city) {
+                $abbreviation = Municipality::where('id', $request->city_id)->first()->abbreviation;
+                $business['code'] = generateConsecutive('businesses', $abbreviation);
+            } else {
+                $business['code'] = generateConsecutive('businesses');
+            }
             $business->save();
             $person = Person::where('id', $request->person_id)->fullName()->first();
             $this->addEventToHistroy([
@@ -122,6 +129,7 @@ class BusinessController extends Controller
                     ]);
                 }
             }
+            sumConsecutive('businesses');
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

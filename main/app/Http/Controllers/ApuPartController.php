@@ -129,8 +129,8 @@ class ApuPartController extends Controller
 				ApuPartIndirectCost::create($icost);
 			}
 
-
-            return $this->success("guardado con éxito");
+            sumConsecutive('apu_parts');
+            return $this->success("Pieza guardada con éxito");
 
         }catch (\Throwable $th) {
 

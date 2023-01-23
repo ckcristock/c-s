@@ -29,6 +29,7 @@ class Quotation extends Model
         'status',
         'client_id',
         'status',
+        'format_code'
     ];
 
     public function municipality()
