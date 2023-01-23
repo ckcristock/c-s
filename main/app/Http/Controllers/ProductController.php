@@ -28,7 +28,7 @@ class ProductController extends Controller
 
         //$tipoCatalogo = Request()->get('tipo');
 
-        $data = Product::alias('p')->join('subcategoria as s', 's.id_subcategoria', 'p.id_subcategoria')
+        $data = Product::alias('p')->join('Subcategoria as s', 's.id_subcategoria', 'p.id_subcategoria')
             ->join('Categoria_Nueva as c', 'c.Id_Categoria_Nueva', 's.Id_Categoria_Nueva')
             ->leftJoin('product_dotation_types as pdt', 'pdt.id', 'p.Producto_Dotation_Type_Id')
             ->leftJoin('inventary_dotations as ido', 'ido.product_id', 'p.Id_Producto')
@@ -81,19 +81,19 @@ class ProductController extends Controller
             $data->when(request()->get("company_id"), function ($q, $fill) {
                 $q->where("p.company_id", $fill);
             })
-            ->when(request()->get("categoria"), function ($q, $fill) {
-                $q->where("p.Id_Categoria", '=', $fill);
-            })
-            ->when(request()->get("subcategoria"), function ($q, $fill) {
-                $q->where("p.Id_Subcategoria", '=', $fill);
-            })
-            ->when(request()->get("nombre"), function ($q, $fill) {
-                $q->where("p.Nombre_Comercial", 'like', "%$fill%");
-            })
-            ->when(request()->get("estado"), function ($q, $fill) {
-                $q->where("p.Estado", '=', $fill);
-            })
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->when(request()->get("categoria"), function ($q, $fill) {
+                    $q->where("p.Id_Categoria", '=', $fill);
+                })
+                ->when(request()->get("subcategoria"), function ($q, $fill) {
+                    $q->where("p.Id_Subcategoria", '=', $fill);
+                })
+                ->when(request()->get("nombre"), function ($q, $fill) {
+                    $q->where("p.Nombre_Comercial", 'like', "%$fill%");
+                })
+                ->when(request()->get("estado"), function ($q, $fill) {
+                    $q->where("p.Estado", '=', $fill);
+                })
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -244,16 +244,16 @@ class ProductController extends Controller
             ];
 
             $type = $request->Foto["type"];
-            if(!is_null($type)){
-                if (in_array($type,['jpeg','jpg','png'])) {
-                    $base64 = saveBase64($request->Foto["file"], 'fotos_productos/', true, '.'. $type);
-                    $url=URL::to('/') . '/api/image?path=' . $base64;
+            if (!is_null($type)) {
+                if (in_array($type, ['jpeg', 'jpg', 'png'])) {
+                    $base64 = saveBase64($request->Foto["file"], 'fotos_productos/', true, '.' . $type);
+                    $url = URL::to('/') . '/api/image?path=' . $base64;
                 } else {
                     throw new Exception(
                         "No se ha encontrado un formato de imagen válido ($type), revise e intente nuevamente"
                     );
                 }
-                $data['Foto'] = $url;
+                $data['Imagen'] = $url;
             }
 
             $product = Product::updateOrCreate(["Id_Producto" => $data["Id_Producto"]], $data);
