@@ -10,4 +10,8 @@ class SubcategoryVariable extends Model
 
     protected $fillable = ['subcategory_id', 'label', 'required', 'type'];
 
+    public function scopeAlias($q, $alias){
+        return $q->from($q->getQuery()->from." as ".$alias);
+    }
+
 }

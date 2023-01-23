@@ -67,6 +67,9 @@ class Product extends Model
         'Orden_Compra'
     ];
 
+    public function scopeAlias($q, $alias){
+        return $q->from($q->getQuery()->from." as ".$alias);
+    }
 
 }
 
