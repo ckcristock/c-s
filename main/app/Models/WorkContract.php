@@ -23,6 +23,11 @@ class WorkContract extends Model
         'person_id',
         'date_of_admission'
     ];
+
+    public function scopeAlias($q, $alias){
+        return $q->from($q->getQuery()->from." as ".$alias);
+    }
+
     public function position()
     {
         return $this->belongsTo(Position::class)->with('dependency');

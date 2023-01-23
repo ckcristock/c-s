@@ -2,6 +2,7 @@
 
 /* use App\Http\Controllers\AuthController; */
 
+use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\AccountPlanController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
@@ -546,7 +547,11 @@ Route::group(
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
         Route::resource('premium', PremiumController::class)->except(['create', 'edit']);
         Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
+        Route::resource('accommodations', AccommodationController::class)->except(['create', 'edit']);
+        Route::resource('accommodations', AccommodationController::class)->except(['create', 'edit']);
         Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
+
+
         Route::get('check-bonuses/{period}', [BonusController::class, 'checkBonuses']);
         Route::get('bonuses-report/{anio}/{period}/{pagado}', [BonusController::class, 'reportBonus']);
         Route::get('bonus-stubs/{anio}/{period}', [BonusController::class, 'pdfGenerate']);
@@ -554,6 +559,8 @@ Route::group(
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
+
+        Route::post('restore-accommodation', [AccommodationController::class, 'restore']);
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class,'paginate']);
@@ -617,6 +624,7 @@ Route::group(
         Route::get('paginate-locations', [LocationController::class, 'paginate']);
         Route::get('paginate-bonuses', [BonusController::class, 'paginate']);
         Route::get('paginate-work-orders', [WorkOrderController::class, 'paginate']);
+        Route::get('paginate-accommodations', [AccommodationController::class, 'paginate']);
         Route::get('paginate-comprobante-consecutivo', [ComprobanteConsecutivoController::class, 'paginate']);
         /* Paginations */
 
@@ -686,14 +694,15 @@ Route::group(
         //se ejecuta al editar
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
-        Route::get("lista-tipos-catalogo", [ProductController::class,'getTiposCatalogo']);
-        Route::get("vars-subcategoria-producto", [ProductController::class,'getSubcategoryVars']);
+        Route::get("get-vars-producto", [ProductController::class,'getVars']);
         Route::post("cambiar-estado-producto", [ProductController::class,'cambiarEstado']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 
         Route::resource("category", CategoryController::class);
         Route::get('list-categories', [CategoryController::class,'listCategories']);
+        Route::get("category-field/{id}", [CategoryController::class, 'getField']);
         Route::put("category-active/{id}", [CategoryController::class, 'turningOnOff']);
+        Route::delete("category-variable/{id}", [CategoryController::class, 'deleteVariable']);
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);

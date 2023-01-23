@@ -9,7 +9,7 @@ class Subcategory extends Model
     protected $table = 'Subcategoria';
     protected $primaryKey = 'Id_Subcategoria';
 
-    protected $fillable = ['Nombre', 'Id_Categoria_Nueva', 'Separable'];
+    protected $fillable = ['Nombre', 'Id_Categoria_Nueva', 'Separable','Fijo'];
 
     /* public function category()
     {
@@ -19,6 +19,10 @@ class Subcategory extends Model
     public function subcategoryVariables()
     {
         return $this->hasMany(SubcategoryVariable::class, "subcategory_id");
+    }
+
+    public function scopeAlias($q, $alias){
+        return $q->from($q->getQuery()->from." as ".$alias);
     }
 
     public function scopeActive($query){
