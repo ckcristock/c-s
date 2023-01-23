@@ -694,14 +694,15 @@ Route::group(
         //se ejecuta al editar
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
-        Route::get("lista-tipos-catalogo", [ProductController::class,'getTiposCatalogo']);
-        Route::get("vars-subcategoria-producto", [ProductController::class,'getSubcategoryVars']);
+        Route::get("get-vars-producto", [ProductController::class,'getVars']);
         Route::post("cambiar-estado-producto", [ProductController::class,'cambiarEstado']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 
         Route::resource("category", CategoryController::class);
         Route::get('list-categories', [CategoryController::class,'listCategories']);
+        Route::get("category-field/{id}", [CategoryController::class, 'getField']);
         Route::put("category-active/{id}", [CategoryController::class, 'turningOnOff']);
+        Route::delete("category-variable/{id}", [CategoryController::class, 'deleteVariable']);
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
