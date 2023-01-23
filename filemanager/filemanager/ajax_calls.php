@@ -4,10 +4,10 @@ $config = include 'config/config.php';
 
 require_once 'include/utils.php';
 
-if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
+/* if ($_SESSION['RF']["verify"] != "RESPONSIVEfilemanager") {
     response(trans('forbidden').AddErrorLocation())->send();
     exit;
-}
+} */
 $languages = include 'lang/languages.php';
 
 if (isset($_SESSION['RF']['language']) && file_exists('lang/' . basename($_SESSION['RF']['language']) . '.php')) {

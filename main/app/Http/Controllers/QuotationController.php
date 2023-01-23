@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Municipality;
 use App\Models\Quotation;
 use App\Models\QuotationItem;
 use App\Models\QuotationItemSubitem;
@@ -45,7 +46,7 @@ class QuotationController extends Controller
                 ->when($request->line, function ($q, $fill) {
                     $q->where('line', 'like', "%$fill%");
                 })
-                ->when($request->date_start, function ($q, $fill) use($request) {
+                ->when($request->date_start, function ($q, $fill) use ($request) {
                     $q->whereBetween('created_at', [$fill, $request->date_end]);
                 })
                 ->when($request->status, function ($q, $fill) {
@@ -80,8 +81,16 @@ class QuotationController extends Controller
     {
         $data = $request->all();
         $items = $request->items;
+        $consecutive = getConsecutive('quotations');
+        if ($consecutive->city) {
+            $abbreviation = Municipality::where('id', $data['destinity_id'])->first()->abbreviation;
+            $data['code'] = generateConsecutive('quotations', $abbreviation);
+        } else {
+            $data['code'] = generateConsecutive('quotations');
+        }
         $quotation = Quotation::updateOrCreate(['id' => $request->id], $data);
         if ($quotation->wasRecentlyCreated) {
+            sumConsecutive('quotations');
             $item = $quotation->items()->createMany($items);
             foreach ($item as $index => $subitem) {
                 $subitem->subItems()->createMany($request->items[$index]['subItems']);

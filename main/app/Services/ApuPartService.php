@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ApuPart;
 use App\Models\ApuPartRawMaterial;
 use App\Models\ApuPartRawMaterialMeasure;
+use App\Models\Municipality;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -14,8 +15,15 @@ class ApuPArtService
     static function saveApu($data)
     {
         $data["user_id"] = auth()->user()->id;
+        $consecutive = getConsecutive('apu_parts');
+        if ($consecutive->city) {
+            $abbreviation = Municipality::where('id', $data['city_id'])->first()->abbreviation;
+            $data['code'] = generateConsecutive('apu_parts', $abbreviation);
+        } else {
+            $data['code'] = generateConsecutive('apu_parts');
+        }
         $apuDB = ApuPart::create($data);
-        $apuDB["code"] = $apuDB->id;
+        //$apuDB["code"] = $apuDB->id;
         $apuDB->save();
         return $apuDB;
     }

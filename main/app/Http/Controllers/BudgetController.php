@@ -9,6 +9,7 @@ use App\Models\BudgetItemSubitem;
 use App\Models\BudgetItemSubitemIndirectCost;
 use App\Models\Company;
 use App\Models\BusinessTask;
+use App\Models\Municipality;
 use App\Services\BudgetService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -144,7 +145,13 @@ class BudgetController extends Controller
     {
         $data = $request->get('data');
         $data['user_id'] = auth()->user()->id;
-
+        $consecutive = getConsecutive('budgets');
+        if ($consecutive->city) {
+            $abbreviation = Municipality::where('id', $data['destinity_id'])->first()->abbreviation;
+            $data['code'] = generateConsecutive('budgets', $abbreviation);
+        } else {
+            $data['code'] = generateConsecutive('budgets');
+        }
         $budgetDb = Budget::create($data);
 
         foreach ($data['indirect_costs'] as $indirectCost) {
@@ -173,7 +180,7 @@ class BudgetController extends Controller
                 }
             }
         }
-
+        sumConsecutive('budgets');
         return $this->success($request);
     }
 

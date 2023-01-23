@@ -40,7 +40,8 @@
             "app/helpers/handlerTableCreate.php",
             "app/helpers/normalize.php",
             "app/helpers/image.php",
-            "app/helpers/mathHelper.php"
+            "app/helpers/mathHelper.php",
+            "app/helpers/consecutive.php"
         ]
     },
     "autoload-dev": {
