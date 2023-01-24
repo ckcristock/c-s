@@ -695,6 +695,7 @@ Route::group(
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
         Route::get("get-vars-producto", [ProductController::class,'getVars']);
+        Route::get("get-actividad-producto", [ProductController::class,'getActividad']);
         Route::post("cambiar-estado-producto", [ProductController::class,'cambiarEstado']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 

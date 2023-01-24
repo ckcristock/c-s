@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActividadProducto;
 use App\Models\CategoryVariable;
 use App\Models\InventaryDotation;
 use Illuminate\Http\Request;
@@ -78,6 +79,7 @@ class ProductController extends Controller
 
 
         return $this->success(
+            //$imagen=[(request()->get("imagen")===null),request()->get("imagen")]
             $data->when(request()->get("company_id"), function ($q, $fill) {
                 $q->where("p.company_id", $fill);
             })
@@ -93,7 +95,18 @@ class ProductController extends Controller
                 ->when(request()->get("estado"), function ($q, $fill) {
                     $q->where("p.Estado", '=', $fill);
                 })
+                ->when(request()->get("imagen"), function ($q, $fill) {
+                    $q->where('p.Imagen',(($fill == 'con')?"!=":"="),null);
+                })
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
+    }
+
+    public function getActividad()
+    {
+        return $this->success(
+            ActividadProducto::alias("ar")
+            ->where("Id_Producto",request()->get('id_producto'))
         );
     }
 
@@ -125,7 +138,7 @@ class ProductController extends Controller
                     ->select("sv.id as sv_id", "label", "type", "required")
                     ->join('Producto as p', 'p.Id_Subcategoria', 'sv.Subcategory_Id')
                     ->where("Id_Producto", $producto)->get();
-            }
+            }/*  */
         } else {
             $query["cat"] = CategoryVariable::select("id as cv_id", "label", "type", "required")
                 ->where("Category_Id", request()->get('categoria'))->get();
