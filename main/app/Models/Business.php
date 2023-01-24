@@ -50,7 +50,7 @@ class Business extends Model
 
     public function quotations()
     {
-        return $this->belongsToMany(Quotation::class)->name()->with('municipality', 'client')->withPivot('status');
+        return $this->belongsToMany(Quotation::class)->name()->with('municipality', 'client', 'budgets')->withPivot('status');
     }
 
     public function tasks()

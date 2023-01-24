@@ -33,4 +33,10 @@ class BudgetItemSubitem extends Model
     {
         return $this->belongsTo(ApuPart::class);
     }
+
+
+    public function apuService()
+    {
+        return $this->belongsTo(ApuService::class);
+    }
 }

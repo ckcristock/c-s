@@ -143,6 +143,7 @@ use App\Models\BusinessBudget;
 use App\Models\ThirdParty;
 use App\Models\User;
 use App\Models\Bonus;
+use App\Models\Budget;
 use App\Models\ComprobanteConsecutivo;
 use App\Models\WorkOrderBlueprint;
 use Illuminate\Support\Facades\Artisan;
@@ -667,7 +668,9 @@ Route::group(
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
         Route::put("subcategory-active/{id}", [SubcategoryController::class, 'turningOnOff']);
         Route::delete("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
-
+Route::get('test', function(){
+    return Budget::where('id',8)->with('quotations')->first();
+});
         //boards
         Route::get("board", [BoardController::class, "getData"]);
         Route::post('person/set-board/{personId}/{board}', [BoardController::class, 'setBoardsPerson']);

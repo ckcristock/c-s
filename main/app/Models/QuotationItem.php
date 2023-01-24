@@ -17,6 +17,7 @@ class QuotationItem extends Model
         'total_usd',
         'quotation_id',
         'cuantity',
+        'budget_item_id',
     ];
 
     public function subItems()

@@ -27,9 +27,9 @@ class BudgetService
                                             $q->select('id', 'name');
                                         }, 'apuPart' => function ($q) {
                                             $q->select('id', 'name');
-                                        }/* ,''=> function($q) {
-                                            $q->select('*');
-                                        } */]
+                                        }, 'apuService'=> function($q) {
+                                            $q->select('id', 'name');
+                                        }]
                                     );
                             }]
                         );
@@ -75,7 +75,7 @@ class BudgetService
                 DB::table('budget_item_subitem_indirect_costs')->where('budget_item_subitem_id', $subitem->id)->delete();
                 $subitem->delete();
             });
-          
+
             $item->delete();
         });
     }
