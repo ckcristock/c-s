@@ -87,10 +87,11 @@ class ThirdParty extends Model
         }
         return $q->addSelect(DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname, second_name, second_surname)) as '.$alias));
     }
+
     public function scopeName2($q)
     {
         return $q->select('*',
-            DB::raw('IFNULL(social_reason,concat(first_name," ",first_surname)) as text'),
+            DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as text'),
             'id as value',
     );
     }

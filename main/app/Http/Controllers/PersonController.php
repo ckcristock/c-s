@@ -33,11 +33,18 @@ class PersonController extends Controller
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
 		return $this->success(
 			Person::
             where('status', 'Activo')
+            ->when($request->dependency_id, function ($q, $fill) {
+                $q->whereHas('work_contract', function ($q2) use ($fill) {
+                    $q2->whereHas('position', function ($q3) use ($fill) {
+                        $q3->where('dependency_id', '=', $fill);
+                    });
+                });
+            })
             ->get([
 				"id as value",
 				DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),

@@ -74,6 +74,17 @@ class WorkOrderController extends Controller
         //
     }
 
+    public function forStage(Request $request)
+    {
+        $wo = WorkOrder::with('city', 'third_party', 'third_party_person')
+        ->when($request->status, function ($q, $fill) {
+            $q->where('status', $fill);
+        })
+        ->orderBy('delivery_date', strval($request->orderBy))
+        ->get();
+        return $this->success($wo);
+    }
+
     /**
      * Store a newly created resource in storage.
      *

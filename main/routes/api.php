@@ -138,6 +138,7 @@ use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
 use App\Http\Controllers\WorkOrderBlueprintController;
 use App\Http\Controllers\WorkOrderController;
+use App\Http\Controllers\WorkOrderEngineeringController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ThirdParty;
@@ -420,6 +421,7 @@ Route::group(
         Route::post('estibas', [BodegasController::class,'storeEstiba']);
         Route::get('bodegas-with-estibas/{id}', [BodegasController::class,'bodegasConGrupos']);
         Route::get('grupos-with-estibas/{id}', [BodegasController::class,'gruposConEstibas']);
+        Route::get('get-wo-for-stage', [WorkOrderController::class,'forStage']);
 
         Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
         Route::resource('work-certificate', WorkCertificateController::class);
@@ -458,6 +460,7 @@ Route::group(
         Route::resource('payroll-factor', PayrollFactorController::class);
         Route::resource('work-orders', WorkOrderController::class);
         Route::resource('work-orders-blueprints', WorkOrderBlueprintController::class);
+        Route::resource('work-orders-engineering', WorkOrderEngineeringController::class);
 
         Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
 
