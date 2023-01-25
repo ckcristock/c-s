@@ -105,8 +105,10 @@ class ProductController extends Controller
     public function getActividad()
     {
         return $this->success(
-            ActividadProducto::alias("ar")
-            ->where("Id_Producto",request()->get('id_producto'))
+            ActividadProducto::alias("ar")->with(["funcionario" => function($q){
+                $q->select("id","image")->completeName();
+            }])
+            ->where("Id_Producto",request()->get('id'))->orderBy('Fecha', 'desc')->get()
         );
     }
 
