@@ -124,6 +124,7 @@ class ProductController extends Controller
                 ->where("vp.product_id", $producto)->get();
 
             if (count($query["cat"]) == 0) {
+                dd(CategoryVariable::alias("cv"));
                 $query["cat"] = CategoryVariable::alias("cv")
                     ->select("cv.id as cv_id", "label", "type", "required")
                     ->join('Producto as p', 'p.Id_Categoria', 'cv.category_Id')
@@ -252,11 +253,26 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         try {
-            $data = $request->except(["camposCategoria", "camposSubcategoria"]);
+            $data_actual=(isset($request->Id_Producto))?Product::find($request->Id_Producto):[];
+            $data = $request->except(["camposCategoria", "camposSubcategoria","user_id", "camposFlag"]);
+
             $campos = [
-                "cat" => $request->camposCategoria,
-                "subcat" => $request->camposSubcategoria
+                "cat" => [
+                    "registros" =>$request->camposCategoria,
+                    "modelo" => CategoryVariable::all(),
+                    "campo_id" => "category_variables_id",
+                    "titulo" => "categoría",
+                    "camposFlag" => $request->camposFlag["cat"]
+                ],
+                "subcat" => [
+                    "registros" =>$request->camposSubcategoria,
+                    "modelo" => SubcategoryVariable::all(),
+                    "campo_id" => "subcategory_variables_id",
+                    "titulo" => "subcategoría",
+                    "camposFlag" => $request->camposFlag["subcat"]
+                ]
             ];
+
 
             $type = $request->Foto["type"];
             if (!is_null($type)) {
@@ -270,15 +286,58 @@ class ProductController extends Controller
                 }
                 $data['Imagen'] = $url;
             }
+            unset($data["Foto"]);
 
             $product = Product::updateOrCreate(["Id_Producto" => $data["Id_Producto"]], $data);
-            foreach ($campos as $campo) {
-                foreach ($campo as $d) {
-                    $d["product_id"] = $product->Id_Producto;
-                    VariableProduct::updateOrCreate(['id' => $d["id"]], $d);
+            if($product->wasRecentlyCreated){
+                ActividadProducto::create([
+                    "Id_Producto" => $product->Id_Producto,
+                    "Person_Id" => $request->user_id,
+                    "Detalles" => "El producto '".$product->Nombre_Comercial."' fue ingresado al sistema",
+                ]);
+            }else{
+                foreach($data as $key=>$campo){
+                    if($campo !== $data_actual[$key]){
+                        ActividadProducto::create([
+                            "Id_Producto" => $product->Id_Producto,
+                            "Person_Id" => $request->user_id,
+                            "Detalles" => (isset($data_actual[$key]))?"El campo ".$key." fue modificado de '".$data_actual[$key]."' a '".$campo."'.":
+                                "El campo ".$key." fue ingresado con el valor '".$campo."'.",
+                        ]);
+                    }
                 }
             }
 
+            foreach ($campos as $campo) {
+                foreach ($campo["registros"] as $d) {
+                    $data_actual=(isset($d["id"]))?VariableProduct::find($d["id"]):[];
+
+                    $d["product_id"] = $product->Id_Producto;
+                    $varProd=VariableProduct::updateOrCreate(['id' => $d["id"]], $d);
+
+                    $nomVar=$campo["modelo"]->fresh()->find($varProd[$campo["campo_id"]])["label"];
+
+                    if($varProd->wasRecentlyCreated){   // Si la variable de producto no tenia un valor antes.
+                        ActividadProducto::create([
+                            "Id_Producto" => $product->Id_Producto,
+                            "Person_Id" => $request->user_id,
+                            "Detalles" => "La variable de ".$campo["titulo"]." '$nomVar' fue ".
+                            (($campo["camposFlag"])?"creada e ":"")."ingresada al sistema con el valor '".$varProd->valor."'.",
+                        ]);
+                    }else{
+                        foreach($d as $key=>$campo_d){
+                            if($campo_d !== $data_actual[$key]){
+                                ActividadProducto::create([
+                                    "Id_Producto" => $product->Id_Producto,
+                                    "Person_Id" => $request->user_id,
+                                    "Detalles" => "La variable de ".$campo["titulo"]." '$nomVar' fue ".
+                                        ((isset($data_actual[$key]))?"modificada de '".$data_actual[$key]."' a '":"ingresada con el valor '").$campo_d."'.",
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
             /* $data = $request->except(["dynamic"]);
 
             $dynamic = request()->get("dynamic");
