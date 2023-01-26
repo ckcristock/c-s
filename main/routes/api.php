@@ -570,6 +570,7 @@ Route::group(
         Route::get('paginateBodegas', [BodegasController::class,'paginate']);
         Route::get('category-paginate', [CategoryController::class,'paginate']);
         Route::get('loan-paginate', [LoanController::class, 'paginate']);
+        Route::get('woe-paginate', [WorkOrderEngineeringController::class, 'paginate']);
         Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class,'paginate']);
         Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class,'paginate']);
         Route::get('paginateThickness', [ThicknessController::class, 'paginate']);

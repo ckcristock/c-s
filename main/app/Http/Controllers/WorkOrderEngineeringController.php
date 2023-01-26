@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alert;
+use App\Models\Person;
+use App\Models\WorkOrder;
 use App\Models\WorkOrderEngineering;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -17,6 +20,29 @@ class WorkOrderEngineeringController extends Controller
     public function index()
     {
         //
+    }
+
+    public function paginate(Request $request)
+    {
+        $work_order_engineering = WorkOrderEngineering::with('work_order', 'person', 'allocator_person')
+            ->when($request->code, function ($q, $fill) {
+                $q->whereHas('work_order', function ($query) use ($fill) {
+                    $query->where('code', 'like', "%$fill%");
+                });
+            })
+            ->when($request->status, function ($q, $fill) {
+                $q->where('status', $fill);
+            })
+            ->when($request->allocator_person_id, function ($q, $fill) {
+                $q->where('allocator_person_id', $fill);
+            })
+            ->when($request->person_id, function ($q, $fill) {
+                $q->where('person_id', $fill);
+            })
+            ->orderByRaw("FIELD(status , 'pendiente', 'proceso', 'completado') ASC")
+            ->orderByDesc('created_at')
+            ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1));
+        return $this->success($work_order_engineering);
     }
 
     /**
@@ -37,11 +63,16 @@ class WorkOrderEngineeringController extends Controller
      */
     public function store(Request $request)
     {
+        //crear tarea
         $data = $request->all();
         $data['allocator_person_id'] = auth()->user()->id;
         $data['person_id'] = $request->person_id['value'];
-        WorkOrderEngineering::create($data);
-        return $this->success($request->all());
+        $work_order_engineering = WorkOrderEngineering::create($data);
+        $work_order = WorkOrder::where('id', $data['work_order_id'])->first();
+        $work_order->update(['status' => 'ingenieria']);
+        createAlert($data, $work_order_engineering->id, ' te ha asignado la orden de producción ', $work_order);
+        //createTask($data);
+        return $this->success('Hemos enviado una notificación al funcionario informándole que le has asignado una orden de producción.');
     }
 
     /**
@@ -52,7 +83,7 @@ class WorkOrderEngineeringController extends Controller
      */
     public function show(WorkOrderEngineering $workOrderEngineering)
     {
-        //
+        return $this->success($workOrderEngineering->with('work_order.quotation', 'person', 'allocator_person')->first());
     }
 
     /**
