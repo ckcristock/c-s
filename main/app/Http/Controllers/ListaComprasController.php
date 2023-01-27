@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\OrdenCompraNacional;
+use App\Models\Perfil;
 use App\Models\Person;
+use App\Models\PreCompra;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\ThirdParty;
 use App\Traits\ApiResponser;
@@ -25,7 +29,8 @@ class ListaComprasController extends Controller
 
     public function index(){
         return $this->success(
-            DB::table("Orden_Compra_Nacional","OCN")
+            /* DB::table("Orden_Compra_Nacional","OCN") */
+            OrdenCompraNacional::alias("OCN")
             ->select(DB::raw("concat(
                 p.first_name,
               IF(ifnull(p.second_name,'') != '',' ',''),
@@ -65,7 +70,8 @@ class ListaComprasController extends Controller
     }
 
     public function datosComprasNacionales() {
-        $query = DB::table("Orden_Compra_Nacional","OCN")
+        /* $query = DB::table("Orden_Compra_Nacional","OCN") */
+        $query = OrdenCompraNacional::alias("OCN")
         ->select([
             "ocn.Codigo",
             "ocn.Fecha AS Fecha_Compra",
@@ -115,6 +121,7 @@ class ListaComprasController extends Controller
         ->when(request()->get('id'), function ($q, $fill) {
             $q->where("POCN.Id_Orden_Compra_Nacional",$fill);
         });
+
         return $this->success($query->get());
     }
 
@@ -142,7 +149,7 @@ class ListaComprasController extends Controller
     }
 
     public function detallePerfil(){
-        $query = DB::table("Perfil as PE")
+        $query = Perfil::alias("PE")
         ->select(["PE.*", "PF.*"])
         ->join("Perfil_Funcionario as PF",function($join){
             $join->on("PF.Id_Perfil", "PE.Id_Perfil");
@@ -199,7 +206,7 @@ class ListaComprasController extends Controller
 
     public function preCompras(){
         return $this->success(
-            DB::table("Pre_Compra","PC")
+            PreCompra::as("PC")
             ->select(
                 "PC.*",
                 "p.image",
@@ -251,8 +258,7 @@ class ListaComprasController extends Controller
 
     public function actualizarEstadoPreCompra($id){
         return $this->success(
-            DB::table("Pre_Compra")
-            ->where('Id_Pre_Compra',request()->get('id_pre_compra'))
+            PreCompra::where('Id_Pre_Compra',request()->get('id_pre_compra'))
             ->update(['Estado' => 'Solicitada'])
         );
     }
@@ -262,20 +268,23 @@ class ListaComprasController extends Controller
             $datos=request()->get('datos');
             $productos = $datos['Productos'];
             unset($datos['Productos']);
-            $result = DB::table("Orden_Compra_Nacional")->updateOrInsert(
+            /* $result = DB::table("Orden_Compra_Nacional")->updateOrInsert( */
+            $result = OrdenCompraNacional::createOrInsert(
                 [ 'Id_Orden_Compra_Nacional'=> $datos['Id_Orden_Compra_Nacional'] ],
                 $datos
             );
-            $ordenNueva = (!isset($datos['Id_Orden_Compra_Nacional']));
+            /* $ordenNueva = (!isset($datos['Id_Orden_Compra_Nacional']));
             $result=($ordenNueva)?
                 DB::table('Orden_Compra_Nacional')
                 ->latest('Id_Orden_Compra_Nacional')->first()
             :
                 DB::table('Orden_Compra_Nacional')
-                ->where('Id_Orden_Compra_Nacional',$datos['Id_Orden_Compra_Nacional'])->get();
+                ->where('Id_Orden_Compra_Nacional',$datos['Id_Orden_Compra_Nacional'])->get();  */
 
-            DB::table("Orden_Compra_Nacional")
-            ->where('Id_Orden_Compra_Nacional',$result->Id_Orden_Compra_Nacional)
+            $ordenNueva = $result->wasRecentlyCreated;
+            /* DB::table("Orden_Compra_Nacional")
+            -> */
+            OrdenCompraNacional::where('Id_Orden_Compra_Nacional',$result->Id_Orden_Compra_Nacional)
             ->update(['Codigo' => "OC".$result->Id_Orden_Compra_Nacional]);
 
             if(request()->get('id_pre_compra')){
@@ -323,8 +332,9 @@ class ListaComprasController extends Controller
 
     public function setEstadoCompra(){
         try{
-            DB::table("Orden_Compra_Nacional")
-            ->where('Id_Orden_Compra_Nacional',request()->get("id"))
+            /* DB::table("Orden_Compra_Nacional")
+            -> */
+            OrdenCompraNacional::where('Id_Orden_Compra_Nacional',request()->get("id"))
             ->update([ 'Estado' => request()->get("estado") ]);
 
 

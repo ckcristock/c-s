@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SubcategoryVariable extends Model
 {
-    /* use SoftDeletes; */
+    use SoftDeletes;
 
     protected $table = 'subcategory_variables';
 
     protected $fillable = ['subcategory_id', 'label', 'required', 'type'];
 
-    public function scopeAlias($q, $alias){
+    /* public function scopeAlias($q, $alias){
         return $q->from($q->getQuery()->from." as ".$alias)->whereNull();
-    }
+    } */
 
 }

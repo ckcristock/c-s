@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CategoryVariable extends Model
 {
-    /* use SoftDeletes; */
+    use SoftDeletes;
 
     protected $table = 'category_variables';
 
     protected $fillable = ['category_id', 'label', 'required', 'type'];
 
-    public function scopeAlias($q, $alias){
+    /* public function scopeAlias($q, $alias){
         return $q->from($q->getQuery()->from." as ".$alias);
-    }
+    } */
 }

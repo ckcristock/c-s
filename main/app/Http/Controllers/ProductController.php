@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use App\Models\Product;
 use App\Models\SubcategoryVariable;
+use App\Models\Unit;
 use App\Models\VariableProduct;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,7 @@ class ProductController extends Controller
             ->join('Categoria_Nueva as c', 'c.Id_Categoria_Nueva', 's.Id_Categoria_Nueva')
             ->leftJoin('product_dotation_types as pdt', 'pdt.id', 'p.Producto_Dotation_Type_Id')
             ->leftJoin('inventary_dotations as ido', 'ido.product_id', 'p.Id_Producto')
+            ->leftJoin('units as u', 'u.id', 'p.Unidad_Medida')
             ->select(
                 'p.Id_Producto',
                 'p.Codigo_Cum',
@@ -73,33 +75,33 @@ class ProductController extends Controller
                 ifnull(p.Embalaje,"")
             )) as Nombre,
             s.Nombre as Subcategoria,
-            c.Nombre as Categoria'
+            c.Nombre as Categoria,
+            concat(u.name," (",u.unit,")") as Nom_unidad_medida'
         );
         /*    } */
 
+        $data->when(request()->get("company_id"), function ($q, $fill) {
+            $q->where("p.company_id", $fill);
+        })
+        ->when(request()->get("categoria"), function ($q, $fill) {
+            $q->where("p.Id_Categoria", '=', $fill);
+        })
+        ->when(request()->get("subcategoria"), function ($q, $fill) {
+            $q->where("p.Id_Subcategoria", '=', $fill);
+        })
+        ->when(request()->get("nombre"), function ($q, $fill) {
+            $q->where("p.Nombre_Comercial", 'like', "%$fill%");
+        })
+        ->when(request()->get("estado"), function ($q, $fill) {
+            $q->where("p.Estado", '=', $fill);
+        })
+        ->when(request()->get("imagen"), function ($q, $fill) {
+            $q->where('p.Imagen',(($fill == 'con')?"!=":"="),null);
+        });
 
-        return $this->success(
-            //$imagen=[(request()->get("imagen")===null),request()->get("imagen")]
-            $data->when(request()->get("company_id"), function ($q, $fill) {
-                $q->where("p.company_id", $fill);
-            })
-                ->when(request()->get("categoria"), function ($q, $fill) {
-                    $q->where("p.Id_Categoria", '=', $fill);
-                })
-                ->when(request()->get("subcategoria"), function ($q, $fill) {
-                    $q->where("p.Id_Subcategoria", '=', $fill);
-                })
-                ->when(request()->get("nombre"), function ($q, $fill) {
-                    $q->where("p.Nombre_Comercial", 'like', "%$fill%");
-                })
-                ->when(request()->get("estado"), function ($q, $fill) {
-                    $q->where("p.Estado", '=', $fill);
-                })
-                ->when(request()->get("imagen"), function ($q, $fill) {
-                    $q->where('p.Imagen',(($fill == 'con')?"!=":"="),null);
-                })
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
-        );
+        return $this->success((request()->get("id")!==null)?
+            $data->where("p.Id_Producto", request()->get("id"))->first():
+            $data->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1)));
     }
 
     public function getActividad()
@@ -124,10 +126,8 @@ class ProductController extends Controller
                 ->where("vp.product_id", $producto)->get();
 
             if (count($query["cat"]) == 0) {
-                dd(CategoryVariable::alias("cv"));
-                $query["cat"] = CategoryVariable::alias("cv")
-                    ->select("cv.id as cv_id", "label", "type", "required")
-                    ->join('Producto as p', 'p.Id_Categoria', 'cv.category_Id')
+                $query["cat"] = CategoryVariable::select("category_variables.id as cv_id", "label", "type", "required")
+                    ->join('Producto as p', 'p.Id_Categoria', "category_variables.category_Id")
                     ->where("Id_Producto", $producto)->get();
             }
 
@@ -137,9 +137,8 @@ class ProductController extends Controller
                 ->where("vp.product_id", $producto)->get();
 
             if (count($query["subcat"]) == 0) {
-                $query["subcat"] = SubcategoryVariable::alias("sv")
-                    ->select("sv.id as sv_id", "label", "type", "required")
-                    ->join('Producto as p', 'p.Id_Subcategoria', 'sv.Subcategory_Id')
+                $query["subcat"] = SubcategoryVariable::select("subcategory_variables.id as sv_id", "label", "type", "required")
+                    ->join('Producto as p', 'p.Id_Subcategoria', 'subcategory_variables.Subcategory_Id')
                     ->where("Id_Producto", $producto)->get();
             }/*  */
         } else {
@@ -253,10 +252,9 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         try {
-            $data_actual=(isset($request->Id_Producto))?Product::find($request->Id_Producto):[];
             $data = $request->except(["camposCategoria", "camposSubcategoria","user_id", "camposFlag"]);
 
-            $campos = [
+            $variablesProd = [
                 "cat" => [
                     "registros" =>$request->camposCategoria,
                     "modelo" => CategoryVariable::all(),
@@ -288,7 +286,14 @@ class ProductController extends Controller
             }
             unset($data["Foto"]);
 
+            $data_actual=(isset($request->Id_Producto))?Product::find($request->Id_Producto):[];
+
             $product = Product::updateOrCreate(["Id_Producto" => $data["Id_Producto"]], $data);
+
+            if(isset($data["Unidad_Medida"])){
+                $data_actual["Unidad_Medida"]=Unit::find($data_actual["Unidad_Medida"])->name;
+                $data["Unidad_Medida"]=Unit::find($data["Unidad_Medida"])->name;
+            }
             if($product->wasRecentlyCreated){
                 ActividadProducto::create([
                     "Id_Producto" => $product->Id_Producto,
@@ -301,37 +306,37 @@ class ProductController extends Controller
                         ActividadProducto::create([
                             "Id_Producto" => $product->Id_Producto,
                             "Person_Id" => $request->user_id,
-                            "Detalles" => (isset($data_actual[$key]))?"El campo ".$key." fue modificado de '".$data_actual[$key]."' a '".$campo."'.":
-                                "El campo ".$key." fue ingresado con el valor '".$campo."'.",
+                            "Detalles" => (isset($data_actual[$key]))?"El campo '".$key."' fue modificado de '".$data_actual[$key]."' a '".$campo."'.":
+                                "El campo '".$key."' fue ingresado con el valor '".$campo."'.",
                         ]);
                     }
                 }
             }
 
-            foreach ($campos as $campo) {
-                foreach ($campo["registros"] as $d) {
+            foreach ($variablesProd as $variableProd) {
+                foreach ($variableProd["registros"] as $dataVariablesProd) {
                     $data_actual=(isset($d["id"]))?VariableProduct::find($d["id"]):[];
 
-                    $d["product_id"] = $product->Id_Producto;
-                    $varProd=VariableProduct::updateOrCreate(['id' => $d["id"]], $d);
+                    $dataVariablesProd["product_id"] = $product->Id_Producto;
+                    $varProd=VariableProduct::updateOrCreate(['id' => $dataVariablesProd["id"]], $dataVariablesProd);
 
-                    $nomVar=$campo["modelo"]->fresh()->find($varProd[$campo["campo_id"]])["label"];
+                    $nomVar=$variableProd["modelo"]->fresh()->find($varProd[$campo["campo_id"]])["label"];
 
                     if($varProd->wasRecentlyCreated){   // Si la variable de producto no tenia un valor antes.
                         ActividadProducto::create([
                             "Id_Producto" => $product->Id_Producto,
                             "Person_Id" => $request->user_id,
-                            "Detalles" => "La variable de ".$campo["titulo"]." '$nomVar' fue ".
-                            (($campo["camposFlag"])?"creada e ":"")."ingresada al sistema con el valor '".$varProd->valor."'.",
+                            "Detalles" => "La variable de ".$variableProd["titulo"]." '$nomVar' fue ".
+                            (($variableProd["camposFlag"])?"creada e ":"")."ingresada al sistema con el valor '".$varProd->valor."'.",
                         ]);
                     }else{
-                        foreach($d as $key=>$campo_d){
-                            if($campo_d !== $data_actual[$key]){
+                        foreach($dataVariablesProd as $key_dataVariablesProd=>$campo_dataVariablesProd){
+                            if($campo_dataVariablesProd !== $data_actual[$key]){
                                 ActividadProducto::create([
                                     "Id_Producto" => $product->Id_Producto,
                                     "Person_Id" => $request->user_id,
-                                    "Detalles" => "La variable de ".$campo["titulo"]." '$nomVar' fue ".
-                                        ((isset($data_actual[$key]))?"modificada de '".$data_actual[$key]."' a '":"ingresada con el valor '").$campo_d."'.",
+                                    "Detalles" => "La variable de ".$variableProd["titulo"]." '$nomVar' fue ".
+                                        ((isset($data_actual[$key_dataVariablesProd]))?"modificada de '".$data_actual[$key_dataVariablesProd]."' a '":"ingresada con el valor '").$campo_dataVariablesProd."'.",
                                 ]);
                             }
                         }
