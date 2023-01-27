@@ -53,4 +53,14 @@ class WorkOrder extends Model
     {
         return $this->hasMany(WorkOrderBlueprint::class)->with('person');
     }
+
+    public function engineering()
+    {
+        return $this->hasOne(WorkOrderEngineering::class);
+    }
+
+    public function design()
+    {
+        return $this->hasOne(WorkOrderDesign::class);
+    }
 }

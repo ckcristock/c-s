@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Alert;
-use App\Models\Person;
 use App\Models\WorkOrder;
-use App\Models\WorkOrderEngineering;
+use App\Models\WorkOrderDesign;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class WorkOrderEngineeringController extends Controller
+class WorkOrderDesignController extends Controller
 {
     use ApiResponser;
     /**
@@ -25,7 +23,7 @@ class WorkOrderEngineeringController extends Controller
 
     public function paginate(Request $request)
     {
-        $work_order_engineering = WorkOrderEngineering::with('work_order', 'person', 'allocator_person')
+        $work_order_design = WorkOrderDesign::with('work_order', 'people', 'allocator_person')
             ->when($request->code, function ($q, $fill) {
                 $q->whereHas('work_order', function ($query) use ($fill) {
                     $query->where('code', 'like', "%$fill%");
@@ -38,12 +36,14 @@ class WorkOrderEngineeringController extends Controller
                 $q->where('allocator_person_id', $fill);
             })
             ->when($request->person_id, function ($q, $fill) {
-                $q->where('person_id', $fill);
+                $q->whereHas('people', function ($query) use ($fill) {
+                    $query->where('people.id', $fill);
+                });
             })
             ->orderByRaw("FIELD(status , 'pendiente', 'proceso', 'completado') ASC")
             ->orderByDesc('created_at')
             ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1));
-        return $this->success($work_order_engineering);
+        return $this->success($work_order_design);
     }
 
     /**
@@ -65,35 +65,40 @@ class WorkOrderEngineeringController extends Controller
     public function store(Request $request)
     {
         //crear tarea
-        $data = $request->all();
+        $data = $request->except('people');
+        $people = $request->people;
+
         $data['allocator_person_id'] = auth()->user()->id;
-        $data['person_id'] = $request->person_id['value'];
-        $work_order_engineering = WorkOrderEngineering::create($data);
+        $work_order_design = WorkOrderDesign::create($data);
         $work_order = WorkOrder::where('id', $data['work_order_id'])->first();
-        $work_order->update(['status' => 'ingenieria']);
-        createAlert($data, $work_order_engineering->id, ' te ha asignado la orden de producción ', $work_order, 'fas fa-tools', 'Orden de producción (ingeniería)');
+        $work_order_design->people()->attach($people);
+        $work_order->update(['status' => 'diseño']);
+        for ($i = 0; $i < count($people); $i++) {
+            $data['person_id'] = $people[$i];
+            createAlert($data, $work_order_design->id, ' te ha asignado la orden de producción ', $work_order, 'fas fa-tools', 'Orden de producción (diseño)');
+        }
         //createTask($data);
-        return $this->success('Hemos enviado una notificación al funcionario informándole que le has asignado una orden de producción.');
+        return $this->success('Hemos enviado una notificación al (los) funcionario(s) informándole(s) que le(s) has asignado una orden de producción.');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\WorkOrderEngineering  $workOrderEngineering
+     * @param  \App\Models\WorkOrderDesign  $workOrderDesign
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        return $this->success(WorkOrderEngineering::where('id', $id)->with('work_order.quotation', 'person', 'allocator_person')->first());
+        return $this->success(WorkOrderDesign::where('id', $id)->with('work_order.quotation', 'people', 'allocator_person')->first());
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\WorkOrderEngineering  $workOrderEngineering
+     * @param  \App\Models\WorkOrderDesign  $workOrderDesign
      * @return \Illuminate\Http\Response
      */
-    public function edit(WorkOrderEngineering $workOrderEngineering)
+    public function edit(WorkOrderDesign $workOrderDesign)
     {
         //
     }
@@ -102,31 +107,31 @@ class WorkOrderEngineeringController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\WorkOrderEngineering  $workOrderEngineering
+     * @param  \App\Models\WorkOrderDesign  $workOrderDesign
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $data = $request->all();
         $now = Carbon::now()->toDateTimeString();
-        $woe = WorkOrderEngineering::where('id', $id)->first();
+        $wod = WorkOrderDesign::where('id', $id)->first();
         if ($request->status == 'proceso') {
             $data['start_time'] = $now;
         } else if ($request->status == 'completado') {
             $data['end_time'] = $now;
-            //WorkOrder::where('id', $woe->work_order_id)->first()->update(['status' => 'diseño']);
+            //WorkOrder::where('id', $wod->work_order_id)->first()->update(['status' => 'produccion']);
         }
-        $woe->update($data);
+        $wod->update($data);
         return $this->success('Estado cambiado con éxito');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\WorkOrderEngineering  $workOrderEngineering
+     * @param  \App\Models\WorkOrderDesign  $workOrderDesign
      * @return \Illuminate\Http\Response
      */
-    public function destroy(WorkOrderEngineering $workOrderEngineering)
+    public function destroy(WorkOrderDesign $workOrderDesign)
     {
         //
     }

@@ -138,7 +138,9 @@ use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
 use App\Http\Controllers\WorkOrderBlueprintController;
 use App\Http\Controllers\WorkOrderController;
+use App\Http\Controllers\WorkOrderDesignController;
 use App\Http\Controllers\WorkOrderEngineeringController;
+use App\Http\Controllers\WorkOrderProductionController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ThirdParty;
@@ -147,6 +149,7 @@ use App\Models\Bonus;
 use App\Models\Budget;
 use App\Models\ComprobanteConsecutivo;
 use App\Models\WorkOrderBlueprint;
+use App\Models\WorkOrderProduction;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -461,6 +464,8 @@ Route::group(
         Route::resource('work-orders', WorkOrderController::class);
         Route::resource('work-orders-blueprints', WorkOrderBlueprintController::class);
         Route::resource('work-orders-engineering', WorkOrderEngineeringController::class);
+        Route::resource('work-orders-design', WorkOrderDesignController::class);
+        Route::resource('work-orders-production', WorkOrderProductionController::class);
 
         Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
 
@@ -571,6 +576,8 @@ Route::group(
         Route::get('category-paginate', [CategoryController::class,'paginate']);
         Route::get('loan-paginate', [LoanController::class, 'paginate']);
         Route::get('woe-paginate', [WorkOrderEngineeringController::class, 'paginate']);
+        Route::get('wod-paginate', [WorkOrderDesignController::class, 'paginate']);
+        Route::get('wop-paginate', [WorkOrderProductionController::class, 'paginate']);
         Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class,'paginate']);
         Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class,'paginate']);
         Route::get('paginateThickness', [ThicknessController::class, 'paginate']);
