@@ -18,10 +18,10 @@ class LateArrivalController extends Controller
 
 
     //
-    public function getData($fechaInicio, $fechaFin)
+    public function getData($fechaInicio, $fechaFin) //este servicio no está paginado
     {
         $dates = [$fechaInicio, $fechaFin];
- 
+
         $companies = Company::when(Request()->get('company_id'), function ($q, $fill) {
             $q->where('id', $fill);
         })->get();
@@ -72,7 +72,60 @@ class LateArrivalController extends Controller
         return $this->success($companies);
     }
 
+    public function getDataPaginated($fechaInicio, $fechaFin) //este servicio no está paginado
+    {
+        $dates = [$fechaInicio, $fechaFin];
 
+        $companies = Company::when(Request()->get('company_id'), function ($q, $fill) {
+            $q->where('id', $fill);
+        })->get();
+        //})->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+
+        foreach ($companies as $keyG => &$company) {
+
+            $groups = DB::table("groups")
+                ->when(Request()->get('group_id'), function ($q, $fill) {
+                    $q->where('id', $fill);
+                })->get(["id", "name"]);
+            $groupsGlob = [];
+            foreach ($groups as $key => &$group) {
+
+                $group->dependencies = DB::table('dependencies')
+                    ->when(Request()->get('dependency_id'), function ($q, $fill) {
+                        $q->where('id', $fill);
+                    })
+                    ->where('group_id', $group->id)->get();
+
+                if ($group->dependencies->isEmpty()) {
+                    unset($groups[$key]);
+                    continue;
+                }
+                foreach ($group->dependencies as $key2 =>  &$dependency) {
+
+                    $dependency->people = LateArrivalService::getPeople($dependency->id, $dates, $company->id);
+                    if ($dependency->people->isEmpty()) {
+                        unset($group->dependencies[$key2]);
+                        continue;
+                    }
+
+                    foreach ($dependency->people as &$person) {
+                        $person->late_arrivals = LateArrivalService::getLastArrivals($person->id, $dates);
+                    }
+                }
+                if ($group->dependencies->isEmpty()) {
+                    unset($groups[$key]);
+                    continue;
+                }
+                $groupsGlob[] = $group;
+            }
+            if ($groups->isEmpty()) {
+                unset($companies[$keyG]);
+                continue;
+            }
+            $company->groups = $groupsGlob;
+        }
+        return $this->success($companies);
+    }
 
     public  function statistics($fechaInicio, $fechaFin, Request $request)
     {
