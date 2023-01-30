@@ -61,7 +61,11 @@ class ApuController extends Controller
 
     public function paginate(Request $request)
     {
-        $query = ApuPart::with('thirdParty', 'city:id,name', 'person:id,first_name,first_surname,full_name')
+        $query = ApuPart::with(
+            'thirdParty',
+            'city:id,name',
+            'person:id,first_name,first_surname,full_name',
+            )
             ->extra($request)
             ->when($request->city, function ($q, $fill) {
                 $q->whereHas('city', function ($query) use ($fill) {
@@ -74,7 +78,11 @@ class ApuController extends Controller
                 });
             });
 
-        $querySets = ApuSet::with('thirdParty', 'city:id,name', 'person:id,first_name,first_surname,full_name')
+        $querySets = ApuSet::with([
+            'thirdParty',
+            'city:id,name',
+            'person:id,first_name,first_surname,full_name',
+            ])
             ->extra($request)
             ->when($request->city, function ($q, $fill) {
                 $q->whereHas('city', function ($query) use ($fill) {

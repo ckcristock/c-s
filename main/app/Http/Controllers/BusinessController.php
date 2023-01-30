@@ -46,7 +46,7 @@ class BusinessController extends Controller
     {
         return $this->success(
             Business::with('thirdParty', 'thirdPartyPerson', 'country', 'city', 'businessBudget')
-                ->orderByDesc('date')
+                ->orderByDesc('created_at')
                 ->when($request->name, function ($q, $fill) {
                     $q->where('name', 'like', "%$fill%");
                 })
@@ -208,7 +208,14 @@ class BusinessController extends Controller
     public function show($id)
     {
         $business = Business::where('id', $id)
-            ->with('thirdParty', 'thirdPartyPerson', 'country', 'city', 'businessBudget', 'quotations')
+            ->with(
+                'thirdParty',
+                'thirdPartyPerson',
+                'country',
+                'city',
+                'businessBudget',
+                'quotations'
+            )
             ->first();
         $codeQR = new DNS2D();
         $business2 = Business::where('id', $id)->first();

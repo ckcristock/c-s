@@ -74,6 +74,29 @@ class WorkOrderController extends Controller
         //
     }
 
+    public function forStage(Request $request)
+    {
+        $wo = WorkOrder::with('city', 'third_party', 'third_party_person', 'engineering')
+            ->when($request->status, function ($q, $fill) {
+                if ($fill == 'ingenieria') {
+                    $q->where('status', $fill);
+                    $q->whereHas('engineering', function ($query) {
+                        $query->where('status', 'completado');
+                    });
+                } else if ($fill == 'diseño') {
+                    $q->where('status', $fill);
+                    $q->whereHas('design', function ($query) {
+                        $query->where('status', 'completado');
+                    });
+                } else if ($fill == 'inicial') {
+                    $q->where('status', $fill);
+                }
+            })
+            ->orderBy('delivery_date', strval($request->orderBy))
+            ->get();
+        return $this->success($wo);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
