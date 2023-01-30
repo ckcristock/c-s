@@ -123,7 +123,7 @@ class ApuSet extends Model
 
     public function other()
 	{
-		return $this->hasMany(ApuSetOther::class);
+		return $this->hasMany(ApuSetOther::class)->with('unit');
 	}
 
     public function indirect()

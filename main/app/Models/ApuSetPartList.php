@@ -23,7 +23,11 @@ class ApuSetPartList extends Model
     public function apuset()
 	{
 		return $this->belongsTo(ApuSet::class, 'apu_set_child_id');
+	}
 
+    public function apuset_th()
+	{
+		return $this->belongsTo(ApuSet::class, 'apu_set_child_id');
 	}
 
     public function unit()
@@ -32,6 +36,11 @@ class ApuSetPartList extends Model
 	}
 
     public function apupart()
+	{
+		return $this->belongsTo(ApuPart::class, 'apu_part_id');
+	}
+
+    public function apupart_th()
 	{
 		return $this->belongsTo(ApuPart::class, 'apu_part_id');
 	}

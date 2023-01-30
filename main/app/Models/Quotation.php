@@ -47,6 +47,11 @@ class Quotation extends Model
         return $this->hasMany(QuotationItem::class)->with('subItems');
     }
 
+    public function budgets()
+    {
+        return $this->hasOne(Budget::class, 'id', 'budget_id');
+    }
+
     public function scopeName($q)
     {
         return $q->select('*', DB::raw('CONCAT_WS(" - ", line, project) as name', 'id as value'));

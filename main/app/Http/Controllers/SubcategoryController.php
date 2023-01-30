@@ -173,11 +173,17 @@ class SubcategoryController extends Controller
     public function getFieldEdit($idproducto=null, $idSubcategoria){
 
         return $this->success(
-            DB::select("SELECT SV.label, SV.type, VP.valor, SV.id AS subcategory_variables_id,  VP.id
+            /* DB::select("SELECT SV.label, SV.type, VP.valor, SV.id AS subcategory_variables_id,  VP.id
             FROM subcategoria S
             INNER JOIN subcategory_variables SV  ON S.Id_Subcategoria = SV.subcategory_id
             LEFT JOIN variable_products VP ON VP.product_id = $idproducto and VP.subcategory_variables_id = SV.id
-            WHERE S.Id_Subcategoria = $idSubcategoria")
+            WHERE S.Id_Subcategoria = $idSubcategoria") */
+            Subcategory::alias("s")->select([
+            "SV.label", "SV.type", "VP.valor", "SV.id AS subcategory_variables_id",  "VP.id"
+            ])
+            ->join("subcategory_variables as SV","S.Id_Subcategoria","SV.subcategory_id")
+            ->leftJoin("variable_products as VP","VP.subcategory_variables_id","SV.id")
+            ->where("VP.product_id",$idproducto)->where("S.Id_Subcategoria",$idSubcategoria)->get()
         );
 
         // return $this->success(
@@ -192,11 +198,8 @@ class SubcategoryController extends Controller
     public function getField($id)
     {
         return $this->success(
-			SubcategoryVariable::alias("sv")
-				->select("sv.label","sv.type","sv.id")
-                ->join("subcategoria as s", "s.Id_Subcategoria", "sv.subcategory_id")
-				->where("sv.subcategory_id", $id)
-				->get()
+			SubcategoryVariable::select("id","type","label")
+                ->where("subcategory_id", $id)->get()
 		);
     }
 

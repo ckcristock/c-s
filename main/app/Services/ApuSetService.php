@@ -30,6 +30,12 @@ class ApuSetService
             "setpartlist.apupart" => function ($q) {
                 $q->select("*");
             },
+            "setpartlist.apuset_th" => function ($q) {
+                $q->select('id', 'name', 'name as text', 'unit_direct_cost', 'id as value');
+            },
+            "setpartlist.apupart_th" => function ($q) {
+                $q->select('id', 'name', 'name as text', 'unit_direct_cost', 'id as value');
+            },
             "internal" => function ($q) {
                 $q->select("*");
             },

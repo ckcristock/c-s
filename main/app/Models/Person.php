@@ -63,6 +63,11 @@ class Person extends Model
         return $q->select('*', DB::raw("CONCAT_WS(' ', first_name, second_name, first_surname, second_surname) as full_names"));
     }
 
+    public function scopeCompleteName($q)
+    {
+        return $q->selectRaw("CONCAT_WS(' ', first_name, second_name, first_surname, second_surname) as complete_name");
+    }
+
     public function contractultimate()
     {
         return $this->hasOne(WorkContract::class)->with('position.dependency', 'work_contract_type')->orderBy('id','DESC');
@@ -170,6 +175,11 @@ class Person extends Model
     public function scopeName($q)
     {
         return $q->select('*', DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
+    }
+
+    public function scopeOnlyName($q)
+    {
+        return $q->select('image',DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
     }
 
 }

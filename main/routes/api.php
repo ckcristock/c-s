@@ -138,13 +138,18 @@ use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\TaskTypeController;
 use App\Http\Controllers\WorkOrderBlueprintController;
 use App\Http\Controllers\WorkOrderController;
+use App\Http\Controllers\WorkOrderDesignController;
+use App\Http\Controllers\WorkOrderEngineeringController;
+use App\Http\Controllers\WorkOrderProductionController;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ThirdParty;
 use App\Models\User;
 use App\Models\Bonus;
+use App\Models\Budget;
 use App\Models\ComprobanteConsecutivo;
 use App\Models\WorkOrderBlueprint;
+use App\Models\WorkOrderProduction;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -419,6 +424,7 @@ Route::group(
         Route::post('estibas', [BodegasController::class,'storeEstiba']);
         Route::get('bodegas-with-estibas/{id}', [BodegasController::class,'bodegasConGrupos']);
         Route::get('grupos-with-estibas/{id}', [BodegasController::class,'gruposConEstibas']);
+        Route::get('get-wo-for-stage', [WorkOrderController::class,'forStage']);
 
         Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
         Route::resource('work-certificate', WorkCertificateController::class);
@@ -457,6 +463,9 @@ Route::group(
         Route::resource('payroll-factor', PayrollFactorController::class);
         Route::resource('work-orders', WorkOrderController::class);
         Route::resource('work-orders-blueprints', WorkOrderBlueprintController::class);
+        Route::resource('work-orders-engineering', WorkOrderEngineeringController::class);
+        Route::resource('work-orders-design', WorkOrderDesignController::class);
+        Route::resource('work-orders-production', WorkOrderProductionController::class);
 
         Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
 
@@ -566,6 +575,9 @@ Route::group(
         Route::get('paginateBodegas', [BodegasController::class,'paginate']);
         Route::get('category-paginate', [CategoryController::class,'paginate']);
         Route::get('loan-paginate', [LoanController::class, 'paginate']);
+        Route::get('woe-paginate', [WorkOrderEngineeringController::class, 'paginate']);
+        Route::get('wod-paginate', [WorkOrderDesignController::class, 'paginate']);
+        Route::get('wop-paginate', [WorkOrderProductionController::class, 'paginate']);
         Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class,'paginate']);
         Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class,'paginate']);
         Route::get('paginateThickness', [ThicknessController::class, 'paginate']);
@@ -671,7 +683,9 @@ Route::group(
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
         Route::put("subcategory-active/{id}", [SubcategoryController::class, 'turningOnOff']);
         Route::delete("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
-
+Route::get('test', function(){
+    return Budget::where('id',8)->with('quotations')->first();
+});
         //boards
         Route::get("board", [BoardController::class, "getData"]);
         Route::post('person/set-board/{personId}/{board}', [BoardController::class, 'setBoardsPerson']);
@@ -699,6 +713,7 @@ Route::group(
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
         Route::get("get-vars-producto", [ProductController::class,'getVars']);
+        Route::get("get-actividad-producto", [ProductController::class,'getActividad']);
         Route::post("cambiar-estado-producto", [ProductController::class,'cambiarEstado']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 

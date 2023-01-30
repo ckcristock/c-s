@@ -103,6 +103,9 @@ class BudgetController extends Controller
                 ->when($request->line, function ($q, $fill) {
                     $q->where('line', 'like', "%$fill%");
                 })
+                ->when($request->code, function ($q, $fill) {
+                    $q->where('code', 'like', "%$fill%");
+                })
                 ->orderBy('id', 'desc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
@@ -160,19 +163,13 @@ class BudgetController extends Controller
         }
         foreach ($data['items'] as $item) {
             $item['budget_id'] = $budgetDb->id;
-
-
             $itemDb =  BudgetItem::create($item);
-
             foreach ($item['subItems'] as $subitem) {
-
                 $subitem['budget_item_id'] = $itemDb->id;
                 $subitem['type_module'] == 'apu_part' ?  $subitem['apu_part_id'] = $subitem['apu_id'] : '';
                 $subitem['type_module'] == 'apu_set' ?  $subitem['apu_set_id'] = $subitem['apu_id'] : '';
-                $subitem['type_module'] == 'service' ?  $subitem['service_id'] = $subitem['apu_id'] : '';
-
+                $subitem['type_module'] == 'apu_service' ?  $subitem['apu_service_id'] = $subitem['apu_id'] : '';
                 $subItemDB = BudgetItemSubitem::create($subitem);
-
                 foreach ($subitem['indirect_costs'] as $indirect_cost) {
                     # code...
                     $indirect_cost['budget_item_subitem_id'] = $subItemDB->id;

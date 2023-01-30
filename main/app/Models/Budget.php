@@ -36,4 +36,8 @@ class Budget extends Model
     {
         return $q->select('*', DB::raw('CONCAT_WS("-", line, project) as name'));
     }
+    public function quotations()
+    {
+        return $this->hasMany(Quotation::class);
+    }
 }

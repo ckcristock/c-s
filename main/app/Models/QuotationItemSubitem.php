@@ -17,5 +17,6 @@ class QuotationItemSubitem extends Model
         'total_cop',
         'total_usd',
         'quotation_item_id',
+        'budget_item_subitem_id',
     ];
 }
