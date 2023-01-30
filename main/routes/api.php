@@ -638,6 +638,10 @@ Route::group(
         Route::get('paginate-work-orders', [WorkOrderController::class, 'paginate']);
         Route::get('paginate-accommodations', [AccommodationController::class, 'paginate']);
         Route::get('paginate-comprobante-consecutivo', [ComprobanteConsecutivoController::class, 'paginate']);
+        Route::get('/late_arrivals/paginate/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'getDataPaginated'])->where([
+            'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+            'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+        ]);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
@@ -709,6 +713,7 @@ Route::get('test', function(){
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
         Route::get("get-vars-producto", [ProductController::class,'getVars']);
+        Route::get("get-actividad-producto", [ProductController::class,'getActividad']);
         Route::post("cambiar-estado-producto", [ProductController::class,'cambiarEstado']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 
