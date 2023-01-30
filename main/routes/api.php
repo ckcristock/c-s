@@ -659,6 +659,7 @@ Route::group(
         Route::post('finish-contract', [WorkContractController::class, 'finishContract']);
         Route::post('commercial-terms/{id}', [CompanyController::class, 'commercialTermsSave']);
         Route::get('commercial-terms', [CompanyController::class, 'getCommercialTerms']);
+        Route::get('requeriments-company', [CompanyController::class, 'getRequeriments']);
         Route::get('countable_income', [BonificationsController::class, 'countable_income']);
         Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
         Route::get('contractRenewal/{id}', [WorkContractController::class, 'contractRenewal']);

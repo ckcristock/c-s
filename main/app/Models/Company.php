@@ -42,7 +42,9 @@ class Company extends Model
       'account_type',
       'logo',
       'page_heading',
-      'commercial_terms'
+      'commercial_terms',
+      'technical_requirements',
+      'legal_requirements'
     ];
 
 
