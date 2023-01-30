@@ -626,6 +626,10 @@ Route::group(
         Route::get('paginate-work-orders', [WorkOrderController::class, 'paginate']);
         Route::get('paginate-accommodations', [AccommodationController::class, 'paginate']);
         Route::get('paginate-comprobante-consecutivo', [ComprobanteConsecutivoController::class, 'paginate']);
+        Route::get('/late_arrivals/paginate/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'getDataPaginated'])->where([
+            'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+            'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+        ]);
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
