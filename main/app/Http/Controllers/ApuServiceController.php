@@ -7,10 +7,13 @@ use App\Models\ApuServiceAssemblyStartUp;
 use App\Models\ApuServiceDimensionalValidation;
 use App\Models\ApuServiceTravelEstimationAssemblyStartUp;
 use App\Models\ApuServiceTravelEstimationDimensionalValidation;
+use App\Models\Company;
 use App\Models\Municipality;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class ApuServiceController extends Controller
 {
@@ -242,4 +245,27 @@ class ApuServiceController extends Controller
     {
         //
     }
+
+    public function pdf($id)
+    {
+        $company = Company::first();
+        //$data = ApuService::find($id);
+        $datosCabecera = (object) array(
+            'Titulo' => 'APU Servicio',
+            'Codigo' => 'APS-001-23',
+            'Fecha' => '22-03-03',
+            'CodigoFormato' => 'APU VERSION 01'
+        );
+        $image = $company->page_heading;
+        //return $company;
+        //return $datosCabecera;
+		$pdf = PDF::loadView('components.cabecera', [
+            'company' => $company,
+            'datosCabecera' => $datosCabecera,
+            'image' => $image
+        ]);
+		return $pdf->download('apu_set.pdf');
+        return View::make('components/cabecera')->with(compact('company', 'datosCabecera', 'image'));
+    }
+
 }

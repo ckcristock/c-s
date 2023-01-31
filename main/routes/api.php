@@ -771,6 +771,7 @@ Route::get('test', function(){
         /****** Rutas del modulo APU CONJUNTO ******/
         Route::put('apu-set-activate-Inactive', [ApuSetController::class, 'activateOrInactivate']);
         Route::get('apu-set/pdf/{id}', [ApuSetController::class, 'pdf']);
+        Route::get('apu-service/pdf/{id}', [ApuServiceController::class, 'pdf']);
         Route::get('apu-parts-list', [ApuSetController::class, 'apuParts']);
         Route::get('apu-parts-find', [ApuPartController::class, 'find']);
 

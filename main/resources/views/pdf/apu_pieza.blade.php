@@ -17,17 +17,19 @@
 
     td {
         font-size: 10px;
+        background-color: transparent;
     }
 
     table {
         width: 100%;
         border-collapse: collapse;
+        background-color: transparent;
     }
 
     .section {
         padding: 10px;
         width: 100%;
-        background-color: gainsboro;
+        background-color: transparent;
     }
 
     .td-header {
@@ -55,23 +57,7 @@
         text-align: center
     }
 </style>
-
-<div style="width: 100%;">
-    <div class="blocks" style="width: 60%;">
-        <img src="{{public_path('/assets/img/logo.png')}}" style="width:120px;" />
-        <p>
-            MaqMo<br>
-            N.I.T.: 10001<br>
-            Calle 12 #20-20 - TEL: 302323
-        </p>
-
-    </div>
-    <div class="blocks" style="width: 40%; text-align: right;">
-        <h4 style="margin: 0; padding: 0;" >APU PIEZA</h4>
-        <h5 style="margin: 0; padding: 0;"> {{$data['created_at']}} </h5>
-
-    </div>
-</div>
+@include('components/cabecera', [$company, $datosCabecera, $image])
 
 <hr style="border:1px dotted #ccc; ">
 
@@ -353,7 +339,7 @@
                 </h6>
             </td>
         </tr>
-        <tr style="background:#c6c6c6;">
+        <tr style="background:transparent;">
             <th>Descripción</th>
             <th>Unidad</th>
             <th>Cant. Unitaria</th>
