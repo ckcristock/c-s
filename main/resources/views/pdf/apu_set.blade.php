@@ -54,28 +54,16 @@
     .text-center {
         text-align: center
     }
+
+    .div {
+        width: 100%;
+        font-size: 10px;
+    }
 </style>
-
-<div style="width: 100%;">
-    <div class="blocks" style="width: 60%;">
-        <img src="{{public_path('/assets/img/logo.png')}}" style="width:120px;" />
-        <p>
-            MaqMo<br>
-            N.I.T.: 10001<br>
-            Calle 12 #20-20 - TEL: 302323
-        </p>
-
-    </div>
-    <div class="blocks" style="width: 40%; text-align: right;">
-        <h4 style="margin: 0; padding: 0;" >APU Conjunto</h4>
-        <h5 style="margin: 0; padding: 0;"> {{$data['created_at']}} </h5>
-
-    </div>
-</div>
-
+@include('components/cabecera', [$company, $datosCabecera, $image])
 <hr style="border:1px dotted #ccc; ">
 
-<div style="width: 100%; font-size: 10px; ">
+<div class="div">
     <div class="blocks" style="width: 50%;">
         <strong>Nombre:</strong>
         {{$data['name']}}
@@ -90,27 +78,25 @@
     </div>
 </div>
 
-<div style="width: 100%; font-size: 10px; ">
+<div class="div">
     <div class="blocks" style="width: 50%;">
-        <strong>Quien elabora:</strong>
+        <strong>Quién elabora:</strong>
         {{$data['person']['name']}}
     </div>
 
     <div class="blocks">
-        <strong>Linea:</strong>
+        <strong>Línea:</strong>
         {{$data['line']}}
     </div>
 </div>
 
-<div style="width: 100%; font-size: 10px">
-    <div class="blocks" style="width: 100%;font-size: 10px">
+<div class="div">
+    <div class="blocks div">
         <table>
             <thead>
                 <tr>
                     <td>
-                        <div class="title">
-                            <h5>Observaciones</h5>
-                        </div>
+                        <strong>Observaciones</strong>
                     </td>
                 </tr>
             </thead>
@@ -128,21 +114,15 @@
 
 
 @if (count($data['setpartlist']) > 0)
-<table style="font-size:10px;margin-top:10px;" cellpadding="0" cellspacing="0">
+<h6 class="mt-2 mb-0">Listado de piezas conjunto</h6>
+<table class="div" cellpadding="0" cellspacing="0">
     <thead>
-        <tr>
-            <td style="font-size: 20px;" colspan="6">
-                <h6>
-                    Listado de Piezas Conjunto
-                </h6>
-            </td>
-        </tr>
-        <tr style="background:#c6c6c6;">
+        <tr style="background:#EFF2F7;">
             <th>Tipo</th>
             <th>Descripción</th>
             <th>Unidad</th>
             <th>Cantidad</th>
-            <th>Costo Unidario</th>
+            <th>Costo unidario</th>
             <th>Total</th>
         </tr>
     </thead>
@@ -150,43 +130,37 @@
         @foreach ($data['setpartlist'] as $setpartlist )
         <tr>
             <td style="text-align: center;"> {{ $setpartlist['apu_type'] }} </td>
-            @if ($setpartlist['apu_type'] == 'pieza')
+            @if ($setpartlist['apu_type'] == 'P')
                 <td style="text-align: center;"> {{ $setpartlist['apupart']['name'] }} </td>
             @endif
-            @if ($setpartlist['apu_type'] == 'conjunto')
+            @if ($setpartlist['apu_type'] == 'C')
                 <td style="text-align: center;"> {{ $setpartlist['apuset']['name'] }} </td>
             @endif
-            <td style="text-align: center;"> {{ $setpartlist['unit'] }} </td>
+            <td style="text-align: center;"> {{ $setpartlist['unit']['name'] }} </td>
             <td style="text-align: center;"> {{ $setpartlist['amount'] }} </td>
-            <td style="text-align: center;"> {{ $setpartlist['unit_cost'] }} </td>
-            <td style="text-align: right;"> {{ $setpartlist['total'] }} </td>
+            <td style="text-align: center;"> @money($setpartlist['unit_cost']) </td>
+            <td style="text-align: right;"> @money($setpartlist['total']) </td>
         </tr>
         @endforeach
     </tbody>
 </table>
 <div class="row">
-    <p class="text-right" style="font-size: 10px;">
-        <strong>Subtotal: </strong>
-        {{ $data['list_pieces_sets_subtotal'] }}
-    </p>
+    <div class="text-right" style="font-size: 10px;">
+        <strong>SUBTOTAL: </strong>
+        @money($data['list_pieces_sets_subtotal'])
+    </div>
 </div>
 @endif
 
 @if (count($data['machine']) > 0)
-<table style="font-size:10px;margin-top:10px;" cellpadding="0" cellspacing="0">
+<h6 class="mt-1 mb-0">Máquinas herramientas</h6>
+<table class="div" cellpadding="0" cellspacing="0">
     <thead>
-        <tr>
-            <td style="font-size: 20px;" colspan="5">
-                <h6>
-                    Maquinas Herramientas
-                </h6>
-            </td>
-        </tr>
-        <tr style="background:#c6c6c6;">
+        <tr style="background:#EFF2F7;">
             <th>Descripción</th>
             <th>Unidad</th>
             <th>Cantidad</th>
-            <th>Costo Unitario</th>
+            <th>Costo unitario</th>
             <th>Total</th>
         </tr>
     </thead>
@@ -194,37 +168,31 @@
         @foreach ($data['machine'] as $machine )
         <tr>
             <td style="text-align: center;"> {{ $machine['description'] }} </td>
-            <td style="text-align: center;"> {{ $machine['unit'] }} </td>
+            <td style="text-align: center;"> {{ $machine['unit']['name'] }} </td>
             <td style="text-align: center;"> {{ $machine['amount'] }} </td>
-            <td style="text-align: right;"> {{ $machine['unit_cost'] }} </td>
-            <td style="text-align: right;"> {{ $machine['total'] }} </td>
+            <td style="text-align: right;"> @money($machine['unit_cost']) </td>
+            <td style="text-align: right;"> @money($machine['total']) </td>
         </tr>
         @endforeach
     </tbody>
 </table>
 <div class="row">
-    <p class="text-right" style="font-size: 10px;">
-        <strong>Subtotal: </strong>
-        {{ $data['machine_tools_subtotal'] }}
-    </p>
+    <div class="text-right" style="font-size: 10px;">
+        <strong>SUBTOTAL: </strong>
+        @money($data['machine_tools_subtotal'])
+    </div>
 </div>
 @endif
 
 @if (count($data['internal']) > 0)
+<h6 class="mt-1 mb-0">Procesos internos</h6>
 <table style="font-size:10px;margin-top:10px;" cellpadding="0" cellspacing="0">
     <thead>
-        <tr>
-            <td style="font-size: 20px;" colspan="5">
-                <h6>
-                    Procesos Internos
-                </h6>
-            </td>
-        </tr>
-        <tr style="background:#c6c6c6;">
+        <tr style="background:#EFF2F7;">
             <th>Descripción</th>
             <th>Unidad</th>
             <th>Cantidad</th>
-            <th>Costo Unitario</th>
+            <th>Costo unitario</th>
             <th>Total</th>
         </tr>
     </thead>
@@ -232,37 +200,31 @@
         @foreach ($data['internal'] as $internal )
         <tr>
             <td style="text-align: center;"> {{ $internal['description'] }} </td>
-            <td style="text-align: center;"> {{ $internal['unit'] }} </td>
+            <td style="text-align: center;"> {{ $internal['unit']['name'] }} </td>
             <td style="text-align: center;"> {{ $internal['amount'] }} </td>
-            <td style="text-align: right;"> {{ $internal['unit_cost'] }} </td>
-            <td style="text-align: right;"> {{ $internal['total'] }} </td>
+            <td style="text-align: right;"> @money($internal['unit_cost']) </td>
+            <td style="text-align: right;"> @money($internal['total']) </td>
         </tr>
         @endforeach
     </tbody>
 </table>
 <div class="row">
-    <p class="text-right" style="font-size: 10px;">
-        <strong>Subtotal: </strong>
-        {{ $data['internal_proccesses_subtotal'] }}
-    </p>
+    <div class="text-right" style="font-size: 10px;">
+        <strong>SUBTOTAL: </strong>
+        @money($data['internal_proccesses_subtotal'])
+    </div>
 </div>
 @endif
 
 @if (count($data['external']) > 0)
+<h6 class="mt-1 mb-0">Procesos externos</h6>
 <table style="font-size:10px;margin-top:10px;" cellpadding="0" cellspacing="0">
     <thead>
-        <tr>
-            <td style="font-size: 20px;" colspan="5">
-                <h6>
-                    Procesos Externos
-                </h6>
-            </td>
-        </tr>
-        <tr style="background:#c6c6c6;">
+        <tr style="background:#EFF2F7;">
             <th>Descripción</th>
             <th>Unidad</th>
             <th>Cantidad</th>
-            <th>Costo Unitario</th>
+            <th>Costo unitario</th>
             <th>Total</th>
         </tr>
     </thead>
@@ -270,37 +232,31 @@
         @foreach ($data['external'] as $external )
         <tr>
             <td style="text-align: center;"> {{ $external['description'] }} </td>
-            <td style="text-align: center;"> {{ $external['unit'] }} </td>
+            <td style="text-align: center;"> {{ $external['unit']['name'] }} </td>
             <td style="text-align: center;"> {{ $external['amount'] }} </td>
-            <td style="text-align: right;"> {{ $external['unit_cost'] }} </td>
-            <td style="text-align: right;"> {{ $external['total'] }} </td>
+            <td style="text-align: right;"> @money($external['unit_cost']) </td>
+            <td style="text-align: right;"> @money($external['total']) </td>
         </tr>
         @endforeach
     </tbody>
 </table>
 <div class="row">
-    <p class="text-right" style="font-size: 10px;">
-        <strong>Subtotal: </strong>
-        {{ $data['external_proccesses_subtotal'] }}
-    </p>
+    <div class="text-right" style="font-size: 10px;">
+        <strong>SUBTOTAL: </strong>
+        @money($data['external_proccesses_subtotal'])
+    </div>
 </div>
 @endif
 
 @if (count($data['other']) > 0)
+<h6 class="mt-1 mb-0">Otros</h6>
 <table style="font-size:10px;margin-top:10px;" cellpadding="0" cellspacing="0">
     <thead>
-        <tr>
-            <td style="font-size: 20px;" colspan="5">
-                <h6>
-                    Otros
-                </h6>
-            </td>
-        </tr>
-        <tr style="background:#c6c6c6;">
+        <tr style="background:#EFF2F7;">
             <th>Descripción</th>
             <th>Unidad</th>
             <th>Cantidad</th>
-            <th>Costo Unitario</th>
+            <th>Costo unitario</th>
             <th>Total</th>
         </tr>
     </thead>
@@ -308,19 +264,19 @@
         @foreach ($data['other'] as $other )
         <tr>
             <td style="text-align: center;"> {{ $other['description'] }} </td>
-            <td style="text-align: center;"> {{ $other['unit'] }} </td>
+            <td style="text-align: center;"> {{ $other['unit']['name'] }} </td>
             <td style="text-align: center;"> {{ $other['amount'] }} </td>
-            <td style="text-align: right;"> {{ $other['unit_cost'] }} </td>
-            <td style="text-align: right;"> {{ $other['total'] }} </td>
+            <td style="text-align: right;"> @money($other['unit_cost']) </td>
+            <td style="text-align: right;"> @money($other['total']) </td>
         </tr>
         @endforeach
     </tbody>
 </table>
 <div class="row">
-    <p class="text-right" style="font-size: 10px;">
-        <strong>Subtotal: </strong>
-        {{ $data['others_subtotal'] }}
-    </p>
+    <div class="text-right" style="font-size: 10px;">
+        <strong>SUBTOTAL: </strong>
+        @money($data['others_subtotal'])
+    </div>
 </div>
 @endif
 

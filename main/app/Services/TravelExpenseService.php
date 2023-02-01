@@ -29,6 +29,7 @@ class TravelExpenseService
             ->with("transports")
             ->with("feedings")
             ->with("te_hotel")
+            ->with('work_order')
             ->where("id", $id)
             ->first();
     }

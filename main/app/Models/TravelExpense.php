@@ -58,4 +58,9 @@ class TravelExpense extends Model
     {
         return $this->hasMany(TravelExpenseHotel::class)->with('accommodation');
     }
+
+    public function work_order ()
+    {
+        return $this->hasOne(WorkOrder::class, 'id', 'work_order_id');
+    }
 }

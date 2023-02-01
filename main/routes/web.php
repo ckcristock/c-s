@@ -14,6 +14,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('components/cabecera');
+    return view('components/payroll_email');
 });
 
