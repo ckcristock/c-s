@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class PayrollPayment extends Model
 {
+
+    use HasFactory;
+
    protected $fillable = [
     "total_cost",
     "end_period",
@@ -20,9 +23,6 @@ class PayrollPayment extends Model
     "total_social_secturity",
     "payment_frequency"
    ];
-       
-
-    use HasFactory;
 
     public function personPayrollPayment()
     {

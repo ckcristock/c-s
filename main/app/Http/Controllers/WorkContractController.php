@@ -39,6 +39,7 @@ class WorkContractController extends Controller
                     'p.second_surname',
                     'p.image',
                     'p.status',
+                    'p.created_at',
                     'posi.name as position',
                     'depe.name as dependency_name',
                     'gr.name as group_name',
@@ -83,7 +84,7 @@ class WorkContractController extends Controller
                 ->when(Request()->get('company'), function ($q, $fill) {
                     $q->where('co.id', 'like', '%' . $fill . '%');
                 })
-                ->orderBy('p.first_name')
+                ->orderBy('p.created_at')
                 ->paginate($pageSize, ['*'], 'page', $page)
         );
     }

@@ -17,6 +17,7 @@ class Diaries extends Seeder
     {
         $this->generateDiaries();
     }
+
     private function generateDiaries()
     {
         $people= Person::get();
@@ -26,4 +27,5 @@ class Diaries extends Seeder
             ]);
         }
     }
+    
 }
