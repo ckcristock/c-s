@@ -442,7 +442,7 @@ class PersonController extends Controller
 			$person->update([
 				'status' => $request->status,
 			]);
-			return $this->success('Liquidado con éxito');
+			return $this->success('El funcionario ha sido '.$request->status.' con éxito');
 		} catch (\Throwable $th) {
 			return $this->error($th->getMessage(), 500);
 		}
