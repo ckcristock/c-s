@@ -125,7 +125,7 @@ class WorkCertificateController extends Controller
     public function pdf($id)
     {
         $date = Carbon::now()->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY');
-        $work_certificate = WorkCertificate::find($id)->first();
+        $work_certificate = WorkCertificate::where('id', $id)->first();
         $informations = json_decode($work_certificate->information);
         $formatterES = new NumberFormatter("es", NumberFormatter::SPELLOUT);
         $date2 = Carbon::now();

@@ -682,6 +682,8 @@ Route::group(
         Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
         Route::get('/company-global', [CompanyController::class, 'getGlobal']);
 
+        Route::get('getsubforcat/{id}', [SubcategoryController::class, 'getSubForCat']);
+
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
         Route::put("subcategory-active/{id}", [SubcategoryController::class, 'turningOnOff']);
         Route::delete("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);

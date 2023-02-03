@@ -152,10 +152,10 @@
                             {{ $dimentional['hours_displacement'] }}
                         </td>
                         <td class="align-middle">
-                            ${{ $dimentional['hours_value_displacement'] }}
+                            @money($dimentional['hours_value_displacement'])
                         </td>
                         <td class="align-middle">
-                            ${{ $dimentional['total_value_displacement'] }}
+                            @money($dimentional['total_value_displacement'])
                         </td>
                         <td class="align-middle">
                             {{ $dimentional['days_number_ordinary'] }}
@@ -167,10 +167,10 @@
                             {{ $dimentional['hours_ordinary'] }}
                         </td>
                         <td class="align-middle">
-                            ${{ $dimentional['hours_value_ordinary'] }}
+                            @money($dimentional['hours_value_ordinary'])
                         </td>
                         <td class="align-middle">
-                            ${{ $dimentional['total_value_ordinary'] }}
+                            @money($dimentional['total_value_ordinary'])
                         </td>
                         <td class="align-middle">
                             {{ $dimentional['days_number_festive'] }}
@@ -182,13 +182,13 @@
                             {{ $dimentional['hours_festive'] }}
                         </td>
                         <td class="align-middle">
-                            ${{ $dimentional['hours_value_festive'] }}
+                            @money($dimentional['hours_value_festive'])
                         </td>
                         <td class="align-middle">
-                            ${{ $dimentional['total_value_festive'] }}
+                            @money($dimentional['total_value_festive'])
                         </td>
                         <td class="align-middle">
-                            ${{ $dimentional['salary_value'] }}
+                            @money($dimentional['salary_value'])
                         </td>
                     </tr>
                     <tr>
@@ -224,10 +224,10 @@
                                                     {{ $travelE['amount'] }}
                                                 </td>
                                                 <td class="align-middle">
-                                                    ${{ $travelE['unit_value'] }}
+                                                    @money($travelE['unit_value'])
                                                 </td>
                                                 <td class="align-middle">
-                                                    ${{ $travelE['total_value'] }}
+                                                    @money($travelE['total_value'])
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -238,7 +238,7 @@
                                                 Subtotal
                                             </td>
                                             <td colspan="6" class="text-center">
-                                                ${{ $travelE['subtotal'] }}
+                                                @money($travelE['subtotal'])
                                             </td>
                                         </tr>
                                     </tfoot>
@@ -259,19 +259,19 @@
                             <tr>
                                 <td>SUBTOTAL MANO DE OBRA</td>
                                 <td class="text-right">
-                                    ${{ $data['subtotal_labor'] }}
+                                    @money($data['subtotal_labor'])
                                 </td>
                             </tr>
                             <tr>
                                 <td>SUBTOTAL VIÁTICOS</td>
                                 <td class="text-right">
-                                    ${{ $data['subtotal_travel_expense'] }}
+                                    @money($data['subtotal_travel_expense'])
                                 </td>
                             </tr>
                             <tr>
                                 <td>SUBTOTAL VALID DIMENSIONAL</td>
                                 <td class="text-right">
-                                    ${{ $data['subtotal_dimensional_validation'] }}
+                                    @money($data['subtotal_dimensional_validation'])
                                 </td>
                             </tr>
                         </tbody>
@@ -349,10 +349,10 @@
                             {{ $assemblies['hours_displacement'] }}
                         </td>
                         <td class="align-middle">
-                            ${{ $assemblies['hours_value_displacement'] }}
+                            @money($assemblies['hours_value_displacement'])
                         </td>
                         <td class="align-middle">
-                            ${{ $assemblies['total_value_displacement'] }}
+                            @money($assemblies['total_value_displacement'])
                         </td>
                         <td class="align-middle">
                             {{ $assemblies['days_number_ordinary'] }}
@@ -364,10 +364,10 @@
                             {{ $assemblies['hours_ordinary'] }}
                         </td>
                         <td class="align-middle">
-                            ${{ $assemblies['hours_value_ordinary'] }}
+                            @money($assemblies['hours_value_ordinary'])
                         </td>
                         <td class="align-middle">
-                            ${{ $assemblies['total_value_ordinary'] }}
+                            @money($assemblies['total_value_ordinary']){
                         </td>
                         <td class="align-middle">
                             {{ $assemblies['days_number_festive'] }}
@@ -379,13 +379,13 @@
                             {{ $assemblies['hours_festive'] }}
                         </td>
                         <td class="align-middle">
-                            ${{ $assemblies['hours_value_festive'] }}
+                            @money($assemblies['hours_value_festive'])
                         </td>
                         <td class="align-middle">
-                            ${{ $assemblies['total_value_festive'] }}
+                            @money($assemblies['total_value_festive'])
                         </td>
                         <td class="align-middle">
-                            ${{ $assemblies['salary_value'] }}
+                            @money($assemblies['salary_value'])
                         </td>
                     </tr>
                     <tr>
@@ -420,8 +420,8 @@
                                                 <td>
                                                     {{ $travelE['amount'] }}
                                                 </td>
-                                                <td>${{ $travelE['unit_value'] }}</td>
-                                                <td>${{ $travelE['total_value'] }}</td>
+                                                <td>@money($travelE['unit_value'])</td>
+                                                <td>@money($travelE['total_value'])</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -431,7 +431,7 @@
                                                 Subtotal
                                             </td>
                                             <td colspan="6" class="text-center">
-                                                ${{ $assemblies['subtotal'] }}
+                                                @money($assemblies['subtotal'])
                                             </td>
                                         </tr>
                                     </tfoot>
@@ -452,25 +452,25 @@
                             <tr>
                                 <td>SUBTOTAL MANO DE OBRA</td>
                                 <td class="text-right">
-                                    ${{ $data['subtotal_labor_mpm'] }}
+                                    @money($data['subtotal_labor_mpm'])
                                 </td>
                             </tr>
                             <tr>
                                 <td>SUBTOTAL VIÁTICOS</td>
                                 <td class="text-right">
-                                    ${{ $data['subtotal_travel_expense_mpm'] }}
+                                    @money($data['subtotal_travel_expense_mpm'])
                                 </td>
                             </tr>
                             <tr>
                                 <td>SUBTOTAL MONTAJE Y PUESTA EN MARCHA</td>
                                 <td class="text-right">
-                                    ${{ $data['subtotal_assembly_commissioning'] }}
+                                    @money($data['subtotal_assembly_commissioning'])
                                 </td>
                             </tr>
                             <tr>
                                 <td>SUBTOTAL GENERAL VIÁTICOS + MANO DE OBRA</td>
                                 <td class="text-right">
-                                    ${{ $data['general_subtotal_travel_expense_labor'] }}
+                                    @money($data['general_subtotal_travel_expense_labor'])
                                 </td>
                             </tr>
                         </tbody>
@@ -490,17 +490,17 @@
                 <tr>
                     <td class="text-left">Administrativos</td>
                     <td>{{ $data['administrative_percentage'] }}%</td>
-                    <td>${{ $data['administrative_value'] }}</td>
+                    <td>@money($data['administrative_value'])</td>
                 </tr>
                 <tr>
                     <td class="text-left">Imprevistos</td>
                     <td>{{ $data['unforeseen_percentage'] }}%</td>
-                    <td>${{ $data['unforeseen_value'] }}</td>
+                    <td>@money($data['unforeseen_value'])</td>
                 </tr>
                 <tr>
                     <td class="text-left" colspan="2">Subtotal A + I</td>
                     <td>
-                        ${{ $data['subtotal_administrative_unforeseen'] }}
+                        @money($data['subtotal_administrative_unforeseen'])
                     </td>
                 </tr>
                 <tr>
@@ -510,7 +510,7 @@
                 <tr>
                     <td class="text-left" colspan="2">SubTotal A + I + U</td>
                     <td>
-                        ${{ $data['subtotal_administrative_unforeseen_utility'] }}
+                        @money($data['subtotal_administrative_unforeseen_utility'])
                     </td>
                 </tr>
                 <tr>
@@ -518,18 +518,18 @@
                         Precio venta COP incluye retención
                     </td>
                     <td>
-                        ${{ $data['sale_price_cop_withholding_total'] }}
+                        @money($data['sale_price_cop_withholding_total'])
                     </td>
                 </tr>
                 <tr>
                     <td class="text-left" colspan="2">TRM</td>
-                    <td>${{ $data['trm'] }}</td>
+                    <td>@money($data['trm'])</td>
                 </tr>
                 <tr>
                     <td class="text-left" colspan="2">
                         Precio venta USD incluye retención
                     </td>
-                    <td>${{ $data['sale_price_usd_withholding_total'] }}</td>
+                    <td>@money($data['sale_price_usd_withholding_total'])</td>
                 </tr>
             </tbody>
         </table>

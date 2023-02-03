@@ -1,11 +1,71 @@
 @include('components/cabecera', [$company, $datosCabecera, $image])
+<style>
+    * {
+        font-family: 'Roboto', sans-serif;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
+    }
+
+    .table td,
+    .table th {
+        padding: 0.5rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .table thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table tbody+tbody {
+        border-top: 2px solid #dee2e6;
+    }
+
+    .table-bordered {
+        border: 1px solid #dee2e6;
+    }
+
+    .table-bordered {
+        border: 1px solid #dee2e6;
+    }
+
+    .table-bordered td,
+    .table-bordered th {
+        border: 1px solid #dee2e6;
+    }
+
+    .table-bordered thead td,
+    .table-bordered thead th {
+        border-bottom-width: 2px;
+    }
+
+    .table-borderless tbody+tbody,
+    .table-borderless td,
+    .table-borderless th,
+    .table-borderless thead th {
+        border: 0;
+    }
+
+    .text-center {
+        text-align: center
+    }
+</style>
 <hr class="line" />
-<h5 class="card-title">Señores:</h5>
-<p class="card-text">
+<h4 class="card-title">Señores:</h4>
+<div class="card-text">
     {{ $data['client']['social_reason'] ? $data['client']['social_reason'] : $data['client']['full_name'] }}
     <br />
     {{ $data['municipality']['name'] }}
-</p>
+</div>
 <div class="alert alert-primary" role="alert">
     <i class="fas fa-cogs"></i> {{ $data['line'] }} {{ $data['project'] }}
 </div>
@@ -35,12 +95,12 @@
                     </td>
                     <td>{{ $item['cuantity'] }}</td>
                     @if ($data['money_type'] == 'cop')
-                        <td>${{ $item['value_cop'] }}</td>
-                        <td>${{ $item['total_cop'] }}</td>
+                        <td>@money($item['value_cop'])</td>
+                        <td>@money($item['total_cop'])</td>
                     @endif
                     @if ($data['money_type'] == 'usd')
-                        <td>{{ $item['value_usd'] }}</td>
-                        <td>{{ $item['total_usd'] }}</td>
+                        <td>@money($item['value_usd'])</td>
+                        <td>@money($item['total_usd'])</td>
                     @endif
                 </tr>
             @endforeach
@@ -48,12 +108,11 @@
     </table>
 </div>
 <div class="d-flex justify-content-end">
-    <ng-container *ngIf="quotation.money_type == 'cop'; else usd_total">
-        <h5>TOTAL: ${{ $data['total_cop'] }}</h5>
-    </ng-container>
-    <ng-template #usd_total>
-        <h5>TOTAL: {{ $data['total_usd'] }}</h5>
-    </ng-template>
+    @if ($data['money_type'] == 'cop')
+        <h5>TOTAL: @money($data['total_cop'])</h5>
+    @endif
+    @if ($data['money_type'] == 'usd')
+        <h5>TOTAL: @money($data['total_usd'])</h5>
+    @endif
 </div>
-{{-- <div class="alert alert-light alert-custom-quotation pb-0" [innerHTML]="quotation.commercial_terms" role="alert"
-    [ngClass]="'alert-p-0'"></div> --}}
+<div style="font-size: 10px;">{!! $data->commercial_terms !!}</div>

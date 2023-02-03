@@ -420,17 +420,18 @@ class PayrollController extends Controller
                     ->orWhereNull('date_end')
                     ->where('liquidated', '0');;
             })->where('status', '!=', 'Liquidado')->get();
-
+            $atributos['code'] = generateConsecutive('payroll_payments');
             $pagoNomina = PayrollPayment::create($atributos);
-
+            sumConsecutive('payroll_payments');
             $funcionarios->each(function ($funcionario) use ($pagoNomina) {
-
+                $code_person = generateConsecutive('person_payroll_payments');
                 $salario =  $this->getSalario($funcionario, $pagoNomina->start_period, $pagoNomina->end_period);
                 $pagoNomina->personPayrollPayment()->create([
                     'person_id' => $funcionario->id,
                     'payroll_payment_id' => $pagoNomina->id,
                     'worked_days' => $salario['worked_days'],
                     'salary' => $salario['salary'],
+                    'code' => $code_person,
                     'transportation_assistance' => $salario['transportation_assistance'],
                     'retentions_deductions' => $this->getRetenciones($funcionario, $pagoNomina->start_period, $pagoNomina->end_period)['valor_total'],
                     'net_salary' => $this->getPagoNeto($funcionario, $pagoNomina->start_period, $pagoNomina->end_period)['total_valor_neto'],
@@ -465,6 +466,7 @@ class PayrollController extends Controller
                     'total_parafiscals' => $seguridad['valor_total_parafiscales'],
                     'total_social_security_parafiscals' => $seguridad['valor_total'],
                 ]);
+                sumConsecutive('person_payroll_payments');
             });
 
             return $this->success('Nómina guardada correctamente',  $pagoNomina);
@@ -620,7 +622,7 @@ class PayrollController extends Controller
                  * que use muchos de los facades Nominas ya empleados anteriormente
                  **/
                 //$salario = $this->getPagoNeto($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['total_valor_neto'];
-
+                $code = PersonPayrollPayment::where('person_id', $funcionario->id)->select('code')->latest()->first();
                 $salario = NominaPago::pagoFuncionarioWithPerson($funcionario)
                         ->withParams($salarioBase, $tempExtras, $tempNovedades, $temIngresos, $retencion, $tempDeducciones, $fechaInicioPeriodo, $fechaFinPeriodo)
                         ->calculate();
@@ -646,6 +648,7 @@ class PayrollController extends Controller
                     'salario_neto' => $salario['total_valor_neto'],
                     //'salario_neto' => $salario,
                     'novedades' => [],
+                    'code' => $code && $code->code ? $code->code : '',
                     'novedades' => $funcionario->novedades,
                     'horas_extras' => $tempExtras['horas_reportadas'],
                     'novedades' => $tempNovedades['novedades'],
@@ -677,6 +680,7 @@ class PayrollController extends Controller
                 'nomina_paga' => $paga,
                 'nomina' => $nomina,
                 'nomina_paga_id' => $idNominaExistente,
+                'code' => $nomina && $nomina->code ? $nomina->code : '',
                 'total_funcionarios' => count($funcionariosResponse),
                 'funcionarios' => $funcionariosResponse
             ]);

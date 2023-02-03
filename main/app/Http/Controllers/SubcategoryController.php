@@ -78,6 +78,12 @@ class SubcategoryController extends Controller
 
             return $this->success($q);
     }
+
+    public function getSubForCat($id)
+    {
+        return $this->success(Subcategory::where('Id_Categoria_Nueva', $id)->get(['Id_Subcategoria as value', 'Nombre as text']));
+    }
+
     public function listSubcategories()
     {
         return $this->success(
