@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Person;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use App\Models\WorkCertificate;
@@ -119,96 +120,34 @@ class WorkCertificateController extends Controller
         //
     }
 
+
+
     public function pdf($id)
     {
-        $logo = public_path('app/public') . '/logo2.png';
-        $work_certificate = WorkCertificate::find($id);
-        $json = json_decode($work_certificate->information);
-        $textoSalario = '';
-        $textoCargo = '';
-        $addressee = '';
-        $gener = '';
+        $date = Carbon::now()->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY');
+        $work_certificate = WorkCertificate::find($id)->first();
+        $informations = json_decode($work_certificate->information);
         $formatterES = new NumberFormatter("es", NumberFormatter::SPELLOUT);
-        $date = Carbon::now()->locale('es');
-        $company = Company::find(1)->first();
-        $funcionario = DB::table('people')
-            ->find($work_certificate->person_id);
-
-        $contract =
-            WorkContract::with('work_contract_type')->where('person_id', '=', $funcionario->id)
-            ->first();
-        $position =
-            DB::table('positions')
-            ->where('id', '=', $contract->position_id)
-            ->first();
-        if ($work_certificate->addressee) {
-            $addressee = $work_certificate->addressee;
-        } else {
-            $addressee = 'A QUIEN INTERESE';
-        }
-        if ($funcionario->gener == 'Masculino') {
-            $gener = 'certifica que el señor';
-        } else {
-            $gener = 'certifica que la señora';
-        }
-        foreach ($json as $information) {
-            if ($information == 'salario') {
-                $textoSalario = ' y devengando un salario mensual de ' . $formatterES->format($contract->salary) . ' ($' .
-                    number_format($contract->salary, 0, ".", ",") . ')';
-            }
-            if ($information == 'cargo') {
-                $textoCargo = ' desempeñando el cargo de 
-                <b>' . $position->name . "</b>";
-            }
-        }
-        $contenido =
-            '<!DOCTYPE html>
-        <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">               
-            </head>
-            <body style="margin:2rem">
-                <img src="' . $logo . '">
-                
-                <p style="font-size:16px;font-weight:bold;margin-top:100px">Girón, ' .
-            CARBON::parse($date)->locale('es')->translatedFormat('l j F Y') . '</p>
-                <p>' . $addressee . '</p>
-                <p style="margin-top:30px; text-align: justify;">
-                    La empresa ' . $company->social_reason . ' con ' . $company->document_type . ' ' . $company->document_number . '-'
-            . $company->verification_digit . ', ' . $gener . ' 
-                            <b>'
-            . $funcionario->first_name . ' '
-            . $funcionario->second_name . ' '
-            . $funcionario->first_surname . ' '
-            . $funcionario->second_surname .
-            '</b> 
-                    identificado(a) con cédula de ciudadanía No. 
-                    <b>' . number_format($funcionario->identifier, 0, "", ".") . '</b> de ' . $funcionario->place_of_birth . ' laboró en la empresa
-                    desde el ' . CARBON::parse($contract->date_of_admission)->locale('es')->isoFormat('DD MMMM YYYY') . ', con un contrato ' . $contract->work_contract_type->name .
-            $textoCargo . $textoSalario . ', . La presente certificación se expide en Bucaramanga, al (los) ' . $date->format('d') . ' día(s) del mes de ' .
-            $date->isoFormat('MMMM') . ' a solicitud del interesado. Y el motivo del retiro ' . $work_certificate->reason . '
-                </p>
-                <p style="margin-top:280px;">Atentamente;</p>
-
-                <table style="margin-top:20px">   
-                    <tr>
-                        <td style="padding-top: 40px">
-                            ____________________________________
-                        </td>
-                    </tr> 
-                    <tr>                        
-                        <td style="font-weight:bold; text-align:center;">
-                            ALBERTO BALCARCEL <br>
-                            Director administrativo
-                        </td>   
-                    </tr>
-                </table>
-            </body>
-        </html>';
-        //return $this->success($position);
-        $pdf = PDF::loadHTML($contenido);
+        $date2 = Carbon::now();
+        $company = Company::first();
+        $funcionario = Person::where('id', $work_certificate->person_id)
+            ->with('contractultimate')->name()->first();
+        $date_of_admission = Carbon::parse($funcionario->contractultimate->date_of_admission)->locale('es')->isoFormat('DD MMMM YYYY');
+        $salario_numeros = $formatterES->format($funcionario->contractultimate->salary);
+        $addressee = $work_certificate->addressee ?: 'A QUIEN INTERESE';
+        $gener = $funcionario->gener === 'Masculino' ? 'certifica que el señor' : 'certifica que la señora';
+        $pdf = PDF::loadView('pdf.certificado_laboral', [
+            'date' => $date,
+            'date2' => $date2,
+            'company' => $company,
+            'gener' => $gener,
+            'funcionario' => $funcionario,
+            'date_of_admission' => $date_of_admission,
+            'work_certificate' => $work_certificate,
+            'informations' => $informations,
+            'salario_numeros' => $salario_numeros,
+            'addressee' => $addressee
+        ]);
         return $pdf->download('certificado.pdf');
     }
 }

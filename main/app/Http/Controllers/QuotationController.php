@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Municipality;
 use App\Models\Quotation;
 use App\Models\QuotationItem;
 use App\Models\QuotationItemSubitem;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade as PDF;
 use PHPUnit\Framework\MockObject\Api;
 
 class QuotationController extends Controller
@@ -154,5 +156,25 @@ class QuotationController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function pdf($id)
+    {
+        $company = Company::first();
+        $image = $company->page_heading;
+        $data = Quotation::where('id', $id)->with('municipality', 'client', 'items')->first();
+        $datosCabecera = (object) array(
+            'Titulo' => 'Cotización',
+            'Codigo' => $data->code,
+            'Fecha' => $data->created_at,
+            'CodigoFormato' => $data->format_code
+        );
+        $pdf = PDF::loadView('pdf.quotation', [
+            'data' => $data,
+            'company' => $company,
+            'datosCabecera' => $datosCabecera,
+            'image' => $image
+        ]);
+        return $pdf->download('cotizacion.pdf');
     }
 }

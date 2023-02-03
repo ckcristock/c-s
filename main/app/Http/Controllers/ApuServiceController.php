@@ -249,23 +249,44 @@ class ApuServiceController extends Controller
     public function pdf($id)
     {
         $company = Company::first();
-        //$data = ApuService::find($id);
+        $image = $company->page_heading;
+        $data = ApuService::with([
+            "city",
+            "person" => function ($q) {
+                $q->select('id', DB::raw('concat(first_name, " ", first_surname) as name'));
+            },
+            "thirdparty" => function ($q) {
+                $q->select('id', DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as name'));
+            },
+            "dimensionalValidation" => function ($q) {
+                $q->select("*")
+                    ->with('profiles');
+            },
+            "dimensionalValidation.travelEstimationDimensionalValidations" => function ($q) {
+                $q->select("*");
+            },
+            "assembliesStartUp" => function ($q) {
+                $q->select("*")
+                    ->with('profiles');
+            },
+            "assembliesStartUp.travelEstimationAssembliesStartUp" => function ($q) {
+                $q->select("*");
+            }
+        ])
+            ->where("id", $id)
+            ->first();
         $datosCabecera = (object) array(
             'Titulo' => 'APU Servicio',
-            'Codigo' => 'APS-001-23',
-            'Fecha' => '22-03-03',
-            'CodigoFormato' => 'APU VERSION 01'
+            'Codigo' => $data->code,
+            'Fecha' => $data->created_at,
+            'CodigoFormato' => $data->format_code
         );
-        $image = $company->page_heading;
-        //return $company;
-        //return $datosCabecera;
-		$pdf = PDF::loadView('components.cabecera', [
+        $pdf = PDF::loadView('pdf.apu_service', [
+            'data' => $data,
             'company' => $company,
             'datosCabecera' => $datosCabecera,
             'image' => $image
         ]);
-		return $pdf->download('apu_set.pdf');
-        return View::make('components/cabecera')->with(compact('company', 'datosCabecera', 'image'));
+        return $pdf->download('apu_service.pdf');
     }
-
 }

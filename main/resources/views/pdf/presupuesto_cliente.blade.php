@@ -25,7 +25,7 @@
     /* .values {
     padding: 5px 0px;
     margin: 0!important;
-  
+
     text-align: right;
   } */
     .fa,
@@ -147,25 +147,8 @@
         height: 100px;
     }
 </style>
-
+@include('components/cabecera', [$company, $datosCabecera, $image])
 <div class="page-content">
-    <div class="card">
-        <table >
-            <tr>
-                <td>
-                    <img src="{{ public_path().'/images/logo.png' }}" style="width:190px;" style="display: inline-block;" />
-                    <br>
-                    {{$company->name}}<br>
-                    N.I.T.: {{$company->document_number}}<br>
-                    {{$company->address}} - TEL: {{$company->phone}}
-                </td>
-                <td class="text-right">
-                    <h3>PRESUPUESTO DE PROYECTO MAQUINADOS Y MONTAJES</h3>
-                    <h5 style="margin: 0; padding: 0;"> {{$data['created_at']}} </h5>
-                </td>
-            </tr>
-        </table>
-    </div>
 
 
     <div class="card">

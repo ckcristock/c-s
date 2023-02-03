@@ -452,7 +452,7 @@
                             <tr>
                                 <td>{{ $indirect['name'] }}</td>
                                 <td class="text-center">
-                                    {{ $indirect['percentage'] }}
+                                    {{ $indirect['percentage'] }}%
                                 </td>
                                 <td class="text-right">
                                     @money($indirect['value'])
@@ -468,11 +468,11 @@
                 <table>
                     <tbody>
                         <tr>
-                            <td>Costos Directos + Costos Indirectos Totales</td>
+                            <td>Costos directos + costos indirectos totales</td>
                             <td class="text-right"> @money($data['direct_costs_indirect_costs_total'])</td>
                         </tr>
                         <tr>
-                            <td>Costos Directos + Costos Indirectos Unitario</td>
+                            <td>Costos directos + costos indirectos unitario</td>
                             <td class="text-right"> @money($data['direct_costs_indirect_costs_unit']) </td>
                         </tr>
                     </tbody>

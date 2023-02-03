@@ -131,7 +131,7 @@ class LayoffsCertificateController extends Controller
         $layoffs_certificate = LayoffsCertificate::find($id);
         $date = Carbon::now()->locale('es');
         $funcionario = DB::table('people')
-            ->find($layoffs_certificate->person_id);   
+            ->find($layoffs_certificate->person_id);
         $compensation_fund = DB::table('severance_funds')
             ->find($funcionario->severance_fund_id);
         $motivo = DB::table('reason_withdrawal')
@@ -139,8 +139,8 @@ class LayoffsCertificateController extends Controller
         if ($layoffs_certificate->monto == 'parcial') {
             $asunto = 'RETIRO PARCIAL DE CESANTIAS';
             $p1 = 'Respetados señores: <br><br>
-                Para efectos de lo dispuesto en el decreto 2076 de 1967 y normas concordantes, 
-                nos permitimos solicitar a ustedes que se sirvan autorizar el pago de la referencia 
+                Para efectos de lo dispuesto en el decreto 2076 de 1967 y normas concordantes,
+                nos permitimos solicitar a ustedes que se sirvan autorizar el pago de la referencia
                 a favor del siguiente empleado.';
             $valor = '
             <tr>
@@ -152,10 +152,10 @@ class LayoffsCertificateController extends Controller
                 <td><b>INVERSION O DESTINO:</b></td>
                 <td>' . strtoupper($motivo->name) .'</td>
             </tr>';
-            $p2 = 'Lo anterior previa presentación de los soportes presentados para tal fin de conformidad con lo establecido en la ley 1429 
-                artículo 21 de 2010, por lo anterior, confirmamos el retiro en mención al trabajador, quien va a utilizar los recursos de sus 
+            $p2 = 'Lo anterior previa presentación de los soportes presentados para tal fin de conformidad con lo establecido en la ley 1429
+                artículo 21 de 2010, por lo anterior, confirmamos el retiro en mención al trabajador, quien va a utilizar los recursos de sus
                 cesantías conforme a las condiciones previstas en la ley. <br><br>
-                MAQUINADOS Y MONTAJES S.A.S, Se compromete a vigilar la inversión conforme a lo dispuesto por el decreto antes citado y según 
+                MAQUINADOS Y MONTAJES S.A.S, Se compromete a vigilar la inversión conforme a lo dispuesto por el decreto antes citado y según
                 resolución No 04250 de 1973, en concordancia con la circular N°000 de 1974.';
         } else if ($layoffs_certificate->monto == 'total') {
             $asunto = 'Autorización retiro total de Cesantías';
@@ -168,8 +168,8 @@ class LayoffsCertificateController extends Controller
             </tr>';
             $p2 = null;
         }
-        
-            
+
+
         $contenido = '<!DOCTYPE html>
         <html lang="en">
             <head>
@@ -191,16 +191,16 @@ class LayoffsCertificateController extends Controller
                 <img style="float: right;" src="' . $logo . '">
                 <p style="margin-top:15px;"><b>Girón, '.$date->isoFormat('D MMMM Y').'</b></p>
                 <div style="margin-top:80px;"><b>Señores</b></div>
-                <div>'.strtoupper($compensation_fund->name).'</div>
+                <div>/* .strtoupper($compensation_fund?->name). */</div>
                 <p style="margin-top:60px;"><b>ASUNTO:</b> '.strtoupper($asunto).'</p>
                 <p style="text-align: justify;">'. $p1 . '</p>
                 <table style="margin-top: 80px;">
                     <tbody>
                         <tr>
                             <td style="width:50%;"><b>NOMBRE DEL EMPLEADO(A):</b></td>
-                            <td>'.strtoupper($funcionario->first_name . ' ' 
-                                . $funcionario->second_name . ' ' 
-                                . $funcionario->first_surname . ' ' 
+                            <td>'.strtoupper($funcionario->first_name . ' '
+                                . $funcionario->second_name . ' '
+                                . $funcionario->first_surname . ' '
                                 . $funcionario->second_surname).'
                             </td>
                         </tr>
@@ -212,7 +212,7 @@ class LayoffsCertificateController extends Controller
                     </tbody>
                 </table>
                 <p style="margin-top:30px; text-align: justify">' . $p2 . '</p>
-                <table style="margin-top:50px">    
+                <table style="margin-top:50px">
                     <tr>
                         <td>Cordialmente,</td>
                         <td>Trabajador,</td>
@@ -227,16 +227,16 @@ class LayoffsCertificateController extends Controller
                     </tr>
                     <tr>
                         <td style="font-weight:bold;">ALBERTO BALCARCEL ZAMBRANO</td>
-                        <td style="font-weight:bold;">'.$funcionario->first_name . ' ' 
-                            . $funcionario->second_name . ' ' 
-                            . $funcionario->first_surname . ' ' 
+                        <td style="font-weight:bold;">'.$funcionario->first_name . ' '
+                            . $funcionario->second_name . ' '
+                            . $funcionario->first_surname . ' '
                             . $funcionario->second_surname.'
                         </td>
                     </tr>
                     <tr>
                         <td>Representante legal</td>
-                        <td>C.C '.number_format($funcionario->identifier,0,"",".").' </td>    
-                    </tr>                        
+                        <td>C.C '.number_format($funcionario->identifier,0,"",".").' </td>
+                    </tr>
                 </table>
             </body>
         </html>';

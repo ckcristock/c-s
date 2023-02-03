@@ -755,6 +755,8 @@ Route::get('test', function(){
         /****** Rutas del modulo APU PIEZA ******/
         Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
         Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
+        Route::get('apu-service/pdf/{id}', [ApuServiceController::class, 'pdf']);
+        Route::get('quotation/pdf/{id}', [QuotationController::class, 'pdf']);
         Route::get('material-thickness', [MaterialController::class, 'getMaterialThickness']);
         /****** End Rutas del modulo APU PIEZA ******/
 

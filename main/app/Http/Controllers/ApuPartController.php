@@ -334,7 +334,6 @@ class ApuPartController extends Controller
             'datosCabecera' => $datosCabecera,
             'image' => $image
         ]);
-        //return View::make('pdf/apu_pieza')->with(compact('data', 'company', 'datosCabecera', 'image'));
         return $pdf->download('apu_pieza.pdf');
     }
 }
