@@ -14,7 +14,8 @@ class PersonPayrollPayment extends Model
         'salary',
         'transportation_assistance',
         'retentions_deductions',
-        'net_salary' 
+        'net_salary',
+        'code'
     ];
 
     public function person(){

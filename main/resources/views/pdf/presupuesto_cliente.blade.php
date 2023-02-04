@@ -1,242 +1,120 @@
 <style>
     * {
         font-family: 'Roboto', sans-serif;
-        font-size: 14px;
-
     }
-
-    /*   .card-header{
-        text-align: center;
-    } */
-
-    .table-items thead>tr>th {
-        /*   color: rgb(18, 95, 196); */
-        border: 1px solid gainsboro;
-        border-radius: 2px;
-    }
-
-    .table-items input {}
-
-    .table-items th {
-        text-align: center;
-        font-weight: 900;
-    }
-
-    /* .values {
-    padding: 5px 0px;
-    margin: 0!important;
-  
-    text-align: right;
-  } */
-    .fa,
-    .fas,
-    .far {
-        cursor: pointer;
-    }
-
-
-
-    .detachable {
-        cursor: pointer;
-    }
-
-    .form-control-plaintext {
-        background-color: transparent;
-    }
-
-
-    .header-item {
-        background-color: rgb(255, 255, 255);
-        color: #232247;
-    }
-
-    /*  */
-
-
-    .page-content {
-        width: 100%;
-    }
-
-    .row {
-        display: inline-block;
-        width: 100%;
-    }
-
-
 
     table {
-        width: 100%;
         border-collapse: collapse;
-        margin-bottom: 5px;
     }
 
-    .section {
-        padding: 10px;
+    .table {
         width: 100%;
-        background-color: gainsboro;
+        margin-bottom: 1rem;
+        color: #212529;
     }
 
-    .td-header {
-        line-height: 20px;
+    .table td,
+    .table th {
+        padding: 0.5rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
     }
 
-    .titular {
-        /*  font-size: 11px; */
-        text-transform: uppercase;
-        /*   margin-bottom: 0; */
+    .table thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
     }
 
-    .blocks {
-        width: 25%;
-        display: inline-block;
-        text-transform: uppercase;
+    .table tbody+tbody {
+        border-top: 2px solid #dee2e6;
     }
 
-    .text-right {
-        text-align: right;
+    .table-bordered {
+        border: 1px solid #dee2e6;
+    }
+
+    .table-bordered {
+        border: 1px solid #dee2e6;
+    }
+
+    .table-bordered td,
+    .table-bordered th {
+        border: 1px solid #dee2e6;
+    }
+
+    .table-bordered thead td,
+    .table-bordered thead th {
+        border-bottom-width: 2px;
+    }
+
+    .table-borderless tbody+tbody,
+    .table-borderless td,
+    .table-borderless th,
+    .table-borderless thead th {
+        border: 0;
     }
 
     .text-center {
         text-align: center
     }
-
-    .table tbody  tr {
-        background-color: #F8F9FA;
-    }
-
-    .table tbody tr  td {
-        padding: 5px 2px;
-    }
-
-    .table tbody  tr:nth-child(odd) {
-        background-color: #EFF2F7;
-        color: black;
-    }
-
-    .card {
-        display: block;
-
-        border-radius: 5px;
-        padding: 10px 8px;
-        margin-bottom: 5px;
-    }
-
-    .blocks {
-        text-transform: uppercase;
-        /*     width: 60%; */
-        display: inline-block;
-    }
-
-    .block {
-        text-transform: uppercase;
-
-        /*     width: 60%; */
-        /* display: flex; */
-        /*  background-color: red; */
-        width: 100%;
-        position: relative
-    }
-
-    h3 {
-        font-size: 20px !important;
-    }
-
-    .child {
-        position: absolute;
-        top: 0;
-        height: 100px;
-    }
 </style>
+@include('components/cabecera', [$company, $datosCabecera, $image])
+<table class="table table-borderless">
+    <tbody>
+        <tr>
+            <td> <strong> Cliente:</strong>
+                {{ $data->customer->name }}
+            </td>
+            <td> <strong> Destino:</strong>
+                {{ $data->destiny->name }}
+            </td>
+            <td> <strong> Proyecto:</strong> {{ $data->project }}
+            </td>
+        </tr>
+        <tr>
+            <td> <strong> Linea:</strong>
+                {{ $data->line }}
+            </td>
+            <td colspan="2"> <strong> TRM:</strong>
+                @money($data->trm)
+            </td>
+        </tr>
+    </tbody>
+</table>
 
-<div class="page-content">
-    <div class="card">
-        <table >
-            <tr>
-                <td>
-                    <img src="{{ public_path().'/images/logo.png' }}" style="width:190px;" style="display: inline-block;" />
-                    <br>
-                    {{$company->name}}<br>
-                    N.I.T.: {{$company->document_number}}<br>
-                    {{$company->address}} - TEL: {{$company->phone}}
-                </td>
-                <td class="text-right">
-                    <h3>PRESUPUESTO DE PROYECTO MAQUINADOS Y MONTAJES</h3>
-                    <h5 style="margin: 0; padding: 0;"> {{$data['created_at']}} </h5>
-                </td>
-            </tr>
-        </table>
-    </div>
+<!-- Configuracion presupuestal -->
 
+<!--  END  Configuracion presupuestal -->
 
-    <div class="card">
-        <table class="table">
-            <tr>
-                <td> <strong> Cliente:</strong>
-                    {{$data->customer->name}}
-                </td>
-                <td> <strong> Destino:</strong>
-                    {{$data->destiny->name}}
-                </td>
-                <td> <strong> Proyecto:</strong> {{$data->project}}
-                </td>
-            </tr>
-            <tr>
-                <td> <strong> Linea:</strong>
-                    {{$data->line}}
-                </td>
-                <td colspan="2"> <strong> TRM:</strong>
-                    {{$data->trm}}
-                </td>
-
-            </tr>
-        </table>
-
-        <!-- Configuracion presupuestal -->
-
-        <!--  END  Configuracion presupuestal -->
-
-        <div class="row mb-2">
-            <div class="col-12">
-                <div class="form-group">
-                    <p>
-                        Observaciones:
-                        {{$data->observation}}
-
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ITEMS -->
-    @include('pdf.utils.item_presupuesto')
-    <!-- ITEMS -->
-
-    <div class="col-12 card card-body">
-        <table class="table">
-
-            <thead>
-                <tr>
-                    <th colspan="2" class="text-center">TOTAL PRESUPUESTO</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if($currency=='cop')
-                <tr>
-                    <td>TOTAL COP $ </td>
-                    <td class="text-right" style="width:90px"> {{$data->total_cop }}</td>
-                </tr>
-                @endif
-                @if($currency=='usd')
-                <tr>
-                    <td>TOTAL USD $ </td>
-                    <td class="text-right" style="width:90px"> {{$data->total_usd }}</td>
-                </tr>
-                @endif
-
-            </tbody>
-        </table>
-    </div>
-
-
+<div class="row mb-2">
+    <p>
+        Observaciones:
+        {{ $data->observation }}
+    </p>
 </div>
-</div>
+<!-- ITEMS -->
+@include('pdf.utils.item_presupuesto')
+<!-- ITEMS -->
+
+<table class="table table-borderless">
+    <thead>
+        <tr>
+            <th colspan="2" class="text-center">TOTAL PRESUPUESTO</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if ($currency == 'cop')
+            <tr>
+                <td>TOTAL COP $ </td>
+                <td class="text-right" style="width:90px"> @money($data->total_cop)</td>
+            </tr>
+        @endif
+        @if ($currency == 'usd')
+            <tr>
+                <td>TOTAL USD $ </td>
+                <td class="text-right" style="width:90px"> @money($data->total_usd)</td>
+            </tr>
+        @endif
+
+    </tbody>
+</table>

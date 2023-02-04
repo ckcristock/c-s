@@ -9,6 +9,7 @@ class PayrollPayment extends Model
 {
    protected $fillable = [
     "total_cost",
+    "code",
     "end_period",
     "start_period",
     "total_overtimes_surcharges",
@@ -20,7 +21,7 @@ class PayrollPayment extends Model
     "total_social_secturity",
     "payment_frequency"
    ];
-       
+
 
     use HasFactory;
 

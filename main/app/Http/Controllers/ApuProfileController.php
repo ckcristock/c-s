@@ -17,7 +17,7 @@ class ApuProfileController extends Controller
     public function index()
     {
         return $this->success(
-            ApuProfile::where('state', 'Activo')->get()
+            ApuProfile::where('state', 'Activo')->where('id', '!=', 1)->get()
         );
     }
 
@@ -27,6 +27,7 @@ class ApuProfileController extends Controller
             ApuProfile::when(request()->get('profile'), function ($q, $fill) {
                 $q->where('profile', 'like', '%' . $fill . '%');
             })
+            ->where('id', '!=', 1)
             ->orderBy('state')
             ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );

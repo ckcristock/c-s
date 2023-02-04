@@ -287,12 +287,19 @@ class BudgetController extends Controller
      */
     public function downloadClient(Request $request)
     {
-        //
-        $data = BudgetService::show($request->get('id'));
         $company = Company::first();
+        $image = $company->page_heading;
+        $data = BudgetService::show($request->get('id'));
+        $datosCabecera = (object) array(
+            'Titulo' => 'Presupuesto',
+            'Codigo' => $data->code,
+            'Fecha' => $data->created_at,
+            'CodigoFormato' => $data->format_code
+        );
         $currency = $request->get('currency');
         //return view('pdf.presupuesto_cliente',  compact('currency', 'data', 'company'));
-        $pdf = PDF::loadView('pdf.presupuesto_cliente', compact('currency', 'data', 'company'));
+        $pdf = PDF::loadView('pdf.presupuesto_cliente',
+        compact('currency', 'data', 'company', 'datosCabecera', 'image'));
         return $pdf->download('presupuesto_cliente.pdf');
     }
 }

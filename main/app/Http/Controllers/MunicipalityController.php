@@ -30,11 +30,12 @@ class MunicipalityController extends Controller
                 $q->select('id', 'name');
             }
         ])
+            ->with('department_')
             ->orderBy('name', 'asc')
             ->when(Request()->get('department_id'), function ($q, $param) {
                 $q->where('department_id', $param);
             })
-            ->get(['name As text', 'id As value', 'department_id', 'code', 'abbreviation']);
+            ->get(['id','percentage_product', 'percentage_service', 'name As text', 'id As value', 'department_id', 'code', 'abbreviation']);
         return $this->success($data);
     }
 

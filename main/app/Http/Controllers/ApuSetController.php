@@ -13,6 +13,7 @@ use App\Models\ApuSetInternalProcess;
 use App\Models\ApuSetMachineTool;
 use App\Models\ApuSetOther;
 use App\Models\ApuSetPartList;
+use App\Models\Company;
 use App\Models\Municipality;
 use App\Services\ApuSetService;
 use Barryvdh\DomPDF\Facade as PDF;
@@ -84,48 +85,43 @@ class ApuSetController extends Controller
             $id = $apuset->id;
             $apuset->save();
 
-            foreach ($files as $file){
+            foreach ($files as $file) {
                 $base64 = saveBase64File($file, 'apu-sets/', false, '.pdf');
                 $file = URL::to('/') . '/api/file?path=' . $base64;
                 ApuSetFile::create(['apu_set_id' => $id, 'file' => $file]);
-			}
+            }
 
 
-            foreach ($list_pieces_sets as $lps){
-				$lps["apu_set_id"] = $id;
-				ApuSetPartList::create($lps);
-			}
-            foreach ($machine_tools as $mtool){
-				$mtool["apu_set_id"] = $id;
-				ApuSetMachineTool::create($mtool);
-			}
-            foreach ($internal_processes as $ip){
-				$ip["apu_set_id"] = $id;
-				ApuSetInternalProcess::create($ip);
-			}
-            foreach ($external_processes as $et){
-				$et["apu_set_id"] = $id;
-				ApuSetExternalProcess::create($et);
-			}
-            foreach ($others as $ot){
-				$ot["apu_set_id"] = $id;
-				ApuSetOther::create($ot);
-			}
-            foreach ($indirect_cost as $ic){
-				$ic["apu_set_id"] = $id;
-				ApuSetIndirectCost::create($ic);
-			}
+            foreach ($list_pieces_sets as $lps) {
+                $lps["apu_set_id"] = $id;
+                ApuSetPartList::create($lps);
+            }
+            foreach ($machine_tools as $mtool) {
+                $mtool["apu_set_id"] = $id;
+                ApuSetMachineTool::create($mtool);
+            }
+            foreach ($internal_processes as $ip) {
+                $ip["apu_set_id"] = $id;
+                ApuSetInternalProcess::create($ip);
+            }
+            foreach ($external_processes as $et) {
+                $et["apu_set_id"] = $id;
+                ApuSetExternalProcess::create($et);
+            }
+            foreach ($others as $ot) {
+                $ot["apu_set_id"] = $id;
+                ApuSetOther::create($ot);
+            }
+            foreach ($indirect_cost as $ic) {
+                $ic["apu_set_id"] = $id;
+                ApuSetIndirectCost::create($ic);
+            }
             sumConsecutive('apu_sets');
             return $this->success('Creado con éxito');
-
-
         } catch (\Throwable $th) {
 
-                return $this->error($th->getMessage(), 500);
-
+            return $this->error($th->getMessage(), 500);
         }
-
-
     }
     /**
      * Display the specified resource.
@@ -136,8 +132,8 @@ class ApuSetController extends Controller
     public function show($id)
     {
         return $this->success(
-			ApuSetService::show($id)
-		);
+            ApuSetService::show($id)
+        );
     }
 
     /**
@@ -160,8 +156,8 @@ class ApuSetController extends Controller
     {
         //
         return $this->success(
-			ApuSetService::find($req->get('name'))
-		);
+            ApuSetService::find($req->get('name'))
+        );
     }
 
     /**
@@ -191,69 +187,65 @@ class ApuSetController extends Controller
         $indirect_cost = request()->get("indirect_cost");
         try {
             ApuSet::find($id)->update($data);
-            if($list_pieces_sets){
+            if ($list_pieces_sets) {
                 ApuSetPartList::where("apu_set_id", $id)->delete();
-                foreach ($list_pieces_sets as $lps){
+                foreach ($list_pieces_sets as $lps) {
                     $lps["apu_set_id"] = $id;
                     ApuSetPartList::create($lps);
                 }
             }
-            if($machine_tools){
+            if ($machine_tools) {
                 ApuSetMachineTool::where("apu_set_id", $id)->delete();
-                foreach ($machine_tools as $mt){
+                foreach ($machine_tools as $mt) {
                     $mt["apu_set_id"] = $id;
                     ApuSetMachineTool::create($mt);
                 }
             }
-            if($internal_processes){
+            if ($internal_processes) {
                 ApuSetInternalProcess::where("apu_set_id", $id)->delete();
-                foreach ($internal_processes as $ip){
+                foreach ($internal_processes as $ip) {
                     $ip["apu_set_id"] = $id;
                     ApuSetInternalProcess::create($ip);
                 }
             }
-            if($external_processes){
+            if ($external_processes) {
                 ApuSetExternalProcess::where("apu_set_id", $id)->delete();
-                foreach ($external_processes as $ep){
+                foreach ($external_processes as $ep) {
                     $ep["apu_set_id"] = $id;
                     ApuSetExternalProcess::create($ep);
                 }
             }
-            if($others){
+            if ($others) {
                 ApuSetOther::where("apu_set_id", $id)->delete();
-                foreach ($others as $ot){
+                foreach ($others as $ot) {
                     $ot["apu_set_id"] = $id;
                     ApuSetOther::create($ot);
                 }
             }
-            if($indirect_cost){
+            if ($indirect_cost) {
                 ApuSetIndirectCost::where("apu_set_id", $id)->delete();
-                foreach ($indirect_cost as $ic){
+                foreach ($indirect_cost as $ic) {
                     $ic["apu_set_id"] = $id;
                     ApuSetIndirectCost::create($ic);
                 }
             }
             return $this->success('Creado con éxito');
-        }catch (\Throwable $th) {
+        } catch (\Throwable $th) {
 
             return $this->error($th->getMessage(), 500);
-
         }
-
     }
 
     public function apuParts()
     {
         return $this->success(
             ApuPart::select('name', 'unit_direct_cost', 'id')
-            ->selectRaw('name as text, id as value')
-            ->when( request()->get('name'), function($q, $fill)
-            {
-                $q->where('name','like','%'.$fill.'%');
-
-            })
-            ->limit(100)
-            ->get()
+                ->selectRaw('name as text, id as value')
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->limit(100)
+                ->get()
         );
     }
 
@@ -261,13 +253,11 @@ class ApuSetController extends Controller
     {
         return $this->success(
             ApuSet::select('name', 'id', 'total_direct_cost')
-            ->when( request()->get('name'), function($q, $fill)
-            {
-                $q->where('name','like','%'.$fill.'%');
-
-            })
-            ->limit(100)
-            ->get()
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', '%' . $fill . '%');
+                })
+                ->limit(100)
+                ->get()
         );
     }
 
@@ -296,8 +286,21 @@ class ApuSetController extends Controller
 
     public function pdf($id)
     {
+        $company = Company::first();
+        $image = $company->page_heading;
         $data = ApuSetService::show($id);
-		$pdf = PDF::loadView('pdf.apu_set', ['data' => $data]);
-		return $pdf->download('apu_set.pdf');
+        $datosCabecera = (object) array(
+            'Titulo' => 'APU Pieza',
+            'Codigo' => $data->code,
+            'Fecha' => $data->created_at,
+            'CodigoFormato' => $data->format_code
+        );
+        $pdf = PDF::loadView('pdf.apu_set', [
+            'data' => $data,
+            'company' => $company,
+            'datosCabecera' => $datosCabecera,
+            'image' => $image
+        ]);
+        return $pdf->download('apu_set.pdf');
     }
 }

@@ -25,4 +25,9 @@ class Municipality extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+    public function department_()
+    {
+        return $this->hasOne(Department::class, 'id', 'department_id')->with('country');
+    }
 }
