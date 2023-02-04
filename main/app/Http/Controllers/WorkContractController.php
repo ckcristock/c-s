@@ -196,7 +196,7 @@ class WorkContractController extends Controller
                 $join->on('posi.id', '=', 'w.position_id');
             })
             ->where('status', 'PreLiquidado')
-            ->orderByDesc('p.created_at')
+            ->orderByDesc('p.updated_at')
             ->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1));
         /* for ($i = 0; $i < count($people); $i++) {
                 $fecha = $people[$i]->updated_at;
