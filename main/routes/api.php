@@ -141,13 +141,13 @@ use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\WorkOrderDesignController;
 use App\Http\Controllers\WorkOrderEngineeringController;
 use App\Http\Controllers\WorkOrderProductionController;
-use App\Models\Business;
-use App\Models\BusinessBudget;
-use App\Models\ThirdParty;
-use App\Models\User;
 use App\Models\Bonus;
 use App\Models\Budget;
+use App\Models\Business;
+use App\Models\BusinessBudget;
 use App\Models\ComprobanteConsecutivo;
+use App\Models\ThirdParty;
+use App\Models\User;
 use App\Models\WorkOrderBlueprint;
 use App\Models\WorkOrderProduction;
 use Illuminate\Support\Facades\Artisan;
@@ -381,6 +381,9 @@ Route::group(
         Route::get('nomina/pago/funcionario/{identidad}', [PayrollController::class, 'getFuncionario']);
         Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
         Route::get('nomina/pago/{inicio?}/{fin?}', [PayrollController::class, 'getPayrollPay']);
+        //downloadPdf
+        Route::post('download-payroll', [PayrollController::class, 'downloadPdf']);
+        //Route::get('download-payroll', [PayrollController::class, 'downloadPdf']);
 
         Route::get('payroll/overtimes/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getExtrasTotales']);
 
@@ -434,7 +437,6 @@ Route::group(
         Route::resource('layoffs-certificate', LayoffsCertificateController::class);
 
         Route::get('download-layoffs-certificate/{id}', [LayoffsCertificateController::class, 'pdf']);
-
 
         Route::post('update-file-permission', [PersonController::class, 'updateFilePermission']);
         Route::get('get-file-permission/{id}', [PersonController::class, 'getFilePermission']);
