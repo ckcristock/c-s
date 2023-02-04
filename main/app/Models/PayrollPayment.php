@@ -7,23 +7,31 @@ use Illuminate\Database\Eloquent\Model;
 
 class PayrollPayment extends Model
 {
-   protected $fillable = [
-    "total_cost",
-    "code",
-    "end_period",
-    "start_period",
-    "total_overtimes_surcharges",
-    "total_incomes",
-    "total_parafiscals",
-    "total_provisions",
-    "total_retentions",
-    "total_salaries",
-    "total_social_secturity",
-    "payment_frequency"
-   ];
-
 
     use HasFactory;
+
+   protected $fillable = [
+    "total_cost"
+    "user_id",
+    "code",
+    "payment_frequency",
+    "start_period",
+    "end_period",
+    "total_salaries",
+    "total_retentions",
+    "total_provisions",
+    "total_social_secturity",
+    "total_parafiscals",
+    "total_overtimes_surcharges",
+    "total_incomes",
+    "total_cost",
+    "created_at",
+    "updated_at",
+    "electronic_reported",
+    "electronic_reported_date",
+    "user_electronic_reported",
+    "company_id",
+   ];
 
     public function personPayrollPayment()
     {

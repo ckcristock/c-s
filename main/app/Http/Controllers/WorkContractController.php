@@ -39,6 +39,7 @@ class WorkContractController extends Controller
                     'p.second_surname',
                     'p.image',
                     'p.status',
+                    'p.created_at',
                     'posi.name as position',
                     'depe.name as dependency_name',
                     'gr.name as group_name',
@@ -83,7 +84,7 @@ class WorkContractController extends Controller
                 ->when(Request()->get('company'), function ($q, $fill) {
                     $q->where('co.id', 'like', '%' . $fill . '%');
                 })
-                ->orderBy('p.first_name')
+                ->orderByDesc('p.created_at')
                 ->paginate($pageSize, ['*'], 'page', $page)
         );
     }
@@ -185,7 +186,8 @@ class WorkContractController extends Controller
                 'p.image',
                 'posi.name',
                 'p.updated_at',
-                'posi.name as position'
+                'posi.name as position',
+                'p.created_at'
             )
             ->join('work_contracts as w', function ($join) {
                 $join->on('w.person_id', '=', 'p.id');
@@ -194,6 +196,7 @@ class WorkContractController extends Controller
                 $join->on('posi.id', '=', 'w.position_id');
             })
             ->where('status', 'PreLiquidado')
+            ->orderByDesc('p.created_at')
             ->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1));
         /* for ($i = 0; $i < count($people); $i++) {
                 $fecha = $people[$i]->updated_at;
