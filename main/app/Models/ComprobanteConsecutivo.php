@@ -22,6 +22,7 @@ class ComprobanteConsecutivo extends Model
         'city',
         'longitud',
         'format_code',
-        'table_name'
+        'table_name',
+        'editable'
     ];
 }

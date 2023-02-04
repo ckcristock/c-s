@@ -21,4 +21,9 @@ class Department extends Model
     {
         return $this->hasMany(Municipality::class)->orderBy('name');
     }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
 }

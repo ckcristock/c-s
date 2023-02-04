@@ -7,10 +7,13 @@ use App\Models\ApuServiceAssemblyStartUp;
 use App\Models\ApuServiceDimensionalValidation;
 use App\Models\ApuServiceTravelEstimationAssemblyStartUp;
 use App\Models\ApuServiceTravelEstimationDimensionalValidation;
+use App\Models\Company;
 use App\Models\Municipality;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class ApuServiceController extends Controller
 {
@@ -241,5 +244,49 @@ class ApuServiceController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function pdf($id)
+    {
+        $company = Company::first();
+        $image = $company->page_heading;
+        $data = ApuService::with([
+            "city",
+            "person" => function ($q) {
+                $q->select('id', DB::raw('concat(first_name, " ", first_surname) as name'));
+            },
+            "thirdparty" => function ($q) {
+                $q->select('id', DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as name'));
+            },
+            "dimensionalValidation" => function ($q) {
+                $q->select("*")
+                    ->with('profiles');
+            },
+            "dimensionalValidation.travelEstimationDimensionalValidations" => function ($q) {
+                $q->select("*");
+            },
+            "assembliesStartUp" => function ($q) {
+                $q->select("*")
+                    ->with('profiles');
+            },
+            "assembliesStartUp.travelEstimationAssembliesStartUp" => function ($q) {
+                $q->select("*");
+            }
+        ])
+            ->where("id", $id)
+            ->first();
+        $datosCabecera = (object) array(
+            'Titulo' => 'APU Servicio',
+            'Codigo' => $data->code,
+            'Fecha' => $data->created_at,
+            'CodigoFormato' => $data->format_code
+        );
+        $pdf = PDF::loadView('pdf.apu_service', [
+            'data' => $data,
+            'company' => $company,
+            'datosCabecera' => $datosCabecera,
+            'image' => $image
+        ]);
+        return $pdf->download('apu_service.pdf');
     }
 }

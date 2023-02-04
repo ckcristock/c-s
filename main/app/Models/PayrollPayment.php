@@ -11,20 +11,7 @@ class PayrollPayment extends Model
     use HasFactory;
 
    protected $fillable = [
-/*     "total_cost",
-    "end_period",
-    "start_period",
-    "total_overtimes_surcharges",
-    "total_incomes",
-    "total_parafiscals",
-    "total_provisions",
-    "total_retentions",
-    "total_salaries",
-    "total_social_secturity",
-    "payment_frequency",
-    "company_id",
-    */
-
+    "total_cost"
     "user_id",
     "code",
     "payment_frequency",

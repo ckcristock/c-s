@@ -70,7 +70,7 @@ class CompanyController extends Controller
     public function commercialTermsSave(Request $request, $id)
     {
         try {
-            Company::find($id)->update(['commercial_terms' => $request->commercial_terms]);
+            Company::find($id)->update($request->all());
             return $this->success('Actualizado correctamente');
         } catch (\Throwable $th) {
         }
@@ -80,6 +80,14 @@ class CompanyController extends Controller
     {
         try {
             return $this->success(Company::where('id', $request->id)->first('commercial_terms'));
+        } catch (\Throwable $th) {
+        }
+    }
+
+    public function getRequeriments(Request $request)
+    {
+        try {
+            return $this->success(Company::where('id', $request->id)->first('technical_requirements', 'legal_requirements'));
         } catch (\Throwable $th) {
         }
     }

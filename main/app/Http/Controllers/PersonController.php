@@ -22,93 +22,93 @@ use Intervention\Image\Facades\Image;
 
 class PersonController extends Controller
 {
-	public $ocpApimSubscriptionKey = "df2f7a1cb9a14c66b11a7a2253999da5";
-	public $azure_grupo = "personalnuevo";
-	public $uriBase = "https://facemaqymon2021.cognitiveservices.azure.com/face/v1.0";
-	use ApiResponser;
+    public $ocpApimSubscriptionKey = "df2f7a1cb9a14c66b11a7a2253999da5";
+    public $azure_grupo = "personalnuevo";
+    public $uriBase = "https://facemaqymon2021.cognitiveservices.azure.com/face/v1.0";
+    use ApiResponser;
 
     // ! Al liquidar un funcionario tendríamos que validar si este es responsable de algo en algún lado
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function index(Request $request)
-	{
-		return $this->success(
-			Person::
-            where('status', 'Activo')
-            ->when($request->dependency_id, function ($q, $fill) {
-                $q->whereHas('work_contract', function ($q2) use ($fill) {
-                    $q2->whereHas('position', function ($q3) use ($fill) {
-                        $q3->where('dependency_id', '=', $fill);
-                    });
-                });
-            })
-            ->get([
-				"id as value",
-				DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),
-			])
-		);
-	}
-
-	public function peopleSelects()
-	{
-		return $this->success(
-			Person::select('id as value', DB::raw('CONCAT_WS(" ", first_name, first_surname) as text '))
-				->when(request()->get('name'), function ($q, $fill) {
-					$q->where(DB::raw('concat(first_name," ",first_surname)'), 'like', '%' . $fill . '%');
-				})
-				->limit(100)
-				->get()
-		);
-	}
-
-    public function funcionarioPunto(){
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
         return $this->success(
-            DB::table("Funcionario_Punto", "FP")
-            ->select("PD.Id_Punto_Dispensacion","PD.Nombre")
-            ->join("Punto_Dispensacion as PD", function($join){
-                $join->on("FP.Id_Punto_Dispensacion", "PD.Id_Punto_Dispensacion");
-            })
-            ->when(request()->id, function ($q, $fill) {
-                $q->where("FP.Identificacion_Funcionario", $fill);
-            })->get()
+            Person::where('status', 'Activo')
+                ->when($request->dependency_id, function ($q, $fill) {
+                    $q->whereHas('work_contract', function ($q2) use ($fill) {
+                        $q2->whereHas('position', function ($q3) use ($fill) {
+                            $q3->where('dependency_id', '=', $fill);
+                        });
+                    });
+                })
+                ->get([
+                    "id as value",
+                    DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),
+                ])
         );
     }
 
-	/**
-	 * Display a listing of the resource paginated.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function indexPaginate(Request $request)
-	{
-		return $this->success(
-			Person::with('work_contract')
-				->when($request->name, function ($q, $fill) {
-					$q->where("identifier", "like", "%" . $fill . "%")
-						->orWhere(DB::raw('CONCAT_WS(" ", first_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
-						->orWhere(DB::raw('CONCAT_WS(" ", second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
-						->orWhere(DB::raw('CONCAT_WS(" ", first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
-						->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%");
-				})
-				->when($request->dependency_id, function ($q, $fill) {
-					$q->whereHas('work_contract', function ($q2) use ($fill) {
-						$q2->whereHas('position', function ($q3) use ($fill) {
-							$q3->where('dependency_id', '=', $fill);
-						});
-					});
-				})
+    public function peopleSelects()
+    {
+        return $this->success(
+            Person::select('id as value', DB::raw('CONCAT_WS(" ", first_name, first_surname) as text '))
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where(DB::raw('concat(first_name," ",first_surname)'), 'like', '%' . $fill . '%');
+                })
+                ->limit(100)
+                ->get()
+        );
+    }
 
-				->when($request->status, function ($q, $fill) {
-					$q->where("status", $fill);
-				})
-				->orderBy('first_name', 'asc')
-				->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1))
-		);
+    public function funcionarioPunto()
+    {
+        return $this->success(
+            DB::table("Funcionario_Punto", "FP")
+                ->select("PD.Id_Punto_Dispensacion", "PD.Nombre")
+                ->join("Punto_Dispensacion as PD", function ($join) {
+                    $join->on("FP.Id_Punto_Dispensacion", "PD.Id_Punto_Dispensacion");
+                })
+                ->when(request()->id, function ($q, $fill) {
+                    $q->where("FP.Identificacion_Funcionario", $fill);
+                })->get()
+        );
+    }
 
-		/* $data = json_decode(Request()->get("data"), true);
+    /**
+     * Display a listing of the resource paginated.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexPaginate(Request $request)
+    {
+        return $this->success(
+            Person::with('work_contract')
+                ->when($request->name, function ($q, $fill) {
+                    $q->where("identifier", "like", "%" . $fill . "%")
+                        ->orWhere(DB::raw('CONCAT_WS(" ", first_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
+                        ->orWhere(DB::raw('CONCAT_WS(" ", second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
+                        ->orWhere(DB::raw('CONCAT_WS(" ", first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
+                        ->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%");
+                })
+                ->when($request->dependency_id, function ($q, $fill) {
+                    $q->whereHas('work_contract', function ($q2) use ($fill) {
+                        $q2->whereHas('position', function ($q3) use ($fill) {
+                            $q3->where('dependency_id', '=', $fill);
+                        });
+                    });
+                })
+
+                ->when($request->status, function ($q, $fill) {
+                    $q->where("status", $fill);
+                })
+                ->orderBy('first_name', 'asc')
+                ->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1))
+        );
+
+        /* $data = json_decode(Request()->get("data"), true);
 		$page = $data["page"] ? $data["page"] : 1;
 		$pageSize = $data["pageSize"] ? $data["pageSize"] : 12;
 
@@ -159,7 +159,7 @@ class PersonController extends Controller
 				->orderBy('p.first_name', 'asc')
 				->paginate($pageSize, ["*"], "page", $page)
 		); */
-	}
+    }
 
     /***
      * Función que me devuelve el id, identificador,
@@ -167,184 +167,185 @@ class PersonController extends Controller
      */
     public function peoplesWithDni(Request $request)
     {
-		//dd(request()->get('dni'));
+        //dd(request()->get('dni'));
         return $this->success(
-			Person::select(
-				"id as value",
+            Person::select(
+                "id as value",
                 "identifier",
-				DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '))
-				->when(request('search'), function ($q, $fill) {
-					$q->where(DB::raw('identifier'), 'like', '%' .$fill. '%')
-					  ->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), 'like', '%'.$fill.'%');
-				})
+                DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text ')
+            )
+                ->when(request('search'), function ($q, $fill) {
+                    $q->where(DB::raw('identifier'), 'like', '%' . $fill . '%')
+                        ->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), 'like', '%' . $fill . '%');
+                })
                 ->where('status', 'Activo')
-				->get()
-		);
+                ->get()
+        );
     }
 
-	public function validarCedula($documento)
-	{
-		$user= '';
-		$person = DB::table("people")
-			->where('identifier', $documento)
-			->exists();
-		if ($person) {
-			$user =  DB::table('people')->where('identifier', $documento)->first();
-		}
-		return $this->success($person, $user);
-	}
+    public function validarCedula($documento)
+    {
+        $user = '';
+        $person = DB::table("people")
+            ->where('identifier', $documento)
+            ->exists();
+        if ($person) {
+            $user =  DB::table('people')->where('identifier', $documento)->first();
+        }
+        return $this->success($person, $user);
+    }
 
-	public function getAll(Request $request)
-	{
-		# code...
-		$data = $request->all();
-		return $this->success(
-			DB::table("people as p")
-				->select(
-					"p.id",
-					"p.identifier",
-					"p.image",
-					"p.status",
-					"p.full_name",
-					"p.first_surname",
-					"p.first_name",
-					"pos.name as position",
-					"d.name as dependency",
-					"p.id as value",
-					"p.passport_number",
-					"p.visa",
-					DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),
-					"c.name as company",
-					DB::raw("w.id AS work_contract_id"),
-					DB::raw("'Funcionario' AS type")
-				)
-				->join("work_contracts as w", function ($join) {
-					$join->on(
-						"p.id",
-						"=",
-						"w.person_id"
-					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                                join people as u2 on u2.id = a2.person_id group by u2.id)');
-				})
-				->join("companies as c", "c.id", "=", "w.company_id")
-				->join("positions as pos", "pos.id", "=", "w.position_id")
-				->join("dependencies as d", "d.id", "=", "pos.dependency_id")
-				->where("p.status", "Activo")
-				->when($request->get('dependencies'), function ($q, $fill) {
-					$q->where("d.id", $fill);
-				})
-				->get()
-		);
-	}
-
-	public function basicData($id)
-	{
-		return $this->success(
-			DB::table("people as p")
-				->select(
-					"p.first_name",
-					"p.first_surname",
-					"p.id",
+    public function getAll(Request $request)
+    {
+        # code...
+        $data = $request->all();
+        return $this->success(
+            DB::table("people as p")
+                ->select(
+                    "p.id",
                     "p.identifier",
-					"p.image",
-					"p.second_name",
-					"p.second_surname",
-					"w.salary",
-					"w.id as work_contract_id",
-					"p.signature",
-					"p.title",
-					"p.status"
-				)
-				->join("work_contracts as w", function ($join) {
-					$join->on(
-						"p.id",
-						"=",
-						"w.person_id"
-					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                            join people as u2 on u2.id = a2.person_id group by u2.id)');
-				})
-				->where("p.id", "=", $id)
-				->first()
-		);
-	}
+                    "p.image",
+                    "p.status",
+                    "p.full_name",
+                    "p.first_surname",
+                    "p.first_name",
+                    "pos.name as position",
+                    "d.name as dependency",
+                    "p.id as value",
+                    "p.passport_number",
+                    "p.visa",
+                    DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),
+                    "c.name as company",
+                    DB::raw("w.id AS work_contract_id"),
+                    DB::raw("'Funcionario' AS type")
+                )
+                ->join("work_contracts as w", function ($join) {
+                    $join->on(
+                        "p.id",
+                        "=",
+                        "w.person_id"
+                    )->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
+                                join people as u2 on u2.id = a2.person_id group by u2.id)');
+                })
+                ->join("companies as c", "c.id", "=", "w.company_id")
+                ->join("positions as pos", "pos.id", "=", "w.position_id")
+                ->join("dependencies as d", "d.id", "=", "pos.dependency_id")
+                ->where("p.status", "Activo")
+                ->when($request->get('dependencies'), function ($q, $fill) {
+                    $q->where("d.id", $fill);
+                })
+                ->get()
+        );
+    }
 
-	public function basicDataForm($id)
-	{
-		return $this->success(
-			DB::table("people as p")
-				->select(
-					"p.first_name",
-					"p.first_surname",
-					"p.second_name",
-					"p.second_surname",
-					"p.identifier",
-					"p.image",
-					"p.email",
-					"p.degree",
-					"p.birth_date",
-					"p.gener",
-					"p.marital_status",
-					"p.address",
-					"p.cell_phone",
-					"p.first_name",
-					"p.first_surname",
-					"p.id",
-					"p.image",
-					"p.second_name",
-					"p.second_surname",
-					"p.status",
-					"p.visa",
-					"p.passport_number",
-					"p.title",
+    public function basicData($id)
+    {
+        return $this->success(
+            DB::table("people as p")
+                ->select(
+                    "p.first_name",
+                    "p.first_surname",
+                    "p.id",
+                    "p.identifier",
+                    "p.image",
+                    "p.second_name",
+                    "p.second_surname",
+                    "w.salary",
+                    "w.id as work_contract_id",
+                    "p.signature",
+                    "p.title",
+                    "p.status"
+                )
+                ->join("work_contracts as w", function ($join) {
+                    $join->on(
+                        "p.id",
+                        "=",
+                        "w.person_id"
+                    )->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
+                            join people as u2 on u2.id = a2.person_id group by u2.id)');
+                })
+                ->where("p.id", "=", $id)
+                ->first()
+        );
+    }
+
+    public function basicDataForm($id)
+    {
+        return $this->success(
+            DB::table("people as p")
+                ->select(
+                    "p.first_name",
+                    "p.first_surname",
+                    "p.second_name",
+                    "p.second_surname",
+                    "p.identifier",
+                    "p.image",
+                    "p.email",
+                    "p.degree",
+                    "p.birth_date",
+                    "p.gener",
+                    "p.marital_status",
+                    "p.address",
+                    "p.cell_phone",
+                    "p.first_name",
+                    "p.first_surname",
+                    "p.id",
+                    "p.image",
+                    "p.second_name",
+                    "p.second_surname",
+                    "p.status",
+                    "p.visa",
+                    "p.passport_number",
+                    "p.title",
                     "p.address"
 
-				)
-				->join("work_contracts as w", function ($join) {
-					$join->on(
-						"p.id",
-						"=",
-						"w.person_id"
-					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
+                )
+                ->join("work_contracts as w", function ($join) {
+                    $join->on(
+                        "p.id",
+                        "=",
+                        "w.person_id"
+                    )->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                             join people as u2 on u2.id = a2.person_id group by u2.id)');
-				})
-				->where("p.id", "=", $id)
-				->first()
-		);
-	}
+                })
+                ->where("p.id", "=", $id)
+                ->first()
+        );
+    }
 
-	public function salary($id)
-	{
-		return $this->success(
-			DB::table("people as p")
-				->select(
-					"w.date_of_admission",
-					"w.date_end",
-					"w.salary",
-					"wc.name as contract_type",
-					"ct.name as contract_term",
-					"ct.conclude",
-					"w.work_contract_type_id",
-					"w.contract_term_id",
-					"w.id"
-				)
-				->join("work_contracts as w", function ($join) {
-					$join->on(
-						"w.person_id",
-						"=",
-						"p.id"
-					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
+    public function salary($id)
+    {
+        return $this->success(
+            DB::table("people as p")
+                ->select(
+                    "w.date_of_admission",
+                    "w.date_end",
+                    "w.salary",
+                    "wc.name as contract_type",
+                    "ct.name as contract_term",
+                    "ct.conclude",
+                    "w.work_contract_type_id",
+                    "w.contract_term_id",
+                    "w.id"
+                )
+                ->join("work_contracts as w", function ($join) {
+                    $join->on(
+                        "w.person_id",
+                        "=",
+                        "p.id"
+                    )->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                     join people as u2 on u2.id = a2.person_id group by u2.id)');
-				})
-				->join("work_contract_types as wc", function ($join) {
-					$join->on("wc.id", "=", "w.work_contract_type_id");
-				})
-				->leftJoin("contract_terms as ct", function ($join) {
-					$join->on("ct.id", "=", "w.contract_term_id");
-				})
-				->where("p.id", "=", $id)
-				->first()
-		);
-	}
+                })
+                ->join("work_contract_types as wc", function ($join) {
+                    $join->on("wc.id", "=", "w.work_contract_type_id");
+                })
+                ->leftJoin("contract_terms as ct", function ($join) {
+                    $join->on("ct.id", "=", "w.contract_term_id");
+                })
+                ->where("p.id", "=", $id)
+                ->first()
+        );
+    }
 
 	public function salaryHistory($id)
 	{
@@ -491,11 +492,11 @@ class PersonController extends Controller
                 $person->update($personData);
             }
 
-			return response()->json($person);
-		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
-		}
-	}
+            return response()->json($person);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 
 
     public function updateFilePermission(Request $request)
@@ -510,59 +511,59 @@ class PersonController extends Controller
         return $this->success($person);
     }
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @return \Illuminate\Http\Response
-	 */
-	public function store(Request $request)
-	{
-		$per = [];
-		try {
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $per = [];
+        try {
 
-			$personData = $request->get("person");
+            $personData = $request->get("person");
 
-			$personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], realpath('../../../public/app/public/people/'));
+            $personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], realpath('../../../public/app/public/people/'));
 
-			$personData["personId"] = null;
+            $personData["personId"] = null;
 
-			$per = $person = Person::create($personData);
-			$contractData = $personData["workContract"];
-			$contractData["person_id"] = $person->id;
-			WorkContract::create($contractData);
-			User::create([
-				"person_id" => $person->id,
-				"usuario" => $person->identifier,
-				"password" => Hash::make($person->identifier),
-				"change_password" => 1,
-			]);
-			//crear personID
-			$cognitive = new CognitiveService();
-			$person->personId = $cognitive->createPerson($person);
+            $per = $person = Person::create($personData);
+            $contractData = $personData["workContract"];
+            $contractData["person_id"] = $person->id;
+            WorkContract::create($contractData);
+            User::create([
+                "person_id" => $person->id,
+                "usuario" => $person->identifier,
+                "password" => Hash::make($person->identifier),
+                "change_password" => 1,
+            ]);
+            //crear personID
+            $cognitive = new CognitiveService();
+            $person->personId = $cognitive->createPerson($person);
 
 
-			if ($personData["image"]) {
-				$cognitive->deleteFace($person);
-				$person->persistedFaceId = $cognitive->createFacePoints(
-					$person
-				);
-			}
-			$person->save();
-			$cognitive->train();
+            if ($personData["image"]) {
+                $cognitive->deleteFace($person);
+                $person->persistedFaceId = $cognitive->createFacePoints(
+                    $person
+                );
+            }
+            $person->save();
+            $cognitive->train();
 
-			return $this->success(["id" => $person->id, 'faceCreated' => true]);
-		} catch (\Throwable $th) {
-			if ($per) {
-				return $this->success(["id" => $person->id, 'faceCreated' => false]);
-			}
-			return $this->error($th->getMessage(), 500);
-		}
-	}
+            return $this->success(["id" => $person->id, 'faceCreated' => true]);
+        } catch (\Throwable $th) {
+            if ($per) {
+                return $this->success(["id" => $person->id, 'faceCreated' => false]);
+            }
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 
-	public function train()
-	{
-		/*try {
+    public function train()
+    {
+        /*try {
             $response = Http::accept('application/json')->withHeaders([
 
                 'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey,
@@ -575,221 +576,231 @@ class PersonController extends Controller
             echo $ex;
         }
         */
-		$people = Person::whereNotNull("image")
-			//->whereNull('personId')
-			//->whereNull('persistedFaceId')
-			->orderBy("id", "Desc")
-			//->limit(1)
-			->get();
-		//dd($people);
-		$x = 0;
-		foreach ($people as $person) {
-			dd((array) $person);
-			$x++;
-			if ($x == 7) {
-				sleep(15);
-				$x = 0;
-			}
-			// $atributos['image'] = $fully;
-			/** SI LA PERSONA NO TIENE PERSON ID SE CREA EL REGISTRO EN MICROSOFT */
-			if (
-				$person->personId == "0" ||
-				$person->personId == "null" ||
-				$person->personId == null
-			) {
-				try {
-					/****** */
-					$parameters = [];
-					$response = Http::accept("application/json")
-						->withHeaders([
-							"Content-Type" => "application/json",
-							"Ocp-Apim-Subscription-Key" =>
-							$this->ocpApimSubscriptionKey,
-						])
-						->post(
-							$this->uriBase .
-								"/persongroups/" .
-								$this->azure_grupo .
-								"/persons" .
-								http_build_query($parameters),
-							[
-								"name" =>
-								$person->first_name .
-									" " .
-									$person->first_surname,
-								"userData" => $person->identifier,
-							]
-						);
-					$res = $response->json();
-					if (!isset($res["personId"])) {
-						return response()->json($res);
-					}
-					$person->personId = $res["personId"];
-				} catch (HttpException $ex) {
-					echo "error: " . $ex;
-				}
-			}
+        $people = Person::whereNotNull("image")
+            //->whereNull('personId')
+            //->whereNull('persistedFaceId')
+            ->orderBy("id", "Desc")
+            //->limit(1)
+            ->get();
+        //dd($people);
+        $x = 0;
+        foreach ($people as $person) {
+            dd((array) $person);
+            $x++;
+            if ($x == 7) {
+                sleep(15);
+                $x = 0;
+            }
+            // $atributos['image'] = $fully;
+            /** SI LA PERSONA NO TIENE PERSON ID SE CREA EL REGISTRO EN MICROSOFT */
+            if (
+                $person->personId == "0" ||
+                $person->personId == "null" ||
+                $person->personId == null
+            ) {
+                try {
+                    /****** */
+                    $parameters = [];
+                    $response = Http::accept("application/json")
+                        ->withHeaders([
+                            "Content-Type" => "application/json",
+                            "Ocp-Apim-Subscription-Key" =>
+                            $this->ocpApimSubscriptionKey,
+                        ])
+                        ->post(
+                            $this->uriBase .
+                                "/persongroups/" .
+                                $this->azure_grupo .
+                                "/persons" .
+                                http_build_query($parameters),
+                            [
+                                "name" =>
+                                $person->first_name .
+                                    " " .
+                                    $person->first_surname,
+                                "userData" => $person->identifier,
+                            ]
+                        );
+                    $res = $response->json();
+                    if (!isset($res["personId"])) {
+                        return response()->json($res);
+                    }
+                    $person->personId = $res["personId"];
+                } catch (HttpException $ex) {
+                    echo "error: " . $ex;
+                }
+            }
 
-			if ($person->image) {
-				//$atributos
-				/** VALIDA SI YA TIENE UN ROSTO LO ELIMINA PARA PODER CREAR EL NUEVO */
-				if (
-					isset($person->persistedFaceId) &&
-					$person->persistedFaceId != "0"
-				) {
-					$parameters = [];
-					$response = Http::accept("application/json")
-						->withHeaders([
-							"Content-Type" => "application/json",
-							"Ocp-Apim-Subscription-Key" =>
-							$this->ocpApimSubscriptionKey,
-						])
-						->post(
-							$this->uriBase .
-								"/persongroups/" .
-								$this->azure_grupo .
-								"/persons/" .
-								$person->personId .
-								"/persistedFaces/" .
-								$person->persistedFaceId .
-								http_build_query($parameters),
-							[
-								"Ocp-Apim-Subscription-Key" =>
-								$this->ocpApimSubscriptionKey,
-							]
-						);
-					$res = $response->json();
-				}
+            if ($person->image) {
+                //$atributos
+                /** VALIDA SI YA TIENE UN ROSTO LO ELIMINA PARA PODER CREAR EL NUEVO */
+                if (
+                    isset($person->persistedFaceId) &&
+                    $person->persistedFaceId != "0"
+                ) {
+                    $parameters = [];
+                    $response = Http::accept("application/json")
+                        ->withHeaders([
+                            "Content-Type" => "application/json",
+                            "Ocp-Apim-Subscription-Key" =>
+                            $this->ocpApimSubscriptionKey,
+                        ])
+                        ->post(
+                            $this->uriBase .
+                                "/persongroups/" .
+                                $this->azure_grupo .
+                                "/persons/" .
+                                $person->personId .
+                                "/persistedFaces/" .
+                                $person->persistedFaceId .
+                                http_build_query($parameters),
+                            [
+                                "Ocp-Apim-Subscription-Key" =>
+                                $this->ocpApimSubscriptionKey,
+                            ]
+                        );
+                    $res = $response->json();
+                }
 
-				// CREA LOS PUNTOS FACIALES PROPIOS DEL FUNCIONARIO
-				$ruta_guardada = $person->image;
-				try {
-					$parameters = [
-						"detectionModel" => "detection_02",
-					];
-					$response = Http::accept("application/json")
-						->withHeaders([
-							"Content-Type" => "application/json",
-							"Ocp-Apim-Subscription-Key" =>
-							$this->ocpApimSubscriptionKey,
-						])
-						->post(
-							$this->uriBase .
-								"/persongroups/" .
-								$this->azure_grupo .
-								"/persons/" .
-								$person->personId .
-								"/persistedFaces",
-							[
-								"url" => $ruta_guardada,
-								"detectionModel" => "detection_02",
-							]
-						);
-					$resp = $response->json();
+                // CREA LOS PUNTOS FACIALES PROPIOS DEL FUNCIONARIO
+                $ruta_guardada = $person->image;
+                try {
+                    $parameters = [
+                        "detectionModel" => "detection_02",
+                    ];
+                    $response = Http::accept("application/json")
+                        ->withHeaders([
+                            "Content-Type" => "application/json",
+                            "Ocp-Apim-Subscription-Key" =>
+                            $this->ocpApimSubscriptionKey,
+                        ])
+                        ->post(
+                            $this->uriBase .
+                                "/persongroups/" .
+                                $this->azure_grupo .
+                                "/persons/" .
+                                $person->personId .
+                                "/persistedFaces",
+                            [
+                                "url" => $ruta_guardada,
+                                "detectionModel" => "detection_02",
+                            ]
+                        );
+                    $resp = $response->json();
 
-					if (
-						isset($resp["persistedFaceId"]) &&
-						$resp["persistedFaceId"] != ""
-					) {
-						$persistedFaceId = $resp["persistedFaceId"];
-						$person->persistedFaceId = $persistedFaceId;
-					} else {
-						//  if (Storage::disk('s3')->exists($img)) {
-						//  Storage::disk('s3')->delete($img);
-						//}
-						if ($resp["error"]["code"] == "InvalidImage") {
-							return response()->json([$resp, $person], 400);
-						}
-						return response()->json($resp, 400);
-					}
-				} catch (HttpException $ex) {
-					echo $ex;
-				}
-			}
-			$person->save();
-		}
+                    if (
+                        isset($resp["persistedFaceId"]) &&
+                        $resp["persistedFaceId"] != ""
+                    ) {
+                        $persistedFaceId = $resp["persistedFaceId"];
+                        $person->persistedFaceId = $persistedFaceId;
+                    } else {
+                        //  if (Storage::disk('s3')->exists($img)) {
+                        //  Storage::disk('s3')->delete($img);
+                        //}
+                        if ($resp["error"]["code"] == "InvalidImage") {
+                            return response()->json([$resp, $person], 400);
+                        }
+                        return response()->json($resp, 400);
+                    }
+                } catch (HttpException $ex) {
+                    echo $ex;
+                }
+            }
+            $person->save();
+        }
 
-		try {
-			$response = Http::accept("application/json")
-				->withHeaders([
-					"Ocp-Apim-Subscription-Key" =>
-					$this->ocpApimSubscriptionKey,
-				])
-				->post(
-					$this->uriBase .
-						"/persongroups/" .
-						$this->azure_grupo .
-						"/train",
-					[
-						//"url" => $ruta_guardada
-					]
-				);
-			$resp = $response->json();
-		} catch (HttpException $ex) {
-			echo $ex;
-		}
-	}
+        try {
+            $response = Http::accept("application/json")
+                ->withHeaders([
+                    "Ocp-Apim-Subscription-Key" =>
+                    $this->ocpApimSubscriptionKey,
+                ])
+                ->post(
+                    $this->uriBase .
+                        "/persongroups/" .
+                        $this->azure_grupo .
+                        "/train",
+                    [
+                        //"url" => $ruta_guardada
+                    ]
+                );
+            $resp = $response->json();
+        } catch (HttpException $ex) {
+            echo $ex;
+        }
+    }
 
-	public function user($id)
-	{
-		return $this->success(
-			User::where('person_id', $id)->first()
-		);
-	}
+    public function user($id)
+    {
+        return $this->success(
+            User::where('person_id', $id)->first()
+        );
+    }
 
-	public function blockOrActivateUser(Request $request, $id)
-	{
-		try {
-			User::where('person_id', $id)->update(['state' => $request->state]);
-			return $this->success('Actualizado con éxito');
-		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
-		}
-	}
+    public function blockOrActivateUser(Request $request, $id)
+    {
+        try {
+            User::where('person_id', $id)->update(['state' => $request->state]);
+            return $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  \App\Person  $person
-	 * @return \Illuminate\Http\Response
-	 */
-	public function show(Person $person)
-	{
-		$person = Person::find($person);
-		return response()->json($person, 200);
-	}
+    public function getProfile($id)
+    {
+        try {
+            $person = Person::where('id', $id)->first();
+            return $this->success($person->apu_profile_id);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  \App\Person  $person
-	 * @return \Illuminate\Http\Response
-	 */
-	public function edit(Person $person)
-	{
-		//
-	}
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Person  $person
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Person $person)
+    {
+        $person = Person::find($person);
+        return response()->json($person, 200);
+    }
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  \App\Person  $person
-	 * @return \Illuminate\Http\Response
-	 */
-	public function update(Request $request, Person $person)
-	{
-		//
-	}
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Person  $person
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Person $person)
+    {
+        //
+    }
 
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  \App\Person  $person
-	 * @return \Illuminate\Http\Response
-	 */
-	public function destroy(Person $person)
-	{
-		//
-	}
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Person  $person
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        Person::where('id', $id)->update($request->all());
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Person  $person
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Person $person)
+    {
+        //
+    }
 }

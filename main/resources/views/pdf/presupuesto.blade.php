@@ -21,7 +21,7 @@
     /* .values {
     padding: 5px 0px;
     margin: 0!important;
-  
+
     text-align: right;
   } */
     .fa,
@@ -124,20 +124,20 @@
         <table>
             <tr>
                 <td> <strong> Cliente:</strong>
-                    {{$data->customer->name}}
+                    {{ $data->customer->name }}
                 </td>
                 <td> <strong> Destino:</strong>
-                    {{$data->destiny->name}}
+                    {{ $data->destiny->name }}
                 </td>
-                <td> <strong> Proyecto:</strong> {{$data->project}}
+                <td> <strong> Proyecto:</strong> {{ $data->project }}
                 </td>
             </tr>
             <tr>
                 <td> <strong> Linea:</strong>
-                    {{$data->line}}
+                    {{ $data->line }}
                 </td>
                 <td> <strong> TRM:</strong>
-                    {{$data->trm}}
+                    @money($data->trm)
                 </td>
 
             </tr>
@@ -155,13 +155,13 @@
                 </thead>
                 <tbody class="bg-light">
 
-                    @foreach ( $data->indirectCosts as $item)
-                    <tr>
-                        <td> {{$item->indirectCost->name}} </td>
-                        <td class="text-right">
-                            {{ $item->percentage}}
-                        </td>
-                    </tr>
+                    @foreach ($data->indirectCosts as $item)
+                        <tr>
+                            <td> {{ $item->indirectCost->name }} </td>
+                            <td class="text-right">
+                                {{ $item->percentage }}
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -172,7 +172,7 @@
             <div class="col-12">
                 <div class="form-group">
                     <label for="staticEmail">Observaciones</label>
-                    {{$data->observation}}
+                    {{ $data->observation }}
                 </div>
             </div>
         </div>
@@ -192,19 +192,19 @@
             <tbody>
                 <tr>
                     <td>TOTAL COP $ </td>
-                    <td class="text-right" style="width:90px"> {{$data->total_cop }}</td>
+                    <td class="text-right" style="width:90px"> {{ $data->total_cop }}</td>
                 </tr>
                 <tr>
                     <td>TOTAL USD $ </td>
-                    <td class="text-right" style="width:90px"> {{$data->total_usd }}</td>
+                    <td class="text-right" style="width:90px"> {{ $data->total_usd }}</td>
                 </tr>
                 <tr>
                     <td>V/U VENTA PRORRATEADO COP $ </td>
-                    <td class="text-right" style="width:90px"> {{$data->unit_value_prorrateado_cop }}</td>
+                    <td class="text-right" style="width:90px"> {{ $data->unit_value_prorrateado_cop }}</td>
                 </tr>
                 <tr>
                     <td>V/U VENTA PRORRATEADO USD $ </td>
-                    <td class="text-right" style="width:90px"> {{$data->unit_value_prorrateado_usd }}</td>
+                    <td class="text-right" style="width:90px"> {{ $data->unit_value_prorrateado_usd }}</td>
                 </tr>
             </tbody>
         </table>

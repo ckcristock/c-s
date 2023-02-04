@@ -440,6 +440,7 @@ Route::group(
 
         Route::post('update-file-permission', [PersonController::class, 'updateFilePermission']);
         Route::get('get-file-permission/{id}', [PersonController::class, 'getFilePermission']);
+        Route::get('person-profile/{id}', [PersonController::class, 'getProfile']);
         Route::get('third-party-person-for-third/{id}', [ThirdPartyPersonController::class, 'getThirdPartyPersonForThird']);
         Route::get('last-id-work-orders', [WorkOrderController::class, 'getLastId']);
 
@@ -661,6 +662,7 @@ Route::group(
         Route::post('finish-contract', [WorkContractController::class, 'finishContract']);
         Route::post('commercial-terms/{id}', [CompanyController::class, 'commercialTermsSave']);
         Route::get('commercial-terms', [CompanyController::class, 'getCommercialTerms']);
+        Route::get('requeriments-company', [CompanyController::class, 'getRequeriments']);
         Route::get('countable_income', [BonificationsController::class, 'countable_income']);
         Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
         Route::get('contractRenewal/{id}', [WorkContractController::class, 'contractRenewal']);
@@ -681,6 +683,8 @@ Route::group(
         Route::get('companyData/{id}', [CompanyController::class, 'getBasicDataForId']);
         Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
         Route::get('/company-global', [CompanyController::class, 'getGlobal']);
+
+        Route::get('getsubforcat/{id}', [SubcategoryController::class, 'getSubForCat']);
 
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
         Route::put("subcategory-active/{id}", [SubcategoryController::class, 'turningOnOff']);
@@ -755,6 +759,8 @@ Route::get('test', function(){
         /****** Rutas del modulo APU PIEZA ******/
         Route::put('apu-part-activate-Inactive', [ApuPartController::class, 'activateOrInactivate']);
         Route::get('apu-pieza/pdf/{id}', [ApuPartController::class, 'pdf']);
+        Route::get('apu-service/pdf/{id}', [ApuServiceController::class, 'pdf']);
+        Route::get('quotation/pdf/{id}', [QuotationController::class, 'pdf']);
         Route::get('material-thickness', [MaterialController::class, 'getMaterialThickness']);
         /****** End Rutas del modulo APU PIEZA ******/
 
@@ -772,6 +778,7 @@ Route::get('test', function(){
         /****** Rutas del modulo APU CONJUNTO ******/
         Route::put('apu-set-activate-Inactive', [ApuSetController::class, 'activateOrInactivate']);
         Route::get('apu-set/pdf/{id}', [ApuSetController::class, 'pdf']);
+        Route::get('apu-service/pdf/{id}', [ApuServiceController::class, 'pdf']);
         Route::get('apu-parts-list', [ApuSetController::class, 'apuParts']);
         Route::get('apu-parts-find', [ApuPartController::class, 'find']);
 
