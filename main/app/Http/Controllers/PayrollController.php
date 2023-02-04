@@ -13,6 +13,8 @@ use App\Http\Libs\Nomina\Facades\NominaProvisiones;
 use App\Http\Libs\Nomina\Facades\NominaRetenciones;
 use App\Http\Libs\Nomina\Facades\NominaSalario;
 use App\Http\Libs\Nomina\Facades\NominaSeguridad;
+//use App\Exports\NominaReport;
+use App\Exports\NominaExport;
 use App\Models\Company;
 use App\Models\Configuration;
 use App\Models\ElectronicPayroll;
@@ -26,11 +28,13 @@ use App\Services\PayrollReport;
 use App\Services\PayrollService;
 use App\Traits\ApiResponser;
 use App\Traits\ElectronicDian;
+use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PayrollController extends Controller
 {
@@ -493,8 +497,30 @@ class PayrollController extends Controller
         }
     }
 
+    public function downloadPdf (Request $request)
+    {
+        //payroll_payments
+        //$nomina = PayrollPayment::find($nomina_id)->first();
+        //return ' hello';
+        try {
+            $datos = $request->all();
+            //return $datos;
+            //$datos = 'asdf';
+            //return $datos;
+            return Excel::download(new NominaExport($datos), 'nomina.xlsx');
+        } catch (\Throwable $th) {
+            return $this->error([$th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()], 204);
+            /* return response()->respuesta([
+                'status' => 'error',
+                'message' => 'Ha ocurrido un erro',
+                'data' => $th->getMessage(),
+            ]); */
+        }
+    }
+
     /**
-     * Retorna el resumen del pago de nómina en el mes actual, si ya existe en la BD entonces se modifica la  respuesta agregando propiedades a la respuesta
+     * Retorna el resumen del pago de nómina en el mes actual,
+     * si ya existe en la BD entonces se modifica la respuesta agregando propiedades a la respuesta
      *
      * @return Json
      */
@@ -681,8 +707,7 @@ class PayrollController extends Controller
                 'funcionarios' => $funcionariosResponse
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
-            return [$th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()];
+            return $this->error([$th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()], 204);
         }
     }
 
