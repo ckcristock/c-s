@@ -11,7 +11,7 @@ class PayrollPayment extends Model
     use HasFactory;
 
    protected $fillable = [
-    "total_cost"
+    "total_cost",
     "user_id",
     "code",
     "payment_frequency",

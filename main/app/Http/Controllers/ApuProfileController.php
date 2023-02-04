@@ -17,7 +17,10 @@ class ApuProfileController extends Controller
     public function index()
     {
         return $this->success(
-            ApuProfile::where('state', 'Activo')->where('id', '!=', 1)->get()
+            ApuProfile::where('state', 'Activo')
+                ->when(!request()->get('full'), function ($q, $fill) {
+                    $q->where('id', '!=', 1);
+                })->get()
         );
     }
 
@@ -27,9 +30,9 @@ class ApuProfileController extends Controller
             ApuProfile::when(request()->get('profile'), function ($q, $fill) {
                 $q->where('profile', 'like', '%' . $fill . '%');
             })
-            ->where('id', '!=', 1)
-            ->orderBy('state')
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->where('id', '!=', 1)
+                ->orderBy('state')
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -52,7 +55,7 @@ class ApuProfileController extends Controller
     public function store(Request $request)
     {
         try {
-            $apuProfile = ApuProfile::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            $apuProfile = ApuProfile::updateOrCreate(['id' => $request->get('id')], $request->all());
             return ($apuProfile->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
