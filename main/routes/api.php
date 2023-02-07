@@ -221,6 +221,15 @@ Route::get('/file', function () {
     return 'path not found';
 });
 
+Route::get('/file-view', function () {
+    $path = Request()->get('path');
+    $download = public_path('app' . '/' . $path);
+    if ($path) {
+        return response()->file($download);
+    }
+    return 'path not found';
+});
+
 Route::post('/asistencia/validar', [AsistenciaController::class, 'validar']);
 
 
@@ -443,6 +452,7 @@ Route::group(
         Route::get('person-profile/{id}', [PersonController::class, 'getProfile']);
         Route::get('third-party-person-for-third/{id}', [ThirdPartyPersonController::class, 'getThirdPartyPersonForThird']);
         Route::get('last-id-work-orders', [WorkOrderController::class, 'getLastId']);
+        Route::get('apu-part-delete-file/{id}', [ApuPartController::class, 'deleteFile']);
 
 
 

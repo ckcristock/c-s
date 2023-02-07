@@ -95,8 +95,8 @@
                     </td>
                     <td>{{ $item['cuantity'] }}</td>
                     @if ($data['money_type'] == 'cop')
-                        <td>@money($item['value_cop'])</td>
-                        <td>@money($item['total_cop'])</td>
+                        <td>@money($item['value_cop']) SIN IVA</td>
+                        <td>@money($item['total_cop']) SIN IVA</td>
                     @endif
                     @if ($data['money_type'] == 'usd')
                         <td>@money($item['value_usd'])</td>
