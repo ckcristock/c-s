@@ -177,6 +177,11 @@ class Person extends Model
         return $this->hasMany(BonusPerson::class);
     }
 
+    public function preliquidated_logs ()
+    {
+        return $this->hasOne(Person::class, 'person_id', 'id');
+    }
+
     public function scopeName($q)
     {
         return $q->select('*', DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));

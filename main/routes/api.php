@@ -66,6 +66,7 @@ use App\Http\Controllers\InternalProcessController;
 use App\Http\Controllers\InventaryDotationController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LateArrivalController;
+use App\Http\Controllers\PreliquidatedLogController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\MachineToolController;
 use App\Http\Controllers\MaterialController;
@@ -146,6 +147,7 @@ use App\Models\Budget;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ComprobanteConsecutivo;
+use App\Models\PreliquidatedLog;
 use App\Models\ThirdParty;
 use App\Models\User;
 use App\Models\WorkOrderBlueprint;
@@ -749,7 +751,7 @@ Route::get('test', function(){
         Route::get('get-turn-types', [WorkContractController::class, 'getTurnTypes']);
         Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
         Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
-        Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
+        Route::put('liquidateOrActivate/{person}', [PersonController::class, 'liquidateOrActivate']);
         Route::get('users/{id}', [PersonController::class, 'user']);
         Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
         Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
@@ -773,6 +775,7 @@ Route::get('test', function(){
         Route::post('nomina/liquidaciones/previsualizacion', [LiquidacionesController::class, 'getPdfLiquidacion']);
         Route::get('nomina/liquidaciones/dias-trabajados/{id}/{fechaFin}', [LiquidacionesController::class, 'getDiasTrabajados']);
         Route::resource('liquidation', LiquidationsController::class)->only(['index', 'store', 'show']);
+        Route::resource('preliquidation', PreliquidatedLogController::class)->only(['index', 'store', 'show']);
 
 
         /****** Rutas del modulo APU CONJUNTO ******/

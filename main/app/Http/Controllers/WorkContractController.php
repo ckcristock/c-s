@@ -176,6 +176,9 @@ class WorkContractController extends Controller
 
     public function getPreliquidated()
     {
+        
+
+
         $people = Person::alias('p')
             ->select(
                 'p.id',
@@ -198,6 +201,8 @@ class WorkContractController extends Controller
             ->where('status', 'PreLiquidado')
             ->orderByDesc('p.updated_at')
             ->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1));
+
+
         /* for ($i = 0; $i < count($people); $i++) {
                 $fecha = $people[$i]->updated_at;
                 // dd($fecha);
