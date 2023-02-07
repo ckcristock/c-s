@@ -384,7 +384,8 @@ Route::group(
         Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
         Route::get('nomina/pago/{inicio?}/{fin?}', [PayrollController::class, 'getPayrollPay']);
         //downloadPdf
-        Route::post('download-payroll', [PayrollController::class, 'downloadPdf']);
+        Route::post('download-payroll', [PayrollController::class, 'downloadExcelNomina']);
+        Route::get('download-disabilities/{inicio}/{fin}', [PayrollController::class, 'downloadExcelNovedades']);
         //Route::get('download-payroll', [PayrollController::class, 'downloadPdf']);
 
         Route::get('payroll/overtimes/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getExtrasTotales']);

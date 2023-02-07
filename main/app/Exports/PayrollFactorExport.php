@@ -55,7 +55,7 @@ class PayrollFactorExport implements FromCollection,  WithHeadings, ShouldAutoSi
                 ->join('people', 'payroll_factors.person_id', '=', 'people.id')
                 ->join('disability_leaves', 'payroll_factors.disability_leave_id', '=', 'disability_leaves.id')
                 ->select(
-                    DB::raw("CONCAT(people.first_name, ' ', people.first_SURname)"),
+                    DB::raw("CONCAT(people.first_name, ' ', people.first_surname)"),
                     DB::raw('DATE_FORMAT(payroll_factors.created_at, "%d-%m-%Y")'),
                     'disability_leaves.concept',
                     'payroll_factors.observation',

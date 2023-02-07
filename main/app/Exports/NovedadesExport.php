@@ -10,20 +10,19 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class NominaExport implements FromView, WithEvents, ShouldAutoSize, WithColumnFormatting
+class NovedadesExport implements FromView, WithEvents, ShouldAutoSize, WithColumnFormatting
 {
 
-    private $nomina;
+    private $novedades;
 
-    public function __construct($nomina)
+    public function __construct($novedades)
     {
-        $this->nomina = $nomina;
+        $this->novedades = $novedades;
     }
 
     public function view(): View
     {
-        return view('exports.NominaReport', ['nomina'=>$this->nomina]);
-        //return view('exports.testReport');
+        return view('exports.NovedadesReport', ['novedades'=>$this->novedades]);
     }
 
     public function registerEvents(): array

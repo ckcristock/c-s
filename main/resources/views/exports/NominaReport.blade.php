@@ -13,9 +13,9 @@
         <table>
             <thead>
                 <tr>
-                    <th colspan="2">{{ $nomina['frecuencia_pago'] }}</th>
-                    <th>{{ \Carbon\Carbon::parse(strtotime($nomina['inicio_periodo']))->toFormattedDateString()}} al</th>
-                    <th>{{ \Carbon\Carbon::parse(strtotime($nomina['fin_periodo']))->toFormattedDateString()}}</th>
+                    <th colspan="2">{{ $novedades['frecuencia_pago'] }}</th>
+                    <th>{{ \Carbon\Carbon::parse(strtotime($novedades['inicio_periodo']))->toFormattedDateString()}} al</th>
+                    <th>{{ \Carbon\Carbon::parse(strtotime($novedades['fin_periodo']))->toFormattedDateString()}}</th>
                 </tr>
                 <tr>
                     <th style="font-weight: bold;text-align: center;">Item</th>

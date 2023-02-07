@@ -13,12 +13,12 @@ use App\Http\Libs\Nomina\Facades\NominaProvisiones;
 use App\Http\Libs\Nomina\Facades\NominaRetenciones;
 use App\Http\Libs\Nomina\Facades\NominaSalario;
 use App\Http\Libs\Nomina\Facades\NominaSeguridad;
-//use App\Exports\NominaReport;
 use App\Exports\NominaExport;
+use App\Exports\NovedadesExport;
 use App\Models\Company;
 use App\Models\Configuration;
 use App\Models\ElectronicPayroll;
-use App\Models\Payroll;
+use App\Models\PayrollFactor;
 use App\Models\PayrollOvertime;
 use App\Models\PayrollPayment;
 use App\Models\PayrollSocialSecurityPerson;
@@ -28,12 +28,9 @@ use App\Services\PayrollReport;
 use App\Services\PayrollService;
 use App\Traits\ApiResponser;
 use App\Traits\ElectronicDian;
-use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Maatwebsite\Excel\Facades\Excel;
 
 class PayrollController extends Controller
@@ -499,24 +496,53 @@ class PayrollController extends Controller
         }
     }
 
-    public function downloadPdf (Request $request)
+    public function downloadExcelNovedades ($inicio, $fin)
     {
-        //payroll_payments
-        //$nomina = PayrollPayment::find($nomina_id)->first();
-        //return ' hello';
+        try {
+            $novedad = PayrollFactor::alias('pf')
+            ->select(
+                'p.id',
+                'p.first_name',
+                'p.first_surname',
+                'p.identifier',
+                'pf.created_at',
+                'disability_leaves.concept',
+                'pf.observation',
+                'pf.number_days',
+                'pf.date_start',
+                'pf.date_end',
+            )
+            ->when($fin, function ($q) use ($inicio, $fin) {
+                $q->where('date_start', '>=',$inicio)
+                    ->where('date_end', '<=', $fin);
+            })
+            ->when($inicio, function ($q) use ($inicio, $fin) {
+                $q->where('date_start', '>=',$inicio)
+                    ->where('date_end', '<=', $fin);
+            })
+            ->join('people as p', 'pf.person_id', '=', 'p.id')
+            ->join('disability_leaves', 'pf.disability_leave_id', '=', 'disability_leaves.id')
+            ->get();
+            //return $novedad;
+            $novedades = [
+                'novedades'=> $novedad,
+                'ini_date' => $inicio,
+                'end_date' => $fin
+            ];
+
+            return Excel::download(new NovedadesExport($novedades), 'novedades.xlsx');
+        } catch (\Throwable $th) {
+            return $this->error(['Line: '.$th->getLine() . ' -- File: ' . $th->getFile() . ' -- Message: ' . $th->getMessage()], 204);
+        }
+    }
+
+    public function downloadExcelNomina (Request $request)
+    {
         try {
             $datos = $request->all();
-            //return $datos;
-            //$datos = 'asdf';
-            //return $datos;
             return Excel::download(new NominaExport($datos), 'nomina.xlsx');
         } catch (\Throwable $th) {
-            return $this->error([$th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()], 204);
-            /* return response()->respuesta([
-                'status' => 'error',
-                'message' => 'Ha ocurrido un erro',
-                'data' => $th->getMessage(),
-            ]); */
+            return $this->error(['Line: '.$th->getLine() . ' -- File: ' . $th->getFile() . ' -- Message: ' . $th->getMessage()], 204);
         }
     }
 
@@ -604,11 +630,6 @@ class PayrollController extends Controller
                 ->where('liquidated', '0');
         })->with(['payroll_factors' => $fechasNovedades])->get();
 
-/*         $funcionarios = Person::with('contractultimate')->with('work_contract')->whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
-            return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
-            ->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end')
-            ->where('liquidated', '0');
-        })->with(['payroll_factors' => $fechasNovedades])->get(['id', 'identifier', 'first_name', 'first_surname', 'image']); */
         try {
 
             $funcionariosResponse = [];
@@ -624,13 +645,9 @@ class PayrollController extends Controller
 
                 $tempExtras = $this->getExtrasTotales($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $extras = $tempExtras['valor_total'];
-
-                //$retencion = $this->getRetenciones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
                 $retencion = NominaRetenciones::retencionesFuncionarioWithPerson($funcionario)
                     ->withParams($salarioBase, $tempExtras, $tempNovedades, $temIngresos, $fechaInicioPeriodo, $fechaFinPeriodo)
                     ->calculate();
-
-                //$tempSeguridad = $this->getSeguridad($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $tempSeguridad = NominaSeguridad::seguridadFuncionarioWithPerson($funcionario)
                         ->withParams($retencion, $tempNovedades, $fechaInicioPeriodo, $fechaFinPeriodo)
                         ->calculate();
@@ -638,7 +655,6 @@ class PayrollController extends Controller
                 $seguridad = $tempSeguridad['valor_total_seguridad'];
                 $parafiscal = $tempSeguridad['valor_total_parafiscales'];
 
-                //$provision = $this->getProvisiones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
                 $provision = NominaProvisiones::provisionesFuncionarioWithPerson($funcionario)
                     ->withParams($salarioBase, $tempExtras, $tempNovedades, $retencion, $fechaInicioPeriodo, $fechaFinPeriodo)
                     ->calculate();
