@@ -172,6 +172,10 @@ class Person extends Model
         return $this->belongsTo(PayrollManager::class,'identifier', 'manager');
     }
 
+    public function personPayrollPayment (){
+        return $this->hasOne(PersonPayrollPayment::class, 'person_id', 'id')->latest();
+    }
+
     public function bonusPerson ()
     {
         return $this->hasMany(BonusPerson::class);

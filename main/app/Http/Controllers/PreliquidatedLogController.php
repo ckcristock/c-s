@@ -19,8 +19,6 @@ class PreliquidatedLogController extends Controller
     public function index()
     {
         try {
-
-
         $people_liq = Person::alias('p')
             ->select(
                 'p.id',
@@ -49,13 +47,6 @@ class PreliquidatedLogController extends Controller
             ->orderByDesc('log.liquidated_at')
             ->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1));
 
-           /*  $people_liq = PreliquidatedLog::with([
-                'person', 'workContract', 'user' => function ($q){
-                    $q->select('person_id' ,'state');
-                }
-            ])
-            ->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1));
-            */
             return $this->success($people_liq);
         }catch (\Throwable $th){
             return $this->error([
@@ -74,7 +65,6 @@ class PreliquidatedLogController extends Controller
     public function store(Request $request)
     {
         try {
-            //return ;
             $responsable = $request->reponsible;
             $nuevo = PreliquidatedLog::create([
                 "person_id" => $request->id,

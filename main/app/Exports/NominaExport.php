@@ -34,8 +34,23 @@ class NominaExport implements FromView, WithEvents, ShouldAutoSize, WithColumnFo
     public function columnFormats(): array
     {
         return [
-            'C'=>NumberFormat::FORMAT_NUMBER,
-            'D'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'C'=>'#,##0',
+            'H'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'I'=>NumberFormat::FORMAT_NUMBER,
+            'J'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'K'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'L'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'M'=>NumberFormat::FORMAT_NUMBER,
+            'N'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'O'=>NumberFormat::FORMAT_NUMBER,
+            'P'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'Q'=>NumberFormat::FORMAT_NUMBER,
+            'R'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'S'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'T'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'U'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'V'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'W'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
         ];
     }
 }

@@ -13,11 +13,8 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 class BonusExport implements FromView, WithEvents, ShouldAutoSize, WithColumnFormatting
 {
 
-    /* public function __construct($anio, $period)
-    {
-        $this->anio = $anio;
-        $this->period = $period;
-    } */
+    private $bonuses;
+    
     public function __construct($bonuses)
     {
         $this->bonuses = $bonuses;

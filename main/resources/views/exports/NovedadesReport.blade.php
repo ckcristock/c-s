@@ -14,8 +14,9 @@
             <thead>
                 <tr>
                     <th colspan="2"> Mensualidad: </th>
-                    <th> {{\Carbon\Carbon::parse(strtotime($novedades['ini_date']))->toFormattedDateString()}} al</th>
-                    <th>{{ \Carbon\Carbon::parse(strtotime($novedades['end_date']))->toFormattedDateString()}}</th>
+                    <th>{{$novedades['ini_date']}}</th>
+                    <th> al</th>
+                    <th>{{$novedades['end_date']}}</th>
                 </tr>
                 <tr>
                     <th style="font-weight: bold;text-align: center;">Item</th>
@@ -36,8 +37,8 @@
                         <td>{{ $func['identifier'] }}</td>
                         <td>{{ $func['concept'] }}</td>
                         <td>{{ $func['observation'] }}</td>
-                        <td>{{ \Carbon\Carbon::parse(strtotime($func['date_start']) )}}</td>
-                        <td>{{ \Carbon\Carbon::parse(strtotime($func['date_end']))}}</td>
+                        <td>{{ $func['date_start'] }}</td>
+                        <td>{{ $func['date_end']}}</td>
                         <td>{{ $func['number_days'] }}</td>
                     </tr>
                 @endforeach

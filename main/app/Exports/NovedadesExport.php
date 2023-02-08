@@ -33,8 +33,16 @@ class NovedadesExport implements FromView, WithEvents, ShouldAutoSize, WithColum
     public function columnFormats(): array
     {
         return [
-            'C'=>NumberFormat::FORMAT_NUMBER,
-            'D'=>NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'E1' => 'dd-mmmm-yyyy',
+            'C1' => 'dd-mmmm-yyyy',
+            'C'=>'#,##0',
+            'D'=>NumberFormat::FORMAT_TEXT,
+            'E'=>NumberFormat::FORMAT_TEXT,
+            //'F'=>'dd-mm-yyyy',
+            'F'=>NumberFormat::FORMAT_DATE_DDMMYYYY,
+            //'G'=>'dd-mm-yyyy',
+            'G'=>NumberFormat::FORMAT_DATE_DDMMYYYY,
+            'H'=>NumberFormat::FORMAT_NUMBER,
         ];
     }
 }

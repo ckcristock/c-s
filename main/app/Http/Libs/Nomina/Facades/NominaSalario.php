@@ -60,7 +60,7 @@ class NominaSalario extends PeriodoPago
 
      */
      public function __construct(){
-        $this->geAuxilioTransporte();
+        $this->getAuxilioTransporte();
     }
 
 
@@ -76,7 +76,7 @@ class NominaSalario extends PeriodoPago
     }
 
 
-    public static function geAuxilioTransporte()
+    public static function getAuxilioTransporte()
     {
         self::$auxilioTransporte =  Company::first(['transportation_assistance'])['transportation_assistance'];
     }
