@@ -217,21 +217,21 @@ class ApuPartController extends Controller
             ApuPart::find($id)->update($data);
             if ($files) {
                 foreach ($files as $file) {
-                if ($file['type'] == 'image/jpeg' || $file['type'] == 'image/jpg' || $file['type'] == 'image/png') {
-                    $type = '.' . explode('/', $file['type'])[0];
-                    $base64 = saveBase64($file['base64'], 'apu-parts/', true, $type);
-                    $file_api = URL::to('/') . '/api/image?path=' . $base64;
-                } else {
-                    $base64 = saveBase64File($file['base64'], 'apu-parts/', false, '.pdf');
-                    $file_api = URL::to('/') . '/api/file-view?path=' . $base64;
+                    if ($file['type'] == 'image/jpeg' || $file['type'] == 'image/jpg' || $file['type'] == 'image/png') {
+                        $type = '.' . explode('/', $file['type'])[0];
+                        $base64 = saveBase64($file['base64'], 'apu-parts/', true, $type);
+                        $file_api = URL::to('/') . '/api/image?path=' . $base64;
+                    } else {
+                        $base64 = saveBase64File($file['base64'], 'apu-parts/', false, '.pdf');
+                        $file_api = URL::to('/') . '/api/file-view?path=' . $base64;
+                    }
+                    ApuPartFile::create([
+                        'apu_part_id' => $id,
+                        'file' => $file_api,
+                        'name' => $file['name'],
+                        'type' => $file['type']
+                    ]);
                 }
-                ApuPartFile::create([
-                    'apu_part_id' => $id,
-                    'file' => $file_api,
-                    'name' => $file['name'],
-                    'type' => $file['type']
-                ]);
-            }
             }
             if ($materia_prima) {
                 ApuPartService::deleteMaterial($id);
@@ -339,7 +339,8 @@ class ApuPartController extends Controller
         //
     }
 
-    public function deleteFile($id) {
+    public function deleteFile($id)
+    {
         ApuPartFile::find($id)->delete();
         return $this->success('Plano eliminado con éxtio');
     }

@@ -453,6 +453,7 @@ Route::group(
         Route::get('third-party-person-for-third/{id}', [ThirdPartyPersonController::class, 'getThirdPartyPersonForThird']);
         Route::get('last-id-work-orders', [WorkOrderController::class, 'getLastId']);
         Route::get('apu-part-delete-file/{id}', [ApuPartController::class, 'deleteFile']);
+        Route::get('apu-set-delete-file/{id}', [ApuSetController::class, 'deleteFile']);
 
 
 
@@ -671,8 +672,7 @@ Route::group(
         Route::post('enterpriseData', [WorkContractController::class, 'updateEnterpriseData']);
         Route::post('finish-contract', [WorkContractController::class, 'finishContract']);
         Route::post('commercial-terms/{id}', [CompanyController::class, 'commercialTermsSave']);
-        Route::get('commercial-terms', [CompanyController::class, 'getCommercialTerms']);
-        Route::get('requeriments-company', [CompanyController::class, 'getRequeriments']);
+        Route::get('get-texts-company', [CompanyController::class, 'getTexts']);
         Route::get('countable_income', [BonificationsController::class, 'countable_income']);
         Route::get('contractsToExpire', [WorkContractController::class, 'contractsToExpire']);
         Route::get('contractRenewal/{id}', [WorkContractController::class, 'contractRenewal']);
@@ -811,6 +811,8 @@ Route::get('test', function(){
         Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
         Route::post('new-business-quotation', [BusinessController::class, 'newBusinessQuotation']);
+        Route::post('new-business-note', [BusinessController::class, 'newBusinessNote']);
+        Route::get('business-notes/{id}', [BusinessController::class, 'getNotes']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
         Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
         Route::get('get-history-business/{id}', [BusinessController::class, 'getHistory']);

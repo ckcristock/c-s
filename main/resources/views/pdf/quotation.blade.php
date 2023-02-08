@@ -116,3 +116,5 @@
     @endif
 </div>
 <div style="font-size: 10px;">{!! $data->commercial_terms !!}</div>
+<div style="font-size: 10px;">{!! $data->legal_requirements !!}</div>
+<div style="font-size: 10px;">{!! $data->technical_requirements !!}</div>

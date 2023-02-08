@@ -24,12 +24,15 @@ class Quotation extends Model
         'total_cop',
         'total_usd',
         'commercial_terms',
+        'legal_requirements',
+        'technical_requirements',
         'date',
         'code',
         'status',
         'client_id',
         'status',
-        'format_code'
+        'format_code',
+        'third_party_person_id'
     ];
 
     public function municipality()
