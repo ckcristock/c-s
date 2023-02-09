@@ -49,8 +49,9 @@ class Person extends Model
         'folder_id'
     ];
 
-    public function scopeAlias($q, $alias){
-        return $q->from($q->getQuery()->from." as ".$alias);
+    public function scopeAlias($q, $alias)
+    {
+        return $q->from($q->getQuery()->from . " as " . $alias);
     }
 
     /* public function getFullNameAttribute()
@@ -70,8 +71,7 @@ class Person extends Model
 
     public function contractultimate()
     {
-        return $this->hasOne(WorkContract::class)->with('position.dependency', 'work_contract_type')->orderBy('id','DESC');
-
+        return $this->hasOne(WorkContract::class)->with('position.dependency', 'work_contract_type')->orderBy('id', 'DESC');
     }
 
     public function work_contract()
@@ -144,7 +144,7 @@ class Person extends Model
     }
     public function documentType()
     {
-        return $this->belongsTo(DocumentTypes::class,'type_document_id');
+        return $this->belongsTo(DocumentTypes::class, 'type_document_id');
     }
 
     public function companies()
@@ -154,7 +154,7 @@ class Person extends Model
 
     public function companyWorked()
     {
-        return $this->belongsTo(Company::class,'company_worked_id');
+        return $this->belongsTo(Company::class, 'company_worked_id');
     }
 
     public function severance_fund()
@@ -167,23 +167,31 @@ class Person extends Model
         return $this->hasOne(Liquidation::class);
     }
 
-    public function responsableNomina ()
+    public function responsableNomina()
     {
-        return $this->belongsTo(PayrollManager::class,'identifier', 'manager');
+        return $this->belongsTo(PayrollManager::class, 'identifier', 'manager');
     }
 
-    public function personPayrollPayment (){
+    public function personPayrollPayment()
+    {
         return $this->hasOne(PersonPayrollPayment::class, 'person_id', 'id')->latest();
     }
 
-    public function bonusPerson ()
+    public function bonusPerson()
     {
         return $this->hasMany(BonusPerson::class);
     }
 
-    public function preliquidated_logs ()
+    public function preliquidated_logs()
     {
-        return $this->hasOne(Person::class, 'person_id', 'id');
+        return $this->hasMany(PreliquidatedLog::class, 'person_id', 'id');
+    }
+    public function onePreliquidatedLog()
+    {
+        return $this->hasOne(PreliquidatedLog::class, 'person_id', 'id')
+            ->withDefault(function ($person, $prelg) {
+                $prelg->status = 'PreLiquidado';
+            });
     }
 
     public function scopeName($q)
@@ -193,7 +201,6 @@ class Person extends Model
 
     public function scopeOnlyName($q)
     {
-        return $q->select('image',DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
+        return $q->select('image', DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
     }
-
 }

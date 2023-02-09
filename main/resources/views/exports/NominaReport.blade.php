@@ -49,27 +49,26 @@
                         <td>{{ $key + 1 }}</td>
                         <td>{{ $func['name'] }} {{ $func['surname'] }}</td>
                         <td>{{ $func['identifier'] }}</td>
-                        <td>{{ $func['identifier'] }}</td>Ciudad
-                        <td>{{ $func['identifier'] }}</td>Cargo
-                        <td>{{ $func['identifier'] }}</td>Banco
-                        <td>{{ $func['identifier'] }}</td>Cuenta
-                        <td>{{ $func['identifier'] }}  | Sueldo Basico  </td>
-                        <td>{{ $func['identifier'] }}  | Dias Trabajados  </td>
-                        <td>{{ $func['identifier'] }}  | Pago días trabajados  </td>
-                        <td>{{ $func['identifier'] }}  | Auxilio No Salarial  </td>
-                        <td>{{ $func['identifier'] }}  | Auxilio Transporte  </td>
-                        <td>{{ $func['identifier'] }}  | Dias Vacaciones  </td>
-                        <td>{{ $func['identifier'] }}  | Total Vacaciones  </td>
-                        <td>{{ $func['identifier'] }}  | Dias Incapacidades  </td>
-                        <td>{{ $func['identifier'] }}  | Total_Incapacidades  </td>
-                        <td>{{ $func['identifier'] }}  | Dias Licencias  </td>
-                        <td>{{ $func['identifier'] }}  | Total Licencias  </td>
-                        <td>{{ $func['identifier'] }}  | Salud  </td>
-                        <td>{{ $func['identifier'] }}  | Pension  </td>
-                        <td>{{ $func['identifier'] }}  | Prestamos  </td>
-                        <td>{{ $func['identifier'] }}  | Libranzas, Prestamos o Sanciones  </td>
-                        <td>={{ $func['salario_neto'] }}+{{ $func['valor_ingresos_salariales'] }}+{{ $func['valor_ingresos_no_salariales'] }}-{{ $func['valor_deducciones'] }}
-                        </td>
+                        <td>{{ $func['city'] }}</td>
+                        <td>{{ $func['position'] }}</td>
+                        <td> || Banco </td>
+                        <td> || Cuenta </td>
+                        <td>{{ $func['basic_salary'] }}</td>
+                        <td>{{ $func['worked_days'] }}</td>
+                        <td>=(H{{$key+3}}/30)*I{{$key+3}}</td>
+                        <td>{{ $func['ingresos_contitutivos'] }}</td>
+                        <td>{{ $func['transportation_assitance'] }}</td>
+                        <td> || Dias Vacaciones  </td>
+                        <td> || Total Vacaciones  </td>
+                        <td> || Dias Incapacidades  </td>
+                        <td> || Total_Incapacidades  </td>
+                        <td> || Dias Licencias  </td>
+                        <td> || Total Licencias  </td>
+                        <td>{{ $func['retencion']['total_retenciones']['Salud'] }}</td>
+                        <td>{{ $func['retencion']['total_retenciones']['Pensión'] }}</td>
+                        <td> || Prestamos  </td>
+                        <td> || Libranzas, Prestamos o Sanciones  </td>
+                        <td>{{ $func['Salario_nomina'] }}</td>
                     </tr>
                 @endforeach
             </tbody>

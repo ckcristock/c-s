@@ -226,6 +226,9 @@ class CalculoRetenciones implements Coleccion
         return $this->retencionFuente;
     }
 
+    /**
+     * Se envía con espacios porque en el front se usa de esa forma literal
+     */
     public function crearColeccion()
     {
         //dd('aquí murieron dos programadores');
@@ -239,15 +242,10 @@ class CalculoRetenciones implements Coleccion
                 'Retencion en la Fuente' => $this->getRetencionFuente()
             ]),
             'porcentajes' => new Collection([
-                //'Salud' => $this->porcentajeSalud(),
                 'Salud' => $this->porcentajeSaludFunc(),
-                //'Pensión' => $this->porcentajePension(),
-                'Pensión' => $this->porcentajePensionFunc(),
-                //'Fondo de solidaridad' => $this->porcentajeFondoSolidaridad(),
+                'Pension' => $this->porcentajePensionFunc(),
                 'Fondo de solidaridad' => $this->porcentajeFondoSolidaridad(),
-                //'Fondo de subsistencia' => $this->porcentajesFondoSubsistencia($this->tipoXcentajeSubsitencia),
                 'Fondo de subsistencia' => $this->porcentajesFondoSubsistencia($this->tipoXcentajeSubsitencia),
-                //'Retencion en la Fuente' => $this->porcentajesFondoSubsistencia($this->tipoXcentajeSubsitencia),
                 'Retencion en la Fuente' => $this->xcentajeFuente
             ]),
             'IBC_seguridad' =>  $this->getIbcSeguridad(),

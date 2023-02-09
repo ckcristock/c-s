@@ -16,10 +16,14 @@ class PreliquidatedLogController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
         $people_liq = Person::alias('p')
+            ->with('contractultimate', 'onePreliquidatedLog')
+            /* ->with(['onePreliquidatedLog'=> function($q){
+                $q->select('liquidated_at');
+            }]) */
             ->select(
                 'p.id',
                 'p.first_name',
@@ -28,24 +32,17 @@ class PreliquidatedLogController extends Controller
                 'p.second_surname',
                 'p.identifier',
                 'p.image',
-                'posi.name',
                 'p.updated_at',
-                'w.id as work_contract_id',
-                'posi.name as position',
-                'log.liquidated_at as log_created_at',
             )
-            ->join('preliquidated_logs as log', function($join){
-                $join->on('log.person_id', '=', 'p.id');
-            })
-            ->join('work_contracts as w', function ($join) {
-                $join->on('w.person_id', '=', 'p.id');
-            })
-            ->join('positions as posi', function ($join) {
-                $join->on('posi.id', '=', 'w.position_id');
+            ->when($request->person_id, function ($q, $fill) {
+                $q->where('id', $fill);
             })
             ->where('p.status', 'PreLiquidado')
-            ->orderByDesc('log.liquidated_at')
-            ->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1));
+            ->get()
+            ->load('onePreliquidatedLog')
+            ->sortByDesc('onePreliquidatedLog.liquidated_at')
+            ->values()
+            /* ->paginate(Request()->get('pageSize', 12), ['*'], 'page', Request()->get('page', 1)) */;
 
             return $this->success($people_liq);
         }catch (\Throwable $th){

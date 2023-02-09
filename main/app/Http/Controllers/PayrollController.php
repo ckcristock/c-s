@@ -15,6 +15,7 @@ use App\Http\Libs\Nomina\Facades\NominaSalario;
 use App\Http\Libs\Nomina\Facades\NominaSeguridad;
 use App\Exports\NominaExport;
 use App\Exports\NovedadesExport;
+use App\Http\Libs\Nomina\Calculos\CalculoNovedades;
 use App\Models\Company;
 use App\Models\Configuration;
 use App\Models\ElectronicPayroll;
@@ -657,13 +658,12 @@ class PayrollController extends Controller
                 $temIngresos = $this->getIngresos($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $tempNovedades = $this->getNovedades($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $tempDeducciones = $this->getDeducciones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
-
-                /** */
                 $salarioBase = $this->getSalario($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
-
                 $tempExtras = $this->getExtrasTotales($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $extras = $tempExtras['valor_total'];
 
+                return $tempNovedades;
+                                /** */
                 $retencion = $this->getRetenciones(
                     $funcionario,
                     $fechaInicioPeriodo,
@@ -681,7 +681,6 @@ class PayrollController extends Controller
                     $retencion,
                     $tempNovedades
                 );
-
                 $seguridad = $tempSeguridad['valor_total_seguridad'];
                 $parafiscal = $tempSeguridad['valor_total_parafiscales'];
 
@@ -700,8 +699,11 @@ class PayrollController extends Controller
                  **/
                 //$salario = $this->getPagoNeto($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['total_valor_neto'];
 
-                /* $code = PersonPayrollPayment::where('person_id', $funcionario->id)->select('code')->latest()->first(); */  //Nos ahorramos esta consulta poniendo una relación en Personas
+                /* $code = PersonPayrollPayment::where('person_id', $funcionario->id)->select('code')->latest()->first(); */
+                //Nos ahorramos esta consulta poniendo una relación en Personas
                 $code = $funcionario1->personPayrollPayment->code;
+                //$previsiones = $this->getProvisiones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
+
                 $salario = $this->getPagoNetoWithParams(
                     $funcionario,
                     $salarioBase,
@@ -713,10 +715,9 @@ class PayrollController extends Controller
                     $fechaInicioPeriodo,
                     $fechaFinPeriodo);
 
-                //$totalSalarios +=  $salario['total_valor_neto']; //que no incluya horas extras ni ingresos adicionales
-                //dd($salarioBase['salary']);
-                //$totalSalarios +=  $salarioBase['salary'];
-                $totalSalarios +=  $salario['total_valor_neto'];
+                //que no incluya horas extras ni ingresos adicionales
+                //$totalSalarios +=  $salario['total_valor_neto'];
+                $totalSalarios +=  $salarioBase['salary'];
                 $totalRetenciones += $retencion['valor_total'];
                 $totalSeguridadSocial += $seguridad;
                 $totalParafiscales += $parafiscal;
@@ -724,6 +725,12 @@ class PayrollController extends Controller
                 $totalExtras += $extras;
                 $totalIngresos += $temIngresos['valor_total'];
 
+                /* return $funcionario1->personPayrollPayment->net_salary;
+                if ($funcionario1->id != 1){
+                    return $funcionario1->person_payroll_payment;
+
+                } */
+                //return array_sum(array_values($tempExtras['horas_reportadas']));
                 $funcionariosResponse[] = [
                     'id' => $funcionario->id,
                     'identifier' => $funcionario->identifier,
@@ -731,13 +738,22 @@ class PayrollController extends Controller
                     'surname' => $funcionario->first_surname,
                     'image' => $funcionario->image,
                     'salario_neto' => $salario['total_valor_neto'],
+                    'Salario_nomina' => $funcionario1->personPayrollPayment->net_salary,
                     'city' => $funcionario->place_of_birth,
                     'basic_salary' => $funcionario->contractultimate->salary,
                     'position' => $funcionario->contractultimate->position->name,
                     'code' => $code,
+                    'worked_days' => $funcionario1->personPayrollPayment->worked_days,
+                    'transportation_assitance' => $funcionario1->personPayrollPayment->transportation_assistance,
+
+                    'deducciones' => $tempDeducciones,
+                    'retencion' => $retencion,
+                    'ingresos_contitutivos' =>    $temIngresos['valor_constitutivos'],
+                    'ingresos_no_contitutivos' => $temIngresos['valor_no_constitutivos'],
 
                     'novedades' => $funcionario->novedades,
                     'horas_extras' => $tempExtras['horas_reportadas'],
+                    'nro_horas_extras' => array_sum(array_values($tempExtras['horas_reportadas'])),
                     'novedades' => $tempNovedades['novedades'],
                     'valor_ingresos_salariales' => ($temIngresos['valor_constitutivos'] +
                         $tempNovedades['valor_total'] + $extras),
@@ -889,7 +905,6 @@ class PayrollController extends Controller
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
     }
-
 
     public function getIngresos(Person $id, $fechaInicio, $fechaFin)
     {
