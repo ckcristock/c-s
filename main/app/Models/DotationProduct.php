@@ -15,4 +15,9 @@ class DotationProduct extends Model
         'code',
         'dotation_id',
     ];
+
+    public function inventary_dotation()
+    {
+        return $this->belongsTo(InventaryDotation::class);
+    }
 }

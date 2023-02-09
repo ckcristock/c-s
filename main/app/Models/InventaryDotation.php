@@ -24,4 +24,8 @@ class InventaryDotation extends Model
     public function dotacionProducto(){
         return $this->hasMany(DotationProduct::class);
     }
+
+    public function product_datation_types(){
+        return $this->hasOne(ProductDotationType::class, 'id', 'product_dotation_type_id');
+    }
 }

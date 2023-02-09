@@ -15,9 +15,8 @@ class Quotation extends Model
         'money_type',
         'customer_id',
         'destinity_id',
-        'line',
         'trm',
-        'project',
+        'description',
         'budget_included',
         'budget_id',
         'observation',
@@ -45,6 +44,11 @@ class Quotation extends Model
         return $this->hasOne(ThirdParty::class, 'id', 'customer_id')->name();
     }
 
+    public function third_person()
+    {
+        return $this->hasOne(ThirdPartyPerson::class, 'id', 'third_party_person_id');
+    }
+
     public function items()
     {
         return $this->hasMany(QuotationItem::class)->with('subItems');
@@ -57,7 +61,7 @@ class Quotation extends Model
 
     public function scopeName($q)
     {
-        return $q->select('*', DB::raw('CONCAT_WS(" - ", line, project) as name', 'id as value'));
+        return $q->select('*', DB::raw('description as name', 'id as value'));
     }
 
     public static function getTableName()

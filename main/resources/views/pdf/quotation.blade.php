@@ -62,12 +62,13 @@
 <hr class="line" />
 <h4 class="card-title">Señores:</h4>
 <div class="card-text">
+    {{ $data['third_person']['name'] }} -
     {{ $data['client']['social_reason'] ? $data['client']['social_reason'] : $data['client']['full_name'] }}
     <br />
     {{ $data['municipality']['name'] }}
 </div>
 <div class="alert alert-primary" role="alert">
-    <i class="fas fa-cogs"></i> {{ $data['line'] }} {{ $data['project'] }}
+    <i class="fas fa-cogs"></i> {{ $data['description'] }}
 </div>
 <div class="rounded-top table-responsive">
     <table class="table table-bordered table-striped table-sm">
