@@ -37,6 +37,13 @@ class NominaSalario extends PeriodoPago
      * @var App\Http\Libs\Nomina\Calculos\CalculoNovedades;
      */
     protected $calculoNovedades;
+    
+    /**
+     * Instancia de la clase CalculoNovedades
+     *
+     * @var App\Http\Libs\Nomina\Calculos\CalculoNovedades;
+     */
+    protected $calculoVacaciones;
 
     /**
      * Fecha de inicio del periodo de pago
@@ -102,7 +109,7 @@ class NominaSalario extends PeriodoPago
 
     public function verifiyNovedadesFromTo($fechaInicio, $fechaFin)
     {
-        //*Aqui no/
+        //*Aqui: obtiene la consulta de las novedades /
         $salary = self::$funcionario->contractultimate->salary;
         $this->calculoNovedades = new CalculoNovedades(
             $salary,

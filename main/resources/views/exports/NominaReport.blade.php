@@ -25,21 +25,21 @@
                     <th style="font-weight: bold;text-align: center;">Cargo</th>
                     <th style="font-weight: bold;text-align: center;">Banco</th>
                     <th style="font-weight: bold;text-align: center;">Cuenta</th>
-                    <th style="font-weight: bold;text-align: center;">Sueldo Basico</th>
-                    <th style="font-weight: bold;text-align: center;">Dias Trabajados</th>
+                    <th style="font-weight: bold;text-align: center;">Sueldo Básico</th>
+                    <th style="font-weight: bold;text-align: center;">Días Trabajados</th>
                     <th style="font-weight: bold;text-align: center;">Pago días trabajados</th>
                     <th style="font-weight: bold;text-align: center;">Auxilio No Salarial</th>
                     <th style="font-weight: bold;text-align: center;">Auxilio Transporte</th>
-                    <th style="font-weight: bold;text-align: center;">Dias Vacaciones</th>
+                    <th style="font-weight: bold;text-align: center;">Días Vacaciones</th>
                     <th style="font-weight: bold;text-align: center;">Total Vacaciones</th>
-                    <th style="font-weight: bold;text-align: center;">Dias Incapacidades</th>
-                    <th style="font-weight: bold;text-align: center;">Total_Incapacidades</th>
-                    <th style="font-weight: bold;text-align: center;">Dias Licencias</th>
+                    <th style="font-weight: bold;text-align: center;">Días Incapacidades</th>
+                    <th style="font-weight: bold;text-align: center;">Total Incapacidades</th>
+                    <th style="font-weight: bold;text-align: center;">Días Licencias</th>
                     <th style="font-weight: bold;text-align: center;">Total Licencias</th>
                     <th style="font-weight: bold;text-align: center;">Salud</th>
-                    <th style="font-weight: bold;text-align: center;">Pension</th>
-                    <th style="font-weight: bold;text-align: center;">Prestamos</th>
-                    <th style="font-weight: bold;text-align: center;">Libranzas, Prestamos o Sanciones</th>
+                    <th style="font-weight: bold;text-align: center;">Pensión</th>
+                    <th style="font-weight: bold;text-align: center;">Préstamos</th>
+                    <th style="font-weight: bold;text-align: center;">Libranzas, Préstamos o Sanciones</th>
                     <th style="font-weight: bold;text-align: center;">Neto a Cancelar</th>
                 </tr>
             </thead>

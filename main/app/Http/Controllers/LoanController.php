@@ -31,7 +31,7 @@ class LoanController extends Controller
             Loan::with("person")
                 ->with("user")
                 ->with("fees")
-                ->when($request->person, function ($q, $fill) {
+                ->when($request->person_id, function ($q, $fill) {
                     $q->whereHas('person', function ($q) use ($fill) {
                         $q->where('id', $fill);
                     });

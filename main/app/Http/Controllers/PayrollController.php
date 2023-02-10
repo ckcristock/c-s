@@ -19,6 +19,7 @@ use App\Http\Libs\Nomina\Calculos\CalculoNovedades;
 use App\Models\Company;
 use App\Models\Configuration;
 use App\Models\ElectronicPayroll;
+use App\Models\Loan;
 use App\Models\PayrollFactor;
 use App\Models\PayrollOvertime;
 use App\Models\PayrollPayment;
@@ -638,17 +639,24 @@ class PayrollController extends Controller
                 ->with('disability_leave');
         };
 
-        $funcionarios = Person::with('contractultimate')
-            ->with('work_contract')
-            ->with('personPayrollPayment')
+        $funcionarios = Person::with('personPayrollPayment')
+            ->with(['payroll_factors' => $fechasNovedades])
             ->whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
                 return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
                     ->whereDate('date_end', '>=', $fechaInicioPeriodo)
                     ->orWhereNull('date_end')
                     ->where('liquidated', '0');
-            })->with(['payroll_factors' => $fechasNovedades])->get();
+            })
+            ->with('loans_list')
+/*             ->with('loans_list', function ($q) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
+                $q->where('fees', function ($q) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
+                    $q->where('state', 'Pendiente')
+                    ->whereBetween('date', [$fechaInicioPeriodo, $fechaFinPeriodo]);
+                });
+            }) */
+            ->get();
         try {
-//return $funcionarios;
+return $funcionarios;
             $funcionariosResponse = [];
             foreach ($funcionarios as $funcionario1) {
                 $funcionario = Person::find($funcionario1->id);
@@ -662,7 +670,7 @@ class PayrollController extends Controller
                 $tempExtras = $this->getExtrasTotales($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $extras = $tempExtras['valor_total'];
 
-                return $tempNovedades;
+                //return $tempNovedades;
                                 /** */
                 $retencion = $this->getRetenciones(
                     $funcionario,

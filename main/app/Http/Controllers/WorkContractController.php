@@ -177,8 +177,6 @@ class WorkContractController extends Controller
     public function getPreliquidated()
     {
 
-
-
         $people = Person::alias('p')
             ->select(
                 'p.id',

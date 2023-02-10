@@ -33,7 +33,7 @@ class Loan extends Model
 	];
 	public function person()
 	{
-		return $this->belongsTo(Person::class, 'person_id');
+		return $this->belongsTo(Person::class, 'person_id', 'id');
 	}
 	public function user()
 	{
@@ -42,6 +42,17 @@ class Loan extends Model
 
 	public function fees()
 	{
-		return $this->hasMany(LoanFee::class);
+		return $this->hasMany(LoanFee::class, 'loan_id', 'id');
 	}
+
+    public function scopeLoansActives($q, $inicio, $fin)
+    {
+        return $q->where('state',"Pendiente")
+                 ->whereBetween('date', [$inicio, $fin]);
+    }
+
+    public function scopePendiente($q)
+    {
+        return $q->where('state', 'Pendiente');
+    }
 }

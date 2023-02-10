@@ -54,6 +54,12 @@ class Person extends Model
         return $q->from($q->getQuery()->from . " as " . $alias);
     }
 
+    public function scopeLoans($q, $inicio, $fin)
+    {
+        return $q->where('state',"Pendiente")
+                 ->whereBetween('date', [$inicio, $fin]);
+    }
+
     /* public function getFullNameAttribute()
     {
         return $this->attributes['first_name'] . ' ' . $this->attributes['first_surname'];
@@ -87,6 +93,10 @@ class Person extends Model
     public function work_contracts()
     {
         return $this->hasMany(WorkContract::class)->with('position', 'company');
+    }
+    public function loans_list()
+    {
+        return $this->hasMany(Loan::class,'person_id', 'id')->with('fees');
     }
 
     public function liquidado()
@@ -186,6 +196,8 @@ class Person extends Model
     {
         return $this->hasMany(PreliquidatedLog::class, 'person_id', 'id');
     }
+
+    /**Trae el último registro cuyo estatus sea PreLiquidado */
     public function onePreliquidatedLog()
     {
         return $this->hasOne(PreliquidatedLog::class, 'person_id', 'id')

@@ -21,9 +21,6 @@ class PreliquidatedLogController extends Controller
         try {
         $people_liq = Person::alias('p')
             ->with('contractultimate', 'onePreliquidatedLog')
-            /* ->with(['onePreliquidatedLog'=> function($q){
-                $q->select('liquidated_at');
-            }]) */
             ->select(
                 'p.id',
                 'p.first_name',
