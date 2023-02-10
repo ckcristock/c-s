@@ -30,6 +30,6 @@ class ApuSetExternalProcess extends Model
 
     public function external()
 	{
-		return $this->belongsTo(ApuSet::class, 'description');
+		return $this->belongsTo(ExternalProcess::class, 'description');
 	}
 }
