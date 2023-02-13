@@ -55,4 +55,13 @@ class Loan extends Model
     {
         return $q->where('state', 'Pendiente');
     }
+
+    public function scopeObtener($query, Person $funcionario, $fechaInicio, $fechaFin)
+    {
+        return $query->where('person_id',$funcionario->id)
+            ->with('fees', function ($q) use ($fechaInicio, $fechaFin){
+                $q->whereBetween('date', [$fechaInicio, $fechaFin]);
+            })
+            ->get();
+    }
 }

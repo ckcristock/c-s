@@ -147,6 +147,9 @@ use App\Models\Budget;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ComprobanteConsecutivo;
+use App\Models\Deduction;
+use App\Models\Loan;
+use App\Models\Person;
 use App\Models\PreliquidatedLog;
 use App\Models\ThirdParty;
 use App\Models\User;
@@ -382,6 +385,15 @@ Route::group(
 
         Route::get('nomina/pago/funcionario/{identidad}', [PayrollController::class, 'getFuncionario']);
         Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
+  /*       Route::get('prueba-prestamos', function(){
+            //return Loan::obtener(Person::find(11534),'2023-02-01','2023-02-28');
+            $dedu = Deduction::periodo(Person::find(11531),'2022-01-01','2023-08-30');
+            $aux = collect([]);
+            foreach ($dedu as $de) {
+                $aux->put('valor',$de->value);
+            }
+            return $aux;
+        }); */
         Route::get('nomina/pago/{inicio?}/{fin?}', [PayrollController::class, 'getPayrollPay']);
         //downloadPdf
         Route::post('download-payroll', [PayrollController::class, 'downloadExcelNomina']);
@@ -775,6 +787,8 @@ Route::get('test', function(){
         Route::post('nomina/liquidaciones/{id}/ingresos', [LiquidacionesController::class, 'getWithIngresos']);
         Route::post('nomina/liquidaciones/previsualizacion', [LiquidacionesController::class, 'getPdfLiquidacion']);
         Route::get('nomina/liquidaciones/dias-trabajados/{id}/{fechaFin}', [LiquidacionesController::class, 'getDiasTrabajados']);
+        Route::post('nomina/get-colillas', [PayrollController::class, 'getPdfsNomina']);
+
         Route::resource('liquidation', LiquidationsController::class)->only(['index', 'store', 'show']);
         Route::resource('preliquidation', PreliquidatedLogController::class)->only(['index', 'store', 'show']);
 

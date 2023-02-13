@@ -4,11 +4,8 @@ namespace App\Http\Libs\Nomina\Facades;
 
 use App\Http\Libs\Nomina\Calculos\CalculoDeducciones;
 use App\Http\Libs\Nomina\PeriodoPago;
-
-use App\Models\Funcionario;
-use App\Models\Deduccion;
 use App\Models\Deduction;
-use App\Models\Person;
+use App\Models\Loan;
 
 class NominaDeducciones extends PeriodoPago
 {
@@ -42,10 +39,10 @@ class NominaDeducciones extends PeriodoPago
 
     /**
      * Settea la propiedad funcionario que se pasa por el parámetro $person,
-     * retorna una nueva instancia de la clase 
+     * retorna una nueva instancia de la clase
      *
      * @param App\Models\Person $persona
-     
+
      */
     public static function deduccionesFuncionarioWithPerson($persona)
     {
@@ -59,8 +56,9 @@ class NominaDeducciones extends PeriodoPago
         $this->fechaFin = $fechaFin;
         $this->calculoDeducciones = new CalculoDeducciones(
             Deduction::periodo(self::$funcionario, $this->fechaInicio, $this->fechaFin)
+            ->concat((Loan::obtener(self::$funcionario, $this->fechaInicio, $this->fechaFin)))
         );
-        
+
         return $this;
     }
 
@@ -68,7 +66,6 @@ class NominaDeducciones extends PeriodoPago
     {
 
         $this->calculoDeducciones->calcularTotalDeducciones();
-        
 
         return $this->calculoDeducciones->crearColeccion();
     }

@@ -30,6 +30,7 @@ use App\Services\PayrollReport;
 use App\Services\PayrollService;
 use App\Traits\ApiResponser;
 use App\Traits\ElectronicDian;
+use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -553,9 +554,64 @@ class PayrollController extends Controller
     {
         try {
             $datos = $request->all();
+            foreach ($datos['funcionarios'] as $index => $funci) {
+                $libranzaOsanciones = 0;
+                $prestamos = 0;
+                if (is_array($funci['deducciones']['deducciones'])) {
+                    foreach ($funci['deducciones']['deducciones'] as $key => $value) {
+                        if ($key!='Prestamo') {
+                            $libranzaOsanciones +=$value;
+                        } else {
+                            $prestamos += $value;
+                        }
+                    }
+                    $datos['funcionarios'][$index]['libranzas']= $libranzaOsanciones;
+                    $datos['funcionarios'][$index]['prestamos']= $prestamos;
+                }
+
+                $diasLicencia = 0;
+                $totalLicencia = 0;
+                if (is_array($funci['novedades']['novedades'])) {
+                    foreach ($funci['novedades']['novedades'] as $claveNovDi => $valorNovDi) {
+                        if (explode(' ', $claveNovDi)[0] == 'Licencia') {
+                            $diasLicencia += $valorNovDi;
+                        }
+                    }
+                    $datos['funcionarios'][$index]['dias_licencia']= $diasLicencia;
+                    foreach ($funci['novedades']['novedades_totales'] as $claveTot => $valorTot) {
+                        if (explode(' ', $claveTot)[0] == 'Licencia') {
+                            $totalLicencia += $valorTot;
+                        }
+                    }
+                    $datos['funcionarios'][$index]['total_licencia']= $totalLicencia;
+                }
+
+            }
             return Excel::download(new NominaExport($datos), 'nomina.xlsx');
         } catch (\Throwable $th) {
             return $this->error(['Line: ' . $th->getLine() . ' -- File: ' . $th->getFile() . ' -- Message: ' . $th->getMessage()], 204);
+        }
+    }
+
+    public function getPdfsNomina(Request $request)
+    {
+        try {
+            $data = $request->all();
+
+            $datosCabecera['Titulo'] = '';
+            $datosCabecera['Codigo'] = '';
+            $datosCabecera['Fecha'] = '';
+            $datosCabecera['CodigoFormato'] = '';
+
+            $pdf = PDF::loadView('pdf.nomina_person', ['info'=>$data, 'datosCabecera'=> $datosCabecera])
+                        ->setPaper([0,0,614.295,397.485]);
+            return $pdf->stream('colilla_nomina.pdf');
+        }catch (\Throwable $th){
+            return $this->error([
+            'status' => 'error',
+            'message' => 'Ocurrió un error',
+            'data' => 'Msg: '.$th->getMessage(). ' - line: ' . $th->getLine() . ' - File: '. $th->getFile()
+            ], 204);
         }
     }
 
@@ -647,31 +703,23 @@ class PayrollController extends Controller
                     ->orWhereNull('date_end')
                     ->where('liquidated', '0');
             })
-            ->with('loans_list')
-/*             ->with('loans_list', function ($q) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
-                $q->where('fees', function ($q) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
-                    $q->where('state', 'Pendiente')
-                    ->whereBetween('date', [$fechaInicioPeriodo, $fechaFinPeriodo]);
-                });
-            }) */
             ->get();
+
         try {
-return $funcionarios;
+
             $funcionariosResponse = [];
             foreach ($funcionarios as $funcionario1) {
                 $funcionario = Person::find($funcionario1->id);
-                //$funcionario = $funcionario1;
 
                 //cálculos que no dependen de otro
-                $temIngresos = $this->getIngresos($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
+                $temIngresos = $this->getIngresos($funcionario1, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $tempNovedades = $this->getNovedades($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $tempDeducciones = $this->getDeducciones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $salarioBase = $this->getSalario($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $tempExtras = $this->getExtrasTotales($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $extras = $tempExtras['valor_total'];
 
-                //return $tempNovedades;
-                                /** */
+                /** */
                 $retencion = $this->getRetenciones(
                     $funcionario,
                     $fechaInicioPeriodo,
@@ -733,12 +781,6 @@ return $funcionarios;
                 $totalExtras += $extras;
                 $totalIngresos += $temIngresos['valor_total'];
 
-                /* return $funcionario1->personPayrollPayment->net_salary;
-                if ($funcionario1->id != 1){
-                    return $funcionario1->person_payroll_payment;
-
-                } */
-                //return array_sum(array_values($tempExtras['horas_reportadas']));
                 $funcionariosResponse[] = [
                     'id' => $funcionario->id,
                     'identifier' => $funcionario->identifier,
@@ -753,16 +795,14 @@ return $funcionarios;
                     'code' => $code,
                     'worked_days' => $funcionario1->personPayrollPayment->worked_days,
                     'transportation_assitance' => $funcionario1->personPayrollPayment->transportation_assistance,
-
                     'deducciones' => $tempDeducciones,
                     'retencion' => $retencion,
-                    'ingresos_contitutivos' =>    $temIngresos['valor_constitutivos'],
+                    'ingresos_contitutivos' => $temIngresos['valor_constitutivos'],
                     'ingresos_no_contitutivos' => $temIngresos['valor_no_constitutivos'],
-
                     'novedades' => $funcionario->novedades,
                     'horas_extras' => $tempExtras['horas_reportadas'],
                     'nro_horas_extras' => array_sum(array_values($tempExtras['horas_reportadas'])),
-                    'novedades' => $tempNovedades['novedades'],
+                    'novedades' => $tempNovedades,
                     'valor_ingresos_salariales' => ($temIngresos['valor_constitutivos'] +
                         $tempNovedades['valor_total'] + $extras),
                     'valor_ingresos_no_salariales' => $temIngresos['valor_no_constitutivos'],
@@ -792,7 +832,7 @@ return $funcionarios;
                 'funcionarios' => $funcionariosResponse
             ]);
         } catch (\Throwable $th) {
-            return $this->error([$th->getLine() . ' ' . $th->getFile() . ' ' . $th->getMessage()], 204);
+            return $this->error(['Line: '.$th->getLine().' - File: '.$th->getFile().' Msg: '.$th->getMessage()], 204);
         }
     }
 
@@ -914,7 +954,7 @@ return $funcionarios;
             ->calculate();
     }
 
-    public function getIngresos(Person $id, $fechaInicio, $fechaFin)
+    public function getIngresos( $id, $fechaInicio, $fechaFin)
     {
         return NominaIngresos::ingresosFuncionarioWithPerson($id)
             ->fromTo($fechaInicio, $fechaFin)

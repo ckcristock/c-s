@@ -46,7 +46,7 @@ class NominaIngresos extends PeriodoPago
 
     /**
      * Settea la propiedad funcionario filtrando al funcionario que se pase por el parámetro $id,
-     * retorna una nueva instancia de la clase 
+     * retorna una nueva instancia de la clase
      *
      * @param App\Models\Person $persona
      */
@@ -67,12 +67,13 @@ class NominaIngresos extends PeriodoPago
     {
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
+        
         $this->calculoIngresos = new CalculoIngresos(
             BenefitIncome::obtener(self::$funcionario, $this->fechaInicio, $this->fechaFin)
                 ->concat(BenefitNotIncome::obtener(self::$funcionario, $this->fechaInicio, $this->fechaFin))
                 ->concat(Bonifications::obtener(self::$funcionario, $this->fechaInicio, $this->fechaFin))
         );
-       
+
         return $this;
     }
 
@@ -83,9 +84,9 @@ class NominaIngresos extends PeriodoPago
      */
     public function calculate()
     {
-  
+
         $this->calculoIngresos->registrarIngresos();
-    
+
         return $this->calculoIngresos->crearColeccion();
     }
 }
