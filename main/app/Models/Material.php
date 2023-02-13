@@ -15,7 +15,8 @@ class Material extends Model
         "cut_water",
         "cut_laser",
         "type",
-        "kg_value"
+        "kg_value",
+        "value_aux"
     ];
 
 

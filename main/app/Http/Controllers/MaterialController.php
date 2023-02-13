@@ -23,7 +23,7 @@ class MaterialController extends Controller
     {
         return $this->success(
                 Material::with('materialThickness')
-                ->get(['name As text', 'id', 'kg_value'])
+                ->get(['name As text', 'id', 'kg_value', 'value_aux'])
         );
     }
 
@@ -76,19 +76,25 @@ class MaterialController extends Controller
 
         $data = $request->all();
 
-        $product = ProductService::saveProduct($data);
+        /* $product = ProductService::saveProduct($data);
 
 
         $material = $request->except('fields');
         $material['product_id'] = $product->id;
 
-        $fields = $request->get('fields');
+        $fields = $request->get('fields'); */
         $thicknesses = $request->get('thicknesses');
         try {
-            $materialDB = Material::create($material);
-            foreach ($fields as $field) {
-                $field["material_id"] = $materialDB->id;
-                MaterialField::create($field);
+            /* $materialDB = Material::create($material); */
+            $material = Material::create($data);
+            foreach ($thicknesses as $thick) {
+                MaterialThickness::create([
+                    'thickness_id' => $thick['thickness_id'],
+                    'value' => $thick['value'],
+                    'material_id' => $material->id
+                ]);
+                /* $field["material_id"] = $materialDB->id;
+                MaterialField::create($field); */
             }
 
             return $this->success('Creado con éxito');
