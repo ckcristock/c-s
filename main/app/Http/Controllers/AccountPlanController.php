@@ -138,11 +138,8 @@ class AccountPlanController extends Controller
 		try {
 			$query = ' SELECT id, CONCAT(code," - ",name) as code, center_cost, percent
                 FROM account_plans WHERE CHAR_LENGTH( code ) > 5 ';
-            //dd(DB::raw($query));
 			return $this->success(DB::raw($query));
-			//code...
 		} catch (\Throwable $th) {
-			//throw $th;
 			return $this->error($th->getMessage(), 500);
 		}
 	}

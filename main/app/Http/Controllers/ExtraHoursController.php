@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Validator;
 class ExtraHoursController extends Controller
 {
 	use ApiResponser;
+
+    protected $extrasService;
+    
 	public function __construct(ExtraHoursService $extrasService)
 	{
 		$this->extrasService = $extrasService;
@@ -109,7 +112,6 @@ class ExtraHoursController extends Controller
 	public function store()
 	{
         try {
-            //dd(request()->all());
 			$atributos = request()->validate([
 				'person_id' => 'required',
 				'date' => 'required',

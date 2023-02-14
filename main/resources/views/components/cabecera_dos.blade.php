@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
     <style>
         * {
             font-family: 'Roboto', sans-serif;
@@ -91,31 +84,40 @@
         .m-2 {
             padding: 0.5rem !important;
         }
+        .uppercase {
+            text-transform: uppercase;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+        .text-left {
+            text-align: left !important;
+        }
     </style>
 </head>
 
-<body>
-    <header>
-        <table class="w-100">
-            <tr>
-                <td>
-                    <figure class="figure mt-4 mx-4">
-                        <img src="{{ $company->logo }}" class="figure-img img-fluid" />
-                        <figcaption class="figure-caption">
-                            <strong>{{ $company->name }}</strong> <br /><strong>NIT:</strong>
-                            {{ $company->document_number }}-{{ $company->verification_digit }}
-                        </figcaption>
-                    </figure>
-                </td>
-                <td>
-                    <div class="text-right mx-4">
-                        <h1 class="text-primary mb-0">{{ $datosCabecera->Titulo }}</h1>
-                        <h2 class=my-0>{{ $datosCabecera->Codigo }}</h2>
-                        <h3 class=my-0>{{ $datosCabecera->Fecha }}</h3>
-                        <small>{{ $datosCabecera->CodigoFormato }}</small>
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </header>
-    <section class="mx-4">
+<header>
+    <table class="w-100">
+        <tr>
+            <td>
+                <figure class="figure mt-4 mx-4">
+                    <img src="{{ $company->logo }}" class="figure-img img-fluid" />
+                    <figcaption class="figure-caption">
+                        <strong>{{ $company->name }}</strong> <br /><strong>NIT:</strong>
+                        {{ $company->document_number }}-{{ $company->verification_digit }}
+                    </figcaption>
+                </figure>
+            </td>
+            <td>
+                <div class="text-right mx-4">
+                    <h1 class="text-primary mb-0">{{ $datosCabecera->Titulo }}</h1>
+                    <h2 class=my-0>{{ $datosCabecera->Codigo }}</h2>
+                    <h3 class=my-0>{{ $datosCabecera->Fecha }}</h3>
+                    <small>{{ $datosCabecera->CodigoFormato }}</small>
+                </div>
+            </td>
+        </tr>
+    </table>
+</header>
+<section class="mx-4">

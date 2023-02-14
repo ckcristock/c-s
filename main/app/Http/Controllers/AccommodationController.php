@@ -48,11 +48,9 @@ class AccommodationController extends Controller
     public function store(Request $request)
     {
         try {
-            //dd(Accommodation::find($request->get('id')));
             $nuevo = Accommodation:: withTrashed()->updateOrCreate(['id'=>$request->id],[
                 'name'=>$request->name
             ]);
-            //dd($nuevo->wasRecentlyCreated, $nuevo);
             return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(). ' msg: ' . $th->getLine() . ' ' . $th->getFile(),204);
@@ -112,13 +110,12 @@ class AccommodationController extends Controller
     public function restore(Request $request)
     {
         try {
-            //dd($request);
             $data = $request->all()['data'];
-            //return $data;
+
             $register = Accommodation::withTrashed()
                         ->where('id' ,$data['id'])
                         ->restore();
-//                        dd($register);
+
             if ($register) {
                 return $this->success('Registro restaurado exitosamente');
             } else {
