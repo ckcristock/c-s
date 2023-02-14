@@ -62,12 +62,13 @@
 <hr class="line" />
 <h4 class="card-title">Señores:</h4>
 <div class="card-text">
+    {{ $data['third_person']['name'] }} -
     {{ $data['client']['social_reason'] ? $data['client']['social_reason'] : $data['client']['full_name'] }}
     <br />
     {{ $data['municipality']['name'] }}
 </div>
 <div class="alert alert-primary" role="alert">
-    <i class="fas fa-cogs"></i> {{ $data['line'] }} {{ $data['project'] }}
+    <i class="fas fa-cogs"></i> {{ $data['description'] }}
 </div>
 <div class="rounded-top table-responsive">
     <table class="table table-bordered table-striped table-sm">
@@ -95,8 +96,8 @@
                     </td>
                     <td>{{ $item['cuantity'] }}</td>
                     @if ($data['money_type'] == 'cop')
-                        <td>@money($item['value_cop'])</td>
-                        <td>@money($item['total_cop'])</td>
+                        <td>@money($item['value_cop']) SIN IVA</td>
+                        <td>@money($item['total_cop']) SIN IVA</td>
                     @endif
                     @if ($data['money_type'] == 'usd')
                         <td>@money($item['value_usd'])</td>
@@ -116,3 +117,5 @@
     @endif
 </div>
 <div style="font-size: 10px;">{!! $data->commercial_terms !!}</div>
+<div style="font-size: 10px;">{!! $data->legal_requirements !!}</div>
+<div style="font-size: 10px;">{!! $data->technical_requirements !!}</div>

@@ -16,7 +16,7 @@ class WorkOrderController extends Controller
      */
     public function index()
     {
-        return $this->success(WorkOrder::get(['id as value', 'code as text']));
+        return $this->success(WorkOrder::get(['id', 'id as value', 'code as text']));
     }
 
     /**

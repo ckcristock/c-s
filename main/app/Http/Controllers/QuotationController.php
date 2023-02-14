@@ -45,9 +45,6 @@ class QuotationController extends Controller
                 ->when($request->code, function ($q, $fill) {
                     $q->where('code', 'like', '%' . $fill . '%');
                 })
-                ->when($request->line, function ($q, $fill) {
-                    $q->where('line', 'like', "%$fill%");
-                })
                 ->when($request->date_start, function ($q, $fill) use ($request) {
                     $q->whereBetween('created_at', [$fill, $request->date_end]);
                 })
@@ -118,7 +115,7 @@ class QuotationController extends Controller
      */
     public function show($id)
     {
-        return $this->success(Quotation::where('id', $id)->with('municipality', 'client', 'items')->first());
+        return $this->success(Quotation::where('id', $id)->with('municipality', 'client', 'items', 'third_person')->first());
     }
 
     /**
@@ -162,7 +159,7 @@ class QuotationController extends Controller
     {
         $company = Company::first();
         $image = $company->page_heading;
-        $data = Quotation::where('id', $id)->with('municipality', 'client', 'items')->first();
+        $data = Quotation::where('id', $id)->with('municipality', 'client', 'items', 'third_person')->first();
         $datosCabecera = (object) array(
             'Titulo' => 'Cotización',
             'Codigo' => $data->code,

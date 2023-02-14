@@ -20,14 +20,16 @@ class DotationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
 
-        $page = Request()->get('page');
+        $page = $request->page;
         $page = $page ? $page : 1;
-        $pageSize = Request()->get('pageSize');
+        $pageSize = $request->pageSize;
         $pageSize = $pageSize ? $pageSize : 10;
-
+        /* return Dotation::with('dotation_products.inventary_dotation.product_datation_types', 'person', 'user')
+            ->select('*', DB::raw('GROUP_CONCAT( dotation_products.quantity , " X  " , ID.name ) AS product_name'))
+            ->get(); */
         $d = DB::table('dotations AS D')
             ->join('dotation_products AS PD', 'PD.dotation_id', '=', 'D.id')
             ->join('inventary_dotations AS ID', 'ID.id', '=', 'PD.inventary_dotation_id')
@@ -50,43 +52,42 @@ class DotationController extends Controller
                 'D.description',
                 'D.state',
             )
-            ->when(Request()->get('type'), function ($q, $fill) {
+            ->when($request->type, function ($q, $fill) {
                 $q->where('D.type', 'like', '%' . $fill . '%');
             })
-            ->when(Request()->get('name'), function ($q, $fill) {
+            ->when($request->name, function ($q, $fill) {
                 $q->where('ID.name', 'like', '%' . $fill . '%');
             })
-            ->when(Request()->get('cod'), function ($q, $fill) {
+            ->when($request->cod, function ($q, $fill) {
                 $q->where('D.delivery_code', 'like', '%' . $fill . '%');
             })
-            ->when(Request()->get('description'), function ($q, $fill) {
+            ->when($request->description, function ($q, $fill) {
                 $q->where('D.description', 'like', '%' . $fill . '%');
             })
-            ->when(Request()->get('type'), function ($q, $fill) {
+            ->when($request->type, function ($q, $fill) {
                 $q->where('D.type', 'like', '%' . $fill . '%');
             })
-
-            ->when(Request()->get('person'), function ($q, $fill) {
+            ->when($request->person, function ($q, $fill) {
                 $q->where('D.user_id', $fill);
             })
-            ->when(Request()->get('persontwo'), function ($q, $fill) {
+            ->when($request->persontwo, function ($q, $fill) {
                 $q->where('D.person_id', $fill);
             })
-            ->when(Request()->get('delivery'), function ($q, $fill) {
+            ->when($request->delivery, function ($q, $fill) {
                 $q->where('D.delivery_state', $fill);
             })
-            ->when(Request()->get('firstDay'), function ($q, $fill) {
-                $q->whereDate('D.dispatched_at', '>=' , $fill );
-                    })
-            ->when(Request()->get('lastDay'), function ($q, $fill) {
-                 $q->whereDate('D.dispatched_at', '<=', $fill );
-                })
+            ->when($request->firstDay, function ($q, $fill) {
+                $q->whereDate('D.dispatched_at', '>=', $fill);
+            })
+            ->when($request->lastDay, function ($q, $fill) {
+                $q->whereDate('D.dispatched_at', '<=', $fill);
+            })
 
             // ->when(request()->get('fechaD'), function ($q) {
             //     $fechaInicio = trim(explode(' - ', Request()->get('fechaD'))[0]);
             //     $fechaFin = trim(explode(' - ', Request()->get('fechaD'))[1]);
             //     $dates = [$fechaInicio, $fechaFin];
-			//     $q->whereBetween(DB::raw("DATE(D.dispatched_at)"), $dates);
+            //     $q->whereBetween(DB::raw("DATE(D.dispatched_at)"), $dates);
             // })
             // ->when(Request()->get('recibe'), function ($q, $fill) {
             //     $q->where('D.person_id', $fill);
@@ -117,39 +118,39 @@ class DotationController extends Controller
         //         GROUP BY pdt.id');
 
         $d = DB::table('dotations as D')
-                ->selectRaw('pdt.name, SUM(dp.quantity) as value')
-                ->join('dotation_products AS dp', 'dp.dotation_id', '=', 'D.id')
-                ->join('inventary_dotations AS id', 'id.id', '=', 'dp.inventary_dotation_id')
-                ->join('product_dotation_types AS pdt', 'pdt.id', '=', 'id.product_dotation_type_id')
+            ->selectRaw('pdt.name, SUM(dp.quantity) as value')
+            ->join('dotation_products AS dp', 'dp.dotation_id', '=', 'D.id')
+            ->join('inventary_dotations AS id', 'id.id', '=', 'dp.inventary_dotation_id')
+            ->join('product_dotation_types AS pdt', 'pdt.id', '=', 'id.product_dotation_type_id')
 
 
-                ->when(Request()->get('person'),  function ($q, $fill){
-                    $q->where('D.user_id', $fill);
-                        })
-                ->when(Request()->get('persontwo'), function ($q, $fill) {
-                    $q->where('D.person_id', $fill);
-                })
+            ->when(Request()->get('person'),  function ($q, $fill) {
+                $q->where('D.user_id', $fill);
+            })
+            ->when(Request()->get('persontwo'), function ($q, $fill) {
+                $q->where('D.person_id', $fill);
+            })
 
-                ->when(Request()->get('cod'), function ($q, $fill) {
-                    $q->where('D.delivery_code', 'like', '%' . $fill . '%');
-                })
+            ->when(Request()->get('cod'), function ($q, $fill) {
+                $q->where('D.delivery_code', 'like', '%' . $fill . '%');
+            })
 
-                ->when(Request()->get('type'), function ($q, $fill) {
-                    $q->where('D.type', 'like', '%' . $fill . '%');
-                })
+            ->when(Request()->get('type'), function ($q, $fill) {
+                $q->where('D.type', 'like', '%' . $fill . '%');
+            })
 
-                ->when(Request()->get('delivery'), function ($q, $fill) {
-                    $q->where('D.delivery_state', $fill);
-                })
+            ->when(Request()->get('delivery'), function ($q, $fill) {
+                $q->where('D.delivery_state', $fill);
+            })
 
 
-                ->when(Request()->get('firstDay'), function ($q, $fill) {
-                $q->whereDate('D.dispatched_at', '>=' , $fill );
-                    })
+            ->when(Request()->get('firstDay'), function ($q, $fill) {
+                $q->whereDate('D.dispatched_at', '>=', $fill);
+            })
 
-                ->when(Request()->get('lastDay'), function ($q, $fill) {
-                $q->whereDate('D.dispatched_at', '<=', $fill );
-                    })
+            ->when(Request()->get('lastDay'), function ($q, $fill) {
+                $q->whereDate('D.dispatched_at', '<=', $fill);
+            })
             ->groupBy('pdt.id')
             ->get();
 
@@ -186,7 +187,7 @@ class DotationController extends Controller
 
             $dotation = Dotation::create($entrega);
             $dotation = Dotation::find($dotation["id"]);
-            $dotation->delivery_code = $entrega['type'] == 'Dotacion' ? 'ED-'.$dotation["id"]: 'EPP-'.$dotation["id"];
+            $dotation->delivery_code = $entrega['type'] == 'Dotacion' ? 'ED-' . $dotation["id"] : 'EPP-' . $dotation["id"];
             $dotation->save();
 
             foreach ($productos as $prod) {
@@ -308,7 +309,8 @@ class DotationController extends Controller
 
 
 
-    public function getListProductsDotation(Request $request){
+    public function getListProductsDotation(Request $request)
+    {
 
         $code   = $request->get('code');
         $page = Request()->get('page');
@@ -317,37 +319,36 @@ class DotationController extends Controller
         $pageSize = $pageSize ? $pageSize : 10;
 
         $d = DB::table('dotation_products AS PD')
-                ->select(
-                    'D.created_at',
-                    'D.id',
-                    'D.type',
-                    'D.delivery_code',
-                    'D.delivery_state',
-                    'D.description',
-                    'D.state',
-                    'ID.name as product_name',
-                    'PD.quantity',
-                    DB::raw(' CONCAT(P.first_name," ",P.first_surname) as recibe '),
-                    DB::raw(' CONCAT(PF.first_name," ",PF.first_surname) as entrega '),
-                )
-                ->join('dotations AS D', 'PD.dotation_id', '=', 'D.id')
-                ->join('inventary_dotations AS ID', 'ID.id', '=', 'PD.inventary_dotation_id')
-                ->join('product_dotation_types AS GI', 'GI.id', '=', 'ID.product_dotation_type_id')
-                ->join('people AS  P', 'P.id', '=', 'D.person_id')
-                ->join('users AS US', 'US.id', '=', 'D.user_id')
-                ->join('people AS PF', 'PF.id', '=', 'US.person_id')
+            ->select(
+                'D.created_at',
+                'D.id',
+                'D.type',
+                'D.delivery_code',
+                'D.delivery_state',
+                'D.description',
+                'D.state',
+                'ID.name as product_name',
+                'PD.quantity',
+                DB::raw(' CONCAT(P.first_name," ",P.first_surname) as recibe '),
+                DB::raw(' CONCAT(PF.first_name," ",PF.first_surname) as entrega '),
+            )
+            ->join('dotations AS D', 'PD.dotation_id', '=', 'D.id')
+            ->join('inventary_dotations AS ID', 'ID.id', '=', 'PD.inventary_dotation_id')
+            ->join('product_dotation_types AS GI', 'GI.id', '=', 'ID.product_dotation_type_id')
+            ->join('people AS  P', 'P.id', '=', 'D.person_id')
+            ->join('users AS US', 'US.id', '=', 'D.user_id')
+            ->join('people AS PF', 'PF.id', '=', 'US.person_id')
 
-                ->where([
-                        ['PD.code', ''.$code.''],
-                        [ 'PD.code', ''.$code.''],
-                        ])
-                ->paginate($pageSize, '*', 'page', $page);
-
-
+            ->where([
+                ['PD.code', '' . $code . ''],
+                ['PD.code', '' . $code . ''],
+            ])
+            ->paginate($pageSize, '*', 'page', $page);
 
 
-    return $this->success($d);
 
+
+        return $this->success($d);
     }
 
     public function getDotationType()

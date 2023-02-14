@@ -61,6 +61,6 @@ class TravelExpense extends Model
 
     public function work_order ()
     {
-        return $this->hasOne(WorkOrder::class, 'id', 'work_order_id');
+        return $this->hasOne(WorkOrder::class, 'id', 'work_order_id')->select('id', 'id as value', 'code as text');
     }
 }

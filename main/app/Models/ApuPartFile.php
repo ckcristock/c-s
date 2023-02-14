@@ -11,7 +11,9 @@ class ApuPartFile extends Model
 
     protected $fillable = [
         "file",
-        "apu_part_id"
+        "apu_part_id",
+        "name",
+        "type"
     ];
 
     protected $hidden = [

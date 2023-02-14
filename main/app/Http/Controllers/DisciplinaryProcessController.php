@@ -24,7 +24,7 @@ class DisciplinaryProcessController extends Controller
     {
         $involved = request()->get('involved');
         $query = DisciplinaryProcess::with([
-            'person' => function($q){ 
+            'person' => function($q){
                 $q->select('id', 'first_name', 'second_name', 'first_surname', 'second_surname');
             },
             'personInvolved',
@@ -37,9 +37,9 @@ class DisciplinaryProcessController extends Controller
             });
         })
         ->when( request()->get('status'), function($q, $fill) {
-            if (request()->get('status') == 'Todos') { 
+            if (request()->get('status') == 'Todos') {
                 return null;
-        } 
+        }
         $q->where('status', 'like', '%' . $fill . '%');
         })
         ->when( request()->get('code'), function($q, $fill) {
@@ -253,7 +253,7 @@ class DisciplinaryProcessController extends Controller
         }
     }
 
-    public function InactiveDOcument(Request $request, $id) 
+    public function InactiveDOcument(Request $request, $id)
     {
         try {
             $doc = LegalDocument::where('id', '=', $id)->first();

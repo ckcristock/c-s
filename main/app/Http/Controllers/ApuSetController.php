@@ -86,11 +86,21 @@ class ApuSetController extends Controller
             $apuset->save();
 
             foreach ($files as $file) {
-                $base64 = saveBase64File($file, 'apu-sets/', false, '.pdf');
-                $file = URL::to('/') . '/api/file?path=' . $base64;
-                ApuSetFile::create(['apu_set_id' => $id, 'file' => $file]);
+                if ($file['type'] == 'image/jpeg' || $file['type'] == 'image/jpg' || $file['type'] == 'image/png') {
+                    $type = '.' . explode('/', $file['type'])[0];
+                    $base64 = saveBase64($file['base64'], 'apu-sets/', true, $type);
+                    $file_api = URL::to('/') . '/api/image?path=' . $base64;
+                } else {
+                    $base64 = saveBase64File($file['base64'], 'apu-sets/', false, '.pdf');
+                    $file_api = URL::to('/') . '/api/file-view?path=' . $base64;
+                }
+                ApuSetFile::create([
+                    'apu_set_id' => $id,
+                    'file' => $file_api,
+                    'name' => $file['name'],
+                    'type' => $file['type']
+                ]);
             }
-
 
             foreach ($list_pieces_sets as $lps) {
                 $lps["apu_set_id"] = $id;
@@ -178,7 +188,7 @@ class ApuSetController extends Controller
             "others",
             "indirect_cost",
         ]);
-        $files = request()->get("file");
+        $files = request()->get("files");
         $list_pieces_sets = request()->get("list_pieces_sets");
         $machine_tools = request()->get("machine_tools");
         $internal_processes = request()->get("internal_processes");
@@ -187,6 +197,24 @@ class ApuSetController extends Controller
         $indirect_cost = request()->get("indirect_cost");
         try {
             ApuSet::find($id)->update($data);
+            if ($files) {
+                foreach ($files as $file) {
+                    if ($file['type'] == 'image/jpeg' || $file['type'] == 'image/jpg' || $file['type'] == 'image/png') {
+                        $type = '.' . explode('/', $file['type'])[0];
+                        $base64 = saveBase64($file['base64'], 'apu-sets/', true, $type);
+                        $file_api = URL::to('/') . '/api/image?path=' . $base64;
+                    } else {
+                        $base64 = saveBase64File($file['base64'], 'apu-sets/', false, '.pdf');
+                        $file_api = URL::to('/') . '/api/file-view?path=' . $base64;
+                    }
+                    ApuSetFile::create([
+                        'apu_set_id' => $id,
+                        'file' => $file_api,
+                        'name' => $file['name'],
+                        'type' => $file['type']
+                    ]);
+                }
+            }
             if ($list_pieces_sets) {
                 ApuSetPartList::where("apu_set_id", $id)->delete();
                 foreach ($list_pieces_sets as $lps) {
@@ -270,6 +298,11 @@ class ApuSetController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function deleteFile($id) {
+        ApuSetFile::find($id)->delete();
+        return $this->success('Plano eliminado con éxtio');
     }
 
 

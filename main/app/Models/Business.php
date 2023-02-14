@@ -67,4 +67,9 @@ class Business extends Model
     {
         return $this->hasMany(BusinessHistory::class)->with('person');
     }
+
+    public function notes()
+    {
+        return $this->hasMany(BusinessNote::class)->with('person');
+    }
 }
