@@ -84,9 +84,20 @@ class ApuPartController extends Controller
             $apu = ApuPartService::saveApu($data);
             $id = $apu->id;
             foreach ($files as $file) {
-                $base64 = saveBase64File($file, 'apu-parts/', false, '.pdf');
-                $file = URL::to('/') . '/api/file?path=' . $base64;
-                ApuPartFile::create(['apu_part_id' => $id, 'file' => $file]);
+                if ($file['type'] == 'image/jpeg' || $file['type'] == 'image/jpg' || $file['type'] == 'image/png') {
+                    $type = '.' . explode('/', $file['type'])[0];
+                    $base64 = saveBase64($file['base64'], 'apu-parts/', true, $type);
+                    $file_api = URL::to('/') . '/api/image?path=' . $base64;
+                } else {
+                    $base64 = saveBase64File($file['base64'], 'apu-parts/', false, '.pdf');
+                    $file_api = URL::to('/') . '/api/file-view?path=' . $base64;
+                }
+                ApuPartFile::create([
+                    'apu_part_id' => $id,
+                    'file' => $file_api,
+                    'name' => $file['name'],
+                    'type' => $file['type']
+                ]);
             }
 
             RawMaterialService::SaveRawMaterial($materia_prima, $apu);
@@ -205,10 +216,21 @@ class ApuPartController extends Controller
             $indirect_cost = request()->get("indirect_cost");
             ApuPart::find($id)->update($data);
             if ($files) {
-                ApuPartFile::where("apu_part_id", $id)->delete();
                 foreach ($files as $file) {
-                    $file["apu_part_id"] = $id;
-                    ApuPartFile::create($file);
+                    if ($file['type'] == 'image/jpeg' || $file['type'] == 'image/jpg' || $file['type'] == 'image/png') {
+                        $type = '.' . explode('/', $file['type'])[0];
+                        $base64 = saveBase64($file['base64'], 'apu-parts/', true, $type);
+                        $file_api = URL::to('/') . '/api/image?path=' . $base64;
+                    } else {
+                        $base64 = saveBase64File($file['base64'], 'apu-parts/', false, '.pdf');
+                        $file_api = URL::to('/') . '/api/file-view?path=' . $base64;
+                    }
+                    ApuPartFile::create([
+                        'apu_part_id' => $id,
+                        'file' => $file_api,
+                        'name' => $file['name'],
+                        'type' => $file['type']
+                    ]);
                 }
             }
             if ($materia_prima) {
@@ -315,6 +337,12 @@ class ApuPartController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function deleteFile($id)
+    {
+        ApuPartFile::find($id)->delete();
+        return $this->success('Plano eliminado con éxtio');
     }
 
     public function pdf($id)

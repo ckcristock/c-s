@@ -18,6 +18,8 @@ class ApuPart extends Model
         'user_id',
         'third_party_id',
         'line',
+        'minute_value_laser',
+        'minute_value_water',
         'amount',
         'observation',
         'subtotal_raw_material',

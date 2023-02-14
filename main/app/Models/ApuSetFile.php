@@ -11,7 +11,9 @@ class ApuSetFile extends Model
 
     protected $fillable = [
         "file",
-        "apu_set_id"
+        "apu_set_id",
+        "name",
+        "type"
     ];
 
     protected $hidden = [

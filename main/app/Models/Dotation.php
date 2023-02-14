@@ -18,4 +18,19 @@ class Dotation extends Model
         'delivery_code',
         'delivery_state',
     ];
+
+    public function dotation_products()
+    {
+        return $this->hasMany(DotationProduct::class);
+    }
+
+    public function person()
+    {
+        return $this->belongsTo(Person::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class)->with('person');
+    }
 }

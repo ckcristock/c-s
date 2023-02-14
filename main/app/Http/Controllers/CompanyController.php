@@ -76,18 +76,12 @@ class CompanyController extends Controller
         }
     }
 
-    public function getCommercialTerms(Request $request)
+    public function getTexts(Request $request)
     {
         try {
-            return $this->success(Company::where('id', $request->id)->first('commercial_terms'));
-        } catch (\Throwable $th) {
-        }
-    }
-
-    public function getRequeriments(Request $request)
-    {
-        try {
-            return $this->success(Company::where('id', $request->id)->first('technical_requirements', 'legal_requirements'));
+            return $this->success(
+                Company::where('id', 1)->first(['commercial_terms', 'legal_requirements', 'technical_requirements'])
+            );
         } catch (\Throwable $th) {
         }
     }

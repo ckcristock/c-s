@@ -6,6 +6,7 @@ use App\Models\Budget;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\BusinessHistory;
+use App\Models\BusinessNote;
 use App\Models\BusinessQuotation;
 use App\Models\BusinessTask;
 use App\Models\Municipality;
@@ -187,6 +188,25 @@ class BusinessController extends Controller
         }
     }
 
+    public function newBusinessNote(Request $request)
+    {
+        $person = Person::where('id', $request->person_id)->fullName()->first();
+        BusinessNote::create($request->all());
+        $this->addEventToHistroy([
+            'business_id' => $request->business_id,
+            'icon' => 'fas fa-sticky-note',
+            'title' => 'Se ha agregado una nota',
+            'person_id' => $request->person_id,
+            'description' => $person->full_names . ' ha publicado una nueva nota.'
+        ]);
+        return $this->success('Creada con éxito');
+    }
+
+    public function getNotes($id)
+    {
+        return $this->success(Business::with('notes')->get()->pluck('notes'));
+    }
+
     public function changeStatusInBusiness(Request $request)
     {
         if ($request->label == 'budget') {
@@ -214,7 +234,8 @@ class BusinessController extends Controller
                 'country',
                 'city',
                 'businessBudget',
-                'quotations'
+                'quotations',
+                'notes'
             )
             ->first();
         $codeQR = new DNS2D();
