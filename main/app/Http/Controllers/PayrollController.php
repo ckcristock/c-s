@@ -17,6 +17,7 @@ use App\Exports\NominaExport;
 use App\Exports\NovedadesExport;
 use App\Http\Libs\Nomina\Calculos\CalculoNovedades;
 use App\Models\Company;
+use App\Models\ComprobanteConsecutivo;
 use App\Models\Configuration;
 use App\Models\ElectronicPayroll;
 use App\Models\Loan;
@@ -35,6 +36,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use stdClass;
 
 class PayrollController extends Controller
 {
@@ -598,13 +600,53 @@ class PayrollController extends Controller
         try {
             $data = $request->all();
 
-            $datosCabecera['Titulo'] = '';
-            $datosCabecera['Codigo'] = '';
-            $datosCabecera['Fecha'] = '';
-            $datosCabecera['CodigoFormato'] = '';
+            $empresa = Company::find(1);
+            $consecutivos = ComprobanteConsecutivo::where('Prefijo', 'NOM')
+                            ->orWhere('Prefijo', 'NDI')
+                            ->get();
 
-            $pdf = PDF::loadView('pdf.nomina_person', ['info'=>$data, 'datosCabecera'=> $datosCabecera])
+            $consecNomina = '';
+            $consecNominaIndiv = '';
+            foreach ($consecutivos as $consec) {
+                switch ($consec['Prefijo']) {
+                    case 'NOM':
+                        $consecNomina = $consec;
+                        break;
+                    case 'NDI':
+                        $consecNominaIndiv = $consec;
+                        break;
+                }
+            }
+
+            $datosCabecera = new stdClass();
+            $datosCabecera->Titulo = 'Colilla de Pago';
+            $datosCabecera->Codigo = $data['code'];
+            $datosCabecera->Fecha = Carbon::create($data['inicio_periodo'])->toFormattedDateString(). ' al ' . Carbon::create($data['fin_periodo'])->toFormattedDateString();
+            $datosCabecera->CodigoFormato = $consecNomina['format_code'];
+
+            $company = new stdClass();
+            $company->logo = $empresa->logo;
+            $company->name = $empresa->social_reason;
+            $company->document_number = $empresa->document_number;
+            $company->verification_digit = $empresa->social_reason;
+
+            $pdf = PDF::loadView('pdf.nomina_list', [
+                                'info'=>$data['funcionarios'],
+                                'data'=> $request->all(),
+                                 'image' =>'',
+                                 'datosCabecera'=> $datosCabecera,
+                                 'company'=>$company,
+                                 'consecIndividual'=>$consecNominaIndiv,
+                                 ])
                         ->setPaper([0,0,614.295,397.485]);
+            //$usuarios = $data['funcionarios'];
+
+            /* return view('pdf.nomina_list',[
+                        'data'=> $request->all(),
+                        'info'=>$usuarios,
+                        'image' =>'',
+                        'datosCabecera'=> $datosCabecera,
+                        'company'=>$company]); */
             return $pdf->stream('colilla_nomina.pdf');
         }catch (\Throwable $th){
             return $this->error([
@@ -697,6 +739,7 @@ class PayrollController extends Controller
 
         $funcionarios = Person::with('personPayrollPayment')
             ->with(['payroll_factors' => $fechasNovedades])
+            ->with('contractultimate')
             ->whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
                 return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
                     ->whereDate('date_end', '>=', $fechaInicioPeriodo)
@@ -706,11 +749,11 @@ class PayrollController extends Controller
             ->get();
 
         try {
+            //return ($funcionarios[1]);
 
             $funcionariosResponse = [];
             foreach ($funcionarios as $funcionario1) {
                 $funcionario = Person::find($funcionario1->id);
-
                 //cálculos que no dependen de otro
                 $temIngresos = $this->getIngresos($funcionario1, $fechaInicioPeriodo, $fechaFinPeriodo);
                 $tempNovedades = $this->getNovedades($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
@@ -793,6 +836,7 @@ class PayrollController extends Controller
                     'basic_salary' => $funcionario->contractultimate->salary,
                     'position' => $funcionario->contractultimate->position->name,
                     'code' => $code,
+                    'date_of_admission' => $funcionario1->contractultimate->date_of_admission,
                     'worked_days' => $funcionario1->personPayrollPayment->worked_days,
                     'transportation_assitance' => $funcionario1->personPayrollPayment->transportation_assistance,
                     'deducciones' => $tempDeducciones,
