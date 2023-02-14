@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PayrollFactor extends Model 
+class PayrollFactor extends Model
 {
     use HasFactory;
 
@@ -23,6 +23,9 @@ class PayrollFactor extends Model
         'number_days'
     ];
 
+    public function scopeAlias($q, $alias){
+        return $q->from($q->getQuery()->from." as ".$alias);
+    }
 
     public function disability_leave()
     {

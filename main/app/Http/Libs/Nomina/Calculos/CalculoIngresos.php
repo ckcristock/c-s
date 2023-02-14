@@ -50,9 +50,9 @@ class CalculoIngresos implements Coleccion
                 $this->noConstitutivos[$ingreso->ingreso->concept][$index] = $ingreso->value;
             }
         }
-        
+
         foreach ($this->constitutivos as $key => $item) {
-            
+
             $this->constitutivos[$key] = array_sum($this->constitutivos[$key]);
         }
         foreach ($this->noConstitutivos as $key => $item) {
@@ -60,7 +60,7 @@ class CalculoIngresos implements Coleccion
             $this->noConstitutivos[$key] = array_sum($this->noConstitutivos[$key]);
         }
 
- 
+
     }
 
     /**

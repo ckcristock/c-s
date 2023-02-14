@@ -17,4 +17,7 @@ class LoanFee extends Model
 		"date",
 		"loan_id"
 	];
+
+    
+
 }

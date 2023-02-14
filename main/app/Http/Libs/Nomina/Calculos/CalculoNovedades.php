@@ -4,8 +4,6 @@ namespace App\Http\Libs\Nomina\Calculos;
 
 use App\Clases\PorcentajeInstance;
 use App\Clases\stdObject;
-use App\Models\ContableLicenciaIncapacidad;
-use App\Models\EmpresaConfiguracion;
 use App\Models\PayConfigurationCompany;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;

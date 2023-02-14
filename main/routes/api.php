@@ -66,6 +66,7 @@ use App\Http\Controllers\InternalProcessController;
 use App\Http\Controllers\InventaryDotationController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LateArrivalController;
+use App\Http\Controllers\PreliquidatedLogController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\MachineToolController;
 use App\Http\Controllers\MaterialController;
@@ -146,6 +147,10 @@ use App\Models\Budget;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ComprobanteConsecutivo;
+use App\Models\Deduction;
+use App\Models\Loan;
+use App\Models\Person;
+use App\Models\PreliquidatedLog;
 use App\Models\ThirdParty;
 use App\Models\User;
 use App\Models\WorkOrderBlueprint;
@@ -389,9 +394,19 @@ Route::group(
 
         Route::get('nomina/pago/funcionario/{identidad}', [PayrollController::class, 'getFuncionario']);
         Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
+  /*       Route::get('prueba-prestamos', function(){
+            //return Loan::obtener(Person::find(11534),'2023-02-01','2023-02-28');
+            $dedu = Deduction::periodo(Person::find(11531),'2022-01-01','2023-08-30');
+            $aux = collect([]);
+            foreach ($dedu as $de) {
+                $aux->put('valor',$de->value);
+            }
+            return $aux;
+        }); */
         Route::get('nomina/pago/{inicio?}/{fin?}', [PayrollController::class, 'getPayrollPay']);
         //downloadPdf
-        Route::post('download-payroll', [PayrollController::class, 'downloadPdf']);
+        Route::post('download-payroll', [PayrollController::class, 'downloadExcelNomina']);
+        Route::get('download-disabilities/{inicio}/{fin}', [PayrollController::class, 'downloadExcelNovedades']);
         //Route::get('download-payroll', [PayrollController::class, 'downloadPdf']);
 
         Route::get('payroll/overtimes/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getExtrasTotales']);
@@ -759,7 +774,7 @@ Route::get('test', function(){
         Route::get('get-turn-types', [WorkContractController::class, 'getTurnTypes']);
         Route::put('activate-inactivate', [ThirdPartyController::class, 'changeState']);
         Route::get('fields-third', [ThirdPartyController::class, 'getFields']);
-        Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
+        Route::put('liquidateOrActivate/{person}', [PersonController::class, 'liquidateOrActivate']);
         Route::get('users/{id}', [PersonController::class, 'user']);
         Route::put('blockOrActivate/{id}', [PersonController::class, 'blockOrActivateUser']);
         Route::get('thirdPartyClient', [ThirdPartyController::class, 'thirdPartyClient']);
@@ -782,7 +797,10 @@ Route::get('test', function(){
         Route::post('nomina/liquidaciones/{id}/ingresos', [LiquidacionesController::class, 'getWithIngresos']);
         Route::post('nomina/liquidaciones/previsualizacion', [LiquidacionesController::class, 'getPdfLiquidacion']);
         Route::get('nomina/liquidaciones/dias-trabajados/{id}/{fechaFin}', [LiquidacionesController::class, 'getDiasTrabajados']);
+        Route::post('nomina/get-colillas', [PayrollController::class, 'getPdfsNomina']);
+
         Route::resource('liquidation', LiquidationsController::class)->only(['index', 'store', 'show']);
+        Route::resource('preliquidation', PreliquidatedLogController::class)->only(['index', 'store', 'show']);
 
 
         /****** Rutas del modulo APU CONJUNTO ******/

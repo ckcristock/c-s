@@ -438,10 +438,10 @@ class PersonController extends Controller
 		}
 	}
 
-	public function liquidateOrActivate(Request $request, $id)
+	public function liquidateOrActivate(Request $request, Person $person)
 	{
 		try {
-			$person = Person::find($id);
+			//$person = Person::find($id);
 			$person->update([
 				'status' => $request->status,
 			]);

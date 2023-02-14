@@ -10,8 +10,13 @@ class CalculoDeducciones implements Coleccion
     protected $deducciones;
     protected $totalDeducciones;
     protected $deduccionesRegistradas;
-    protected $suma = 0;
-    protected $conceptoAux = 0;
+    protected $sumaDeducctiones = 0;
+    protected $sumaPrestamos = 0;
+    //protected $conceptoAux = 0;
+
+    /**Deductions,
+     * loan_fees: los prestamos que tiene pendiente el funcionario deben ser descontados en la nómina
+     */
 
     /**
      * Constructor
@@ -23,7 +28,12 @@ class CalculoDeducciones implements Coleccion
         $this->deducciones = $deducciones;
         $this->deduccionesRegistradas = collect([]);
         $this->totalDeducciones = 0;
-        $this->getDeduccionesCustom();
+        if (isset($deducciones->all()[0]->type)) {
+            $this->getPrestamosCustom();
+        }
+        if (isset($deducciones->all()[0]->deduccion)) {
+            $this->getDeduccionesCustom();
+        }
     }
 
     public function getDeducciones()
@@ -52,7 +62,8 @@ class CalculoDeducciones implements Coleccion
     public function calcularTotalDeducciones()
     {
         if ($this->deducciones->isNotEmpty()) {
-            $this->totalDeducciones = $this->deducciones->sum('value');
+            //$this->totalDeducciones = $this->deducciones->sum('value');
+            $this->totalDeducciones = $this->sumaDeducctiones+$this->sumaPrestamos;
         }
     }
 
@@ -88,22 +99,39 @@ class CalculoDeducciones implements Coleccion
     }
 
     /**
-     * @return data 
-     * 
+     * @return data
+     *
      */
 
     public function getDeduccionesCustom()
     {
-     
-
-
+        $conceptoAux = '';
         foreach ($this->deducciones->groupBy('deduccion.concept') as  $deduccion) {
-            $this->suma = 0;
+            $this->sumaDeducctiones = 0;
             foreach ($deduccion as  $concepto) {
-                $this->suma += $concepto->value;
-                $this->conceptoAux = $concepto;
+                $this->sumaDeducctiones += $concepto->value;
+                //$this->conceptoAux = $concepto;
+                $conceptoAux = $concepto->deduccion->concept;
             }
-            $this->deduccionesRegistradas->put($this->conceptoAux->deduccion->concept, $this->suma);
+            //$this->deduccionesRegistradas->put($this->conceptoAux->deduccion->concept, $this->sumaDeducctiones);
+            $this->deduccionesRegistradas->put($conceptoAux, $this->sumaDeducctiones);
         }
+    }
+
+    public function getPrestamosCustom()
+    {
+
+        $conceptoAuxPres = '';
+        foreach ($this->deducciones->groupBy('fees.loan_id') as $prestamo) {
+            foreach ($prestamo as $concepto) {
+                $conceptoAuxPres = $concepto->type;
+                foreach ($concepto->fees as $fee) {
+                    $this->sumaPrestamos += $fee->value;
+
+                }
+            }
+            $this->deduccionesRegistradas->put($conceptoAuxPres, $this->sumaPrestamos);
+        }
+
     }
 }

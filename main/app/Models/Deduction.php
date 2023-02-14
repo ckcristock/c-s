@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Deduction extends Model
 {
     protected $guarded = ['id'];
-    
+
     use HasFactory;
 
     public function scopePeriodo($query, Person $funcionario, $fechaInicio, $fechaFin)
