@@ -132,6 +132,8 @@ use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\CategoriaNuevaController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
+use App\Http\Controllers\LayoffController;
+use App\Http\Controllers\LayoffPersonController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
@@ -142,12 +144,14 @@ use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\WorkOrderDesignController;
 use App\Http\Controllers\WorkOrderEngineeringController;
 use App\Http\Controllers\WorkOrderProductionController;
+use App\Models\Accommodation;
 use App\Models\Bonus;
 use App\Models\Budget;
 use App\Models\Business;
 use App\Models\BusinessBudget;
 use App\Models\ComprobanteConsecutivo;
 use App\Models\Deduction;
+use App\Models\LayoffPerson;
 use App\Models\Loan;
 use App\Models\Person;
 use App\Models\PreliquidatedLog;
@@ -181,8 +185,12 @@ Route::get('/', function () {
 
     $exitCode = Artisan::call('config:cache');
 
-    return 'DONE'; //Return anythingb
+    return 'DONE-Inicio'; //Return anythingb
 
+});
+
+Route::get('prueba', function(){
+    return Accommodation::all();
 });
 Route::get('/generate-users', function () {
 
@@ -459,6 +467,12 @@ Route::group(
         Route::get('download-work-certificate/{id}', [WorkCertificateController::class, 'pdf']);
 
         Route::resource('layoffs-certificate', LayoffsCertificateController::class);
+        Route::get('layoff-list/check-layoffs-list/{anio}' , [ LayoffController::class, 'getCheckLayoffsList']);
+        Route::get('layoff-list/check-layoffs-list-paginated/{anio}' , [ LayoffController::class, 'getCheckLayoffsList']);
+        Route::apiResources([
+            'layoff-list' => LayoffController::class,
+            'layoff-person' => LayoffPersonController::class
+        ]);
 
         Route::get('download-layoffs-certificate/{id}', [LayoffsCertificateController::class, 'pdf']);
 
