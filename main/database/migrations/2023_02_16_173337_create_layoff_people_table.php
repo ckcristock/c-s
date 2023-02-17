@@ -15,6 +15,16 @@ class CreateLayoffPeopleTable extends Migration
     {
         Schema::create('layoff_people', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('layoffs_id');
+            $table->unsignedBigInteger('person_id');
+            $table->string('identifier');
+            $table->string('fullname');
+            $table->integer('worked_days');
+            $table->string('period');
+            $table->float('salary_basic');
+            $table->float('avg_salary_basic');
+            $table->float('total');
+            $table->date('payment_date');
             $table->timestamps();
         });
     }

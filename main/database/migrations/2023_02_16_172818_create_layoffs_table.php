@@ -15,6 +15,16 @@ class CreateLayoffsTable extends Migration
     {
         Schema::create('layoffs', function (Blueprint $table) {
             $table->id();
+            $table->string('descirpcion');
+            $table->float('total');
+            $table->integer('total_employees');
+            $table->string('period');
+            $table->date('payment_day');
+            $table->string('status');
+            $table->string('payer');
+            $table->unsignedBigInteger('payer_id');
+            $table->string('payer_fullname');
+            $table->longText('observations');
             $table->timestamps();
         });
     }

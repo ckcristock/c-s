@@ -145,20 +145,8 @@ use App\Http\Controllers\WorkOrderDesignController;
 use App\Http\Controllers\WorkOrderEngineeringController;
 use App\Http\Controllers\WorkOrderProductionController;
 use App\Models\Accommodation;
-use App\Models\Bonus;
 use App\Models\Budget;
-use App\Models\Business;
-use App\Models\BusinessBudget;
-use App\Models\ComprobanteConsecutivo;
-use App\Models\Deduction;
-use App\Models\LayoffPerson;
-use App\Models\Loan;
-use App\Models\Person;
-use App\Models\PreliquidatedLog;
-use App\Models\ThirdParty;
 use App\Models\User;
-use App\Models\WorkOrderBlueprint;
-use App\Models\WorkOrderProduction;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -468,7 +456,7 @@ Route::group(
 
         Route::resource('layoffs-certificate', LayoffsCertificateController::class);
         Route::get('layoff-list/check-layoffs-list/{anio}' , [ LayoffController::class, 'getCheckLayoffsList']);
-        Route::get('layoff-list/check-layoffs-list-paginated/{anio}' , [ LayoffController::class, 'getCheckLayoffsList']);
+        Route::get('layoff-list/paginated' , [ LayoffController::class, 'paginate']);
         Route::apiResources([
             'layoff-list' => LayoffController::class,
             'layoff-person' => LayoffPersonController::class
