@@ -110,7 +110,7 @@
 </div>
 <div class="d-flex justify-content-end">
     @if ($data['money_type'] == 'cop')
-        <h5>TOTAL: @money($data['total_cop'])</h5>
+        <h5>TOTAL SIN IVA: @money($data['total_cop'])</h5>
     @endif
     @if ($data['money_type'] == 'usd')
         <h5>TOTAL: @money($data['total_usd'])</h5>

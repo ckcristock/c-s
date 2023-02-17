@@ -12,31 +12,31 @@ class ApuSet extends Model
 
     protected $fillable = [
 
-        "name" ,
-        "city_id" ,
-        "person_id" ,
-        "third_party_id" ,
-        "line" ,
-        "observation" ,
-        "list_pieces_sets_subtotal" ,
-        "machine_tools_subtotal" ,
-        "internal_processes_subtotal" ,
-        "external_processes_subtotal" ,
-        "others_subtotal" ,
-        "total_direct_cost" ,
-        "unit_direct_cost" ,
-        "indirect_cost_total" ,
-        "direct_costs_indirect_costs_total" ,
-        "administrative_percentage" ,
-        "administrative_value" ,
-        "unforeseen_percentage" ,
-        "unforeseen_value" ,
-        "administrative_unforeseen_subtotal" ,
-        "administrative_unforeseen_unit" ,
-        "utility_percentage" ,
-        "admin_unforeseen_utility_subtotal" ,
-        "sale_price_cop_withholding_total" ,
-        "trm" ,
+        "name",
+        "city_id",
+        "person_id",
+        "third_party_id",
+        "line",
+        "observation",
+        "list_pieces_sets_subtotal",
+        "machine_tools_subtotal",
+        "internal_processes_subtotal",
+        "external_processes_subtotal",
+        "others_subtotal",
+        "total_direct_cost",
+        "unit_direct_cost",
+        "indirect_cost_total",
+        "direct_costs_indirect_costs_total",
+        "administrative_percentage",
+        "administrative_value",
+        "unforeseen_percentage",
+        "unforeseen_value",
+        "administrative_unforeseen_subtotal",
+        "administrative_unforeseen_unit",
+        "utility_percentage",
+        "admin_unforeseen_utility_subtotal",
+        "sale_price_cop_withholding_total",
+        "trm",
         "sale_price_usd_withholding_total",
         "code",
         'format_code',
@@ -44,19 +44,19 @@ class ApuSet extends Model
     ];
 
     public function city()
-	{
-		return $this->belongsTo(Municipality::class, 'city_id', 'id');
-	}
+    {
+        return $this->belongsTo(Municipality::class, 'city_id', 'id');
+    }
 
     public function person()
-	{
-		return $this->belongsTo(Person::class)->name();
-	}
+    {
+        return $this->belongsTo(Person::class)->name();
+    }
 
     public function thirdParty()
-	{
-		return $this->belongsTo(ThirdParty::class)->name();
-	}
+    {
+        return $this->belongsTo(ThirdParty::class)->name();
+    }
 
     public function scopeExtra($q, $request)
     {
@@ -81,59 +81,58 @@ class ApuSet extends Model
         )->when($request->code, function ($q, $fill) {
             $q->where('code', 'like', "%$fill%");
         })
-        ->when($request->name, function ($q, $fill) {
-            $q->where('name', 'like', "%$fill%");
-        })
-        ->when($request->line, function ($q, $fill) {
-            $q->where('line', 'like', "%$fill%");
-        })
-        ->when($request->description, function ($q, $fill) {
-            $q->where('observation', 'like', "%$fill%");
-        })
-        ->when($request->type, function ($q, $fill) {
-            $q->where('typeapu_name', $fill);
-        })
-        ->when($request->date_one, function ($q) use($request) {
-            $q->whereBetween('created_at', [$request->date_one, $request->date_two])
-            ->orWhereDate('created_at', date($request->date_one))
-            ->orWhereDate('created_at', date($request->date_two));
-        });
+            ->when($request->name, function ($q, $fill) {
+                $q->where('name', 'like', "%$fill%");
+            })
+            ->when($request->line, function ($q, $fill) {
+                $q->where('line', 'like', "%$fill%");
+            })
+            ->when($request->description, function ($q, $fill) {
+                $q->where('observation', 'like', "%$fill%");
+            })
+            ->when($request->type, function ($q, $fill) {
+                $q->where('typeapu_name', $fill);
+            })
+            ->when($request->date_one, function ($q) use ($request) {
+                $q->whereBetween('created_at', [$request->date_one, $request->date_two])
+                    ->orWhereDate('created_at', date($request->date_one))
+                    ->orWhereDate('created_at', date($request->date_two));
+            });
     }
 
     public function machine()
-	{
-		return $this->hasMany(ApuSetMachineTool::class)->with('machine', 'unit');
-	}
+    {
+        return $this->hasMany(ApuSetMachineTool::class)->with('machine', 'unit');
+    }
 
     public function setpartlist()
-	{
-		return $this->hasMany(ApuSetPartList::class)->with('unit');
-
-	}
+    {
+        return $this->hasMany(ApuSetPartList::class)->with('unit');
+    }
 
     public function external()
-	{
-		return $this->hasMany(ApuSetExternalProcess::class)->with('external', 'unit');
-	}
+    {
+        return $this->hasMany(ApuSetExternalProcess::class)->with('external', 'unit');
+    }
 
     public function internal()
-	{
-		return $this->hasMany(ApuSetInternalProcess::class)->with('internal', 'unit');
-	}
+    {
+        return $this->hasMany(ApuSetInternalProcess::class)->with('internal', 'unit');
+    }
 
     public function other()
-	{
-		return $this->hasMany(ApuSetOther::class)->with('unit');
-	}
+    {
+        return $this->hasMany(ApuSetOther::class)->with('unit');
+    }
 
     public function indirect()
-	{
-		return $this->hasMany(ApuSetIndirectCost::class);
-	}
+    {
+        return $this->hasMany(ApuSetIndirectCost::class);
+    }
 
     public function files()
-	{
-		return $this->hasMany(ApuSetFile::class);
-	}
+    {
+        return $this->hasMany(ApuSetFile::class);
+    }
 
 }

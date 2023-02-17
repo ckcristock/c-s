@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ApuPart;
+use App\Models\ApuService;
+use App\Models\ApuSet;
 use App\Models\Budget;
 use App\Models\Business;
+use App\Models\BusinessApu;
 use App\Models\BusinessBudget;
 use App\Models\BusinessHistory;
 use App\Models\BusinessNote;
@@ -81,6 +85,7 @@ class BusinessController extends Controller
     {
         try {
             $quotations = $request->quotations;
+            $apus = $request->apu;
             $consecutive = getConsecutive('businesses');
             $business = Business::create($request->except('budgets'));
             if ($consecutive->city) {
@@ -111,6 +116,41 @@ class BusinessController extends Controller
                         'title' => 'Se ha agregado una cotización',
                         'person_id' => $request->person_id,
                         'description' => $person->full_names . ' ha añadido la cotización ' . $quotation->line . ' - ' . $quotation->project . '.'
+                    ]);
+                }
+            }
+            if ($apus) {
+                foreach ($apus as $apu) {
+                    switch ($apu['type']) {
+                        case 'P':
+                            $apu_item = ApuPart::where('id', $value['id'])->first();
+                            $icon = 'fas fa-wrench';
+                            $type = 'App\Models\ApuPart';
+                            break;
+                        case 'C':
+                            $apu_item = ApuSet::where('id', $value['id'])->first();
+                            $icon = 'fas fa-cogs';
+                            $type = 'App\Models\ApuSet';
+                            break;
+                        case 'S':
+                            $apu_item = ApuService::where('id', $value['id'])->first();
+                            $icon = 'fas fa-headset';
+                            $type = 'App\Models\ApuService';
+                            break;
+                        default:
+                            break;
+                    }
+                    BusinessApu::create([
+                        'apuable_id' => $apu['apu_id'],
+                        'apuable_type' => $type,
+                        'business_id' =>  $business->id
+                    ]);
+                    $this->addEventToHistroy([
+                        'business_id' => $business->id,
+                        'icon' => $icon,
+                        'title' => 'Se ha agregado un APU',
+                        'person_id' => $request->person_id,
+                        'description' => $person->full_names . ' ha añadido el apu ' . $apu_item->name
                     ]);
                 }
             }
@@ -227,12 +267,14 @@ class BusinessController extends Controller
      */
     public function show($id)
     {
+        //return BusinessApu::with('apuable')->get();
         $business = Business::where('id', $id)
             ->with(
                 'thirdParty',
                 'thirdPartyPerson',
                 'country',
                 'city',
+                'apus',
                 'businessBudget',
                 'quotations',
                 'notes'
