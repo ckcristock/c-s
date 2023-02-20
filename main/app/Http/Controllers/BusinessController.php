@@ -123,17 +123,17 @@ class BusinessController extends Controller
                 foreach ($apus as $apu) {
                     switch ($apu['type']) {
                         case 'P':
-                            $apu_item = ApuPart::where('id', $value['id'])->first();
+                            $apu_item = ApuPart::where('id', $apu['apu_id'])->first();
                             $icon = 'fas fa-wrench';
                             $type = 'App\Models\ApuPart';
                             break;
                         case 'C':
-                            $apu_item = ApuSet::where('id', $value['id'])->first();
+                            $apu_item = ApuSet::where('id', $apu['apu_id'])->first();
                             $icon = 'fas fa-cogs';
                             $type = 'App\Models\ApuSet';
                             break;
                         case 'S':
-                            $apu_item = ApuService::where('id', $value['id'])->first();
+                            $apu_item = ApuService::where('id', $apu['apu_id'])->first();
                             $icon = 'fas fa-headset';
                             $type = 'App\Models\ApuService';
                             break;
@@ -225,6 +225,46 @@ class BusinessController extends Controller
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    public function newBusinessApu(Request $request)
+    {
+        $person = Person::where('id', $request->person_id)->fullName()->first();
+        $business = Business::where('id', $request->business_id)->first();
+        //$business->update(['quotation_value' => $request->quotation_value]);
+        foreach ($request->apus as $apu) {
+            switch ($apu['type']) {
+                case 'P':
+                    $apu_item = ApuPart::where('id', $apu['apu_id'])->first();
+                    $icon = 'fas fa-wrench';
+                    $type = 'App\Models\ApuPart';
+                    break;
+                case 'C':
+                    $apu_item = ApuSet::where('id', $apu['apu_id'])->first();
+                    $icon = 'fas fa-cogs';
+                    $type = 'App\Models\ApuSet';
+                    break;
+                case 'S':
+                    $apu_item = ApuService::where('id', $apu['apu_id'])->first();
+                    $icon = 'fas fa-headset';
+                    $type = 'App\Models\ApuService';
+                    break;
+                default:
+                    break;
+            }
+            BusinessApu::create([
+                'apuable_id' => $apu['apu_id'],
+                'apuable_type' => $type,
+                'business_id' =>  $business->id
+            ]);
+            $this->addEventToHistroy([
+                'business_id' => $business->id,
+                'icon' => $icon,
+                'title' => 'Se ha agregado un APU',
+                'person_id' => $request->person_id,
+                'description' => $person->full_names . ' ha añadido el apu ' . $apu_item->name
+            ]);
         }
     }
 

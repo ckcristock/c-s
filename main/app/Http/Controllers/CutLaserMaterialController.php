@@ -18,18 +18,22 @@ class CutLaserMaterialController extends Controller
     public function index()
     {
         return $this->success(
-            CutLaserMaterial::with('cutLaserMaterialValue')->get()
+            CutLaserMaterial::with('cutLaserMaterialValue', 'product')->get()
+            ->transform(function ($material) {
+                $material->name = $material->product->name;
+                unset($material->product);
+                return $material;
+            })
         );
     }
 
     public function paginate()
     {
         return $this->success(
-            CutLaserMaterial::orderBy('name')
-                ->with('cutLaserMaterialValue')
-                ->when(request()->get('name'), function ($q, $fill) {
+            CutLaserMaterial::with('cutLaserMaterialValue', 'product')
+                /* ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
-                })
+                }) */
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }

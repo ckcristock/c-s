@@ -710,6 +710,7 @@ Route::group(
         Route::get('/company-global', [CompanyController::class, 'getGlobal']);
 
         Route::get('getsubforcat/{id}', [SubcategoryController::class, 'getSubForCat']);
+        Route::get('get-materials', [ProductController::class, 'getMaterials']);
 
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
         Route::put("subcategory-active/{id}", [SubcategoryController::class, 'turningOnOff']);
@@ -829,6 +830,7 @@ Route::get('test', function(){
         Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
         Route::post('new-business-quotation', [BusinessController::class, 'newBusinessQuotation']);
+        Route::post('new-business-apu', [BusinessController::class, 'newBusinessApu']);
         Route::post('new-business-note', [BusinessController::class, 'newBusinessNote']);
         Route::get('business-notes/{id}', [BusinessController::class, 'getNotes']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
