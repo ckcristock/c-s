@@ -135,7 +135,9 @@ use App\Http\Controllers\ComprobanteConsecutivoController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
+use App\Http\Controllers\PlanCuentasController;
 use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\RawMaterialMaterialController;
 use App\Http\Controllers\TaskTypeController;
 use App\Http\Controllers\WorkOrderBlueprintController;
 use App\Http\Controllers\WorkOrderController;
@@ -495,6 +497,7 @@ Route::group(
         Route::resource('work-orders-engineering', WorkOrderEngineeringController::class);
         Route::resource('work-orders-design', WorkOrderDesignController::class);
         Route::resource('work-orders-production', WorkOrderProductionController::class);
+        Route::resource('raw-material-material', RawMaterialMaterialController::class);
 
         Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
 
@@ -602,6 +605,7 @@ Route::group(
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class,'paginate']);
+        Route::get('paginateRawMaterialMaterial', [RawMaterialMaterialController::class,'paginate']);
         Route::get('category-paginate', [CategoryController::class,'paginate']);
         Route::get('loan-paginate', [LoanController::class, 'paginate']);
         Route::get('woe-paginate', [WorkOrderEngineeringController::class, 'paginate']);
@@ -859,5 +863,14 @@ Route::get('test', function(){
         Route::post('php/rotativoscompras/actualizar_estado', [ListaComprasController::class, 'actualizarEstadoPreCompra']);
         Route::post('php/comprasnacionales/guardar_compra_nacional', [ListaComprasController::class, 'storeCompra']);
         Route::post('php/comprasnacionales/actualiza_compra', [ListaComprasController::class, 'setEstadoCompra']);
+
+        /* Plan cuentas */
+        Route::get('php/plancuentas/lista_plan_cuentas.php', [PlanCuentasController::class, 'paginate']);
+        Route::get('php/contabilidad/plancuentas/descargar_informe_plan_cuentas_excel.php', [PlanCuentasController::class, 'descargarExcel']);
+        Route::get('php/contabilidad/plancuentas/detalle_plan_cuenta.php', [PlanCuentasController::class, 'show']);
+        Route::post('php/contabilidad/plancuentas/cambiar_estado.php', [PlanCuentasController::class, 'cambiarEstado']);
+        Route::get('php/plancuentas/lista_bancos.php', [PlanCuentasController::class, 'listarBancos']);
+        Route::post('php/contabilidad/plancuentas/guardar_puc.php', [PlanCuentasController::class, 'store']);
+
     }
 );

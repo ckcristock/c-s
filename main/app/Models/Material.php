@@ -10,9 +10,6 @@ class Material extends Model
     protected $fillable = [
         "id",
         "material_id",
-        "unit_price",
-        "kg_value",
-        "value_aux"
     ];
 
 
