@@ -131,7 +131,9 @@ use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\CategoriaNuevaController;
+use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
+use App\Http\Controllers\DepreciacionController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
@@ -162,7 +164,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
-use App\Services\ExtraHoursService ;//eliminar este
+use App\Services\ExtraHoursService; //eliminar este
 
 /*
 |--------------------------------------------------------------------------
@@ -290,10 +292,10 @@ Route::group(
         Route::get('parametrizacion/nomina/riesgos', [PayrollConfigController::class, 'riesgosArlDatos']);
         Route::get('parametrizacion/nomina/ssocial_empresa', [PayrollConfigController::class, 'sSocialEmpresaDatos']);
         Route::get('parametrizacion/nomina/ssocial_funcionario', [PayrollConfigController::class, 'sSocialFuncionarioDatos']);
-        Route::get('parametrizacion/nomina/income', [PayrollConfigController::class, 'incomeDatos' ]);
-        Route::get('parametrizacion/nomina/deductions', [PayrollConfigController::class, 'deductionsDatos' ]);
-        Route::get('parametrizacion/nomina/liquidations', [PayrollConfigController::class, 'liquidationsDatos' ]);
-        Route::get('parametrizacion/nomina/salarios-subsidios', [PayrollConfigController::class, 'SalariosSubsidiosDatos' ]);
+        Route::get('parametrizacion/nomina/income', [PayrollConfigController::class, 'incomeDatos']);
+        Route::get('parametrizacion/nomina/deductions', [PayrollConfigController::class, 'deductionsDatos']);
+        Route::get('parametrizacion/nomina/liquidations', [PayrollConfigController::class, 'liquidationsDatos']);
+        Route::get('parametrizacion/nomina/salarios-subsidios', [PayrollConfigController::class, 'SalariosSubsidiosDatos']);
 
         /**ACTUALIZAR PARAMETROS CONFIG NOMINA */
         Route::put('parametrizacion/nomina/extras/update/{id}', [PayrollConfigController::class, 'horasExtrasUpdate']);
@@ -302,10 +304,10 @@ Route::group(
         Route::put('parametrizacion/nomina/riesgos-arl/update/{id}', [PayrollConfigController::class, 'riesgosArlUpdate']);
         Route::put('parametrizacion/nomina/parafiscales/update/{id}', [PayrollConfigController::class, 'parafiscalesUpdate']);
         Route::put('parametrizacion/nomina/incapacidades/update/{id}', [PayrollConfigController::class, 'incapacidadesUpdate']);
-        Route::post('parametrizacion/nomina/income/update', [PayrollConfigController::class, 'createUptadeIncomeDatos' ]);
-        Route::post('parametrizacion/nomina/deductions/update', [PayrollConfigController::class, 'createUpdateDeductionsDatos' ]);
-        Route::post('parametrizacion/nomina/liquidations/update', [PayrollConfigController::class, 'createUpdateLiquidationsDatos' ]);
-        Route::post('parametrizacion/nomina/salarios-subsidios/update', [PayrollConfigController::class, 'createUpdateSalariosSubsidiosDatos' ]);
+        Route::post('parametrizacion/nomina/income/update', [PayrollConfigController::class, 'createUptadeIncomeDatos']);
+        Route::post('parametrizacion/nomina/deductions/update', [PayrollConfigController::class, 'createUpdateDeductionsDatos']);
+        Route::post('parametrizacion/nomina/liquidations/update', [PayrollConfigController::class, 'createUpdateLiquidationsDatos']);
+        Route::post('parametrizacion/nomina/salarios-subsidios/update', [PayrollConfigController::class, 'createUpdateSalariosSubsidiosDatos']);
         /**/
 
         /** Rutas inventario dotacion rrhh */
@@ -323,7 +325,7 @@ Route::group(
         Route::get('dotations/download/{inicio?}/{fin?}', [InventaryDotationController::class, 'download']);
         Route::get('downloadeliveries/download/{inicio?}/{fin?}', [InventaryDotationController::class, 'downloadeliveries']);
 
-        Route::get('listado-horarios', [ReporteHorariosController::class, 'pruebaPrueba']);//eliminar esta ruta
+        Route::get('listado-horarios', [ReporteHorariosController::class, 'pruebaPrueba']); //eliminar esta ruta
         Route::post('pruebas', [ExtraHoursService::class, 'prueba']);
 
         /** end*/
@@ -396,7 +398,7 @@ Route::group(
 
         Route::get('nomina/pago/funcionario/{identidad}', [PayrollController::class, 'getFuncionario']);
         Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
-  /*       Route::get('prueba-prestamos', function(){
+        /*       Route::get('prueba-prestamos', function(){
             //return Loan::obtener(Person::find(11534),'2023-02-01','2023-02-28');
             $dedu = Deduction::periodo(Person::find(11531),'2022-01-01','2023-08-30');
             $aux = collect([]);
@@ -448,12 +450,12 @@ Route::group(
         Route::resource('applicants', ApplicantController::class);
         Route::resource('bodegas', BodegasController::class)->only(['index', 'store', 'show']);
 
-        Route::post('bodegas-activar-inactivar', [BodegasController::class,'activarInactivar']);
-        Route::post('grupos-bodegas', [BodegasController::class,'storeGrupo']);
-        Route::post('estibas', [BodegasController::class,'storeEstiba']);
-        Route::get('bodegas-with-estibas/{id}', [BodegasController::class,'bodegasConGrupos']);
-        Route::get('grupos-with-estibas/{id}', [BodegasController::class,'gruposConEstibas']);
-        Route::get('get-wo-for-stage', [WorkOrderController::class,'forStage']);
+        Route::post('bodegas-activar-inactivar', [BodegasController::class, 'activarInactivar']);
+        Route::post('grupos-bodegas', [BodegasController::class, 'storeGrupo']);
+        Route::post('estibas', [BodegasController::class, 'storeEstiba']);
+        Route::get('bodegas-with-estibas/{id}', [BodegasController::class, 'bodegasConGrupos']);
+        Route::get('grupos-with-estibas/{id}', [BodegasController::class, 'gruposConEstibas']);
+        Route::get('get-wo-for-stage', [WorkOrderController::class, 'forStage']);
 
         Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
         Route::resource('work-certificate', WorkCertificateController::class);
@@ -604,15 +606,15 @@ Route::group(
         Route::post('restore-accommodation', [AccommodationController::class, 'restore']);
 
         /* Paginations */
-        Route::get('paginateBodegas', [BodegasController::class,'paginate']);
-        Route::get('paginateRawMaterialMaterial', [RawMaterialMaterialController::class,'paginate']);
-        Route::get('category-paginate', [CategoryController::class,'paginate']);
+        Route::get('paginateBodegas', [BodegasController::class, 'paginate']);
+        Route::get('paginateRawMaterialMaterial', [RawMaterialMaterialController::class, 'paginate']);
+        Route::get('category-paginate', [CategoryController::class, 'paginate']);
         Route::get('loan-paginate', [LoanController::class, 'paginate']);
         Route::get('woe-paginate', [WorkOrderEngineeringController::class, 'paginate']);
         Route::get('wod-paginate', [WorkOrderDesignController::class, 'paginate']);
         Route::get('wop-paginate', [WorkOrderProductionController::class, 'paginate']);
-        Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class,'paginate']);
-        Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class,'paginate']);
+        Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class, 'paginate']);
+        Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class, 'paginate']);
         Route::get('paginateThickness', [ThicknessController::class, 'paginate']);
         Route::get('paginate-work-certificate', [WorkCertificateController::class, 'paginate']);
         Route::get('paginate-layoffs-certificate', [LayoffsCertificateController::class, 'paginate']);
@@ -719,9 +721,9 @@ Route::group(
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
         Route::put("subcategory-active/{id}", [SubcategoryController::class, 'turningOnOff']);
         Route::delete("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
-Route::get('test', function(){
-    return Budget::where('id',8)->with('quotations')->first();
-});
+        Route::get('test', function () {
+            return Budget::where('id', 8)->with('quotations')->first();
+        });
         //boards
         Route::get("board", [BoardController::class, "getData"]);
         Route::post('person/set-board/{personId}/{board}', [BoardController::class, 'setBoardsPerson']);
@@ -748,13 +750,13 @@ Route::get('test', function(){
         //se ejecuta al editar
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
-        Route::get("get-vars-producto", [ProductController::class,'getVars']);
-        Route::get("get-actividad-producto", [ProductController::class,'getActividad']);
-        Route::post("cambiar-estado-producto", [ProductController::class,'cambiarEstado']);
+        Route::get("get-vars-producto", [ProductController::class, 'getVars']);
+        Route::get("get-actividad-producto", [ProductController::class, 'getActividad']);
+        Route::post("cambiar-estado-producto", [ProductController::class, 'cambiarEstado']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 
         Route::resource("category", CategoryController::class);
-        Route::get('list-categories', [CategoryController::class,'listCategories']);
+        Route::get('list-categories', [CategoryController::class, 'listCategories']);
         Route::get("category-field/{id}", [CategoryController::class, 'getField']);
         Route::put("category-active/{id}", [CategoryController::class, 'turningOnOff']);
         Route::delete("category-variable/{id}", [CategoryController::class, 'deleteVariable']);
@@ -871,6 +873,19 @@ Route::get('test', function(){
         Route::post('php/contabilidad/plancuentas/cambiar_estado.php', [PlanCuentasController::class, 'cambiarEstado']);
         Route::get('php/plancuentas/lista_bancos.php', [PlanCuentasController::class, 'listarBancos']);
         Route::post('php/contabilidad/plancuentas/guardar_puc.php', [PlanCuentasController::class, 'store']);
-
+        Route::get('php/plancuentas/validar_puc_niveles.php', [PlanCuentasController::class, 'validarNiveles']);
+        /* Centro costos */
+        Route::get('php/centroscostos/lista_centros_costos.php', [CentroCostoController::class, 'paginate']);
+        Route::get('php/centroscostos/lista_tipo_centro.php', [CentroCostoController::class, 'listaTipo']);
+        Route::get('php/centroscostos/listar_valores_tipo_centro.php', [CentroCostoController::class, 'listaValores']);
+        Route::get('php/centroscostos/consultar_centro_costo.php', [CentroCostoController::class, 'consultarCentro']);
+        Route::get('php/centroscostos/cambiar_estado_centro_costo.php', [CentroCostoController::class, 'cambiarCentro']);
+        Route::post('php/centroscostos/guardar_centros_costos.php', [CentroCostoController::class, 'store']);
+        Route::get('php/centroscostos/exportar.php', [CentroCostoController::class, 'exportar']);
+        /* Depreciaciones */
+        Route::get('php/depreciacion/get_depreciaciones.php', [DepreciacionController::class, 'paginate']);
+        Route::get('php/contabilidad/movimientoscontables/movimientos_depreciacion_pdf.php', [DepreciacionController::class, 'pdf']);
+        Route::get('php/depreciacion/vista_previa.php', [DepreciacionController::class, 'vistaPrevia']);
+        Route::post('php/depreciacion/guardar_depreciacion.php', [DepreciacionController::class, 'store']);
     }
 );

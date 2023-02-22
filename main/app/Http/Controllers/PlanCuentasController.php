@@ -180,26 +180,22 @@ class PlanCuentasController extends Controller
     public function store()
     {
         $datos = isset($_REQUEST['Datos']) ? $_REQUEST['Datos'] : false;
-
         $datos = json_decode($datos, true);
 
         $guardar = true;
 
-        //var_dump($datos);
-        //exit;
-
         $oItem = '';
 
         if (isset($datos['Id_Plan_Cuentas']) && $datos['Id_Plan_Cuentas'] != '') {
-            $oItem = new complex("Plan_Cuentas", "Id_Plan_Cuentas", $datos['Id_Plan_Cuentas']);
+            $oItem = PlanCuentas::find($datos['Id_Plan_Cuentas']);
         } else {
-            $oItem = new complex("Plan_Cuentas", "Id_Plan_Cuentas");
+            $oItem = new PlanCuentas;
         }
 
         foreach ($datos as $index => $value) {
             if ($index == 'Codigo' || $index == 'Codigo_Niif') {
-                if (!isset($datos['Id_Plan_Cuentas'])) { // Si no es un proceso de edici��n
-                    if ($this->validarPUC($value, $datos["company_id"])) { // Si existe un PUC con el mismo c��digo que no se guarde.
+                if (!isset($datos['Id_Plan_Cuentas'])) { // Si no es un proceso de edición
+                    if (PlanCuentas::where('Codigo', $value)->where('Id_Empresa', $datos["company_id"])->exists()) { // Si existe un PUC con el mismo código que no se guarde.
                         $guardar = false;
                         break;
                     }
@@ -217,7 +213,7 @@ class PlanCuentasController extends Controller
         if ($guardar) {
 
             $oItem->save();
-            $id_plan = $oItem->getId();
+            $id_plan = $oItem->Id_Plan_Cuentas;
             unset($oItem);
 
             if ($id_plan) {
@@ -228,7 +224,7 @@ class PlanCuentasController extends Controller
                 $resultado['tipo'] = "error";
             }
         } else {
-            $resultado['mensaje'] = "Ya existe un PUC con ese c��digo.";
+            $resultado['mensaje'] = "Ya existe un PUC con ese código.";
             $resultado['tipo'] = "error";
         }
 
@@ -236,7 +232,8 @@ class PlanCuentasController extends Controller
         return json_encode($resultado);
     }
 
-    function validarPUC($cod,$emp){
+    function validarPUC($cod, $emp)
+    {
         $query = "SELECT Id_Plan_Cuentas FROM Plan_Cuentas WHERE Codigo = '$cod' OR Codigo_Niif = '$cod' AND Id_Empresa=$emp";
 
         $oCon = new consulta();
@@ -246,6 +243,64 @@ class PlanCuentasController extends Controller
 
         return $resultado || false;
     }
+
+    public function validarNiveles()
+    {
+        $tipo_plan = $_REQUEST['Tipo_Plan'];
+        $codigo = $_REQUEST['Codigo'];
+        $tipo_puc = $_REQUEST['Tipo_Puc'];
+        $nombre_nivel_superior = '';
+
+        $codigo_validar = $this->getCodigoValidar($tipo_plan, $codigo);
+        $campo_codigo = $tipo_puc == 'pcga' ? 'Codigo' : 'Codigo_Niif';
+
+        $query = "SELECT Id_Plan_Cuentas FROM Plan_Cuentas WHERE $campo_codigo LIKE '$codigo_validar%'";
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $resultado = $oCon->getData();
+        unset($oCon);
+
+        $response = ["validacion" => 0, "nivel_superior" => $nombre_nivel_superior];
+
+        if ($resultado) {
+            $response['validacion'] = 1;
+        }
+
+        echo json_encode($response);
+    }
+
+    function getCodigoValidar($tipo_plan, $codigo) {
+		$nivel_superior = $this->getNivelSuperiorLength($tipo_plan);
+
+		$codigo = substr($codigo,0,$nivel_superior);
+
+		return $codigo;
+	}
+
+	function getNivelSuperiorLength($tipo_plan) {
+
+		$nombre_nivel_superior = '';
+
+		$nombres_niveles = [
+			"1" => "Grupo",
+			"2" => "Clase",
+			"4" => "Cuenta",
+			"6" => "Subcuenta"
+		];
+
+		$niveles_superior = [
+			"auxiliar" => 6,
+			"subcuenta" => 4,
+			"cuenta" => 2,
+			"clase" => 1
+		];
+
+		$nombre_nivel_superior = $nombres_niveles[$niveles_superior[$tipo_plan]];
+
+		return $niveles_superior[$tipo_plan];
+	}
 
     /**
      * Display the specified resource.

@@ -10,6 +10,7 @@ class PlanCuentas extends Model
     use HasFactory;
 
     protected $table = 'Plan_Cuentas';
+    protected $primaryKey = 'Id_Plan_Cuentas';
 
     protected $fillable = [
         'Id_Plan_Cuentas',
