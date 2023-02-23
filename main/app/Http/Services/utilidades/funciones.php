@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Services;
 
+
 function fecha($fecha) {
     return date('d/m/Y', strtotime($fecha));
 }

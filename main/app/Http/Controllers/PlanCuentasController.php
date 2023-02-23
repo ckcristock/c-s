@@ -137,6 +137,48 @@ class PlanCuentasController extends Controller
         return json_encode($respuesta);
     }
 
+    public function filtrarCuentas()
+    {
+        $match = (isset($_REQUEST['coincidencia']) ? $_REQUEST['coincidencia'] : '');
+        $tipo = (isset($_REQUEST['tipo']) ? $_REQUEST['tipo'] : '');
+
+        $http_response = new HttpResponse();
+
+        if ($tipo == 'pcga') {
+            $query = '
+		SELECT
+			Id_Plan_Cuentas,
+			Codigo,
+			Nombre,
+			CONCAT(Codigo," - ", Nombre) AS Nombre_Cuenta
+		FROM Plan_Cuentas
+		WHERE
+			Nombre LIKE "%' . $match . '%" OR Codigo LIKE "%' . $match . '%" AND Movimiento = "S"
+		ORDER BY Nombre ASC';
+        } else {
+            $query = '
+		SELECT
+			Id_Plan_Cuentas,
+			Codigo_Niif,
+			Nombre_Niif,
+			CONCAT(Codigo_Niif," - ", Nombre_Niif) AS Nombre_Cuenta_Niif
+		FROM Plan_Cuentas
+		WHERE
+			Nombre_Niif LIKE "%' . $match . '%" OR Codigo_Niif LIKE "%' . $match . '%" AND Movimiento = "S"
+		ORDER BY Nombre_Niif ASC';
+        }
+
+
+
+        //Se crea la instancia que contiene la consulta a realizar
+        $queryObj = new QueryBaseDatos($query);
+
+        //Ejecuta la consulta de la instancia queryobj y retorna el resultado de la misma segun los parametros
+        $CodigoCIEs = $queryObj->ExecuteQuery('Multiple');
+
+        return json_encode($CodigoCIEs);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -271,36 +313,38 @@ class PlanCuentasController extends Controller
         echo json_encode($response);
     }
 
-    function getCodigoValidar($tipo_plan, $codigo) {
-		$nivel_superior = $this->getNivelSuperiorLength($tipo_plan);
+    function getCodigoValidar($tipo_plan, $codigo)
+    {
+        $nivel_superior = $this->getNivelSuperiorLength($tipo_plan);
 
-		$codigo = substr($codigo,0,$nivel_superior);
+        $codigo = substr($codigo, 0, $nivel_superior);
 
-		return $codigo;
-	}
+        return $codigo;
+    }
 
-	function getNivelSuperiorLength($tipo_plan) {
+    function getNivelSuperiorLength($tipo_plan)
+    {
 
-		$nombre_nivel_superior = '';
+        $nombre_nivel_superior = '';
 
-		$nombres_niveles = [
-			"1" => "Grupo",
-			"2" => "Clase",
-			"4" => "Cuenta",
-			"6" => "Subcuenta"
-		];
+        $nombres_niveles = [
+            "1" => "Grupo",
+            "2" => "Clase",
+            "4" => "Cuenta",
+            "6" => "Subcuenta"
+        ];
 
-		$niveles_superior = [
-			"auxiliar" => 6,
-			"subcuenta" => 4,
-			"cuenta" => 2,
-			"clase" => 1
-		];
+        $niveles_superior = [
+            "auxiliar" => 6,
+            "subcuenta" => 4,
+            "cuenta" => 2,
+            "clase" => 1
+        ];
 
-		$nombre_nivel_superior = $nombres_niveles[$niveles_superior[$tipo_plan]];
+        $nombre_nivel_superior = $nombres_niveles[$niveles_superior[$tipo_plan]];
 
-		return $niveles_superior[$tipo_plan];
-	}
+        return $niveles_superior[$tipo_plan];
+    }
 
     /**
      * Display the specified resource.
@@ -338,6 +382,42 @@ class PlanCuentasController extends Controller
         $http_response->SetRespuesta(0, 'Detalle', 'Operación Exitosa!');
         $respuesta = $http_response->GetRespuesta();
         return json_encode($respuesta);
+    }
+
+    public function listaCuentas()
+    {
+        $company = (isset($_REQUEST['company_id']) ? $_REQUEST['company_id'] : '1');
+        $query = 'SELECT PC.Id_Plan_Cuentas,
+                 PC.Id_Plan_Cuentas AS Id,
+                 PC.Codigo,
+                 PC.Codigo AS Codigo_Cuenta,
+                 CONCAT(PC.Nombre," - ",PC.Codigo) as Codigo,
+                 CONCAT(PC.Codigo," - ",PC.Nombre) as Nombre,
+                 PC.Centro_Costo
+                 FROM Plan_Cuentas PC
+                 WHERE CHAR_LENGTH(PC.Codigo)>5 AND PC.Movimiento = "S"
+                 AND PC.Id_Empresa=' . $company;
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $resultado['Activo'] = $oCon->getData();
+        unset($oCon);
+
+        $query = 'SELECT PC.Id_Plan_Cuentas,
+                PC.Codigo AS Codigo_Cuenta,
+                CONCAT(PC.Nombre," - ",PC.Codigo) as Codigo
+                FROM Plan_Cuentas PC
+                WHERE CHAR_LENGTH(PC.Codigo)>5 AND PC.Movimiento = "S"
+                AND PC.Id_Empresa=' . $company;
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $resultado['Pasivo'] = $oCon->getData();
+        unset($oCon);
+
+        return json_encode($resultado);
     }
 
     /**

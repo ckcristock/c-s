@@ -1040,14 +1040,18 @@ print_r($pila);
 
                         if (!array_key_exists($plan_deb, $cuentas_depreciaciacion["Debito"])) {
                             $cuentas_depreciaciacion["Debito"][$plan_deb]['Pcga'] = floatval(number_format($valor_depreciacion_niif, 2, ".", ""));
+                            //!DEBERÍA IR Niif
                         } else {
                             $cuentas_depreciaciacion["Debito"][$plan_deb]['Pcga'] += floatval(number_format($valor_depreciacion_niif, 2, ".", ""));
+                            //!DEBERÍA IR Niif
                         }
 
                         if (!array_key_exists($plan_cred, $cuentas_depreciaciacion["Credito"])) {
                             $cuentas_depreciaciacion["Credito"][$plan_cred]['Pcga'] = floatval(number_format($valor_depreciacion_niif, 2, ".", ""));
+                            //!DEBERÍA IR Niif
                         } else {
                             $cuentas_depreciaciacion["Credito"][$plan_cred]['Pcga'] += floatval(number_format($valor_depreciacion_niif, 2, ".", ""));
+                            //!DEBERÍA IR Niif
                         }
                     }
                 }
@@ -1160,7 +1164,7 @@ print_r($pila);
 
     public function movimientos()
     {
-        
+
     }
 
     /**

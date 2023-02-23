@@ -6097,7 +6097,7 @@ class Contabilizar
             $oItem->Id_Registro_Modulo = $this->id_registro_modulo;
             $oItem->Debe = number_format($value['Pcga'], 2, ".", "");
             $oItem->Haber = '0';
-            $oItem->Debe_Niif = number_format($value['Pcga'], 2, ".", "");
+            $oItem->Debe_Niif = number_format($value['Pcga'], 2, ".", ""); //!DEBERÍA IR Niif
             $oItem->Haber_Niif = '0';
             $oItem->Nit = 804016084;
             $oItem->Tipo_Nit = 'Cliente';

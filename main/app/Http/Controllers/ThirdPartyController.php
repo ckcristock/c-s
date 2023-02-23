@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\ThirdParty;
 use App\Models\ThirdPartyField;
 use App\Models\ThirdPartyPerson;
+use App\Http\Services\HttpResponse;
+use App\Http\Services\QueryBaseDatos;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -117,6 +119,51 @@ class ThirdPartyController extends Controller
             ThirdPartyField::where('state', '=', 'Activo')
                 ->get()
         );
+    }
+
+    public function filtrarPhp()
+    {
+        $match = (isset($_REQUEST['coincidencia']) ? $_REQUEST['coincidencia'] : '');
+
+        $condicion = '';
+
+        if ($match != '') {
+            $condicion .= ' WHERE
+		T.Nit LIKE "%' . $match . '%" OR T.Nombre_Tercero LIKE "%' . $match . '%"';
+        }
+
+        $http_response = new HttpResponse();
+
+        $query = '
+		SELECT
+			T.*
+		FROM (SELECT
+				id AS Nit,
+				id AS Id,
+				CONCAT(id," - ", CONCAT_WS(" ", first_name, first_surname)) AS Nombre_Tercero,
+				CONCAT(id," - ", CONCAT_WS(" ", first_name, first_surname)) AS Nombre,
+				"Funcionario" as Tipo
+			FROM people
+				UNION
+			SELECT
+				Id_Cliente AS Nit,
+				Id_Cliente AS Id,
+				CONCAT(Id_Cliente," - ",Nombre) AS Nombre_Tercero,CONCAT(Id_Cliente," - ",Nombre) AS Nombre, "Cliente" as Tipo
+			FROM Cliente
+				UNION
+			SELECT
+				Id_Proveedor AS Nit,
+				Id_Proveedor AS Id,
+				CONCAT(Id_Proveedor," - ",IF((Primer_Nombre IS NULL OR Primer_Nombre = ""), Nombre, CONCAT_WS(" ", Primer_Nombre, Segundo_Nombre, Primer_Apellido, Segundo_Apellido))) AS Nombre_Tercero, CONCAT(Id_Proveedor," - ",IF((Primer_Nombre IS NULL OR Primer_Nombre = ""), Nombre, CONCAT_WS(" ", Primer_Nombre, Segundo_Nombre, Primer_Apellido, Segundo_Apellido))) AS Nombre, "Proveedor" as Tipo
+			FROM Proveedor
+
+			) T ' . $condicion;
+
+
+        $queryObj = new QueryBaseDatos($query);
+        $matches = $queryObj->ExecuteQuery('Multiple');
+
+        return json_encode($matches);
     }
 
     /**

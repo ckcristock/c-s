@@ -4,6 +4,7 @@
 
 use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\AccountPlanController;
+use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\ApuController;
@@ -134,13 +135,16 @@ use App\Http\Controllers\CategoriaNuevaController;
 use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
 use App\Http\Controllers\DepreciacionController;
+use App\Http\Controllers\DocumentoContableController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\PlanCuentasController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\RawMaterialMaterialController;
+use App\Http\Controllers\RetencionController;
 use App\Http\Controllers\TaskTypeController;
+use App\Http\Controllers\TipoActivoFijoController;
 use App\Http\Controllers\WorkOrderBlueprintController;
 use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\WorkOrderDesignController;
@@ -861,11 +865,9 @@ Route::group(
         Route::get('impuestos', [BodegasController::class, 'impuestos']);
         Route::get('php/inventario_fisico_puntos/lista_punto_funcionario', [PersonController::class, 'funcionarioPunto']);
         Route::get('get-estados-compra', [ListaComprasController::class, 'getEstadosCompra']);
-
         Route::post('php/rotativoscompras/actualizar_estado', [ListaComprasController::class, 'actualizarEstadoPreCompra']);
         Route::post('php/comprasnacionales/guardar_compra_nacional', [ListaComprasController::class, 'storeCompra']);
         Route::post('php/comprasnacionales/actualiza_compra', [ListaComprasController::class, 'setEstadoCompra']);
-
         /* Plan cuentas */
         Route::get('php/plancuentas/lista_plan_cuentas.php', [PlanCuentasController::class, 'paginate']);
         Route::get('php/contabilidad/plancuentas/descargar_informe_plan_cuentas_excel.php', [PlanCuentasController::class, 'descargarExcel']);
@@ -874,6 +876,8 @@ Route::group(
         Route::get('php/plancuentas/lista_bancos.php', [PlanCuentasController::class, 'listarBancos']);
         Route::post('php/contabilidad/plancuentas/guardar_puc.php', [PlanCuentasController::class, 'store']);
         Route::get('php/plancuentas/validar_puc_niveles.php', [PlanCuentasController::class, 'validarNiveles']);
+        Route::get('php/comprobantes/lista_cuentas.php', [PlanCuentasController::class, 'listaCuentas']);
+        Route::get('php/plancuentas/filtrar_cuentas.php', [PlanCuentasController::class, 'filtrarCuentas']);
         /* Centro costos */
         Route::get('php/centroscostos/lista_centros_costos.php', [CentroCostoController::class, 'paginate']);
         Route::get('php/centroscostos/lista_tipo_centro.php', [CentroCostoController::class, 'listaTipo']);
@@ -887,5 +891,32 @@ Route::group(
         Route::get('php/contabilidad/movimientoscontables/movimientos_depreciacion_pdf.php', [DepreciacionController::class, 'pdf']);
         Route::get('php/depreciacion/vista_previa.php', [DepreciacionController::class, 'vistaPrevia']);
         Route::post('php/depreciacion/guardar_depreciacion.php', [DepreciacionController::class, 'store']);
+        /* Activos fijos */
+        Route::get('php/activofijo/get_lista_activo_fijo.php', [ActivoFijoController::class, 'paginate']);
+        Route::get('php/activofijo/datos_reporte.php', [ActivoFijoController::class, 'datosReporte']);
+        Route::get('php/activofijo/get_detalle_activo_fijo.php', [ActivoFijoController::class, 'show']);
+        Route::get('php/activofijo/adiciones_activo.php', [ActivoFijoController::class, 'adiciones']);
+        Route::get('php/activofijo/get_codigo.php', [ActivoFijoController::class, 'getCodigo']);
+        Route::get('php/activofijo/cuentas_retenciones.php', [ActivoFijoController::class, 'cuentasRetenciones']);
+        Route::get('php/activofijo/cuentas.php', [ActivoFijoController::class, 'cuentas']);
+        Route::get('php/activofijo/filtrar.php', [ActivoFijoController::class, 'filtrar']);
+        Route::get('php/activofijo/lista_facturas.php', [ActivoFijoController::class, 'listaFacturas']);
+        Route::get('php/activofijo/get_activo_fijo_adiccion.php', [ActivoFijoController::class, 'adicion']);
+        Route::get('php/contabilidad/movimientoscontables/movimientos_activo_fijo_pdf.php', [ActivoFijoController::class, 'pdf']);
+        Route::get('php/activofijo/reportes.php', [ActivoFijoController::class, 'reportes']);
+        Route::post('php/activofijo/guardar_activo_fijo.php', [ActivoFijoController::class, 'store']);
+        Route::post('php/activofijo/guardar_activo_fijo_adicion.php', [ActivoFijoController::class, 'guardarAdicion']);
+        Route::post('php/contabilidad/anular_documento.php', [ActivoFijoController::class, 'anularDocumento']);
+        /* Retencion */
+        Route::get('php/activofijo/retenciones.php', [RetencionController::class, 'index']);
+        /* Tipos activos fijos */
+        Route::get('php/tipoactivo/get_tipo_activos.php', [TipoActivoFijoController::class, 'index']);
+        Route::get('php/tipoactivo/get_lista_tipo_activo.php', [TipoActivoFijoController::class, 'paginate']);
+        Route::post('php/tipoactivo/guardar_tipo_activo.php', [TipoActivoFijoController::class, 'store']);
+        /* Terceros */
+        Route::get('php/terceros/filtrar_terceros.php', [ThirdPartyController::class, 'filtrarPhp']);
+        /* Notas contables */
+        Route::get('php/contabilidad/notascontables/lista_notas_contables.php', [DocumentoContableController::class, 'paginate']);
+        Route::get('php/contabilidad/notascontables/nit_buscar.php', [DocumentoContableController::class, 'nitBuscar']);
     }
 );
