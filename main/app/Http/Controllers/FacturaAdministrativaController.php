@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Retencion;
+use App\Models\FacturaAdministrativa;
 use Illuminate\Http\Request;
-use App\Http\Services\HttpResponse;
-use App\Http\Services\QueryBaseDatos;
-use App\Http\Services\consulta;
 
-class RetencionController extends Controller
+class FacturaAdministrativaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,31 +14,7 @@ class RetencionController extends Controller
      */
     public function index()
     {
-        $http_response = new HttpResponse();
-
-        $query = 'SELECT R.*
-			FROM Retencion R
-			ORDER BY R.Nombre ASC';
-
-
-        $queryObj = new QueryBaseDatos($query);
-        $retenciones = $queryObj->ExecuteQuery('Multiple');
-
-        return json_encode($retenciones);
-    }
-
-    public function lista()
-    {
-        $query = 'SELECT * FROM Retencion WHERE Estado = "Activo"';
-
-        $oCon = new consulta();
-        $oCon->setQuery($query);
-        $oCon->setTipo('Multiple');
-        $res = $oCon->getData();
-        unset($oCon);
-
-
-        return json_encode($res);
+        //
     }
 
     /**
@@ -68,10 +41,10 @@ class RetencionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Retencion  $retencion
+     * @param  \App\Models\FacturaAdministrativa  $facturaAdministrativa
      * @return \Illuminate\Http\Response
      */
-    public function show(Retencion $retencion)
+    public function show(FacturaAdministrativa $facturaAdministrativa)
     {
         //
     }
@@ -79,10 +52,10 @@ class RetencionController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Retencion  $retencion
+     * @param  \App\Models\FacturaAdministrativa  $facturaAdministrativa
      * @return \Illuminate\Http\Response
      */
-    public function edit(Retencion $retencion)
+    public function edit(FacturaAdministrativa $facturaAdministrativa)
     {
         //
     }
@@ -91,10 +64,10 @@ class RetencionController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Retencion  $retencion
+     * @param  \App\Models\FacturaAdministrativa  $facturaAdministrativa
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Retencion $retencion)
+    public function update(Request $request, FacturaAdministrativa $facturaAdministrativa)
     {
         //
     }
@@ -102,10 +75,10 @@ class RetencionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Retencion  $retencion
+     * @param  \App\Models\FacturaAdministrativa  $facturaAdministrativa
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Retencion $retencion)
+    public function destroy(FacturaAdministrativa $facturaAdministrativa)
     {
         //
     }

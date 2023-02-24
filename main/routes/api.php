@@ -131,11 +131,15 @@ use App\Http\Controllers\LiquidationsController;
 use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
+use App\Http\Controllers\BorradorContabilidadController;
 use App\Http\Controllers\CategoriaNuevaController;
 use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
+use App\Http\Controllers\CuentaDocumentoContableController;
 use App\Http\Controllers\DepreciacionController;
 use App\Http\Controllers\DocumentoContableController;
+use App\Http\Controllers\FacturaController;
+use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PayrollManagerController;
@@ -878,6 +882,7 @@ Route::group(
         Route::get('php/plancuentas/validar_puc_niveles.php', [PlanCuentasController::class, 'validarNiveles']);
         Route::get('php/comprobantes/lista_cuentas.php', [PlanCuentasController::class, 'listaCuentas']);
         Route::get('php/plancuentas/filtrar_cuentas.php', [PlanCuentasController::class, 'filtrarCuentas']);
+        Route::get('php/comprobantes/cuentas.php', [PlanCuentasController::class, 'comprobanteCuentas']);
         /* Centro costos */
         Route::get('php/centroscostos/lista_centros_costos.php', [CentroCostoController::class, 'paginate']);
         Route::get('php/centroscostos/lista_tipo_centro.php', [CentroCostoController::class, 'listaTipo']);
@@ -886,6 +891,8 @@ Route::group(
         Route::get('php/centroscostos/cambiar_estado_centro_costo.php', [CentroCostoController::class, 'cambiarCentro']);
         Route::post('php/centroscostos/guardar_centros_costos.php', [CentroCostoController::class, 'store']);
         Route::get('php/centroscostos/exportar.php', [CentroCostoController::class, 'exportar']);
+        Route::get('php/contabilidad/notascontables/centrocosto_buscar.php', [CentroCostoController::class, 'buscar']);
+        Route::get('php/contabilidad/notascarteras/centrocosto_buscar.php', [CentroCostoController::class, 'buscar']);
         /* Depreciaciones */
         Route::get('php/depreciacion/get_depreciaciones.php', [DepreciacionController::class, 'paginate']);
         Route::get('php/contabilidad/movimientoscontables/movimientos_depreciacion_pdf.php', [DepreciacionController::class, 'pdf']);
@@ -909,14 +916,31 @@ Route::group(
         Route::post('php/contabilidad/anular_documento.php', [ActivoFijoController::class, 'anularDocumento']);
         /* Retencion */
         Route::get('php/activofijo/retenciones.php', [RetencionController::class, 'index']);
+        Route::get('php/contabilidad/lista_retenciones.php', [RetencionController::class, 'lista']);
         /* Tipos activos fijos */
         Route::get('php/tipoactivo/get_tipo_activos.php', [TipoActivoFijoController::class, 'index']);
         Route::get('php/tipoactivo/get_lista_tipo_activo.php', [TipoActivoFijoController::class, 'paginate']);
         Route::post('php/tipoactivo/guardar_tipo_activo.php', [TipoActivoFijoController::class, 'store']);
         /* Terceros */
         Route::get('php/terceros/filtrar_terceros.php', [ThirdPartyController::class, 'filtrarPhp']);
+        Route::get('php/contabilidad/proveedor_buscar.php', [ThirdPartyController::class, 'buscarProveedor']);
+        Route::get('php/contabilidad/notascarteras/nit_buscar.php', [ThirdPartyController::class, 'nitBuscar']);
+        Route::get('php/clientes/get_terceros_por_tipo.php', [ThirdPartyController::class, 'porTipo']);
         /* Notas contables */
         Route::get('php/contabilidad/notascontables/lista_notas_contables.php', [DocumentoContableController::class, 'paginate']);
         Route::get('php/contabilidad/notascontables/nit_buscar.php', [DocumentoContableController::class, 'nitBuscar']);
+        Route::get('php/contabilidad/notascontables/get_codigo.php', [DocumentoContableController::class, 'getCodigo']);
+        Route::get('php/contabilidad/notascontables/descarga_pdf.php', [DocumentoContableController::class, 'descargarPdf']);
+        Route::post('php/contabilidad/notascontables/subir_facturas.php', [DocumentoContableController::class, 'subirFacturas']);
+        /* Borrador contabilidad */
+        Route::get('php/contabilidad/lista_borrador_contable.php', [BorradorContabilidadController::class, 'lista']);
+        /* Cuenta documento contable */
+        Route::get('php/contabilidad/notascarteras/lista_notas_carteras.php', [CuentaDocumentoContableController::class, 'listaNotasCartera']);
+        /* Facturas */
+        Route::get('php/notas_credito_nuevo/get_notas_creditos.php', [FacturaController::class, 'getNotasCreditos']);
+        Route::get('php/notas_credito_nuevo/lista_facturas_cliente_notas_credito.php', [FacturaController::class, 'listaFacturaClienteNotasCredito']);
+        /* Generales */
+        Route::get('php/lista_generales.php', [GeneralController::class, 'listaGenerales']);
+        Route::get('php/genericos/detalle.php', [GeneralController::class, 'detalle']);
     }
 );

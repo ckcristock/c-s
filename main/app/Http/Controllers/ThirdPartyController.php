@@ -7,6 +7,9 @@ use App\Models\ThirdPartyField;
 use App\Models\ThirdPartyPerson;
 use App\Http\Services\HttpResponse;
 use App\Http\Services\QueryBaseDatos;
+use App\Http\Services\consulta;
+use App\Models\CompensationFund;
+use App\Models\Person;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -316,5 +319,103 @@ class ThirdPartyController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function buscarProveedor()
+    {
+        $query = 'SELECT PR.id as Id_Proveedor,
+            IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname, second_name, second_surname))  as NombreProveedor
+            FROM third_parties PR
+            WHERE PR.third_party_type = "Cliente" ';
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $proveedorbucar = $oCon->getData();
+        unset($oCon);
+
+
+        return json_encode($proveedorbucar);
+    }
+
+    public function nitBuscar()
+    {
+        /* $third = ThirdParty::where('state', 'Activo')
+            ->select(
+                'id',
+                DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as Nombre'),
+                DB::raw('"Cliente" AS Tipo')
+            )->get();
+        $people = Person::where('status', 'Activo')
+            ->select(
+                'id',
+                DB::raw('CONCAT(id, " - ", first_name," ", first_surname) AS Nombre'),
+                DB::raw('"Funcionario" AS Tipo')
+            )->get();
+        $compensation_funds = CompensationFund::where('status', 'Activo')
+            ->select(
+                'nit as id',
+                DB::raw('CONCAT_WS(" ", nit, name) AS Nombre'),
+                DB::raw('"Caja_Compensacion" AS Tipo')
+            )->get(); */
+
+        $query = ThirdParty::where('state', 'Activo')
+            ->select(
+                'id',
+                DB::raw('IFNULL(social_reason COLLATE utf8mb4_spanish_ci, CONCAT_WS(" ", first_name, first_surname)) as Nombre'),
+                DB::raw('"Cliente" AS Tipo')
+            )
+            ->union(
+                Person::where('status', 'Activo')
+                    ->select(
+                        'id',
+                        DB::raw('CONCAT(id, " - ", first_name," ", first_surname) AS Nombre'),
+                        DB::raw('"Funcionario" AS Tipo')
+                    )
+            )
+            ->union(
+                CompensationFund::where('status', 'Activo')
+                    ->select(
+                        'nit as id',
+                        DB::raw('CONCAT_WS(" ", nit, name) AS Nombre'),
+                        DB::raw('"Caja_Compensacion" AS Tipo')
+                    )
+            )
+            ->get();
+
+
+        return json_encode($query);
+    }
+
+    public function porTipo()
+    {
+        $tipo = isset($_REQUEST['Tipo']) ? $_REQUEST['Tipo'] : false;
+
+        if ($tipo) {
+            $query = $this->query($tipo);
+
+            $oCon = new consulta();
+            $oCon->setQuery($query);
+            $oCon->setTipo('Multiple');
+            $clientes = $oCon->getData();
+
+            $res = $clientes;
+            return json_encode($res);
+        }
+    }
+    function query($tipo)
+    {
+        if ($tipo == 'Funcionario') {
+            $select = 'SELECT id AS Id_Cliente,
+                         CONCAT(id, " - ",first_name," ",first_surname) AS Nombre
+                         FROM people';
+        } else if ($tipo == 'Cliente') {
+            $select = 'SELECT id as Id_Cliente, IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) AS Nombre
+            FROM third_parties WHERE third_party_type = "Cliente"';
+        } else if ($tipo == 'Proveedor') {
+            $select = 'SELECT id AS Id_Cliente ,
+                        IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) AS Nombre FROM third_parties WHERE third_party_type = "Proveedor" ';
+        }
+        return $select;
     }
 }

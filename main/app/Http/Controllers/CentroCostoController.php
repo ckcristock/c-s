@@ -103,6 +103,20 @@ class CentroCostoController extends Controller
         return json_encode($resultado);
     }
 
+    public function buscar()
+    {
+        $query = 'SELECT CONCAT(Codigo, " - ", Nombre) AS Nombre, Id_Centro_Costo FROM Centro_Costo WHERE Movimiento = "Si" AND Estado = "Activo"';
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $centrocosto = $oCon->getData();
+        unset($oCon);
+
+
+        return json_encode($centrocosto);
+    }
+
     function getPagination($query, $req, $resulset)
     {
         ####### PAGINACIÓN ########

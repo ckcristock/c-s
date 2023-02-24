@@ -137,6 +137,19 @@ class PlanCuentasController extends Controller
         return json_encode($respuesta);
     }
 
+    public function comprobanteCuentas()
+    {
+        $query = "SELECT Id_Plan_Cuentas AS value, CONCAT_WS(' ',Codigo,'-',Nombre) AS label FROM Plan_Cuentas WHERE Banco = 'S' AND Cod_Banco IS NOT NULL";
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $resultados = $oCon->getData();
+        unset($oCon);
+
+        return json_encode($resultados);
+    }
+
     public function filtrarCuentas()
     {
         $match = (isset($_REQUEST['coincidencia']) ? $_REQUEST['coincidencia'] : '');
