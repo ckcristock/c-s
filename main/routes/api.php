@@ -134,11 +134,13 @@ use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\BorradorContabilidadController;
 use App\Http\Controllers\CategoriaNuevaController;
 use App\Http\Controllers\CentroCostoController;
+use App\Http\Controllers\ChequeConsecutivoController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
 use App\Http\Controllers\CuentaDocumentoContableController;
 use App\Http\Controllers\DepreciacionController;
 use App\Http\Controllers\DocumentoContableController;
 use App\Http\Controllers\FacturaController;
+use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
@@ -852,6 +854,8 @@ Route::group(
         Route::get('get-history-business/{id}', [BusinessController::class, 'getHistory']);
         Route::post('change-status-in-business', [BusinessController::class, 'changeStatusInBusiness']);
 
+        Route::post('import-validator-account-plans', [PlanCuentasController::class, 'validateExcel']);
+
         /************RUTAS PHP************/
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);
         Route::get('php/genericos/departamentos.php', [CategoriaNuevaController::class, 'getDepartamentos']);
@@ -926,6 +930,7 @@ Route::group(
         Route::get('php/contabilidad/proveedor_buscar.php', [ThirdPartyController::class, 'buscarProveedor']);
         Route::get('php/contabilidad/notascarteras/nit_buscar.php', [ThirdPartyController::class, 'nitBuscar']);
         Route::get('php/clientes/get_terceros_por_tipo.php', [ThirdPartyController::class, 'porTipo']);
+        Route::get('php/comprobantes/lista_cliente.php', [ThirdPartyController::class, 'listaCliente']);
         /* Notas contables */
         Route::get('php/contabilidad/notascontables/lista_notas_contables.php', [DocumentoContableController::class, 'paginate']);
         Route::get('php/contabilidad/notascontables/nit_buscar.php', [DocumentoContableController::class, 'nitBuscar']);
@@ -942,5 +947,10 @@ Route::group(
         /* Generales */
         Route::get('php/lista_generales.php', [GeneralController::class, 'listaGenerales']);
         Route::get('php/genericos/detalle.php', [GeneralController::class, 'detalle']);
+        Route::get('php/comprobantes/get_codigo.php', [GeneralController::class, 'getCodigo']);
+        /* Cheques */
+        Route::get('php/comprobantes/lista_cheques.php', [ChequeConsecutivoController::class, 'lista']);
+        /* Forma pago */
+        Route::get('php/comprobantes/formas_pago.php', [FormaPagoController::class, 'index']);
     }
 );

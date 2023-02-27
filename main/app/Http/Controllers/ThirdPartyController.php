@@ -403,6 +403,21 @@ class ThirdPartyController extends Controller
             return json_encode($res);
         }
     }
+
+    public function listaCliente()
+    {
+        $query = '(SELECT C.Id_Cliente, CONCAT(C.Id_Cliente," - ", C.Nombre) as Nombre
+                FROM Cliente C WHERE C.Estado != "Inactivo") UNION (SELECT F.id AS Id_Cliente, CONCAT(CONCAT_WS(" ",F.first_name,F.first_surname)," - ",F.id) AS Nombre FROM people F)';
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $clientes = $oCon->getData();
+        unset($oCon);
+
+        return json_encode($clientes);
+    }
+
     function query($tipo)
     {
         if ($tipo == 'Funcionario') {

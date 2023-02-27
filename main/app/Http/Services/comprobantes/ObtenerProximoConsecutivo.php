@@ -3,7 +3,7 @@
 use App\Http\Services\consulta;
 use App\Http\Services\complex;
 
-function obtenerProximoConsecutivo($tipo, $company, $mes = null, $anio = null, $dia = null)
+function obtenerProximoConsecutivo($tipo, $company = 1, $mes = null, $anio = null, $dia = null)
 {
     $mes = $mes === null ? date('m') : $mes;
     $anio = $anio === null ? date('m') : $anio;
@@ -15,7 +15,6 @@ function obtenerProximoConsecutivo($tipo, $company, $mes = null, $anio = null, $
     $oCon->setQuery($query);
     $resultado = $oCon->getData();
     unset($oCon);
-
     $prefijo = $resultado['Prefijo'];
     $consecutivo = $resultado['Consecutivo'];
 

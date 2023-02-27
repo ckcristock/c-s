@@ -11,13 +11,30 @@ use App\Http\Services\HttpResponse;
 use App\Http\Services\consulta;
 use App\Http\Services\complex;
 use App\Http\Services\QueryBaseDatos;
+use App\Imports\AccountPlansImport;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Str;
 
 class PlanCuentasController extends Controller
 {
 
     use ApiResponser;
+
+    public function validateExcel(Request $request)
+    {
+        $file = base64_decode(
+            preg_replace(
+                "#^data:application/\w+;base64,#i",
+                "",
+                $request->file
+            )
+        );
+        $file_path = '/imports/' . Str::random(30) . time() . '.xlsx';
+        Storage::disk('public')->put($file_path, $file, "public");
+        Excel::import(new AccountPlansImport, $file_path, 'public');
+    }
 
     public function paginate(Request $request)
     {
