@@ -433,4 +433,18 @@ class ThirdPartyController extends Controller
         }
         return $select;
     }
+
+    public function listaProveedores()
+    {
+        $query = 'SELECT Id_Proveedor, IF(Nombre = "" OR Nombre IS NULL,CONCAT_WS(" ",Id_Proveedor,"-",Primer_Nombre,Segundo_Nombre,Primer_Apellido,Segundo_Apellido),CONCAT_WS(" ",Id_Proveedor,"-",Nombre)) AS NombreProveedor
+	    FROM Proveedor UNION (SELECT F.id AS Id_Proveedor, CONCAT(CONCAT_WS(" ",F.first_name,F.first_surname)," - ",F.id) AS NombreProveedor FROM people F)';
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $proveedores = $oCon->getData();
+        unset($oCon);
+
+        return json_encode($proveedores);
+    }
 }

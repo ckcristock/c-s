@@ -16,6 +16,20 @@ use Maatwebsite\Excel\Facades\Excel;
 class CentroCostoController extends Controller
 {
 
+    public function listaCentro()
+    {
+        $query = 'SELECT Id_Centro_Costo AS value, CONCAT(Codigo, " - ", Nombre) AS label FROM Centro_Costo WHERE Estado = "Activo" AND Movimiento = "Si"';
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $res = $oCon->getData();
+        unset($oCon);
+
+
+        return json_encode($res);
+    }
+
     public function paginate()
     {
         $id_centro = (isset($_REQUEST['id_centro']) && $_REQUEST['id_centro'] != '') ? $_REQUEST['id_centro'] : '';

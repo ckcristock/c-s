@@ -135,6 +135,7 @@ use App\Http\Controllers\BorradorContabilidadController;
 use App\Http\Controllers\CategoriaNuevaController;
 use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\ChequeConsecutivoController;
+use App\Http\Controllers\CierreContableController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
 use App\Http\Controllers\CuentaDocumentoContableController;
 use App\Http\Controllers\DepreciacionController;
@@ -144,6 +145,7 @@ use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\MedioMagneticoController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\PlanCuentasController;
 use App\Http\Controllers\QuotationController;
@@ -887,6 +889,8 @@ Route::group(
         Route::get('php/comprobantes/lista_cuentas.php', [PlanCuentasController::class, 'listaCuentas']);
         Route::get('php/plancuentas/filtrar_cuentas.php', [PlanCuentasController::class, 'filtrarCuentas']);
         Route::get('php/comprobantes/cuentas.php', [PlanCuentasController::class, 'comprobanteCuentas']);
+        Route::get('php/plancuentas/get_planes_cuentas.php', [PlanCuentasController::class, 'getPlanCuentas']);
+        Route::post('php/plancuentas/set_plan_cuentas_tipo_cierre.php', [PlanCuentasController::class, 'setTipoCierre']);
         /* Centro costos */
         Route::get('php/centroscostos/lista_centros_costos.php', [CentroCostoController::class, 'paginate']);
         Route::get('php/centroscostos/lista_tipo_centro.php', [CentroCostoController::class, 'listaTipo']);
@@ -897,6 +901,7 @@ Route::group(
         Route::get('php/centroscostos/exportar.php', [CentroCostoController::class, 'exportar']);
         Route::get('php/contabilidad/notascontables/centrocosto_buscar.php', [CentroCostoController::class, 'buscar']);
         Route::get('php/contabilidad/notascarteras/centrocosto_buscar.php', [CentroCostoController::class, 'buscar']);
+        Route::get('php/contabilidad/balanceprueba/lista_centro_costos.php', [CentroCostoController::class, 'listaCentro']);
         /* Depreciaciones */
         Route::get('php/depreciacion/get_depreciaciones.php', [DepreciacionController::class, 'paginate']);
         Route::get('php/contabilidad/movimientoscontables/movimientos_depreciacion_pdf.php', [DepreciacionController::class, 'pdf']);
@@ -931,6 +936,7 @@ Route::group(
         Route::get('php/contabilidad/notascarteras/nit_buscar.php', [ThirdPartyController::class, 'nitBuscar']);
         Route::get('php/clientes/get_terceros_por_tipo.php', [ThirdPartyController::class, 'porTipo']);
         Route::get('php/comprobantes/lista_cliente.php', [ThirdPartyController::class, 'listaCliente']);
+        Route::get('php/comprobantes/lista_proveedores.php', [ThirdPartyController::class, 'listaProveedores']);
         /* Notas contables */
         Route::get('php/contabilidad/notascontables/lista_notas_contables.php', [DocumentoContableController::class, 'paginate']);
         Route::get('php/contabilidad/notascontables/nit_buscar.php', [DocumentoContableController::class, 'nitBuscar']);
@@ -941,9 +947,13 @@ Route::group(
         Route::get('php/contabilidad/lista_borrador_contable.php', [BorradorContabilidadController::class, 'lista']);
         /* Cuenta documento contable */
         Route::get('php/contabilidad/notascarteras/lista_notas_carteras.php', [CuentaDocumentoContableController::class, 'listaNotasCartera']);
+        Route::get('php/comprobantes/lista_egresos.php', [CuentaDocumentoContableController::class, 'listaEgresos']);
+        Route::get('php/comprobantes/lista_comprobantes.php', [CuentaDocumentoContableController::class, 'listaComprobantes']);
         /* Facturas */
         Route::get('php/notas_credito_nuevo/get_notas_creditos.php', [FacturaController::class, 'getNotasCreditos']);
         Route::get('php/notas_credito_nuevo/lista_facturas_cliente_notas_credito.php', [FacturaController::class, 'listaFacturaClienteNotasCredito']);
+        Route::get('php/notas_credito_nuevo/lista_producto_notas_credito.php', [FacturaController::class, 'listaProductoNotasCredito']);
+        Route::post('php/notas_credito_nuevo/guardar_nota_credito.php', [FacturaController::class, 'guardarNotaCredito']);
         /* Generales */
         Route::get('php/lista_generales.php', [GeneralController::class, 'listaGenerales']);
         Route::get('php/genericos/detalle.php', [GeneralController::class, 'detalle']);
@@ -952,5 +962,13 @@ Route::group(
         Route::get('php/comprobantes/lista_cheques.php', [ChequeConsecutivoController::class, 'lista']);
         /* Forma pago */
         Route::get('php/comprobantes/formas_pago.php', [FormaPagoController::class, 'index']);
+        /* Cierre contable */
+        Route::get('php/contabilidad/cierres/lista_cierre.php', [CierreContableController::class, 'listaCierre']);
+        Route::post('php/contabilidad/cierres/validar_cierre.php', [CierreContableController::class, 'validarCierre']);
+        Route::post('php/contabilidad/cierres/guardar_cierre.php', [CierreContableController::class, 'guardarCierre']);
+        Route::get('php/contabilidad/cierres/anular_cierre.php', [CierreContableController::class, 'anularCierre']);
+        Route::get('php/contabilidad/movimientoscontables/movimientos_cierreanio_excel.php', [CierreContableController::class, 'excel']);
+        /* Medios magneticos */
+        Route::get('php/contabilidad/mediosmagneticos/lista_medios_magneticos.php', [MedioMagneticoController::class, 'lista']);
     }
 );

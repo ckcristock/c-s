@@ -100,29 +100,21 @@ class FacturaController extends Controller
                 $condicion .= "WHERE DATE(Fecha_Nota) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
             }
         }
-
         if (isset($_REQUEST['cliente'])) {
-
             if ($condicion) {
                 $condicion .= 'AND Cliente LIKE "%' . $_REQUEST['cliente'] . '%" ';
             } else {
                 $condicion .= 'WHERE Cliente LIKE "%' . $_REQUEST['cliente'] . '%" ';
             }
         }
-
-
-
         if (isset($_REQUEST['funcionario'])) {
-
             if ($condicion) {
                 $condicion .= 'AND Funcionario LIKE "%' . $_REQUEST['funcionario'] . '%" ';
             } else {
                 $condicion .= ' WHERE Funcionario LIKE "%' . $_REQUEST['funcionario'] . '%" ';
             }
         }
-
         if (isset($_REQUEST['cod_factura'])) {
-
             if ($condicion) {
                 $condicion .= 'AND Codigo_Factura LIKE "%' . $_REQUEST['cod_factura'] . '%" ';
             } else {
@@ -131,7 +123,6 @@ class FacturaController extends Controller
         }
         /*
         if (isset($_REQUEST['estado_fact'])) {
-
             if ($condicion) {
                 $condicion .= 'AND Estado_Factura LIKE "%'.$_REQUEST['estado_fact'].'%" ';
             }else{
@@ -139,75 +130,88 @@ class FacturaController extends Controller
             }
 
         } */
-
-
-
-        $query = 'SELECT COUNT(*) AS Total   FROM ( SELECT
-        F.Codigo AS Codigo_Factura, F.Id_Factura_Administrativa AS Id_Factura, "Factura_Administrativa" AS Tipo_Factura, NT.Codigo AS Codigo_Nota, NT.Fecha AS Fecha_Nota, NT.Id_Nota_Credito_Global,  F.Cliente , F.Funcionario
-        FROM(
-            SELECT  FA.* , IFNULL(CONCAT(F.first_name," ",F.first_surname),F.first_name) AS Cliente,
-          IFNULL(CONCAT(F.first_name," ",F.first_surname),F.first_name) AS Funcionario
-            FROM Factura_Administrativa FA
-            INNER JOIN people F ON F.id = FA.Identificacion_Funcionario
-            WHERE Tipo_Cliente = "Funcionario"
-
-            UNION ALL
-
-            SELECT  FA.* , C.Nombre AS Cliente,
-            IFNULL(CONCAT(F.first_name," ",F.first_surname),F.first_name) AS Funcionario
-            FROM Factura_Administrativa FA
-            INNER JOIN Cliente C ON C.Id_Cliente = FA.Id_Cliente
-            INNER JOIN people F ON F.id = FA.Identificacion_Funcionario
-            WHERE Tipo_Cliente = "Cliente"
-
-            UNION ALL
-
-            SELECT  FA.* , P.Nombre AS Cliente,
-            IFNULL(CONCAT(F.first_name," ",F.first_surname),F.first_name) AS Funcionario
-            FROM Factura_Administrativa FA
-            INNER JOIN Proveedor P ON P.Id_Proveedor = FA.Id_Cliente
-            INNER JOIN people F ON F.id = FA.Identificacion_Funcionario
-            WHERE Tipo_Cliente = "Proveedor"
-            ) AS F
-            INNER JOIN Nota_Credito_Global NT ON NT.Id_Factura = F.Id_Factura_Administrativa AND NT.Tipo_Factura = "Factura_Administrativa"
-
-         UNION
-         SELECT F.Codigo AS Codigo_Factura, F.Id_Factura_Venta AS Id_Factura, "Factura_Venta" AS Tipo_Factura, NT.Codigo AS Codigo_Nota, NT.Fecha AS Fecha_Nota, NT.Id_Nota_Credito_Global,  C.Nombre AS Cliente , IFNULL(CONCAT(FU.first_name," ",FU.first_surname),FU.first_name) AS Funcionario
-
-        FROM Factura_Venta F
-        INNER JOIN Nota_Credito_Global NT ON NT.Id_Factura = F.Id_Factura_Venta AND NT.Tipo_Factura = "Factura_Venta"
-        INNER JOIN Cliente C ON C.Id_Cliente = F.Id_Cliente
-        INNER JOIN people FU ON FU.id = NT.Id_Funcionario
-        UNION ALL
-        SELECT F.Codigo AS Codigo_Factura, F.Id_Factura AS Id_Factura, "Factura" AS Tipo_Factura, NT.Codigo AS Codigo_Nota, NT.Fecha AS Fecha_Nota, NT.Id_Nota_Credito_Global,  C.Nombre AS Cliente , IFNULL(CONCAT(FU.first_name," ",FU.first_surname),FU.first_name) AS Funcionario
-         FROM Factura F
-        INNER JOIN Nota_Credito_Global NT ON NT.Id_Factura = F.Id_Factura AND NT.Tipo_Factura = "Factura"
-        INNER JOIN Cliente C ON C.Id_Cliente = F.Id_Cliente
-        INNER JOIN people FU ON FU.id = NT.Id_Funcionario
-        UNION ALL
-        SELECT
-        F.Codigo AS Codigo_Factura, F.Id_Factura_Capita AS Id_Factura_Capita, "Factura_Capita" AS Tipo_Factura, NT.Codigo AS Codigo_Nota, NT.Fecha AS Fecha_Nota, NT.Id_Nota_Credito_Global,  C.Nombre AS Cliente , IFNULL(CONCAT(FU.first_name," ",FU.first_surname),FU.first_name) AS Funcionario
-
-        FROM Factura_Capita F
-        INNER JOIN Nota_Credito_Global NT ON NT.Id_Factura = F.Id_Factura_Capita AND NT.Tipo_Factura = "Factura_Capita"
-        INNER JOIN Cliente C ON C.Id_Cliente = F.Id_Cliente
-        INNER JOIN people FU ON FU.id = NT.Id_Funcionario
-        ) AS Notas
-
-             ' . $condicion;
+        $query =
+            'SELECT COUNT(*) AS Total
+            FROM ( SELECT F.Codigo AS Codigo_Factura,
+                F.Id_Factura_Administrativa AS Id_Factura,
+                "Factura_Administrativa" AS Tipo_Factura,
+                NT.Codigo AS Codigo_Nota,
+                NT.Fecha AS Fecha_Nota,
+                NT.Id_Nota_Credito_Global,
+                F.Cliente ,
+                F.Funcionario
+                FROM( SELECT  FA.* ,
+                    IFNULL(CONCAT(F.first_name," ",F.first_surname),F.first_name) AS Cliente,
+                    IFNULL(CONCAT(F.first_name," ",F.first_surname),F.first_name) AS Funcionario
+                    FROM Factura_Administrativa FA
+                    INNER JOIN people F ON F.id = FA.Identificacion_Funcionario
+                    WHERE Tipo_Cliente = "Funcionario"
+                    UNION ALL
+                    SELECT  FA.* , C.Nombre AS Cliente,
+                        IFNULL(CONCAT(F.first_name," ",F.first_surname),F.first_name) AS Funcionario
+                        FROM Factura_Administrativa FA
+                        INNER JOIN Cliente C ON C.Id_Cliente = FA.Id_Cliente
+                        INNER JOIN people F ON F.id = FA.Identificacion_Funcionario
+                        WHERE Tipo_Cliente = "Cliente"
+                        UNION ALL
+                        SELECT  FA.* , P.Nombre AS Cliente,
+                        IFNULL(CONCAT(F.first_name," ",F.first_surname),F.first_name) AS Funcionario
+                        FROM Factura_Administrativa FA
+                        INNER JOIN Proveedor P ON P.Id_Proveedor = FA.Id_Cliente
+                        INNER JOIN people F ON F.id = FA.Identificacion_Funcionario
+                        WHERE Tipo_Cliente = "Proveedor"
+                ) AS F
+                INNER JOIN Nota_Credito_Global NT
+                    ON NT.Id_Factura = F.Id_Factura_Administrativa AND NT.Tipo_Factura = "Factura_Administrativa"
+                UNION
+                SELECT F.Codigo AS Codigo_Factura,
+                    F.Id_Factura_Venta AS Id_Factura,
+                    "Factura_Venta" AS Tipo_Factura,
+                    NT.Codigo AS Codigo_Nota,
+                    NT.Fecha AS Fecha_Nota,
+                    NT.Id_Nota_Credito_Global,
+                    C.Nombre AS Cliente,
+                    IFNULL(CONCAT(FU.first_name," ",FU.first_surname),FU.first_name) AS Funcionario
+                    FROM Factura_Venta F
+                INNER JOIN Nota_Credito_Global NT ON NT.Id_Factura = F.Id_Factura_Venta AND NT.Tipo_Factura = "Factura_Venta"
+                INNER JOIN Cliente C ON C.Id_Cliente = F.Id_Cliente
+                INNER JOIN people FU ON FU.id = NT.Id_Funcionario
+                UNION ALL
+                SELECT F.Codigo AS Codigo_Factura,
+                    F.Id_Factura AS Id_Factura,
+                    "Factura" AS Tipo_Factura,
+                    NT.Codigo AS Codigo_Nota,
+                    NT.Fecha AS Fecha_Nota,
+                    NT.Id_Nota_Credito_Global,
+                    C.Nombre AS Cliente,
+                    IFNULL(CONCAT(FU.first_name," ",FU.first_surname),FU.first_name) AS Funcionario
+                    FROM Factura F
+                INNER JOIN Nota_Credito_Global NT ON NT.Id_Factura = F.Id_Factura AND NT.Tipo_Factura = "Factura"
+                INNER JOIN Cliente C ON C.Id_Cliente = F.Id_Cliente
+                INNER JOIN people FU ON FU.id = NT.Id_Funcionario
+                UNION ALL
+                SELECT F.Codigo AS Codigo_Factura,
+                    F.Id_Factura_Capita AS Id_Factura_Capita,
+                    "Factura_Capita" AS Tipo_Factura,
+                    NT.Codigo AS Codigo_Nota,
+                    NT.Fecha AS Fecha_Nota,
+                    NT.Id_Nota_Credito_Global,
+                    C.Nombre AS Cliente,
+                    IFNULL(CONCAT(FU.first_name," ",FU.first_surname),FU.first_name) AS Funcionario
+                    FROM Factura_Capita F
+                INNER JOIN Nota_Credito_Global NT ON NT.Id_Factura = F.Id_Factura_Capita AND NT.Tipo_Factura = "Factura_Capita"
+                INNER JOIN Cliente C ON C.Id_Cliente = F.Id_Cliente
+                INNER JOIN people FU ON FU.id = NT.Id_Funcionario
+            ) AS Notas' . $condicion;
         $oCon = new consulta();
         $oCon->setQuery($query);
         $numReg = $oCon->getData();
-
         unset($oCon);
         $currentPage = '';
         $numReg = $numReg['Total'];
         $perPage = 15;
         $from = "";
         $to = "";
-
-
-
         if (isset($_REQUEST['pag'])) {
             $currentPage = $_REQUEST['pag'];
             $from = ($currentPage - 1) * $perPage;
@@ -215,8 +219,6 @@ class FacturaController extends Controller
             $currentPage = 1;
             $from = 0;
         }
-
-
         $query = ' SELECT * FROM ( SELECT
         F.Codigo AS Codigo_Factura, F.Id_Factura_Administrativa AS Id_Factura, "Factura_Administrativa" AS Tipo_Factura, NT.Codigo AS Codigo_Nota, NT.Fecha AS Fecha_Nota, NT.Id_Nota_Credito_Global,  F.Cliente , F.Funcionario
         FROM(
@@ -431,10 +433,205 @@ class FacturaController extends Controller
 
     function calcularSubtotal($Item)
     {
-        $valor_iva = ((float)($Item['Impuesto']) / 100) * (((float)($Item['Cantidad']) * (float)($Item['Precio'])) - ((float)($Item['Cantidad']) * (float)($Item['Descuento'])));
-        $subtotal = ((float)($Item['Cantidad']) * (float)($Item['Precio'])) - ((float)($Item['Cantidad']) * (float)($Item['Descuento']));
+        $valor_iva = ((float)($Item->Impuesto) / 100) *
+            (((float)($Item->Cantidad) *
+                (float)($Item->Precio)) -
+                ((float)($Item->Cantidad) *
+                    (float)($Item->Descuento))
+            );
+        $subtotal = ((float)($Item->Cantidad) * (float)($Item->Precio)) - ((float)($Item->Cantidad) * (float)($Item->Descuento));
         $resultado = $subtotal + $valor_iva;
 
         return $resultado;
+    }
+
+    function validarExistenciaNotaGlobal($id, $response)
+    {
+        $oItem = new complex('Factura_Venta', 'Id_Factura_Venta', $id);
+        $factura = $oItem->getData();
+        unset($oItem);
+
+        $query = ' SELECT GROUP_CONCAT( Codigo )   AS Codigos
+                    FROM Nota_Credito_Global
+                   WHERE Codigo_Factura = "' . $factura['Codigo'] . '"
+                   GROUP BY Codigo_Factura';
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $notas_globales = $oCon->getData();
+
+        if (!$notas_globales) {
+            # code...
+            return false;
+        }
+        $response['type'] = 'error';
+        $response['title'] = 'OOPS! Existe Nota Crédito creada para esta factura';
+        $response['message'] = 'Se ha realizado nota credito tipo precio (NO AFECTA INVENTARIO) con anterioridad : ' . $notas_globales['Codigos'];
+
+        return true;
+    }
+    function GetProductosNotaCreditoFactura($idFactura)
+    {
+        $query = '
+                  SELECT
+                      IFNULL(GROUP_CONCAT(Id_Producto), 0) AS Excluir_Productos
+                  FROM Nota_Credito NC
+                  INNER JOIN Producto_Nota_Credito PNC ON NC.Id_Nota_Credito = PNC.Id_Nota_Credito
+                  WHERE
+                      NC.Id_Factura = ' . $idFactura . ' AND NC.Estado!="Anulada" ';
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('simple');
+        $productos_nota_credito = $oCon->getData();
+        unset($oCon);
+
+        return $productos_nota_credito['Excluir_Productos'];
+    }
+
+    public function listaProductoNotasCredito()
+    {
+        $id = (isset($_REQUEST['id']) ? $_REQUEST['id'] : '');
+
+        $response = [];
+        if ($id == '') {
+            echo json_encode(array());
+            return;
+        }
+
+        if (!$this->validarExistenciaNotaGlobal($id, $response)) {
+
+
+            $productos_excluir = $this->GetProductosNotaCreditoFactura($id);
+
+            $condicion_productos_excluir = ' HAVING Cantidad > 0';
+
+
+            $query2 = 'SELECT PFV.*,
+                IFNULL(CONCAT(P.Nombre_Comercial, " - ",P.Principio_Activo, " ", P.Cantidad,"", P.Unidad_Medida, " " , P.Presentacion, "\n", P.Invima, " CUM:", P.Codigo_Cum),
+                CONCAT(P.Nombre_Comercial, " LAB-", P.Laboratorio_Comercial)) as producto,
+                P.Id_Producto,
+                IF(P.Laboratorio_Generico IS NULL,P.Laboratorio_Comercial,P.Laboratorio_Generico) as Laboratorio,
+                P.Presentacion,
+                P.Codigo_Cum as Cum,
+                PFV.Fecha_Vencimiento as Vencimiento,
+                PFV.Lote as Lote,
+                "true" as Disabled, 0 as Subtotal_Nota, 0 as Iva,
+                (PFV.Cantidad - (SELECT IFNULL(SUM(PNC.Cantidad), 0) FROM Producto_Nota_Credito PNC INNER JOIN Nota_Credito NC ON PNC.Id_Nota_Credito = NC.Id_Nota_Credito WHERE NC.Id_Factura = PFV.Id_Factura_Venta AND PNC.Id_Producto = PFV.Id_Producto AND PNC.Lote = PFV.Lote AND NC.Estado!="Anulada")) AS Cantidad
+                FROM Producto_Factura_Venta PFV
+
+                LEFT JOIN Producto P ON P.Id_Producto = PFV.Id_Producto
+                /* WHERE PFV.Id_Factura_Venta = */' /* . $id . $condicion_productos_excluir */;
+
+            $oCon = new consulta();
+            $oCon->setQuery($query2);
+            $oCon->setTipo('Multiple');
+            $productos = $oCon->getData();
+            unset($oCon);
+
+            if (count($productos) == 0) {
+                $query22 = 'SELECT PFV.*,
+        IFNULL(CONCAT(P.Principio_Activo, " ", P.Cantidad,"", P.Unidad_Medida, " " , P.Presentacion, "\n", P.Invima, " CUM:", P.Codigo_Cum), CONCAT(P.Nombre_Comercial, " LAB-", P.Laboratorio_Comercial)) as producto,
+        P.Id_Producto,
+        IF(P.Laboratorio_Generico IS NULL,P.Laboratorio_Comercial,P.Laboratorio_Generico) as Laboratorio,
+        P.Presentacion,
+        P.Codigo_Cum as Cum,
+        PFV.Fecha_Vencimiento as Vencimiento,
+        PFV.Lote as Lote,
+        PFV.Id_Inventario_Nuevo as Id_Inventario_Nuevo,
+        PFV.Precio_Venta as Costo_unitario,
+        PFV.Cantidad as Cantidad,
+        PFV.Precio_Venta as PrecioVenta,
+        PFV.Subtotal as Subtotal,
+        PFV.Id_Producto_Factura_Venta as idPFV,"true" as Disabled, 0 as Subtotal_Nota, 0 as Iva,
+        (PFV.Cantidad - (SELECT IFNULL(SUM(PNC.Cantidad), 0) FROM Producto_Nota_Credito PNC INNER JOIN Nota_Credito NC ON PNC.Id_Nota_Credito = NC.Id_Nota_Credito WHERE NC.Id_Factura = PFV.Id_Factura_Venta AND PNC.Id_Producto = PFV.Id_Producto AND PNC.Lote = PFV.Lote)) AS Cantidad
+        FROM Producto_Factura_Venta PFV
+        LEFT JOIN Producto P ON PFV.Id_Producto = P.Id_Producto
+        WHERE PFV.Id_Factura_Venta =' . $id . $condicion_productos_excluir;
+
+                $oCon = new consulta();
+                $oCon->setQuery($query22);
+                $oCon->setTipo('Multiple');
+                $productos = $oCon->getData();
+                unset($oCon);
+            }
+
+            $response['type'] = 'success';
+            $response['data'] = $productos;
+        }
+
+        return json_encode($response);
+    }
+
+    public function guardarNotaCredito()
+    {
+        $mod = (isset($_REQUEST['modulo']) ? $_REQUEST['modulo'] : '');
+        $datos = (isset($_REQUEST['datos']) ? $_REQUEST['datos'] : '');
+        $productos = (isset($_REQUEST['productos']) ? $_REQUEST['productos'] : '');
+
+        $datos = (array) json_decode($datos);
+        $productos = (array) json_decode($productos, true);
+
+
+
+        //$cod= $configuracion->getConsecutivo('Nota_Credito','Nota_Credito');
+
+        $cod = '45645646456456'; //generarConsecutivo()
+
+        // $query = 'SELECT E.Id_Bodega_Nuevo
+        //     FROM Inventario_Nuevo I
+        //     INNER JOIN Estiba E ON E.Id_Estiba = I.Id_Estiba
+        //     WHERE I.Id_Inventario_Nuevo = ' . $productos[0]['Id_Inventario_Nuevo'];
+        // $oCon = new consulta();
+        // $oCon->setQuery($query);
+        // $id_bodega_nuevo = $oCon->getData();
+        // $id_bodega_nuevo = $id_bodega_nuevo['Id_Bodega_Nuevo'];
+
+
+        $datos['Codigo'] = $cod;
+
+        $oItem = new complex($mod, "Id_" . $mod);
+        foreach ($datos as $index => $value) {
+            $oItem->$index = $value;
+        }
+        $oItem->Id_Bodega_Nuevo = 0;
+        $oItem->save();
+        $id_venta = $oItem->getId();
+        $resultado = array();
+        unset($oItem);
+
+        /* AQUI GENERA QR */
+        //$qr = generarqr('notascredito', $id_venta, '/IMAGENES/QR/');
+        $oItem = new complex("Nota_Credito", "Id_Nota_Credito", $id_venta);
+        //$oItem->Codigo_Qr = $qr;
+        $oItem->save();
+        unset($oItem);
+        /* HASTA AQUI GENERA QR */
+
+        foreach ($productos as $producto) {
+            if ($producto['Nota']) {
+                $oItem = new complex('Producto_Nota_Credito', "Id_Producto_Nota_Credito");
+                $producto["Id_Nota_Credito"] = $id_venta;
+                foreach ($producto as $index => $value) {
+                    $oItem->$index = $value;
+                }
+                $oItem->Id_Inventario = 0;
+                $oItem->Id_Inventario_Nuevo = 0;
+                $subtotal = $producto['Cantidad_Ingresada'] * $producto['Precio_Venta'];
+                $oItem->Cantidad = $producto['Cantidad_Ingresada'];
+                $oItem->Subtotal = number_format($subtotal, 2, ".", "");
+                $oItem->Id_Motivo = $producto['Id_Motivo'];
+                $oItem->save();
+                unset($oItem);
+            }
+        }
+        if ($id_venta != "") {
+            $resultado['mensaje'] = "Se ha guardado correctamente la nota credito con codigo: " . $datos['Codigo'];
+            $resultado['tipo'] = "success";
+        } else {
+            $resultado['mensaje'] = "ha ocurrido un error guardando la informacion, por favor verifique";
+            $resultado['tipo'] = "error";
+        }
+
+        return json_encode($resultado);
     }
 }

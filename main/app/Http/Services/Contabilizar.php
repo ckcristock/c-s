@@ -6273,34 +6273,34 @@ class Contabilizar
         $valor = 0;
         switch ($tipo_valor) {
             case 'debe':
-                if ($value['Valor_Saldo' . $tipo_cont] < 0) {
-                    if ($value['Naturaleza'] == 'C') {
+                if ($value->{'Valor_Saldo' . $tipo_cont} < 0) {
+                    if ($value->Naturaleza == 'C') {
                         $valor = 0;
                     } else {
-                        $valor = abs($value['Valor_Saldo' . $tipo_cont]);
+                        $valor = abs($value->{'Valor_Saldo' . $tipo_cont});
                     }
                 } else {
-                    if ($value['Naturaleza'] == 'D') {
+                    if ($value->Naturaleza == 'D') {
                         $valor = 0;
                     } else {
-                        $valor = $value['Valor_Saldo' . $tipo_cont];
+                        $valor = $value->{'Valor_Saldo' . $tipo_cont};
                     }
                 }
 
                 break;
 
             default:
-                if ($value['Valor_Saldo' . $tipo_cont] < 0) {
-                    if ($value['Naturaleza'] == 'D') {
+                if ($value->{'Valor_Saldo' . $tipo_cont} < 0) {
+                    if ($value->Naturaleza == 'D') {
                         $valor = 0;
                     } else {
-                        $valor = abs($value['Valor_Saldo' . $tipo_cont]);
+                        $valor = abs($value->{'Valor_Saldo' . $tipo_cont});
                     }
                 } else {
-                    if ($value['Naturaleza'] == 'C') {
+                    if ($value->Naturaleza == 'C') {
                         $valor = 0;
                     } else {
-                        $valor = $value['Valor_Saldo' . $tipo_cont];
+                        $valor = $value->{'Valor_Saldo' . $tipo_cont};
                     }
                 }
                 break;
@@ -6320,106 +6320,106 @@ class Contabilizar
             $debe_niif = $this->calcularDebeOrHaberCierre($value, 'debe', '_Niif');
             $haber_niif = $this->calcularDebeOrHaberCierre($value, 'haber', '_Niif');
 
-            if (!array_key_exists($value['Nit_Cierre'], $cierre_tercero)) {
-                $cierre_tercero[$value['Nit_Cierre']] = [];
-                $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']] = [
+            if (!array_key_exists($value->Nit_Cierre, $cierre_tercero)) {
+                $cierre_tercero[$value->Nit_Cierre] = [];
+                $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta] = [
                     "D" => 0,
                     "C" => 0,
                     "DN" => 0,
                     "CN" => 0
                 ];
 
-                if ($value['Valor_Saldo'] < 0 && $value['Naturaleza'] == 'D') {
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] = 0;
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] = abs($value['Valor_Saldo']);
-                } elseif ($value['Valor_Saldo'] > 0 && $value['Naturaleza'] == 'D') {
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] = $value['Valor_Saldo'];
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] = 0;
-                } elseif ($value['Valor_Saldo'] > 0 && $value['Naturaleza'] == 'C') {
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] = $value['Valor_Saldo'];
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] = 0;
+                if ($value->Valor_Saldo < 0 && $value->Naturaleza == 'D') {
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] = 0;
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] = abs($value->Valor_Saldo);
+                } elseif ($value->Valor_Saldo > 0 && $value->Naturaleza == 'D') {
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] = $value->Valor_Saldo;
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] = 0;
+                } elseif ($value->Valor_Saldo > 0 && $value->Naturaleza == 'C') {
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] = $value->Valor_Saldo;
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] = 0;
                 } else {
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] = 0;
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] = abs($value['Valor_Saldo']);
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] = 0;
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] = abs($value->Valor_Saldo);
                 }
-                if ($value['Valor_Saldo_Niif'] < 0 && $value['Naturaleza'] == 'D') {
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] = 0;
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] = abs($value['Valor_Saldo_Niif']);
-                } elseif ($value['Valor_Saldo_Niif'] > 0 && $value['Naturaleza'] == 'D') {
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] = $value['Valor_Saldo_Niif'];
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] = 0;
-                } elseif ($value['Valor_Saldo_Niif'] > 0 && $value['Naturaleza'] == 'C') {
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] = $value['Valor_Saldo_Niif'];
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] = 0;
+                if ($value->Valor_Saldo_Niif < 0 && $value->Naturaleza == 'D') {
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] = 0;
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] = abs($value->Valor_Saldo_Niif);
+                } elseif ($value->Valor_Saldo_Niif > 0 && $value->Naturaleza == 'D') {
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] = $value->Valor_Saldo_Niif;
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] = 0;
+                } elseif ($value->Valor_Saldo_Niif > 0 && $value->Naturaleza == 'C') {
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] = $value->Valor_Saldo_Niif;
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] = 0;
                 } else {
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] = 0;
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] = abs($value['Valor_Saldo_Niif']);
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] = 0;
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] = abs($value->Valor_Saldo_Niif);
                 }
             } else {
-                if (!array_key_exists($value['Id_Plan_Cuenta'], $cierre_tercero[$value['Nit_Cierre']])) {
-                    $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']] = [
+                if (!array_key_exists($value->Id_Plan_Cuenta, $cierre_tercero[$value->Nit_Cierre])) {
+                    $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta] = [
                         "D" => 0,
                         "C" => 0,
                         "DN" => 0,
                         "CN" => 0
                     ];
-                    if ($value['Valor_Saldo'] < 0 && $value['Naturaleza'] == 'D') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] = 0;
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] = abs($value['Valor_Saldo']);
-                    } elseif ($value['Valor_Saldo'] > 0 && $value['Naturaleza'] == 'D') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] = $value['Valor_Saldo'];
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] = 0;
-                    } elseif ($value['Valor_Saldo'] > 0 && $value['Naturaleza'] == 'C') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] = $value['Valor_Saldo'];
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] = 0;
+                    if ($value->Valor_Saldo < 0 && $value->Naturaleza == 'D') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] = 0;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] = abs($value->Valor_Saldo);
+                    } elseif ($value->Valor_Saldo > 0 && $value->Naturaleza == 'D') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] = $value->Valor_Saldo;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] = 0;
+                    } elseif ($value->Valor_Saldo > 0 && $value->Naturaleza == 'C') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] = $value->Valor_Saldo;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] = 0;
                     } else {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] = 0;
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] = abs($value['Valor_Saldo']);
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] = 0;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] = abs($value->Valor_Saldo);
                     }
-                    if ($value['Valor_Saldo_Niif'] < 0 && $value['Naturaleza'] == 'D') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] = 0;
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] = abs($value['Valor_Saldo_Niif']);
-                    } elseif ($value['Valor_Saldo_Niif'] > 0 && $value['Naturaleza'] == 'D') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] = $value['Valor_Saldo_Niif'];
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] = 0;
-                    } elseif ($value['Valor_Saldo_Niif'] > 0 && $value['Naturaleza'] == 'C') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] = $value['Valor_Saldo_Niif'];
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] = 0;
+                    if ($value->Valor_Saldo_Niif < 0 && $value->Naturaleza == 'D') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] = 0;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] = abs($value->Valor_Saldo_Niif);
+                    } elseif ($value->Valor_Saldo_Niif > 0 && $value->Naturaleza == 'D') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] = $value->Valor_Saldo_Niif;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] = 0;
+                    } elseif ($value->Valor_Saldo_Niif > 0 && $value->Naturaleza == 'C') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] = $value->Valor_Saldo_Niif;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] = 0;
                     } else {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] = 0;
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] = abs($value['Valor_Saldo_Niif']);
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] = 0;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] = abs($value->Valor_Saldo_Niif);
                     }
                 } else {
-                    if ($value['Valor_Saldo'] < 0 && $value['Naturaleza'] == 'D') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] += 0;
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] += abs($value['Valor_Saldo']);
-                    } elseif ($value['Valor_Saldo'] > 0 && $value['Naturaleza'] == 'D') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] += $value['Valor_Saldo'];
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] += 0;
-                    } elseif ($value['Valor_Saldo'] > 0 && $value['Naturaleza'] == 'C') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] += $value['Valor_Saldo'];
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] += 0;
+                    if ($value->Valor_Saldo < 0 && $value->Naturaleza == 'D') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] += 0;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] += abs($value->Valor_Saldo);
+                    } elseif ($value->Valor_Saldo > 0 && $value->Naturaleza == 'D') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] += $value->Valor_Saldo;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] += 0;
+                    } elseif ($value->Valor_Saldo > 0 && $value->Naturaleza == 'C') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] += $value->Valor_Saldo;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] += 0;
                     } else {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["C"] += 0;
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["D"] += abs($value['Valor_Saldo']);
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["C"] += 0;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["D"] += abs($value->Valor_Saldo);
                     }
-                    if ($value['Valor_Saldo_Niif'] < 0 && $value['Naturaleza'] == 'D') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] += 0;
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] += abs($value['Valor_Saldo_Niif']);
-                    } elseif ($value['Valor_Saldo_Niif'] > 0 && $value['Naturaleza'] == 'D') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] += $value['Valor_Saldo_Niif'];
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] += 0;
-                    } elseif ($value['Valor_Saldo_Niif'] > 0 && $value['Naturaleza'] == 'C') {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] += $value['Valor_Saldo_Niif'];
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] += 0;
+                    if ($value->Valor_Saldo_Niif < 0 && $value->Naturaleza == 'D') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] += 0;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] += abs($value->Valor_Saldo_Niif);
+                    } elseif ($value->Valor_Saldo_Niif > 0 && $value->Naturaleza == 'D') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] += $value->Valor_Saldo_Niif;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] += 0;
+                    } elseif ($value->Valor_Saldo_Niif > 0 && $value->Naturaleza == 'C') {
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] += $value->Valor_Saldo_Niif;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] += 0;
                     } else {
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["CN"] += 0;
-                        $cierre_tercero[$value['Nit_Cierre']][$value['Id_Plan_Cuenta']]["DN"] += abs($value['Valor_Saldo_Niif']);
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["CN"] += 0;
+                        $cierre_tercero[$value->Nit_Cierre][$value->Id_Plan_Cuenta]["DN"] += abs($value->Valor_Saldo_Niif);
                     }
                 }
             }
 
-            $inserts[] = "(NULL, $value[Id_Plan_Cuenta],'$datos[Anio]-12-31 00:00:00',{$this->id_modulo},{$this->id_registro_modulo}," . number_format($debe, 2, '.', '') . "," . number_format($haber, 2, '.', '') . "," . number_format($debe_niif, 2, '.', '') . "," . number_format($haber_niif, 2, '.', '') . ",$value[Tercero],'$value[Tipo_Tercero]','Activo','$datos[Codigo]','ACTIVOS-PASIVOS Cierre $datos[Anio]',NOW(),0,'No','$datos[Codigo]')";
+            $inserts[] = "(NULL, $value->Id_Plan_Cuenta,'$datos[Anio]-12-31 00:00:00',{$this->id_modulo},{$this->id_registro_modulo}," . number_format($debe, 2, '.', '') . "," . number_format($haber, 2, '.', '') . "," . number_format($debe_niif, 2, '.', '') . "," . number_format($haber_niif, 2, '.', '') . ",$value->Tercero,'$value->Tipo_Tercero','Activo','$datos[Codigo]','ACTIVOS-PASIVOS Cierre $datos[Anio]',NOW(),0,'No','$datos[Codigo]')";
 
             if (count($inserts) == 2000) {
                 $this->saveContabilizacionCierre($inserts);
@@ -6488,7 +6488,7 @@ class Contabilizar
 
         //GUARDAR EL MOVIMIENTO CONTABLE
         $oItem = new complex("Movimiento_Contable", "Id_Movimiento_Contable");
-        $oItem->Id_Plan_Cuenta = $asociacion['Id_Plan_Cuenta'];
+        $oItem->Id_Plan_Cuenta = isset($asociacion['Id_Plan_Cuenta']) || '';
         $oItem->Id_Modulo = $this->id_modulo;
         $oItem->Id_Registro_Modulo = $this->id_registro_modulo;
         $oItem->Debe = $debe;
