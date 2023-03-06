@@ -22,7 +22,12 @@ class PlanCuentasController extends Controller
 
     use ApiResponser;
 
-
+    public function importCommercialPuc()
+    {
+        $file_path = '/imports/puc-comercial.xlsx';
+        PlanCuentas::truncate();
+        Excel::import(new AccountPlansImport, $file_path, 'public');
+    }
     public function setTipoCierre()
     {
         $id_plan_cuenta = isset($_REQUEST['id_plan_cuenta']) ? $_REQUEST['id_plan_cuenta'] : false;
@@ -102,16 +107,25 @@ class PlanCuentasController extends Controller
         Excel::import(new AccountPlansImport, $file_path, 'public');
     }
 
+    public function paginate2(){
+        return $this->success(
+            PlanCuentas::with('cuenta_padre')
+                ->whereRaw('LENGTH(Codigo_Niif) = 1')
+                ->get(['Id_Plan_Cuentas', 'Nombre_Niif', 'Codigo_Niif', 'Codigo_Padre'])
+            );
+    }
+
     public function paginate(Request $request)
     {
         $pagina = (isset($_REQUEST['pag']) ? $_REQUEST['pag'] : '');
         $condicion = $this->SetCondiciones($_REQUEST);
         $query_paginacion = 'SELECT COUNT(*) AS Total
-                        FROM Plan_Cuentas'
+                        FROM Plan_Cuentas as pc'
             . $condicion;
-        $query = 'SELECT pc.*, CONCAT(pc.Codigo, " - ", pc.Nombre) as code, c.name as Empresa
+        $query = 'SELECT pc.*, CONCAT(pc.Codigo, " - ", pc.Nombre) as code, c.name as Empresa, pc2.Nombre as Cuenta_Padre_Nombre
                 FROM Plan_Cuentas as pc
-                LEFT JOIN companies as c ON c.id = pc.Id_Empresa'
+                LEFT JOIN companies as c ON c.id = pc.Id_Empresa
+                LEFT JOIN Plan_Cuentas as pc2 ON pc.Codigo_Padre = pc2.Codigo_Niif'
             . $condicion . ' ORDER BY Codigo';
         $paginationObj = new PaginacionData(20, $query_paginacion, $pagina);
         $queryObj = new QueryBaseDatos($query);
@@ -126,46 +140,46 @@ class PlanCuentasController extends Controller
         $condicion = '';
 
         if (isset($req['nombre']) && $req['nombre'] != "") {
-            $condicion .= " WHERE Nombre LIKE '%" . $req['nombre'] . "%'";
+            $condicion .= " WHERE pc.Nombre LIKE '%" . $req['nombre'] . "%'";
         }
 
         if (isset($req['nombre_niif']) && $req['nombre_niif']) {
             if ($condicion != "") {
-                $condicion .= " AND Nombre_Niif LIKE '%" . $req['nombre_niif'] . "%'";
+                $condicion .= " AND pc.Nombre_Niif LIKE '%" . $req['nombre_niif'] . "%'";
             } else {
-                $condicion .=  " WHERE Nombre_Niif LIKE '%" . $req['nombre_niif'] . "%'";
+                $condicion .=  " WHERE pc.Nombre_Niif LIKE '%" . $req['nombre_niif'] . "%'";
             }
         }
 
         if (isset($req['cod']) && $req['cod']) {
             if ($condicion != "") {
-                $condicion .= " AND Codigo LIKE '" . $req['cod'] . "%'";
+                $condicion .= " AND pc.Codigo LIKE '" . $req['cod'] . "%'";
             } else {
-                $condicion .= " WHERE Codigo LIKE '" . $req['cod'] . "%'";
+                $condicion .= " WHERE pc.Codigo LIKE '" . $req['cod'] . "%'";
             }
         }
 
         if (isset($req['cod_niif']) && $req['cod_niif']) {
             if ($condicion != "") {
-                $condicion .= " AND Codigo_Niif LIKE '" . $req['cod_niif'] . "%'";
+                $condicion .= " AND pc.Codigo_Niif LIKE '" . $req['cod_niif'] . "%'";
             } else {
-                $condicion .= " WHERE Codigo_Niif LIKE '" . $req['cod_niif'] . "%'";
+                $condicion .= " WHERE pc.Codigo_Niif LIKE '" . $req['cod_niif'] . "%'";
             }
         }
 
         if (isset($req['estado']) && $req['estado']) {
             if ($condicion != "") {
-                $condicion .= " AND Estado = '" . $req['estado'] . "'";
+                $condicion .= " AND pc.Estado = '" . $req['estado'] . "'";
             } else {
-                $condicion .= " WHERE Estado = '" . $req['estado'] . "'";
+                $condicion .= " WHERE pc.Estado = '" . $req['estado'] . "'";
             }
         }
 
         if (isset($req['company_id']) && $req['company_id']) {
             if ($condicion != "") {
-                $condicion .= " AND Id_Empresa = '" . $req['company_id'] . "'";
+                $condicion .= " AND pc.Id_Empresa = '" . $req['company_id'] . "'";
             } else {
-                $condicion .= " WHERE Id_Empresa = '" . $req['company_id'] . "'";
+                $condicion .= " WHERE pc.Id_Empresa = '" . $req['company_id'] . "'";
             }
         }
 
@@ -478,6 +492,24 @@ class PlanCuentasController extends Controller
         $http_response->SetRespuesta(0, 'Detalle', 'Operación Exitosa!');
         $respuesta = $http_response->GetRespuesta();
         return json_encode($respuesta);
+    }
+
+    public function getListaCuentasContables()
+    {
+        $ng_select = true;
+        $query = '';
+
+        if ($ng_select) {
+            $query = "SELECT Id_Plan_Cuentas AS value, CONCAT(Codigo,' - ',Nombre) AS label FROM Plan_Cuentas WHERE Estado = 'Activo' AND Movimiento = 'S'";
+        }
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $cuentas = $oCon->getData();
+        unset($oCon);
+
+        return json_encode($cuentas);
     }
 
     public function listaCuentas()

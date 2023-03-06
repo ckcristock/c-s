@@ -17,6 +17,7 @@ class PlanCuentas extends Model
         'Tipo_P',
         'Tipo_Niif',
         'Codigo',
+        'Codigo_Padre',
         'Nombre',
         'Codigo_Niif',
         'Nombre_Niif',
@@ -49,4 +50,10 @@ class PlanCuentas extends Model
         'Id_Empresa',
     ];
 
+    public function cuenta_padre()
+    {
+        return $this->hasMany(PlanCuentas::class, 'Codigo_Padre', 'Codigo_Niif')
+            ->with('cuenta_padre')
+            ->select('Id_Plan_Cuentas', 'Nombre_Niif', 'Codigo_Niif', 'Codigo_Padre');
+    }
 }

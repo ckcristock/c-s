@@ -146,6 +146,7 @@ use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MedioMagneticoController;
+use App\Http\Controllers\ModuloController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\PlanCuentasController;
 use App\Http\Controllers\QuotationController;
@@ -153,6 +154,7 @@ use App\Http\Controllers\RawMaterialMaterialController;
 use App\Http\Controllers\RetencionController;
 use App\Http\Controllers\TaskTypeController;
 use App\Http\Controllers\TipoActivoFijoController;
+use App\Http\Controllers\TipoDocumentoController;
 use App\Http\Controllers\WorkOrderBlueprintController;
 use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\WorkOrderDesignController;
@@ -857,6 +859,7 @@ Route::group(
         Route::post('change-status-in-business', [BusinessController::class, 'changeStatusInBusiness']);
 
         Route::post('import-validator-account-plans', [PlanCuentasController::class, 'validateExcel']);
+        Route::get('import-commercial-puc', [PlanCuentasController::class, 'importCommercialPuc']);
 
         /************RUTAS PHP************/
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);
@@ -880,13 +883,15 @@ Route::group(
         Route::post('php/comprasnacionales/actualiza_compra', [ListaComprasController::class, 'setEstadoCompra']);
         /* Plan cuentas */
         Route::get('php/plancuentas/lista_plan_cuentas.php', [PlanCuentasController::class, 'paginate']);
+        Route::get('plan-cuentas-paginacion', [PlanCuentasController::class, 'paginate2']);
         Route::get('php/contabilidad/plancuentas/descargar_informe_plan_cuentas_excel.php', [PlanCuentasController::class, 'descargarExcel']);
         Route::get('php/contabilidad/plancuentas/detalle_plan_cuenta.php', [PlanCuentasController::class, 'show']);
         Route::post('php/contabilidad/plancuentas/cambiar_estado.php', [PlanCuentasController::class, 'cambiarEstado']);
+        Route::get('php/contabilidad/certificadoretencion/lista_cuentas.php', [PlanCuentasController::class, 'listaCuentas']);
         Route::get('php/plancuentas/lista_bancos.php', [PlanCuentasController::class, 'listarBancos']);
         Route::post('php/contabilidad/plancuentas/guardar_puc.php', [PlanCuentasController::class, 'store']);
         Route::get('php/plancuentas/validar_puc_niveles.php', [PlanCuentasController::class, 'validarNiveles']);
-        Route::get('php/comprobantes/lista_cuentas.php', [PlanCuentasController::class, 'listaCuentas']);
+        Route::get('php/comprobantes/lista_cuentas.php', [PlanCuentasController::class, 'getListaCuentasContables']);
         Route::get('php/plancuentas/filtrar_cuentas.php', [PlanCuentasController::class, 'filtrarCuentas']);
         Route::get('php/comprobantes/cuentas.php', [PlanCuentasController::class, 'comprobanteCuentas']);
         Route::get('php/plancuentas/get_planes_cuentas.php', [PlanCuentasController::class, 'getPlanCuentas']);
@@ -970,5 +975,14 @@ Route::group(
         Route::get('php/contabilidad/movimientoscontables/movimientos_cierreanio_excel.php', [CierreContableController::class, 'excel']);
         /* Medios magneticos */
         Route::get('php/contabilidad/mediosmagneticos/lista_medios_magneticos.php', [MedioMagneticoController::class, 'lista']);
+        Route::get('php/contabilidad/mediosmagneticos/detalles.php', [MedioMagneticoController::class, 'detalles']);
+        Route::get('php/contabilidad/mediosmagneticos/formatos_especiales.php', [MedioMagneticoController::class, 'formatosEspeciales']);
+        /* Tipos de documentos */
+        Route::get('php/contabilidad/tipos_documentos.php', [ModuloController::class, 'index']);
+
+
+
+
+
     }
 );

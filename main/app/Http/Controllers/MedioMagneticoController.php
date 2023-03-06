@@ -38,6 +38,41 @@ class MedioMagneticoController extends Controller
 
         return $condicion;
     }
+
+    public function detalles()
+    {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : false;
+
+        $detalles = [];
+
+        if ($id) {
+            $query = "SELECT Id_Medio_Magnetico, Periodo, Codigo_Formato, Nombre_Formato, Tipo_Exportacion, Detalles, Tipos, Tipo_Medio_Magnetico, Tipo_Columna, Columna_Principal FROM Medio_Magnetico WHERE Estado = 'Activo' AND Id_Medio_Magnetico = $id";
+
+            $oCon = new consulta();
+            $oCon->setQuery($query);
+            $resultado = $oCon->getData();
+            unset($oCon);
+
+            $detalles['encabezado'] = $resultado;
+            $detalles['cuentas'] = $resultado['Detalles'];
+            $detalles['tipos'] = $resultado['Tipos'];
+        }
+
+        return json_encode($detalles);
+    }
+
+    public function formatosEspeciales()
+    {
+        $query = "SELECT Id_Medio_Magnetico AS value, CONCAT(Codigo_Formato,' - ',Nombre_Formato) AS label FROM Medio_Magnetico WHERE Estado = 'Activo' AND Tipo_Medio_Magnetico = 'Especial'";
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $lista = $oCon->getData();
+        unset($oCon);
+
+        return json_encode($lista);
+    }
     /**
      * Display a listing of the resource.
      *
