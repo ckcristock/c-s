@@ -93,8 +93,9 @@ class PlanCuentasController extends Controller
         return json_encode($res);
     }
 
-    public function validateExcel(Request $request)
+    public function validateExcel(Request $request, $delete)
     {
+        //dd($delete);
         $file = base64_decode(
             preg_replace(
                 "#^data:application/\w+;base64,#i",
@@ -102,6 +103,9 @@ class PlanCuentasController extends Controller
                 $request->file
             )
         );
+        if ($delete == 'true') {
+            PlanCuentas::truncate();
+        }
         $file_path = '/imports/' . Str::random(30) . time() . '.xlsx';
         Storage::disk('public')->put($file_path, $file, "public");
         Excel::import(new AccountPlansImport, $file_path, 'public');
@@ -476,12 +480,11 @@ class PlanCuentasController extends Controller
             return;
         }
 
-        $query = '
-        SELECT
-        Plan_Cuentas.*, (SELECT name FROM banks WHERE id = Plan_Cuentas.Cod_Banco) AS Nombre_Banco
-        FROM Plan_Cuentas
-        WHERE
-            Id_Plan_Cuentas = ' . $id_cuenta;
+        $query = 'SELECT
+        pc.*, (SELECT name FROM banks WHERE id = pc.Cod_Banco) AS Nombre_Banco, pc2.Nombre as Cuenta_Padre_Nombre
+        FROM Plan_Cuentas as pc
+        LEFT JOIN Plan_Cuentas as pc2 ON pc.Codigo_Padre = pc2.Codigo_Niif
+        WHERE pc.Id_Plan_Cuentas = ' . $id_cuenta;
 
         $oCon = new consulta();
         $oCon->setQuery($query);

@@ -35,7 +35,8 @@
                 <th>Codigo</th>
                 <th>Nombre</th>
                 <th>Estado</th>
-                <th>Ajuste contable</th>
+                <th>Naturaleza</th>
+                {{-- <th>Ajuste contable</th>
                 <th>¿Cierra Terceros?</th>
                 <th>Movimiento</th>
                 <th>Documento</th>
@@ -46,8 +47,7 @@
                 <th>Depreciacion</th>
                 <th>Amortizacion</th>
                 <th>Exogeno</th>
-                <th>Naturaleza</th>
-                <th>¿Maneja NIT?</th>
+                <th>¿Maneja NIT?</th> --}}
             </tr>
         </thead>
         <tbody>
@@ -57,7 +57,8 @@
                     <td class="text-left">{{ $plan['Codigo_Niif'] }}</td>
                     <td>{{ $plan['Nombre_Niif'] }}</td>
                     <td>{{ $plan['Estado'] }}</td>
-                    <td>{{ TransformarValor($plan['Ajuste_Contable']) }}</td>
+                    <td>{{ $plan['Naturaleza'] }}</td>
+                    {{-- <td>{{ TransformarValor($plan['Ajuste_Contable']) }}</td>
                     <td>{{ TransformarValor($plan['Cierra_Terceros']) }}</td>
                     <td>{{ TransformarValor($plan['Movimiento']) }}</td>
                     <td>{{ TransformarValor($plan['Documento']) }}</td>
@@ -68,8 +69,7 @@
                     <td>{{ TransformarValor($plan['Depreciacion']) }}</td>
                     <td>{{ TransformarValor($plan['Amortizacion']) }}</td>
                     <td>{{ TransformarValor($plan['Exogeno']) }}</td>
-                    <td>{{ $plan['Naturaleza'] }}</td>
-                    <td>{{ TransformarValor($plan['Maneja_Nit']) }}</td>
+                    <td>{{ TransformarValor($plan['Maneja_Nit']) }}</td> --}}
                 </tr>
             @endforeach
         </tbody>

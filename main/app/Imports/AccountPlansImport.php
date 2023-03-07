@@ -20,6 +20,7 @@ class AccountPlansImport implements ToCollection
         foreach ($rows as $index => $row) {
             if ($index != 0) {
                 $Tipo_P = '';
+                $Movimiento = 'N';
                 //dd(strlen(strval($row[0])));
                 switch (strlen(strval($row[0]))) {
                     case 1:
@@ -36,18 +37,24 @@ class AccountPlansImport implements ToCollection
                         break;
                     case 8:
                         $Tipo_P = 'AUXILIAR';
+                        $Movimiento = 'S';
                         break;
                     default:
                         break;
                 }
-                PlanCuentas::create([
-                    'Codigo' => $row[0],
-                    'Codigo_Padre' => $row[2],
-                    'Nombre' => $row[1],
-                    'Codigo_Niif' => $row[0],
-                    'Nombre_Niif' => $row[1],
-                    'Tipo_Niif' => $Tipo_P,
-                ]);
+                $plan = PlanCuentas::where('Codigo', $row[0])->first();
+                if (!$plan) {
+                    PlanCuentas::create([
+                        'Codigo' => $row[0],
+                        'Codigo_Padre' => $row[2],
+                        'Nombre' => $row[1],
+                        'Codigo_Niif' => $row[0],
+                        'Nombre_Niif' => $row[1],
+                        'Tipo_Niif' => $Tipo_P,
+                        'Tipo_P' => $Tipo_P,
+                        'Movimiento' => $Movimiento
+                    ]);
+                }
             }
         }
     }

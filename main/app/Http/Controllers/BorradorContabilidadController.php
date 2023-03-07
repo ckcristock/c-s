@@ -44,6 +44,23 @@ class BorradorContabilidadController extends Controller
         return json_encode($resultado);
     }
 
+    public function detalles()
+    {
+        $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : false;
+        $resultado = [];
+
+        if ($id) {
+            $query = "SELECT Id_Borrador_Contabilidad AS ID, Codigo, Datos FROM Borrador_Contabilidad WHERE Id_Borrador_Contabilidad = $id";
+
+            $oCon = new consulta();
+            $oCon->setQuery($query);
+            $resultado = $oCon->getData();
+            unset($oCon);
+        }
+
+        return json_encode($resultado);
+    }
+
     /**
      * Show the form for creating a new resource.
      *

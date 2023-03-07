@@ -16,6 +16,8 @@ use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AttentionCallController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BalanceGeneralController;
+use App\Http\Controllers\BalanceGlobalizadoController;
 use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BenefitIncomeController;
@@ -140,6 +142,7 @@ use App\Http\Controllers\ComprobanteConsecutivoController;
 use App\Http\Controllers\CuentaDocumentoContableController;
 use App\Http\Controllers\DepreciacionController;
 use App\Http\Controllers\DocumentoContableController;
+use App\Http\Controllers\EgresoController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GeneralController;
@@ -168,6 +171,7 @@ use App\Models\ComprobanteConsecutivo;
 use App\Models\Deduction;
 use App\Models\Loan;
 use App\Models\Person;
+use App\Models\PlanCuentas;
 use App\Models\PreliquidatedLog;
 use App\Models\ThirdParty;
 use App\Models\User;
@@ -858,7 +862,7 @@ Route::group(
         Route::get('get-history-business/{id}', [BusinessController::class, 'getHistory']);
         Route::post('change-status-in-business', [BusinessController::class, 'changeStatusInBusiness']);
 
-        Route::post('import-validator-account-plans', [PlanCuentasController::class, 'validateExcel']);
+        Route::post('import-validator-account-plans/{delete}', [PlanCuentasController::class, 'validateExcel']);
         Route::get('import-commercial-puc', [PlanCuentasController::class, 'importCommercialPuc']);
 
         /************RUTAS PHP************/
@@ -950,6 +954,7 @@ Route::group(
         Route::post('php/contabilidad/notascontables/subir_facturas.php', [DocumentoContableController::class, 'subirFacturas']);
         /* Borrador contabilidad */
         Route::get('php/contabilidad/lista_borrador_contable.php', [BorradorContabilidadController::class, 'lista']);
+        Route::get('php/contabilidad/detalles_borrador_contable.php', [BorradorContabilidadController::class, 'detalles']);
         /* Cuenta documento contable */
         Route::get('php/contabilidad/notascarteras/lista_notas_carteras.php', [CuentaDocumentoContableController::class, 'listaNotasCartera']);
         Route::get('php/comprobantes/lista_egresos.php', [CuentaDocumentoContableController::class, 'listaEgresos']);
@@ -979,10 +984,13 @@ Route::group(
         Route::get('php/contabilidad/mediosmagneticos/formatos_especiales.php', [MedioMagneticoController::class, 'formatosEspeciales']);
         /* Tipos de documentos */
         Route::get('php/contabilidad/tipos_documentos.php', [ModuloController::class, 'index']);
-
-
-
-
-
+        /* Balance general */
+        Route::get('php/contabilidad/balancegeneral/descarga_pdf.php', [BalanceGeneralController::class, 'descargaPdf']);
+        Route::get('php/contabilidad/balancegeneral/descarga_excel.php', [BalanceGeneralController::class, 'descargaExcel']);
+        /* Balance globalizado */
+        Route::get('php/contabilidad/movimientoglobalizado/generar_reporte.php', [BalanceGlobalizadoController::class, 'generarReporte']);
+        /* Egreso */
+        Route::post('php/comprobantes/guardar_egreso.php', [EgresoController::class, 'guardar']);
+        Route::get('php/contabilidad/notascontables/lista_facturas.php', [EgresoController::class, 'listaFacturas']);
     }
 );

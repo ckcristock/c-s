@@ -57,3 +57,54 @@ function generarConsecutivo($tipo, $mes = null, $anio = null)
 
     return $consecutivo;
 }
+
+function generarConsecutivoCheque($banco)
+{
+    $status = 0;
+    $consecutivo  ='';
+
+    $query = "SELECT * FROM Cheque_Consecutivo WHERE Id_Plan_Cuentas = $banco AND Estado = 'Activo'";
+
+    $oCon = new consulta();
+    $oCon->setQuery($query);
+    $resultado = $oCon->getData();
+    unset($oCon);
+
+    if ($resultado) {
+        $prefijo = $resultado['Prefijo'];
+        $consecutivo = $resultado['Consecutivo'];
+
+        if ($consecutivo > $resultado['Final']) { // Si el consecutivo actual es igual al consecutivo final del cheque, no se podrá generar el consecutivo.
+            $status = 1;
+        } else {
+            $status = 2; // estado que me devolverá si el consecutivo aun está activo.
+            $consecutivo = $prefijo . str_pad($consecutivo,4,'0',STR_PAD_LEFT);
+        }
+
+    } else {
+        $status = 3; // estado que me devolverá cuando no hay ningun cheque.
+    }
+
+    if ($status == 2) { // SI TODO ESTÁ OK
+        # GENERAR NUEVO CONSECUTIVO PARA EL PROXIMO CHEQUE.
+
+        $oItem = new complex('Cheque_Consecutivo', 'Id_Cheque_Consecutivo', $resultado['Id_Cheque_Consecutivo']);
+        $nuevo_consecutivo = $oItem->Consecutivo + 1;
+        $oItem->Consecutivo = number_format($nuevo_consecutivo,0,"","");
+        if ($nuevo_consecutivo > $resultado['Final']) { // Si el nuevo consecutivo es mayor al consecutivo final del cheque, lo inactivamos para que no lo vuelvan a tomar.
+            $oItem->Estado = 'Inactivo';
+        }
+        $oItem->save();
+        unset($oItem);
+    }
+
+
+    $response = [
+        "status" => $status,
+        "consecutivo" => $consecutivo
+    ];
+
+    return $response;
+
+
+}
