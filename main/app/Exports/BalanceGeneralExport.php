@@ -23,6 +23,7 @@ class BalanceGeneralExport implements FromView, ShouldAutoSize
     private $nivel_reporte;
     private $cod_clase_temp;
     private $total_patrimonio;
+    private $acum_saldos;
     public function __construct(
         $balance,
         $resultado_ejercicio,
@@ -34,7 +35,8 @@ class BalanceGeneralExport implements FromView, ShouldAutoSize
         $tipo_reporte_2,
         $nivel_reporte,
         $cod_clase_temp,
-        $total_patrimonio
+        $total_patrimonio,
+        $acum_saldos
     ) {
         $this->balance = $balance;
         $this->resultado_ejercicio = $resultado_ejercicio;
@@ -47,6 +49,7 @@ class BalanceGeneralExport implements FromView, ShouldAutoSize
         $this->nivel_reporte = $nivel_reporte;
         $this->cod_clase_temp = $cod_clase_temp;
         $this->total_patrimonio = $total_patrimonio;
+        $this->acum_saldos = $acum_saldos;
     }
     /**
      * @return \Illuminate\Support\Collection
@@ -65,6 +68,7 @@ class BalanceGeneralExport implements FromView, ShouldAutoSize
             'nivel_reporte' => $this->nivel_reporte,
             'cod_clase_temp' => $this->cod_clase_temp,
             'total_patrimonio' => $this->total_patrimonio,
+            'acum_saldos' => $this->acum_saldos,
         ]);
     }
 }

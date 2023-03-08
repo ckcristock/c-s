@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\PlanCuentas;
+use App\Models\PrettyCash;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -21,7 +22,6 @@ class AccountPlansImport implements ToCollection
             if ($index != 0) {
                 $Tipo_P = '';
                 $Movimiento = 'N';
-                //dd(strlen(strval($row[0])));
                 switch (strlen(strval($row[0]))) {
                     case 1:
                         $Tipo_P = 'CLASE';
@@ -44,7 +44,7 @@ class AccountPlansImport implements ToCollection
                 }
                 $plan = PlanCuentas::where('Codigo', $row[0])->first();
                 if (!$plan) {
-                    PlanCuentas::create([
+                    $plan_cuenta= PlanCuentas::create([
                         'Codigo' => $row[0],
                         'Codigo_Padre' => $row[2],
                         'Nombre' => $row[1],
@@ -54,6 +54,15 @@ class AccountPlansImport implements ToCollection
                         'Tipo_P' => $Tipo_P,
                         'Movimiento' => $Movimiento
                     ]);
+                    if (strval($row[2]) === '110510') {
+                        PrettyCash::create([
+                            'user_id' => auth()->user()->id,
+                            'account_plan_id' => $plan_cuenta->Id_Plan_Cuentas,
+                            'initial_balance' => 0,
+                            'description' => $plan_cuenta->Nombre,
+                            'status' => 'Inactiva'
+                        ]);
+                    }
                 }
             }
         }

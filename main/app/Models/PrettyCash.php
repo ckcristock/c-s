@@ -14,12 +14,13 @@ class PrettyCash extends Model
 		'person_id',
 		'initial_balance',
 		'account_plan_id',
-		'description'
+		'description',
+        'status'
 	];
 
 	function accountPlan()
 	{
-		return $this->belongsTo(AccountPlan::class);
+		return $this->belongsTo(PlanCuentas::class, 'account_plan_id', 'Id_Plan_Cuentas');
 	}
 	function person()
 	{

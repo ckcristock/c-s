@@ -337,17 +337,15 @@ class PlanCuentasController extends Controller
     {
         $datos = isset($_REQUEST['Datos']) ? $_REQUEST['Datos'] : false;
         $datos = json_decode($datos, true);
-
+        unset($datos['Cuenta_Padre_Nombre']);
+        //dd($datos);
         $guardar = true;
-
         $oItem = '';
-
         if (isset($datos['Id_Plan_Cuentas']) && $datos['Id_Plan_Cuentas'] != '') {
             $oItem = PlanCuentas::find($datos['Id_Plan_Cuentas']);
         } else {
             $oItem = new PlanCuentas;
         }
-
         foreach ($datos as $index => $value) {
             if ($index == 'Codigo' || $index == 'Codigo_Niif') {
                 if (!isset($datos['Id_Plan_Cuentas'])) { // Si no es un proceso de edición

@@ -66,11 +66,11 @@
         $codigos_temp = [];
 
         foreach ($movimientos as $mov) {
-            $nivel = strlen($mov['Codigo']);
+            $nivel = strlen($mov->Codigo);
             $nivel2 = strlen($codigo);
             $cod_superior = '';
             $restar_str = 0;
-            $cod_mov = $tipo_reporte == 'Pcga' ? $mov['Codigo'] : $mov['Codigo_Niif'];
+            $cod_mov = $tipo_reporte == 'Pcga' ? $mov->Codigo : $mov->Codigo_Niif;
 
             /* echo "++". $mov['Codigo'] ."<br>";
         echo "--". $codigo ."<br>";
@@ -79,7 +79,7 @@
         echo "<br>"; */
 
             if (compararCuenta($codigo, $nivel2, $cod_mov)) {
-                $codigos_temp[$cod_mov] = $mov['Credito'];
+                $codigos_temp[$cod_mov] = $mov->Credito;
                 while ($nivel > $nivel2) {
                     if ($nivel > 2) {
                         $restar_str += 2;
@@ -93,9 +93,9 @@
 
 
                         if (!array_key_exists($cod_superior, $codigos_temp)) {
-                            $codigos_temp[$cod_superior] = $mov['Credito'];
+                            $codigos_temp[$cod_superior] = $mov->Credito;
                         } else {
-                            $codigos_temp[$cod_superior] += $mov['Credito'];
+                            $codigos_temp[$cod_superior] += $mov->Credito;
                         }
                         $nivel -= 2;
                     } else {
@@ -107,9 +107,9 @@
                         $cod_superior = substr($str, 0, $count_str - $restar_str);
                         // echo "cod superior -- " . $cod_superior . "<br><br>";
                         if (!array_key_exists($cod_superior, $codigos_temp)) {
-                            $codigos_temp[$cod_superior] = $mov['Credito'];
+                            $codigos_temp[$cod_superior] = $mov->Credito;
                         } else {
-                            $codigos_temp[$cod_superior] += $mov['Credito'];
+                            $codigos_temp[$cod_superior] += $mov->Credito;
                         }
                         $nivel -= 1;
                     }
@@ -141,14 +141,14 @@
         $codigos_temp = [];
 
         foreach ($movimientos as $mov) {
-            $nivel = strlen($mov['Codigo']);
+            $nivel = strlen($mov->Codigo);
             $nivel2 = strlen($codigo);
             $cod_superior = '';
             $restar_str = 0;
-            $cod_mov = $tipo_reporte == 'Pcga' ? $mov['Codigo'] : $mov['Codigo_Niif'];
+            $cod_mov = $tipo_reporte == 'Pcga' ? $mov->Codigo : $mov->Codigo_Niif;
 
             if (compararCuenta($codigo, $nivel2, $cod_mov)) {
-                $codigos_temp[$cod_mov] = $mov['Debito'];
+                $codigos_temp[$cod_mov] = $mov->Debito;
                 while ($nivel > $nivel2) {
                     if ($nivel > 2) {
                         $restar_str += 2;
@@ -158,9 +158,9 @@
                         $cod_superior = substr($str, 0, $count_str - $restar_str);
 
                         if (!array_key_exists($cod_superior, $codigos_temp)) {
-                            $codigos_temp[$cod_superior] = $mov['Debito'];
+                            $codigos_temp[$cod_superior] = $mov->Debito;
                         } else {
-                            $codigos_temp[$cod_superior] += $mov['Debito'];
+                            $codigos_temp[$cod_superior] += $mov->Debito;
                         }
                         $nivel -= 2;
                     } else {
@@ -170,9 +170,9 @@
                         $count_str = strlen($str);
                         $cod_superior = substr($str, 0, $count_str - $restar_str);
                         if (!array_key_exists($cod_superior, $codigos_temp)) {
-                            $codigos_temp[$cod_superior] = $mov['Debito'];
+                            $codigos_temp[$cod_superior] = $mov->Debito;
                         } else {
-                            $codigos_temp[$cod_superior] += $mov['Debito'];
+                            $codigos_temp[$cod_superior] += $mov->Debito;
                         }
                         $nivel -= 1;
                     }
@@ -227,7 +227,7 @@
             @if ($nuevo_saldo != 0)
                 <tr>
                     <td>{{ $codigo }}</td>
-                    <td>{{ $value['Nombre'] }}</td>
+                    <td>{{ $value->Nombre }}</td>
                     <td>{{ $nuevo_saldo }}</td>
                 </tr>
                 @php
