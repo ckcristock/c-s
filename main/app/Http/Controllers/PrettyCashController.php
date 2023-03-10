@@ -29,10 +29,13 @@ class PrettyCashController extends Controller
                 }
             ]
         )
-        ->when($request->name, function ($q, $fill) {
-            $q->where('description', 'like', "%$fill%");
-        })
-        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+            ->when($request->name, function ($q, $fill) {
+                $q->where('description', 'like', "%$fill%");
+            })
+            ->when($request->person_id, function ($q, $fill) {
+                $q->where('person_id', $fill);
+            })
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
 
         return $this->success($data);
     }

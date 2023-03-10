@@ -12,6 +12,8 @@ use App\Http\Services\consulta;
 use App\Http\Services\complex;
 use App\Http\Services\QueryBaseDatos;
 use App\Imports\AccountPlansImport;
+use App\Models\PrettyCash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -335,6 +337,7 @@ class PlanCuentasController extends Controller
      */
     public function store()
     {
+        //dd(auth()->user()->id);
         $datos = isset($_REQUEST['Datos']) ? $_REQUEST['Datos'] : false;
         $datos = json_decode($datos, true);
         unset($datos['Cuenta_Padre_Nombre']);
@@ -364,10 +367,20 @@ class PlanCuentasController extends Controller
         $oItem->Codigo = $datos["Codigo_Niif"];
         $oItem->Nombre = $datos["Nombre_Niif"];
         $oItem->Tipo_P = $datos["Tipo_Niif"];
+        $oItem->Movimiento = $datos['Tipo_Niif'] == 'AUXILIAR' ? 'S': 'N';
         if ($guardar) {
 
             $oItem->save();
             $id_plan = $oItem->Id_Plan_Cuentas;
+            if (strval($datos['Codigo_Padre']) === '110510') {
+                PrettyCash::create([
+                    'user_id' =>  Auth::id(),
+                    'account_plan_id' => $id_plan,
+                    'initial_balance' => 0,
+                    'description' => $oItem->Nombre,
+                    'status' => 'Inactiva'
+                ]);
+            }
             unset($oItem);
 
             if ($id_plan) {

@@ -143,6 +143,7 @@ use App\Http\Controllers\CuentaDocumentoContableController;
 use App\Http\Controllers\DepreciacionController;
 use App\Http\Controllers\DocumentoContableController;
 use App\Http\Controllers\EgresoController;
+use App\Http\Controllers\EstadoResultadoController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GeneralController;
@@ -993,5 +994,8 @@ Route::group(
         /* Egreso */
         Route::post('php/comprobantes/guardar_egreso.php', [EgresoController::class, 'guardar']);
         Route::get('php/contabilidad/notascontables/lista_facturas.php', [EgresoController::class, 'listaFacturas']);
+        /* Estados resultados */
+        Route::get('php/contabilidad/estadoresultado/descarga_pdf.php', [EstadoResultadoController::class, 'pdf']);
+        Route::get('php/contabilidad/estadoresultado/descarga_excel.php', [EstadoResultadoController::class, 'excel']);
     }
 );
