@@ -9,14 +9,9 @@ use Illuminate\Http\Request;
 class PrettyCashController extends Controller
 {
     use ApiResponser;
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+
+    public function paginate(Request $request)
     {
-        //
         $data = PrettyCash::with(
             [
                 'person' => function ($q) {
@@ -34,9 +29,22 @@ class PrettyCashController extends Controller
                 }
             ]
         )
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+        ->when($request->name, function ($q, $fill) {
+            $q->where('description', 'like', "%$fill%");
+        })
+        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
 
         return $this->success($data);
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        //
+
     }
 
     /**

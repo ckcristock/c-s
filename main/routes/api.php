@@ -625,6 +625,7 @@ Route::group(
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class, 'paginate']);
+        Route::get('pretty-cash-paginate', [PrettyCashController::class, 'paginate']);
         Route::get('paginateRawMaterialMaterial', [RawMaterialMaterialController::class, 'paginate']);
         Route::get('category-paginate', [CategoryController::class, 'paginate']);
         Route::get('loan-paginate', [LoanController::class, 'paginate']);
