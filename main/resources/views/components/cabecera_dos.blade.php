@@ -2,6 +2,7 @@
     <style>
         * {
             font-family: 'Roboto', sans-serif;
+            font-size: xx-small;
         }
 
         body,
@@ -102,7 +103,7 @@
         <tr>
             <td>
                 <figure class="figure mt-4 mx-4">
-                    <img src="{{ $company->logo }}" class="figure-img img-fluid" />
+                    <img src="{{ $company->logo }}" class="figure-img img-fluid" height="60" />
                     <figcaption class="figure-caption">
                         <strong>{{ $company->name }}</strong> <br /><strong>NIT:</strong>
                         {{ $company->document_number }}-{{ $company->verification_digit }}

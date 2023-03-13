@@ -139,6 +139,8 @@ use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\ChequeConsecutivoController;
 use App\Http\Controllers\CierreContableController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
+use App\Http\Controllers\LayoffController;
+use App\Http\Controllers\LayoffPersonController;
 use App\Http\Controllers\CuentaDocumentoContableController;
 use App\Http\Controllers\DepreciacionController;
 use App\Http\Controllers\DocumentoContableController;
@@ -147,6 +149,7 @@ use App\Http\Controllers\EstadoResultadoController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GeneralController;
+
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MedioMagneticoController;
@@ -164,7 +167,7 @@ use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\WorkOrderDesignController;
 use App\Http\Controllers\WorkOrderEngineeringController;
 use App\Http\Controllers\WorkOrderProductionController;
-use App\Models\Bonus;
+use App\Models\Accommodation;
 use App\Models\Budget;
 use App\Models\Business;
 use App\Models\BusinessBudget;
@@ -176,8 +179,6 @@ use App\Models\PlanCuentas;
 use App\Models\PreliquidatedLog;
 use App\Models\ThirdParty;
 use App\Models\User;
-use App\Models\WorkOrderBlueprint;
-use App\Models\WorkOrderProduction;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -204,8 +205,12 @@ Route::get('/', function () {
 
     $exitCode = Artisan::call('config:cache');
 
-    return 'DONE'; //Return anythingb
+    return 'DONE-Inicio'; //Return anythingb
 
+});
+
+Route::get('prueba', function(){
+    return Accommodation::all();
 });
 Route::get('/generate-users', function () {
 
@@ -482,6 +487,12 @@ Route::group(
         Route::get('download-work-certificate/{id}', [WorkCertificateController::class, 'pdf']);
 
         Route::resource('layoffs-certificate', LayoffsCertificateController::class);
+        Route::get('layoff-list/check-layoffs-list/{anio}' , [ LayoffController::class, 'getCheckLayoffsList']);
+        Route::get('layoff-list/paginated' , [ LayoffController::class, 'paginate']);
+        Route::apiResources([
+            'layoff-list' => LayoffController::class,
+            'layoff-person' => LayoffPersonController::class
+        ]);
 
         Route::get('download-layoffs-certificate/{id}', [LayoffsCertificateController::class, 'pdf']);
 

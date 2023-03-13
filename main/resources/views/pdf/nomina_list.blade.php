@@ -1,4 +1,4 @@
-<head>
+{{-- <head>
     <style>
         * {
             font-family: 'Roboto', sans-serif;
@@ -95,10 +95,11 @@
             text-align: left !important;
         }
     </style>
-</head>
+</head> --}}
 
 @foreach($data['funcionarios'] as $info)
     @include('pdf.nomina_person')
+
     <div style="page-break-after: always;"></div>
 @endforeach
 
