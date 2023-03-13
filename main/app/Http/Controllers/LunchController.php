@@ -34,17 +34,17 @@ class LunchController extends Controller
             'l.apply',
             DB::raw('concat(user.first_name," ",user.first_surname) as user')
         )
-        ->when(request()->get('date_end'), function($q, $fill) 
+        ->when(request()->get('date_end'), function($q, $fill)
         {
                 $q->whereDate('l.created_at', '>=', request()->get('date_start'))
                 ->whereDate('l.created_at', '<=', request()->get('date_end'));
         })
-        ->when(request()->get('date_start'), function($q, $fill) 
+        ->when(request()->get('date_start'), function($q, $fill)
         {
                 $q->whereDate('l.created_at', '>=', request()->get('date_start'))
                 ->whereDate('l.created_at', '<=', request()->get('date_end'));
         })
-        ->when(request()->get('person'), function($q, $fill) 
+        ->when(request()->get('person'), function($q, $fill)
         {
             $q->where('l.person_id', 'like', '%'.$fill.'%');
         })

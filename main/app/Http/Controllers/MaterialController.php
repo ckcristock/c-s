@@ -22,29 +22,23 @@ class MaterialController extends Controller
     public function index()
     {
         return $this->success(
-                Material::with('materialThickness')
-                ->get(['name As text', 'id', 'kg_value', 'value_aux'])
+            Material::with('materialThickness', 'product')
+                ->get()
+                ->transform(function ($material) {
+                    $material->text = $material->product->name;
+                    unset($material->product);
+                    return $material;
+                })
         );
     }
 
     public function paginate()
     {
         return $this->success(
-            Material::orderBy('name')
-                ->with('materialField')
-                ->with('materialThickness')
-                ->with([
-                    'product' => function ($q) {
-                        $q->select("Id_Producto","Codigo_Barras", "Tipo_Catalogo", "Id_Categoria", "Id_Subcategoria");
-                    }
-                    ])
-
-                ->when(request()->get('name'), function ($q, $fill) {
+            Material::with('materialThickness', 'product')
+                /* ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
-                })
-                ->when(request()->get('company_id'), function ($q, $fill) {
-                    $q->where('company_id',  $fill );
-                })
+                }) */
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
@@ -118,7 +112,7 @@ class MaterialController extends Controller
      */
     public function show($id)
     {
-        return Material::find($id, ['id','unit','unit_price','cut_water','cut_laser','type', 'name As text', 'id As value']);
+        return Material::find($id, ['id', 'unit', 'unit_price', 'cut_water', 'cut_laser', 'type', 'name As text', 'id As value']);
     }
 
     /**
@@ -171,7 +165,6 @@ class MaterialController extends Controller
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
-
     }
 
     /**

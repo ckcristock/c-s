@@ -17,7 +17,7 @@ class AttentionCallController extends Controller
      */
     public function index()
     {
-            
+
     }
 
     public function callAlert($id)

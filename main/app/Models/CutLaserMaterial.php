@@ -8,11 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class CutLaserMaterial extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'formula'];
+    protected $fillable = ['material_id', 'formula'];
 
     public function cutLaserMaterialValue()
     {
         return $this->hasMany(CutLaserMaterialValue::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'material_id', 'Id_Producto')->select('Id_Producto', 'Unidad_Medida', 'Nombre_Comercial as name')->with('unit');
     }
 
 }

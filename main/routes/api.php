@@ -4,6 +4,7 @@
 
 use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\AccountPlanController;
+use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\ApuController;
@@ -15,6 +16,8 @@ use App\Http\Controllers\ArlController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AttentionCallController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BalanceGeneralController;
+use App\Http\Controllers\BalanceGlobalizadoController;
 use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\BanksController;
 use App\Http\Controllers\BenefitIncomeController;
@@ -130,15 +133,35 @@ use App\Http\Controllers\LiquidationsController;
 use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
+use App\Http\Controllers\BorradorContabilidadController;
 use App\Http\Controllers\CategoriaNuevaController;
+use App\Http\Controllers\CentroCostoController;
+use App\Http\Controllers\ChequeConsecutivoController;
+use App\Http\Controllers\CierreContableController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
 use App\Http\Controllers\LayoffController;
 use App\Http\Controllers\LayoffPersonController;
+use App\Http\Controllers\CuentaDocumentoContableController;
+use App\Http\Controllers\DepreciacionController;
+use App\Http\Controllers\DocumentoContableController;
+use App\Http\Controllers\EgresoController;
+use App\Http\Controllers\EstadoResultadoController;
+use App\Http\Controllers\FacturaController;
+use App\Http\Controllers\FormaPagoController;
+use App\Http\Controllers\GeneralController;
+
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\MedioMagneticoController;
+use App\Http\Controllers\ModuloController;
 use App\Http\Controllers\PayrollManagerController;
+use App\Http\Controllers\PlanCuentasController;
 use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\RawMaterialMaterialController;
+use App\Http\Controllers\RetencionController;
 use App\Http\Controllers\TaskTypeController;
+use App\Http\Controllers\TipoActivoFijoController;
+use App\Http\Controllers\TipoDocumentoController;
 use App\Http\Controllers\WorkOrderBlueprintController;
 use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\WorkOrderDesignController;
@@ -146,13 +169,22 @@ use App\Http\Controllers\WorkOrderEngineeringController;
 use App\Http\Controllers\WorkOrderProductionController;
 use App\Models\Accommodation;
 use App\Models\Budget;
+use App\Models\Business;
+use App\Models\BusinessBudget;
+use App\Models\ComprobanteConsecutivo;
+use App\Models\Deduction;
+use App\Models\Loan;
+use App\Models\Person;
+use App\Models\PlanCuentas;
+use App\Models\PreliquidatedLog;
+use App\Models\ThirdParty;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
-use App\Services\ExtraHoursService ;//eliminar este
+use App\Services\ExtraHoursService; //eliminar este
 
 /*
 |--------------------------------------------------------------------------
@@ -284,10 +316,10 @@ Route::group(
         Route::get('parametrizacion/nomina/riesgos', [PayrollConfigController::class, 'riesgosArlDatos']);
         Route::get('parametrizacion/nomina/ssocial_empresa', [PayrollConfigController::class, 'sSocialEmpresaDatos']);
         Route::get('parametrizacion/nomina/ssocial_funcionario', [PayrollConfigController::class, 'sSocialFuncionarioDatos']);
-        Route::get('parametrizacion/nomina/income', [PayrollConfigController::class, 'incomeDatos' ]);
-        Route::get('parametrizacion/nomina/deductions', [PayrollConfigController::class, 'deductionsDatos' ]);
-        Route::get('parametrizacion/nomina/liquidations', [PayrollConfigController::class, 'liquidationsDatos' ]);
-        Route::get('parametrizacion/nomina/salarios-subsidios', [PayrollConfigController::class, 'SalariosSubsidiosDatos' ]);
+        Route::get('parametrizacion/nomina/income', [PayrollConfigController::class, 'incomeDatos']);
+        Route::get('parametrizacion/nomina/deductions', [PayrollConfigController::class, 'deductionsDatos']);
+        Route::get('parametrizacion/nomina/liquidations', [PayrollConfigController::class, 'liquidationsDatos']);
+        Route::get('parametrizacion/nomina/salarios-subsidios', [PayrollConfigController::class, 'SalariosSubsidiosDatos']);
 
         /**ACTUALIZAR PARAMETROS CONFIG NOMINA */
         Route::put('parametrizacion/nomina/extras/update/{id}', [PayrollConfigController::class, 'horasExtrasUpdate']);
@@ -296,10 +328,10 @@ Route::group(
         Route::put('parametrizacion/nomina/riesgos-arl/update/{id}', [PayrollConfigController::class, 'riesgosArlUpdate']);
         Route::put('parametrizacion/nomina/parafiscales/update/{id}', [PayrollConfigController::class, 'parafiscalesUpdate']);
         Route::put('parametrizacion/nomina/incapacidades/update/{id}', [PayrollConfigController::class, 'incapacidadesUpdate']);
-        Route::post('parametrizacion/nomina/income/update', [PayrollConfigController::class, 'createUptadeIncomeDatos' ]);
-        Route::post('parametrizacion/nomina/deductions/update', [PayrollConfigController::class, 'createUpdateDeductionsDatos' ]);
-        Route::post('parametrizacion/nomina/liquidations/update', [PayrollConfigController::class, 'createUpdateLiquidationsDatos' ]);
-        Route::post('parametrizacion/nomina/salarios-subsidios/update', [PayrollConfigController::class, 'createUpdateSalariosSubsidiosDatos' ]);
+        Route::post('parametrizacion/nomina/income/update', [PayrollConfigController::class, 'createUptadeIncomeDatos']);
+        Route::post('parametrizacion/nomina/deductions/update', [PayrollConfigController::class, 'createUpdateDeductionsDatos']);
+        Route::post('parametrizacion/nomina/liquidations/update', [PayrollConfigController::class, 'createUpdateLiquidationsDatos']);
+        Route::post('parametrizacion/nomina/salarios-subsidios/update', [PayrollConfigController::class, 'createUpdateSalariosSubsidiosDatos']);
         /**/
 
         /** Rutas inventario dotacion rrhh */
@@ -317,7 +349,7 @@ Route::group(
         Route::get('dotations/download/{inicio?}/{fin?}', [InventaryDotationController::class, 'download']);
         Route::get('downloadeliveries/download/{inicio?}/{fin?}', [InventaryDotationController::class, 'downloadeliveries']);
 
-        Route::get('listado-horarios', [ReporteHorariosController::class, 'pruebaPrueba']);//eliminar esta ruta
+        Route::get('listado-horarios', [ReporteHorariosController::class, 'pruebaPrueba']); //eliminar esta ruta
         Route::post('pruebas', [ExtraHoursService::class, 'prueba']);
 
         /** end*/
@@ -390,7 +422,7 @@ Route::group(
 
         Route::get('nomina/pago/funcionario/{identidad}', [PayrollController::class, 'getFuncionario']);
         Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
-  /*       Route::get('prueba-prestamos', function(){
+        /*       Route::get('prueba-prestamos', function(){
             //return Loan::obtener(Person::find(11534),'2023-02-01','2023-02-28');
             $dedu = Deduction::periodo(Person::find(11531),'2022-01-01','2023-08-30');
             $aux = collect([]);
@@ -442,12 +474,12 @@ Route::group(
         Route::resource('applicants', ApplicantController::class);
         Route::resource('bodegas', BodegasController::class)->only(['index', 'store', 'show']);
 
-        Route::post('bodegas-activar-inactivar', [BodegasController::class,'activarInactivar']);
-        Route::post('grupos-bodegas', [BodegasController::class,'storeGrupo']);
-        Route::post('estibas', [BodegasController::class,'storeEstiba']);
-        Route::get('bodegas-with-estibas/{id}', [BodegasController::class,'bodegasConGrupos']);
-        Route::get('grupos-with-estibas/{id}', [BodegasController::class,'gruposConEstibas']);
-        Route::get('get-wo-for-stage', [WorkOrderController::class,'forStage']);
+        Route::post('bodegas-activar-inactivar', [BodegasController::class, 'activarInactivar']);
+        Route::post('grupos-bodegas', [BodegasController::class, 'storeGrupo']);
+        Route::post('estibas', [BodegasController::class, 'storeEstiba']);
+        Route::get('bodegas-with-estibas/{id}', [BodegasController::class, 'bodegasConGrupos']);
+        Route::get('grupos-with-estibas/{id}', [BodegasController::class, 'gruposConEstibas']);
+        Route::get('get-wo-for-stage', [WorkOrderController::class, 'forStage']);
 
         Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
         Route::resource('work-certificate', WorkCertificateController::class);
@@ -497,6 +529,7 @@ Route::group(
         Route::resource('work-orders-engineering', WorkOrderEngineeringController::class);
         Route::resource('work-orders-design', WorkOrderDesignController::class);
         Route::resource('work-orders-production', WorkOrderProductionController::class);
+        Route::resource('raw-material-material', RawMaterialMaterialController::class);
 
         Route::get('payroll-factor-download', [PayrollFactorController::class, 'payrollFactorDownload']);
 
@@ -603,14 +636,16 @@ Route::group(
         Route::post('restore-accommodation', [AccommodationController::class, 'restore']);
 
         /* Paginations */
-        Route::get('paginateBodegas', [BodegasController::class,'paginate']);
-        Route::get('category-paginate', [CategoryController::class,'paginate']);
+        Route::get('paginateBodegas', [BodegasController::class, 'paginate']);
+        Route::get('pretty-cash-paginate', [PrettyCashController::class, 'paginate']);
+        Route::get('paginateRawMaterialMaterial', [RawMaterialMaterialController::class, 'paginate']);
+        Route::get('category-paginate', [CategoryController::class, 'paginate']);
         Route::get('loan-paginate', [LoanController::class, 'paginate']);
         Route::get('woe-paginate', [WorkOrderEngineeringController::class, 'paginate']);
         Route::get('wod-paginate', [WorkOrderDesignController::class, 'paginate']);
         Route::get('wop-paginate', [WorkOrderProductionController::class, 'paginate']);
-        Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class,'paginate']);
-        Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class,'paginate']);
+        Route::get('paginateTravel-expense-estimation', [TravelExpenseEstimationController::class, 'paginate']);
+        Route::get('paginateTravelExpenseEstimationValue', [TravelExpenseEstimationValuesController::class, 'paginate']);
         Route::get('paginateThickness', [ThicknessController::class, 'paginate']);
         Route::get('paginate-work-certificate', [WorkCertificateController::class, 'paginate']);
         Route::get('paginate-layoffs-certificate', [LayoffsCertificateController::class, 'paginate']);
@@ -712,13 +747,14 @@ Route::group(
         Route::get('/company-global', [CompanyController::class, 'getGlobal']);
 
         Route::get('getsubforcat/{id}', [SubcategoryController::class, 'getSubForCat']);
+        Route::get('get-materials', [ProductController::class, 'getMaterials']);
 
         Route::resource("subcategory", SubcategoryController::class)->only(['index', 'store', 'show', 'update']);
         Route::put("subcategory-active/{id}", [SubcategoryController::class, 'turningOnOff']);
         Route::delete("subcategory-variable/{id}", [SubcategoryController::class, 'deleteVariable']);
-Route::get('test', function(){
-    return Budget::where('id',8)->with('quotations')->first();
-});
+        Route::get('test', function () {
+            return Budget::where('id', 8)->with('quotations')->first();
+        });
         //boards
         Route::get("board", [BoardController::class, "getData"]);
         Route::post('person/set-board/{personId}/{board}', [BoardController::class, 'setBoardsPerson']);
@@ -745,13 +781,13 @@ Route::get('test', function(){
         //se ejecuta al editar
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
-        Route::get("get-vars-producto", [ProductController::class,'getVars']);
-        Route::get("get-actividad-producto", [ProductController::class,'getActividad']);
-        Route::post("cambiar-estado-producto", [ProductController::class,'cambiarEstado']);
+        Route::get("get-vars-producto", [ProductController::class, 'getVars']);
+        Route::get("get-actividad-producto", [ProductController::class, 'getActividad']);
+        Route::post("cambiar-estado-producto", [ProductController::class, 'cambiarEstado']);
         Route::resource("type-documents", DocumentTypesController::class)->only(['index', 'store', 'update', 'destroy']);
 
         Route::resource("category", CategoryController::class);
-        Route::get('list-categories', [CategoryController::class,'listCategories']);
+        Route::get('list-categories', [CategoryController::class, 'listCategories']);
         Route::get("category-field/{id}", [CategoryController::class, 'getField']);
         Route::put("category-active/{id}", [CategoryController::class, 'turningOnOff']);
         Route::delete("category-variable/{id}", [CategoryController::class, 'deleteVariable']);
@@ -831,12 +867,17 @@ Route::get('test', function(){
         Route::post('approve_process/{disciplinary_process_id}', [DisciplinaryProcessController::class, 'approve']);
         Route::post('new-business-budget', [BusinessController::class, 'newBusinessBudget']);
         Route::post('new-business-quotation', [BusinessController::class, 'newBusinessQuotation']);
+        Route::post('new-business-apu', [BusinessController::class, 'newBusinessApu']);
         Route::post('new-business-note', [BusinessController::class, 'newBusinessNote']);
         Route::get('business-notes/{id}', [BusinessController::class, 'getNotes']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
         Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
         Route::get('get-history-business/{id}', [BusinessController::class, 'getHistory']);
         Route::post('change-status-in-business', [BusinessController::class, 'changeStatusInBusiness']);
+
+        Route::post('import-validator-account-plans/{delete}', [PlanCuentasController::class, 'validateExcel']);
+        Route::post('import-initial-balances', [PlanCuentasController::class, 'importInitialBalances']);
+        Route::get('import-commercial-puc', [PlanCuentasController::class, 'importCommercialPuc']);
 
         /************RUTAS PHP************/
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);
@@ -855,9 +896,119 @@ Route::get('test', function(){
         Route::get('impuestos', [BodegasController::class, 'impuestos']);
         Route::get('php/inventario_fisico_puntos/lista_punto_funcionario', [PersonController::class, 'funcionarioPunto']);
         Route::get('get-estados-compra', [ListaComprasController::class, 'getEstadosCompra']);
-
         Route::post('php/rotativoscompras/actualizar_estado', [ListaComprasController::class, 'actualizarEstadoPreCompra']);
         Route::post('php/comprasnacionales/guardar_compra_nacional', [ListaComprasController::class, 'storeCompra']);
         Route::post('php/comprasnacionales/actualiza_compra', [ListaComprasController::class, 'setEstadoCompra']);
+        /* Plan cuentas */
+        Route::get('php/plancuentas/lista_plan_cuentas.php', [PlanCuentasController::class, 'paginate']);
+        Route::get('plan-cuentas-paginacion', [PlanCuentasController::class, 'paginate2']);
+        Route::get('php/contabilidad/plancuentas/descargar_informe_plan_cuentas_excel.php', [PlanCuentasController::class, 'descargarExcel']);
+        Route::get('php/contabilidad/plancuentas/detalle_plan_cuenta.php', [PlanCuentasController::class, 'show']);
+        Route::post('php/contabilidad/plancuentas/cambiar_estado.php', [PlanCuentasController::class, 'cambiarEstado']);
+        Route::get('php/contabilidad/certificadoretencion/lista_cuentas.php', [PlanCuentasController::class, 'listaCuentas']);
+        Route::get('php/plancuentas/lista_bancos.php', [PlanCuentasController::class, 'listarBancos']);
+        Route::post('php/contabilidad/plancuentas/guardar_puc.php', [PlanCuentasController::class, 'store']);
+        Route::get('php/plancuentas/validar_puc_niveles.php', [PlanCuentasController::class, 'validarNiveles']);
+        Route::get('php/comprobantes/lista_cuentas.php', [PlanCuentasController::class, 'getListaCuentasContables']);
+        Route::get('php/plancuentas/filtrar_cuentas.php', [PlanCuentasController::class, 'filtrarCuentas']);
+        Route::get('php/comprobantes/cuentas.php', [PlanCuentasController::class, 'comprobanteCuentas']);
+        Route::get('php/plancuentas/get_planes_cuentas.php', [PlanCuentasController::class, 'getPlanCuentas']);
+        Route::post('php/plancuentas/set_plan_cuentas_tipo_cierre.php', [PlanCuentasController::class, 'setTipoCierre']);
+        /* Centro costos */
+        Route::get('php/centroscostos/lista_centros_costos.php', [CentroCostoController::class, 'paginate']);
+        Route::get('php/centroscostos/lista_tipo_centro.php', [CentroCostoController::class, 'listaTipo']);
+        Route::get('php/centroscostos/listar_valores_tipo_centro.php', [CentroCostoController::class, 'listaValores']);
+        Route::get('php/centroscostos/consultar_centro_costo.php', [CentroCostoController::class, 'consultarCentro']);
+        Route::get('php/centroscostos/cambiar_estado_centro_costo.php', [CentroCostoController::class, 'cambiarCentro']);
+        Route::post('php/centroscostos/guardar_centros_costos.php', [CentroCostoController::class, 'store']);
+        Route::get('php/centroscostos/exportar.php', [CentroCostoController::class, 'exportar']);
+        Route::get('php/contabilidad/notascontables/centrocosto_buscar.php', [CentroCostoController::class, 'buscar']);
+        Route::get('php/contabilidad/notascarteras/centrocosto_buscar.php', [CentroCostoController::class, 'buscar']);
+        Route::get('php/contabilidad/balanceprueba/lista_centro_costos.php', [CentroCostoController::class, 'listaCentro']);
+        /* Depreciaciones */
+        Route::get('php/depreciacion/get_depreciaciones.php', [DepreciacionController::class, 'paginate']);
+        Route::get('php/contabilidad/movimientoscontables/movimientos_depreciacion_pdf.php', [DepreciacionController::class, 'pdf']);
+        Route::get('php/depreciacion/vista_previa.php', [DepreciacionController::class, 'vistaPrevia']);
+        Route::post('php/depreciacion/guardar_depreciacion.php', [DepreciacionController::class, 'store']);
+        /* Activos fijos */
+        Route::get('php/activofijo/get_lista_activo_fijo.php', [ActivoFijoController::class, 'paginate']);
+        Route::get('php/activofijo/datos_reporte.php', [ActivoFijoController::class, 'datosReporte']);
+        Route::get('php/activofijo/get_detalle_activo_fijo.php', [ActivoFijoController::class, 'show']);
+        Route::get('php/activofijo/adiciones_activo.php', [ActivoFijoController::class, 'adiciones']);
+        Route::get('php/activofijo/get_codigo.php', [ActivoFijoController::class, 'getCodigo']);
+        Route::get('php/activofijo/cuentas_retenciones.php', [ActivoFijoController::class, 'cuentasRetenciones']);
+        Route::get('php/activofijo/cuentas.php', [ActivoFijoController::class, 'cuentas']);
+        Route::get('php/activofijo/filtrar.php', [ActivoFijoController::class, 'filtrar']);
+        Route::get('php/activofijo/lista_facturas.php', [ActivoFijoController::class, 'listaFacturas']);
+        Route::get('php/activofijo/get_activo_fijo_adiccion.php', [ActivoFijoController::class, 'adicion']);
+        Route::get('php/contabilidad/movimientoscontables/movimientos_activo_fijo_pdf.php', [ActivoFijoController::class, 'pdf']);
+        Route::get('php/activofijo/reportes.php', [ActivoFijoController::class, 'reportes']);
+        Route::post('php/activofijo/guardar_activo_fijo.php', [ActivoFijoController::class, 'store']);
+        Route::post('php/activofijo/guardar_activo_fijo_adicion.php', [ActivoFijoController::class, 'guardarAdicion']);
+        Route::post('php/contabilidad/anular_documento.php', [ActivoFijoController::class, 'anularDocumento']);
+        /* Retencion */
+        Route::get('php/activofijo/retenciones.php', [RetencionController::class, 'index']);
+        Route::get('php/contabilidad/lista_retenciones.php', [RetencionController::class, 'lista']);
+        /* Tipos activos fijos */
+        Route::get('php/tipoactivo/get_tipo_activos.php', [TipoActivoFijoController::class, 'index']);
+        Route::get('php/tipoactivo/get_lista_tipo_activo.php', [TipoActivoFijoController::class, 'paginate']);
+        Route::post('php/tipoactivo/guardar_tipo_activo.php', [TipoActivoFijoController::class, 'store']);
+        /* Terceros */
+        Route::get('php/terceros/filtrar_terceros.php', [ThirdPartyController::class, 'filtrarPhp']);
+        Route::get('php/contabilidad/proveedor_buscar.php', [ThirdPartyController::class, 'buscarProveedor']);
+        Route::get('php/contabilidad/notascarteras/nit_buscar.php', [ThirdPartyController::class, 'nitBuscar']);
+        Route::get('php/clientes/get_terceros_por_tipo.php', [ThirdPartyController::class, 'porTipo']);
+        Route::get('php/comprobantes/lista_cliente.php', [ThirdPartyController::class, 'listaCliente']);
+        Route::get('php/comprobantes/lista_proveedores.php', [ThirdPartyController::class, 'listaProveedores']);
+        /* Notas contables */
+        Route::get('php/contabilidad/notascontables/lista_notas_contables.php', [DocumentoContableController::class, 'paginate']);
+        Route::get('php/contabilidad/notascontables/nit_buscar.php', [DocumentoContableController::class, 'nitBuscar']);
+        Route::get('php/contabilidad/notascontables/get_codigo.php', [DocumentoContableController::class, 'getCodigo']);
+        Route::get('php/contabilidad/notascontables/descarga_pdf.php', [DocumentoContableController::class, 'descargarPdf']);
+        Route::post('php/contabilidad/notascontables/subir_facturas.php', [DocumentoContableController::class, 'subirFacturas']);
+        /* Borrador contabilidad */
+        Route::get('php/contabilidad/lista_borrador_contable.php', [BorradorContabilidadController::class, 'lista']);
+        Route::get('php/contabilidad/detalles_borrador_contable.php', [BorradorContabilidadController::class, 'detalles']);
+        Route::post('php/contabilidad/guardar_borrador_contable.php', [BorradorContabilidadController::class, 'guardar']);
+        /* Cuenta documento contable */
+        Route::get('php/contabilidad/notascarteras/lista_notas_carteras.php', [CuentaDocumentoContableController::class, 'listaNotasCartera']);
+        Route::get('php/comprobantes/lista_egresos.php', [CuentaDocumentoContableController::class, 'listaEgresos']);
+        Route::get('php/comprobantes/lista_comprobantes.php', [CuentaDocumentoContableController::class, 'listaComprobantes']);
+        /* Facturas */
+        Route::get('php/notas_credito_nuevo/get_notas_creditos.php', [FacturaController::class, 'getNotasCreditos']);
+        Route::get('php/notas_credito_nuevo/lista_facturas_cliente_notas_credito.php', [FacturaController::class, 'listaFacturaClienteNotasCredito']);
+        Route::get('php/notas_credito_nuevo/lista_producto_notas_credito.php', [FacturaController::class, 'listaProductoNotasCredito']);
+        Route::post('php/notas_credito_nuevo/guardar_nota_credito.php', [FacturaController::class, 'guardarNotaCredito']);
+        /* Generales */
+        Route::get('php/lista_generales.php', [GeneralController::class, 'listaGenerales']);
+        Route::get('php/genericos/detalle.php', [GeneralController::class, 'detalle']);
+        Route::get('php/comprobantes/get_codigo.php', [GeneralController::class, 'getCodigo']);
+        /* Cheques */
+        Route::get('php/comprobantes/lista_cheques.php', [ChequeConsecutivoController::class, 'lista']);
+        /* Forma pago */
+        Route::get('php/comprobantes/formas_pago.php', [FormaPagoController::class, 'index']);
+        /* Cierre contable */
+        Route::get('php/contabilidad/cierres/lista_cierre.php', [CierreContableController::class, 'listaCierre']);
+        Route::post('php/contabilidad/cierres/validar_cierre.php', [CierreContableController::class, 'validarCierre']);
+        Route::post('php/contabilidad/cierres/guardar_cierre.php', [CierreContableController::class, 'guardarCierre']);
+        Route::get('php/contabilidad/cierres/anular_cierre.php', [CierreContableController::class, 'anularCierre']);
+        Route::get('php/contabilidad/movimientoscontables/movimientos_cierreanio_excel.php', [CierreContableController::class, 'excel']);
+        /* Medios magneticos */
+        Route::get('php/contabilidad/mediosmagneticos/lista_medios_magneticos.php', [MedioMagneticoController::class, 'lista']);
+        Route::get('php/contabilidad/mediosmagneticos/detalles.php', [MedioMagneticoController::class, 'detalles']);
+        Route::get('php/contabilidad/mediosmagneticos/formatos_especiales.php', [MedioMagneticoController::class, 'formatosEspeciales']);
+        /* Tipos de documentos */
+        Route::get('php/contabilidad/tipos_documentos.php', [ModuloController::class, 'index']);
+        /* Balance general */
+        Route::get('php/contabilidad/balancegeneral/descarga_pdf.php', [BalanceGeneralController::class, 'descargaPdf']);
+        Route::get('php/contabilidad/balancegeneral/descarga_excel.php', [BalanceGeneralController::class, 'descargaExcel']);
+        /* Balance globalizado */
+        Route::get('php/contabilidad/movimientoglobalizado/generar_reporte.php', [BalanceGlobalizadoController::class, 'generarReporte']);
+        /* Egreso */
+        Route::post('php/comprobantes/guardar_egreso.php', [EgresoController::class, 'guardar']);
+        Route::get('php/contabilidad/notascontables/lista_facturas.php', [EgresoController::class, 'listaFacturas']);
+        /* Estados resultados */
+        Route::get('php/contabilidad/estadoresultado/descarga_pdf.php', [EstadoResultadoController::class, 'pdf']);
+        Route::get('php/contabilidad/estadoresultado/descarga_excel.php', [EstadoResultadoController::class, 'excel']);
     }
 );

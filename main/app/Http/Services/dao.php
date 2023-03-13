@@ -31,7 +31,7 @@ class dao
 
 	function doDebug($query = "")
 	{
-		// if ($this->debug){ 
+		// if ($this->debug){
 		// 	echo @mysql_errno() . " : " . @mysql_error();
 		// 	echo "\n";
 		// 	echo $query;
@@ -51,7 +51,7 @@ class dao
 		$this->dbpassword = $dbpassword;
 		$this->dbname = $dbname;
 		// mysqli_connect($db_host,$db_user,$db_password, $db_name )
-		if ($this->conn = mysqli_connect($this->dbhost, $this->dbuser, $this->dbpassword,	$this->dbname)) {
+		if ($this->conn = mysqli_connect($this->dbhost, $this->dbuser, $this->dbpassword, $this->dbname)) {
 			$this->selectDB();
 		}
 

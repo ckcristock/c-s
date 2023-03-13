@@ -31,7 +31,7 @@ class consulta
     public function connect2()
     {
         return DB::select($this->query);
-        
+
         // global $MY_CONFIG;
         // include(__DIR__ . "config/config.db.php");
         //echo "conect2:".$this->query;

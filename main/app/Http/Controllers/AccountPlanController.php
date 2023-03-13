@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccountPlan;
+use App\Models\PlanCuentas;
 use App\Traits\ApiResponser;
 use Facade\FlareClient\Stacktrace\File;
 use Illuminate\Http\Request;
@@ -128,9 +129,9 @@ class AccountPlanController extends Controller
 
 	public function listBalance()
 	{
-		return $this->success(AccountPlan::with('balance')
+		return $this->success(PlanCuentas::with('balance')
 
-			->get(['*', DB::raw("concat(name,' - ', code) as text, id as value")]));
+			->get(['*', DB::raw("concat(Nombre_Niif,' - ', Codigo_Niif) as text, Id_Plan_Cuentas as value")]));
 	}
 
 	public function list()
