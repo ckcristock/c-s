@@ -40,7 +40,7 @@ class ApuPartCutWater extends Model
 
     public function material()
 	{
-		return $this->belongsTo(Material::class);
+		return $this->belongsTo(Material::class)->with('product');
 	}
 
     public function thickness()

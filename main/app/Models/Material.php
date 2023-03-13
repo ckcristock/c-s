@@ -8,15 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Material extends Model
 {
     protected $fillable = [
-        "name",
-        "product_id",
-        "unit",
-        "unit_price",
-        "cut_water",
-        "cut_laser",
-        "type",
-        "kg_value",
-        "value_aux"
+        "id",
+        "material_id",
     ];
 
 
@@ -40,8 +33,9 @@ class Material extends Model
         return $this->hasMany(MaterialThickness::class)->with('thickness');
     }
 
+
     public function product()
     {
-        return $this->hasOne(Product::class, 'Id_Producto', "product_id");
+        return $this->belongsTo(Product::class, 'material_id', 'Id_Producto')->select('Id_Producto', 'Unidad_Medida', 'Nombre_Comercial as name')->with('unit');
     }
 }

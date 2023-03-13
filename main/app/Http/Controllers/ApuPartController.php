@@ -350,6 +350,7 @@ class ApuPartController extends Controller
         $company = Company::first();
         $image = $company->page_heading;
         $data = ApuPartService::show($id);
+        //return $data;
         $datosCabecera = (object) array(
             'Titulo' => 'APU Pieza',
             'Codigo' => $data->code,

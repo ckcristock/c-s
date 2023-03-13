@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\ThirdParty;
 use App\Models\ThirdPartyField;
 use App\Models\ThirdPartyPerson;
+use App\Http\Services\HttpResponse;
+use App\Http\Services\QueryBaseDatos;
+use App\Http\Services\consulta;
+use App\Models\CompensationFund;
+use App\Models\Person;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -117,6 +122,51 @@ class ThirdPartyController extends Controller
             ThirdPartyField::where('state', '=', 'Activo')
                 ->get()
         );
+    }
+
+    public function filtrarPhp()
+    {
+        $match = (isset($_REQUEST['coincidencia']) ? $_REQUEST['coincidencia'] : '');
+
+        $condicion = '';
+
+        if ($match != '') {
+            $condicion .= ' WHERE
+		T.Nit LIKE "%' . $match . '%" OR T.Nombre_Tercero LIKE "%' . $match . '%"';
+        }
+
+        $http_response = new HttpResponse();
+
+        $query = '
+		SELECT
+			T.*
+		FROM (SELECT
+				id AS Nit,
+				id AS Id,
+				CONCAT(id," - ", CONCAT_WS(" ", first_name, first_surname)) AS Nombre_Tercero,
+				CONCAT(id," - ", CONCAT_WS(" ", first_name, first_surname)) AS Nombre,
+				"Funcionario" as Tipo
+			FROM people
+				UNION
+			SELECT
+				Id_Cliente AS Nit,
+				Id_Cliente AS Id,
+				CONCAT(Id_Cliente," - ",Nombre) AS Nombre_Tercero,CONCAT(Id_Cliente," - ",Nombre) AS Nombre, "Cliente" as Tipo
+			FROM Cliente
+				UNION
+			SELECT
+				Id_Proveedor AS Nit,
+				Id_Proveedor AS Id,
+				CONCAT(Id_Proveedor," - ",IF((Primer_Nombre IS NULL OR Primer_Nombre = ""), Nombre, CONCAT_WS(" ", Primer_Nombre, Segundo_Nombre, Primer_Apellido, Segundo_Apellido))) AS Nombre_Tercero, CONCAT(Id_Proveedor," - ",IF((Primer_Nombre IS NULL OR Primer_Nombre = ""), Nombre, CONCAT_WS(" ", Primer_Nombre, Segundo_Nombre, Primer_Apellido, Segundo_Apellido))) AS Nombre, "Proveedor" as Tipo
+			FROM Proveedor
+
+			) T ' . $condicion;
+
+
+        $queryObj = new QueryBaseDatos($query);
+        $matches = $queryObj->ExecuteQuery('Multiple');
+
+        return json_encode($matches);
     }
 
     /**
@@ -269,5 +319,132 @@ class ThirdPartyController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function buscarProveedor()
+    {
+        $query = 'SELECT PR.id as Id_Proveedor,
+            IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname, second_name, second_surname))  as NombreProveedor
+            FROM third_parties PR
+            WHERE PR.third_party_type = "Cliente" ';
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $proveedorbucar = $oCon->getData();
+        unset($oCon);
+
+
+        return json_encode($proveedorbucar);
+    }
+
+    public function nitBuscar()
+    {
+        /* $third = ThirdParty::where('state', 'Activo')
+            ->select(
+                'id',
+                DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as Nombre'),
+                DB::raw('"Cliente" AS Tipo')
+            )->get();
+        $people = Person::where('status', 'Activo')
+            ->select(
+                'id',
+                DB::raw('CONCAT(id, " - ", first_name," ", first_surname) AS Nombre'),
+                DB::raw('"Funcionario" AS Tipo')
+            )->get();
+        $compensation_funds = CompensationFund::where('status', 'Activo')
+            ->select(
+                'nit as id',
+                DB::raw('CONCAT_WS(" ", nit, name) AS Nombre'),
+                DB::raw('"Caja_Compensacion" AS Tipo')
+            )->get(); */
+
+        $query = ThirdParty::where('state', 'Activo')
+            ->select(
+                'id',
+                DB::raw('IFNULL(social_reason COLLATE utf8mb4_spanish_ci, CONCAT_WS(" ", first_name, first_surname)) as Nombre'),
+                DB::raw('"Cliente" AS Tipo')
+            )
+            ->union(
+                Person::where('status', 'Activo')
+                    ->select(
+                        'id',
+                        DB::raw('CONCAT(id, " - ", first_name," ", first_surname) AS Nombre'),
+                        DB::raw('"Funcionario" AS Tipo')
+                    )
+            )
+            ->union(
+                CompensationFund::where('status', 'Activo')
+                    ->select(
+                        'nit as id',
+                        DB::raw('CONCAT_WS(" ", nit, name) AS Nombre'),
+                        DB::raw('"Caja_Compensacion" AS Tipo')
+                    )
+            )
+            ->get();
+
+
+        return json_encode($query);
+    }
+
+    public function porTipo()
+    {
+        $tipo = isset($_REQUEST['Tipo']) ? $_REQUEST['Tipo'] : false;
+
+        if ($tipo) {
+            $query = $this->query($tipo);
+
+            $oCon = new consulta();
+            $oCon->setQuery($query);
+            $oCon->setTipo('Multiple');
+            $clientes = $oCon->getData();
+
+            $res = $clientes;
+            return json_encode($res);
+        }
+    }
+
+    public function listaCliente()
+    {
+        $query = '(SELECT C.Id_Cliente, CONCAT(C.Id_Cliente," - ", C.Nombre) as Nombre
+                FROM Cliente C WHERE C.Estado != "Inactivo") UNION (SELECT F.id AS Id_Cliente, CONCAT(CONCAT_WS(" ",F.first_name,F.first_surname)," - ",F.id) AS Nombre FROM people F)';
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $clientes = $oCon->getData();
+        unset($oCon);
+
+        return json_encode($clientes);
+    }
+
+    function query($tipo)
+    {
+        if ($tipo == 'Funcionario') {
+            $select = 'SELECT id AS Id_Cliente,
+                         CONCAT(id, " - ",first_name," ",first_surname) AS Nombre
+                         FROM people';
+        } else if ($tipo == 'Cliente') {
+            $select = 'SELECT id as Id_Cliente, IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) AS Nombre
+            FROM third_parties WHERE third_party_type = "Cliente"';
+        } else if ($tipo == 'Proveedor') {
+            $select = 'SELECT id AS Id_Cliente ,
+                        IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) AS Nombre FROM third_parties WHERE third_party_type = "Proveedor" ';
+        }
+        return $select;
+    }
+
+    public function listaProveedores()
+    {
+        $query = 'SELECT Id_Proveedor, IF(Nombre = "" OR Nombre IS NULL,CONCAT_WS(" ",Id_Proveedor,"-",Primer_Nombre,Segundo_Nombre,Primer_Apellido,Segundo_Apellido),CONCAT_WS(" ",Id_Proveedor,"-",Nombre)) AS NombreProveedor
+	    FROM Proveedor UNION (SELECT F.id AS Id_Proveedor, CONCAT(CONCAT_WS(" ",F.first_name,F.first_surname)," - ",F.id) AS NombreProveedor FROM people F)';
+
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $oCon->setTipo('Multiple');
+        $proveedores = $oCon->getData();
+        unset($oCon);
+
+        return json_encode($proveedores);
     }
 }

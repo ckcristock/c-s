@@ -41,7 +41,7 @@ class ApuPartRawMaterial extends Model
 
     public function material()
 	{
-		return $this->belongsTo(Material::class);
+         return $this->belongsTo(RawMaterialMaterial::class, 'material_id', 'id')->with('product');
 	}
 
 

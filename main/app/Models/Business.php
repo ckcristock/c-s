@@ -53,6 +53,11 @@ class Business extends Model
         return $this->belongsToMany(Quotation::class)->name()->with('municipality', 'client', 'budgets')->withPivot('status');
     }
 
+    public function apus()
+    {
+        return $this->hasMany(BusinessApu::class)->with('apuable');
+    }
+
     public function tasks()
     {
         return $this->belongsToMany(Task::class)->with('asignador', 'types', 'realizador');
