@@ -42,7 +42,7 @@ class CountryController extends Controller
     public function paginate()
     {
         return $this->success(
-            Country::orderBy('name')
+            Country::orderByRaw("CASE WHEN name = 'Colombia' THEN 0 ELSE 1 END, name ASC")
                 ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
                 })
