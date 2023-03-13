@@ -12,6 +12,8 @@ use App\Http\Services\consulta;
 use App\Http\Services\complex;
 use App\Http\Services\QueryBaseDatos;
 use App\Imports\AccountPlansImport;
+use App\Imports\InitialBalanceImport;
+use App\Models\AccountPlanBalance;
 use App\Models\PrettyCash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -27,8 +29,28 @@ class PlanCuentasController extends Controller
     public function importCommercialPuc()
     {
         $file_path = '/imports/puc-comercial.xlsx';
-        PlanCuentas::truncate();
-        Excel::import(new AccountPlansImport, $file_path, 'public');
+        if (AccountPlanBalance::count() && AccountPlanBalance::where('balance', '<>', 0)->count()) {
+            return $this->success(
+                response()->json([
+                    'icon' => 'error',
+                    'title' => 'Error',
+                    'text' => 'No podemos hacer esto porque ya hay saldos iniciales.',
+                    'timer' => 0
+                ])
+            );
+        } else {
+            PlanCuentas::truncate();
+            AccountPlanBalance::truncate();
+            Excel::import(new AccountPlansImport, $file_path, 'public');
+            return $this->success(
+                response()->json([
+                    'icon' => 'success',
+                    'title' => 'Operación exitosa',
+                    'text' => 'PUC comercial cargado correctamente.',
+                    'timer' => 1000
+                ])
+            );
+        }
     }
     public function setTipoCierre()
     {
@@ -105,20 +127,57 @@ class PlanCuentasController extends Controller
                 $request->file
             )
         );
-        if ($delete == 'true') {
-            PlanCuentas::truncate();
+        if (AccountPlanBalance::count() && AccountPlanBalance::where('balance', '<>', 0)->count()) {
+            return $this->success(
+                response()->json([
+                    'icon' => 'error',
+                    'title' => 'Error',
+                    'text' => 'No podemos hacer esto porque ya hay saldos iniciales.',
+                    'timer' => 0
+                ])
+            );
+        } else {
+            if ($delete == 'true') {
+                PlanCuentas::truncate();
+                AccountPlanBalance::truncate();
+            }
+            $file_path = '/imports/' . Str::random(30) . time() . '.xlsx';
+            Storage::disk('public')->put($file_path, $file, "public");
+            Excel::import(new AccountPlansImport, $file_path, 'public');
+            return $this->success(
+                response()->json([
+                    'icon' => 'success',
+                    'title' => 'Operación exitosa',
+                    'text' => 'PUC comercial cargado correctamente.',
+                    'timer' => 1000
+                ])
+            );
         }
+        }
+
+
+    public function importInitialBalances(Request $request)
+    {
+        $file = base64_decode(
+            preg_replace(
+                "#^data:application/\w+;base64,#i",
+                "",
+                $request->file
+            )
+        );
         $file_path = '/imports/' . Str::random(30) . time() . '.xlsx';
         Storage::disk('public')->put($file_path, $file, "public");
-        Excel::import(new AccountPlansImport, $file_path, 'public');
+        Excel::import(new InitialBalanceImport, $file_path, 'public');
+        return $this->success('Operacion existosa');
     }
 
-    public function paginate2(){
+    public function paginate2()
+    {
         return $this->success(
             PlanCuentas::with('cuenta_padre')
                 ->whereRaw('LENGTH(Codigo_Niif) = 1')
                 ->get(['Id_Plan_Cuentas', 'Nombre_Niif', 'Codigo_Niif', 'Codigo_Padre'])
-            );
+        );
     }
 
     public function paginate(Request $request)
@@ -367,11 +426,14 @@ class PlanCuentasController extends Controller
         $oItem->Codigo = $datos["Codigo_Niif"];
         $oItem->Nombre = $datos["Nombre_Niif"];
         $oItem->Tipo_P = $datos["Tipo_Niif"];
-        $oItem->Movimiento = $datos['Tipo_Niif'] == 'AUXILIAR' ? 'S': 'N';
+        $oItem->Movimiento = $datos['Tipo_Niif'] == 'AUXILIAR' ? 'S' : 'N';
         if ($guardar) {
 
             $oItem->save();
             $id_plan = $oItem->Id_Plan_Cuentas;
+            AccountPlanBalance::create(['account_plan_id' => $id_plan], [
+                'balance' => 0
+            ]);
             if (strval($datos['Codigo_Padre']) === '110510') {
                 PrettyCash::create([
                     'user_id' =>  Auth::id(),

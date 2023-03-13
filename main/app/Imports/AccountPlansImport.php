@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\AccountPlanBalance;
 use App\Models\PlanCuentas;
 use App\Models\PrettyCash;
 use Illuminate\Support\Collection;
@@ -44,15 +45,20 @@ class AccountPlansImport implements ToCollection
                 }
                 $plan = PlanCuentas::where('Codigo', $row[0])->first();
                 if (!$plan) {
+
                     $plan_cuenta= PlanCuentas::create([
                         'Codigo' => $row[0],
                         'Codigo_Padre' => $row[2],
-                        'Nombre' => $row[1],
+                        'Nombre' => trim($row[1]),
                         'Codigo_Niif' => $row[0],
-                        'Nombre_Niif' => $row[1],
+                        'Nombre_Niif' => trim($row[1]),
                         'Tipo_Niif' => $Tipo_P,
                         'Tipo_P' => $Tipo_P,
                         'Movimiento' => $Movimiento
+                    ]);
+                    AccountPlanBalance::create([
+                        'account_plan_id' => $plan_cuenta->Id_Plan_Cuentas,
+                        'balance' => 0
                     ]);
                     if (strval($row[2]) === '110510') {
                         PrettyCash::create([

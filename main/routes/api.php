@@ -865,6 +865,7 @@ Route::group(
         Route::post('change-status-in-business', [BusinessController::class, 'changeStatusInBusiness']);
 
         Route::post('import-validator-account-plans/{delete}', [PlanCuentasController::class, 'validateExcel']);
+        Route::post('import-initial-balances', [PlanCuentasController::class, 'importInitialBalances']);
         Route::get('import-commercial-puc', [PlanCuentasController::class, 'importCommercialPuc']);
 
         /************RUTAS PHP************/
@@ -957,6 +958,7 @@ Route::group(
         /* Borrador contabilidad */
         Route::get('php/contabilidad/lista_borrador_contable.php', [BorradorContabilidadController::class, 'lista']);
         Route::get('php/contabilidad/detalles_borrador_contable.php', [BorradorContabilidadController::class, 'detalles']);
+        Route::post('php/contabilidad/guardar_borrador_contable.php', [BorradorContabilidadController::class, 'guardar']);
         /* Cuenta documento contable */
         Route::get('php/contabilidad/notascarteras/lista_notas_carteras.php', [CuentaDocumentoContableController::class, 'listaNotasCartera']);
         Route::get('php/comprobantes/lista_egresos.php', [CuentaDocumentoContableController::class, 'listaEgresos']);
