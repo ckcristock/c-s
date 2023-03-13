@@ -4,7 +4,7 @@ use App\Models\Alert;
 use App\Models\Person;
 
 if (!function_exists('createAlert')) {
-    function createAlert($data, $id, $description, $info = null, $icon, $type)
+    function createAlert($data, $id, $description, $info, $icon, $type)
     {
         $allocator_person = Person::where('id', $data['allocator_person_id'])->fullName()->first();
         Alert::create([

@@ -169,7 +169,7 @@ class Person extends Model
 
     public function severance_fund()
     {
-        return $this->belongsTo(SeveranceFund::class);
+        return $this->belongsTo(SeveranceFund::class, 'id');
     }
 
     public function liquidation()
@@ -182,9 +182,20 @@ class Person extends Model
         return $this->belongsTo(PayrollManager::class, 'identifier', 'manager');
     }
 
+    /**
+     * último registro del pago de la nomina individual
+     */
     public function personPayrollPayment()
     {
         return $this->hasOne(PersonPayrollPayment::class, 'person_id', 'id')->latest();
+    }
+
+    /***
+     * Todos los pagos de nómina, sirve para ver la variación del salario en el tiempo
+     */
+    public function personPayrollPayments()
+    {
+        return $this->hasMany(PersonPayrollPayment::class, 'person_id', 'id');
     }
 
     public function bonusPerson()
