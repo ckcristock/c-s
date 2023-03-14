@@ -83,7 +83,7 @@ class ContractFinish extends Command
                         'user_id' => $contrato->persona,
                         'modal' => 0,
                         'icon' => 'fas fa-file-contract',
-                        'type' => 'Notificación',
+                        'type' => 'Finalización de contrato',
                         'description' => 'Se le informa que su contrato finalizará el día '.$contrato->date_end
                     ]);
                     Alert::create([
@@ -91,7 +91,7 @@ class ContractFinish extends Command
                         'user_id' => 1,
                         'modal' => 0,
                         'icon' => 'fas fa-file-contract',
-                        'type' => 'Notificación',
+                        'type' => 'Notificación de finalización de contrato',
                         'description' => 'El funcionario '.$person->full_names.' con el contrato número CON'.$contrato->contract_id.' fue notificado
                         de su finalización para el día '.$contrato->date_end
                     ]);
@@ -119,7 +119,7 @@ class ContractFinish extends Command
                     'user_id' => 1,
                     'modal' => 0,
                     'icon' => 'fas fa-file-contract',
-                    'type' => 'Notificación',
+                    'type' => 'Preliquidación de funcionario',
                     'url' => ($contrato->renewed == 0)?'/rrhh/liquidados':'/ajustes/informacion-base/funcionario/'.$contrato->persona,
                     'description' => ($contrato->renewed == 0)?'El funcionario '.$person->full_names.' con el contrato número CON'.$contrato->contract_id.' fue preliquidado
                     y su contrato finalizado.':'El contrato número CON'.$contrato->contract_id.' con el funcionario '.$person->full_names.' fue renovado.'

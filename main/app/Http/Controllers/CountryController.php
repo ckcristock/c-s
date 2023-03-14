@@ -34,7 +34,7 @@ class CountryController extends Controller
                 ->with(['departments' => function ($q) {
                     $q->select('*', 'name as text', 'id as value');
                 }])
-                ->orderBy('name')
+                ->orderByRaw("CASE WHEN name = 'Colombia' THEN 0 ELSE 1 END, name ASC")
                 ->get(['*', 'name as text', 'id as value'])
             );
     }
