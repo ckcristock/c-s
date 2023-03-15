@@ -17,6 +17,12 @@ class QuotationItemSubitem extends Model
         'total_cop',
         'total_usd',
         'quotation_item_id',
-        'budget_item_subitem_id',
+        'quotationitemsubitemable_id',
+        'quotationitemsubitemable_type',
     ];
+
+    public function quotationitemsubitemable()
+    {
+        return $this->morphTo();
+    }
 }
