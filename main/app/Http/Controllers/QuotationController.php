@@ -28,7 +28,7 @@ class QuotationController extends Controller
     public function paginate(Request $request)
     {
         return $this->success(
-            Quotation::with('municipality', 'client', 'items', 'budgets')
+            Quotation::with('municipality', 'client', 'items')
                 ->when($request->city, function ($q, $fill) {
                     $q->whereHas('municipality', function ($query) use ($fill) {
                         $query->where('name', 'like', '%' . $fill . '%');

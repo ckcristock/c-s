@@ -17,12 +17,18 @@ class QuotationItem extends Model
         'total_usd',
         'quotation_id',
         'cuantity',
-        'budget_item_id',
+        'quotationitemable_id',
+        'quotationitemable_type',
     ];
 
     public function subItems()
     {
         return $this->hasMany(QuotationItemSubitem::class);
+    }
+
+    public function quotationitemable()
+    {
+        return $this->morphTo();
     }
 
 }

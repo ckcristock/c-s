@@ -17,8 +17,7 @@ class Quotation extends Model
         'destinity_id',
         'trm',
         'description',
-        'budget_included',
-        'budget_id',
+        'included',
         'observation',
         'total_cop',
         'total_usd',
@@ -51,22 +50,23 @@ class Quotation extends Model
 
     public function items()
     {
-        return $this->hasMany(QuotationItem::class)->with('subItems');
+        return $this->hasMany(QuotationItem::class)->with('subItems', 'quotationitemable');
     }
 
-    public function budgets()
+    /* public function budgets()
     {
         return $this->hasOne(Budget::class, 'id', 'budget_id');
-    }
+    } */
 
     public function scopeName($q)
     {
         return $q->select('*', DB::raw('description as name', 'id as value'));
     }
 
-    public static function getTableName()
-{
-    return (new self())->getTable();
-}
 
+
+    public static function getTableName()
+    {
+        return (new self())->getTable();
+    }
 }
