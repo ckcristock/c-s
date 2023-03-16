@@ -711,6 +711,7 @@ Route::group(
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
+        Route::get('work-contract-type-list', [WorkContractTypeController::class, 'getWorkContractTypeList']);
         Route::get('get-consecutivo/{table}', [ComprobanteConsecutivoController::class, 'getConsecutive']);
         Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
         Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
@@ -731,6 +732,7 @@ Route::group(
         Route::get('preLiquidado', [WorkContractController::class, 'getPreliquidated']);
         Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
         Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
+        Route::get('get-work-contracts-list/{id}', [WorkContractController::class, 'getWorkContractsList']);
         Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
         Route::get('ListLimitated', [memorandumTypeController::class, 'getListLimitated']);
         Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);

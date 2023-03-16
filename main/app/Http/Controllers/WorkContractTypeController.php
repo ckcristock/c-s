@@ -22,6 +22,12 @@ class WorkContractTypeController extends Controller
         );
     }
 
+    public function getWorkContractTypeList(){
+        return $this->success(
+            WorkContractType::get(['id as value', 'name as text'])
+        );
+    }
+
     public function paginate()
     {
         return $this->success(

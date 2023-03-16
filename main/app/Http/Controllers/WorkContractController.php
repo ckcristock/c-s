@@ -89,6 +89,12 @@ class WorkContractController extends Controller
         );
     }
 
+    public function getWorkContractsList($id){
+        return $this->success(
+            WorkContract::where('person_id', $id)->get()
+        );
+    }
+
 
     public function contractsToExpire()
     {
@@ -284,6 +290,7 @@ class WorkContractController extends Controller
      */
     public function store(Request $request)
     {
+        
     }
 
     /**
