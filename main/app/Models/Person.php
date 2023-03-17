@@ -77,7 +77,7 @@ class Person extends Model
 
     public function contractultimate()
     {
-        return $this->hasOne(WorkContract::class)->with('position.dependency', 'work_contract_type')->orderBy('id', 'DESC');
+        return $this->hasOne(WorkContract::class)->with('position.dependency', 'work_contract_type')->where('liquidated', 0)->orderBy('id', 'DESC');
     }
 
     public function work_contract()

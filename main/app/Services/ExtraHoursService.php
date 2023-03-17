@@ -30,8 +30,7 @@ class ExtraHoursService
             ->join('people as p', 'l.person_id', '=', 'p.id')
             ->join('work_contracts as w', function ($join) {
                 $join->on('p.id', '=', 'w.person_id')
-                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                        join people as u2 on u2.id = a2.person_id group by u2.id)');
+                ->where('w.liquidated', 0);
             })
             ->whereBetween(DB::raw('DATE(l.created_at)'), $dates)
             ->when(Request()->get('company_id'), function ($q, $fill) {
@@ -48,8 +47,7 @@ class ExtraHoursService
             ->join('people as p', 'l.person_id', '=', 'p.id')
             ->join('work_contracts as w', function ($join) {
                 $join->on('p.id', '=', 'w.person_id')
-                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                                join people as u2 on u2.id = a2.person_id group by u2.id)');
+                ->where('w.liquidated', 0);
             })
             ->join('positions as ps', 'ps.id', '=', 'w.position_id')
             ->join('dependencies as d', 'd.id', '=', 'ps.dependency_id')
@@ -69,16 +67,7 @@ class ExtraHoursService
         $query = DB::table('people as p')
             ->join('work_contracts as w', function ($join) use ($dates) {
                 $join->on('p.id', '=', 'w.person_id')
-                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                join people as u2 on u2.id = a2.person_id
-                join work_contract_types as wt on a2. work_contract_type_id = wt.id
-                WHERE date(a2.date_of_admission) <= "' . $dates[1] . '"
-                    and(
-                        date(a2.date_end) >= "' . $dates[0] . '"  or  a2.date_end is null
-                    )
-                group by u2.id
-
-                )');
+                ->where('w.liquidated', 0);
             })
             ->join('positions as ps', 'ps.id', '=', 'w.position_id')
             ->where('ps.dependency_id', $id)

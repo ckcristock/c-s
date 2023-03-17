@@ -17,8 +17,7 @@ class DiaryService
 					"p.id",
 					"=",
 					"w.person_id"
-				)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                        join people as u2 on u2.id = a2.person_id group by u2.id)');
+				)->where('w.liquidated', 0);
 			})
 			->join("positions as ps", "ps.id", "=", "w.position_id")
 			->where("ps.dependency_id", $id)
@@ -64,14 +63,14 @@ class DiaryService
 			            r.launch_time as launch_time_real,  r.launch_time_two as launch_time_two_real,
 			            r.breack_time as breack_time_real , r.breack_time_two as breack_time_two_real')
 			->selectRaw('
-			ROUND( ( 
+			ROUND( (
 				TIMESTAMPDIFF(
 				SECOND,CONCAT(date," ",entry_time_one)
-				,CONCAT(leave_date," ",leave_time_one)	
-				) - 
+				,CONCAT(leave_date," ",leave_time_one)
+				) -
 				IFNULL(TIMESTAMPDIFF(
 					SECOND,CONCAT(date," ",la.launch_time_one)
-					,CONCAT(leave_date," ",la.launch_time_two)	
+					,CONCAT(leave_date," ",la.launch_time_two)
 				),0)
 			)
 			/3600 ,2 ) as working_hours')
@@ -90,8 +89,7 @@ class DiaryService
 
 			->join('work_contracts as w', function ($join) {
 				$join->on('p.id', '=', 'w.person_id')
-					->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                        join people as u2 on u2.id = a2.person_id group by u2.id)');
+                ->where('w.liquidated', 0);
 			})->join('positions as ps', 'ps.id', '=', 'w.position_id')
 
 			->join('dependencies as de', 'de.id', '=', 'ps.dependency_id')
@@ -102,35 +100,35 @@ class DiaryService
 						CONCAT(p.first_name, " ", p.first_surname),
 						DATE(la.date) as date,
 
-					
+
 						IFNULL( la.entry_time_one , "Sin Reporte"),
-						
-			          
+
+
 						IFNULL( la.launch_time_one, "Sin Reporte"),
-						
-						
+
+
 						IFNULL( la.launch_time_two, "Sin Reporte"),
-						
-			           
+
+
 			            IFNULL( la.breack_time_one , "Sin Reporte"),
 
-						
+
 						IFNULL( la.breack_time_two, "Sin Reporte"),
 
-					
+
 						IFNULL( la.leave_time_one, "Sin Reporte"),
-						ROUND( ( 
+						ROUND( (
 							TIMESTAMPDIFF(
 							SECOND,CONCAT(date," ",entry_time_one)
-							,CONCAT(leave_date," ",leave_time_one)	
-							) - 
+							,CONCAT(leave_date," ",leave_time_one)
+							) -
 							IFNULL(TIMESTAMPDIFF(
 								SECOND,CONCAT(date," ",la.launch_time_one)
-								,CONCAT(leave_date," ",la.launch_time_two)	
+								,CONCAT(leave_date," ",la.launch_time_two)
 							),0)
 						)
 						/3600 ,2 ) as working_hours
-						
+
 						'
 
 			)
@@ -157,8 +155,7 @@ class DiaryService
 
 			->join('work_contracts as w', function ($join) {
 				$join->on('p.id', '=', 'w.person_id')
-					->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                        join people as u2 on u2.id = a2.person_id group by u2.id)');
+                ->where('w.liquidated', 0);
 			})->join('positions as ps', 'ps.id', '=', 'w.position_id')
 
 			->join('dependencies as de', 'de.id', '=', 'ps.dependency_id')
@@ -170,13 +167,13 @@ class DiaryService
 						DATE(la.date) as date,
 
 						IFNULL( la.entry_time_one, "Sin Reporte"),
-					
+
 						IFNULL(la.leave_time_one , "Sin Reporte"),
 
 						IFNULL(la.entry_time_two , "Sin Reporte"),
 
 						IFNULL(la.leave_time_two, "Sin Reporte"),
-						
+
 						(IF(FORMAT((TIME_TO_SEC(leave_time_one) - TIME_TO_SEC(entry_time_one))/3600,2)>=0,
 						FORMAT((TIME_TO_SEC(leave_time_one) - TIME_TO_SEC(entry_time_one))/3600,2),0) +
 						(IF(FORMAT((TIME_TO_SEC(leave_time_two) - TIME_TO_SEC(entry_time_two))/3600,2)>=0,

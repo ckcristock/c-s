@@ -134,8 +134,7 @@ class PersonController extends Controller
 						"p.id",
 						"=",
 						"w.person_id"
-					)->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                                join people as u2 on u2.id = a2.person_id group by u2.id)');
+					)->where('w.liquidated', 0);
 				})
 				->join("companies as c", "c.id", "=", "w.company_id")
 				->join("positions as pos", "pos.id", "=", "w.position_id")
@@ -226,8 +225,7 @@ class PersonController extends Controller
                         "p.id",
                         "=",
                         "w.person_id"
-                    )->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                                join people as u2 on u2.id = a2.person_id group by u2.id)');
+                    )->where('w.liquidated', 0);
                 })
                 ->join("companies as c", "c.id", "=", "w.company_id")
                 ->join("positions as pos", "pos.id", "=", "w.position_id")
@@ -263,8 +261,7 @@ class PersonController extends Controller
                         "p.id",
                         "=",
                         "w.person_id"
-                    )->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                            join people as u2 on u2.id = a2.person_id group by u2.id)');
+                    )->where('w.liquidated', 0);
                 })
                 ->where("p.id", "=", $id)
                 ->first()
@@ -307,8 +304,7 @@ class PersonController extends Controller
                         "p.id",
                         "=",
                         "w.person_id"
-                    )->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                            join people as u2 on u2.id = a2.person_id group by u2.id)');
+                    )->where('w.liquidated', 0);
                 })
                 ->where("p.id", "=", $id)
                 ->first()
@@ -335,8 +331,7 @@ class PersonController extends Controller
                         "w.person_id",
                         "=",
                         "p.id"
-                    )->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                    join people as u2 on u2.id = a2.person_id group by u2.id)');
+                    )->where('w.liquidated', 0);
                 })
                 ->join("work_contract_types as wc", function ($join) {
                     $join->on("wc.id", "=", "w.work_contract_type_id");
