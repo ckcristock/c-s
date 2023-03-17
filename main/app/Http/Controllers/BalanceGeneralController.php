@@ -207,7 +207,7 @@ class BalanceGeneralController extends Controller
             'datosCabecera' => $datosCabecera,
             'image' => $image
         ]);
-        return $pdf->download('apu_set.pdf');
+        return $pdf->download('balance_general.pdf');
     }
 
     function fecha($str)

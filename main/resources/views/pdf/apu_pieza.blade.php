@@ -41,6 +41,11 @@
         display: inline-block;
         text-transform: uppercase;
     }
+    .blocks-50 {
+        width: 50%;
+        display: inline-block;
+        text-transform: uppercase;
+    }
 
     .text-center {
         text-align: center
@@ -53,10 +58,8 @@
 </style>
 @include('components/cabecera', [$company, $datosCabecera, $image])
 
-<hr style="border:1px dotted #ccc; ">
-
 <div class="div">
-    <div class="blocks" style="width: 50%;">
+    <div class="blocks-50">
         <strong>Nombre:</strong>
         {{ $data['name'] }}
     </div>
@@ -71,7 +74,7 @@
 </div>
 
 <div class="div">
-    <div class="blocks" style="width: 50%;">
+    <div class="blocks-50">
         <strong>Quién elabora:</strong>
         {{ $data['person']['first_name'] }} {{ $data['person']['first_surname'] }}
     </div>
@@ -99,7 +102,7 @@
             <tbody>
                 <tr>
                     <td>
-                        {{ $data['observation'] }}
+                        {{ isset($data['observation']) ? $data['observation'] : 'No existen observaciones.' }}
                     </td>
                 </tr>
             </tbody>
@@ -110,11 +113,11 @@
 
 
 @if (count($data['rawmaterial']) > 0)
-    <h6 class="mt-2 mb-0">Cálculo de materia prima</h6>
+    <h6 class="mt-2 mb-0">CÁLCULO DE MATERIA PRIMA</h6>
     <table class="div" cellpadding="0" cellspacing="0">
         @foreach ($data['rawmaterial'] as $rawmaterial)
             <thead>
-                <tr style="background:#EFF2F7;">
+                <tr style="background:#FFFFFF;">
                     <th>Geometría</th>
                     <th>Material</th>
                     @foreach ($rawmaterial['measures'] as $measures)
@@ -153,10 +156,10 @@
 
 
 @if (count($data['commercial']) > 0)
-    <h6 class="mt-1 mb-0">Materiales comerciales</h6>
+    <h6 class="mt-1 mb-0">MATERIALES COMERCIALES</h6>
     <table class="div" cellpadding="0" cellspacing="0">
         <thead>
-            <tr style="background:#EFF2F7;">
+            <tr style="background:#FFFFFF;">
                 <th>Material</th>
                 <th>Unidad</th>
                 <th>Cant. unitaria</th>
@@ -168,7 +171,7 @@
         <tbody>
             @foreach ($data['commercial'] as $commercial)
                 <tr>
-                    <td> {{ $commercial['material']['name'] }} </td>
+                    <td style="text-align: center;"> {{ $commercial['material']['name'] }} </td>
                     <td style="text-align: center;"> {{ $commercial['unit']['name'] }} </td>
                     <td style="text-align: center;"> {{ $commercial['q_unit'] }} </td>
                     <td style="text-align: center;"> {{ $commercial['q_total'] }} </td>
@@ -188,10 +191,10 @@
 
 
 @if (count($data['cutwater']) > 0)
-    <h6 class="mt-1 mb-0">Corte agua</h6>
+    <h6 class="mt-1 mb-0">CORTE AGUA</h6>
     <table class="div" cellpadding="0" cellspacing="0">
         <thead>
-            <tr style="background:#EFF2F7;">
+            <tr style="background:#FFFFFF;">
                 <th>Material</th>
                 <th>Espesor(mm)</th>
                 <th>Cantidad</th>
@@ -209,7 +212,7 @@
         <tbody>
             @foreach ($data['cutwater'] as $cutwater)
                 <tr>
-                    <td> {{ $cutwater['material']['product']['name'] }} </td>
+                    <td style="text-align: center;"> {{ $cutwater['material']['product']['name'] }} </td>
                     <td style="text-align: center;"> {{ $cutwater['thickness']['thickness'] }} </td>
                     <td style="text-align: center;"> {{ $cutwater['amount'] }} </td>
                     <td style="text-align: center;"> {{ $cutwater['long'] }} </td>

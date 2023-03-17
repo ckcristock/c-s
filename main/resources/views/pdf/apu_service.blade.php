@@ -192,7 +192,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="100%">
+                        <td colspan="100">
                             <div class="rounded-top table-responsive">
                                 <table class="table table-bordered table-striped table-sm w-100">
                                     <thead>
@@ -389,7 +389,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="100%">
+                        <td colspan="100">
                             <div class="rounded-top table-responsive">
                                 <table class="w-100 table table-bordered table-striped table-sm">
                                     <thead>

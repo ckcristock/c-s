@@ -275,6 +275,7 @@ class ApuServiceController extends Controller
         ])
             ->where("id", $id)
             ->first();
+        //return $data;
         $datosCabecera = (object) array(
             'Titulo' => 'APU Servicio',
             'Codigo' => $data->code,
@@ -287,6 +288,6 @@ class ApuServiceController extends Controller
             'datosCabecera' => $datosCabecera,
             'image' => $image
         ]);
-        return $pdf->download('apu_service.pdf');
+        return $pdf->setPaper('A4', 'landscape')->download('apu_service.pdf');
     }
 }
