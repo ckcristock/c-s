@@ -288,6 +288,6 @@ class ApuServiceController extends Controller
             'datosCabecera' => $datosCabecera,
             'image' => $image
         ]);
-        return $pdf->setPaper('A4', 'landscape')->download('apu_service.pdf');
+        return $pdf->setPaper('A4', 'landscape')->download('apu_service');
     }
 }

@@ -13,6 +13,11 @@
         color: #212529;
     }
 
+    .div {
+        width: 100%;
+        font-size: 9px;
+    }
+
     .table td,
     .table th {
         padding: 0.5rem;
@@ -54,44 +59,62 @@
         border: 0;
     }
 
+    .blocks {
+        width: 25%;
+        display: inline-block;
+        text-transform: uppercase;
+    }
+
+    .blocks-50 {
+        width: 50%;
+        display: inline-block;
+        text-transform: uppercase;
+    }
+
     .text-center {
         text-align: center
     }
 </style>
 @include('components/cabecera', [$company, $datosCabecera, $image])
-<table class="table table-borderless">
-    <tbody>
-        <tr>
-            <td> <strong> Cliente:</strong>
-                {{ $data->customer->name }}
-            </td>
-            <td> <strong> Destino:</strong>
-                {{ $data->destiny->name }}
-            </td>
-            <td> <strong> Proyecto:</strong> {{ $data->project }}
-            </td>
-        </tr>
-        <tr>
-            <td> <strong> Linea:</strong>
-                {{ $data->line }}
-            </td>
-            <td colspan="2"> <strong> TRM:</strong>
-                @money($data->trm)
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="div">
+    <div class="blocks-50">
+        <strong>Cliente:</strong>
+        {{ $data->customer->name }}
+    </div>
+    <div class="blocks">
+        <strong>Destino:</strong>
+        {{ $data->destiny->name }}
+    </div>
+    <div class="blocks">
+        <strong>Proyecto:</strong>
+        {{ $data->project }}
+    </div>
+</div>
+<div class="div">
+    <div class="blocks-50">
+        <strong>Linea:</strong>
+        {{ $data->line }}
+    </div>
+    <div class="blocks">
+        <strong>TRM:</strong>
+        @money($data->trm)
+    </div>
+</div>
 
 <!-- Configuracion presupuestal -->
 
 <!--  END  Configuracion presupuestal -->
-
-<div class="row mb-2">
-    <p>
-        Observaciones:
-        {{ $data->observation }}
-    </p>
-</div>
+<table class="div mt-1">
+    <tbody>
+        <tr>
+            <td><strong>OBSERVACIONES</strong></td>
+        </tr>
+        <tr>
+            <td>
+                {{ isset($data->observation) ? $data->observation : 'No existen observaciones.' }}
+        </tr>
+    </tbody>
+</table>
 <!-- ITEMS -->
 @include('pdf.utils.item_presupuesto')
 <!-- ITEMS -->

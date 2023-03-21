@@ -1,5 +1,5 @@
     <div class="text-center m-4">
-        <h4>Elementos del presupuesto</h4>
+        <h5>Elementos del presupuesto</h5>
     </div>
 
     @foreach ($data->items as $item)
@@ -54,7 +54,7 @@
                             </td>
                             @if ($currency == 'cop')
                                 <td class="text-right">
-                                    @money($subItem->value_cop / $subItem->cuantity)
+                                    @money($subItem->value_cop / ($subItem->cuantity == 0 ? 1 : $subItem->cuantity))
                                 </td>
                                 <td class="text-right" style="width: 110px;">
                                     @money($subItem->value_cop)
@@ -62,7 +62,7 @@
                             @endif
                             @if ($currency == 'usd')
                                 <td class="text-right">
-                                    @money($subItem->value_usd / $subItem->cuantity)
+                                    @money($subItem->value_usd / ($subItem->cuantity == 0 ? 1 : $subItem->cuantity))
                                 </td>
 
                                 <td class="text-right" style="width: 110px;">

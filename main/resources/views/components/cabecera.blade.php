@@ -19,6 +19,11 @@
             background-image: url({{ $image }});
         }
 
+        td {
+            font-size: 10px;
+            background-color: transparent;
+        }
+
         .text-right {
             text-align: right !important;
         }
@@ -105,7 +110,7 @@
     <header>
         <table class="w-100">
             <tr>
-                <td>
+                <td class="align-top">
                     <figure class="figure">
                         <img src="{{ $company->logo }}" class="figure-img img-fluid" />
                         <figcaption class="figure-caption">
