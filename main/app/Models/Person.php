@@ -72,7 +72,7 @@ class Person extends Model
 
     public function scopeCompleteName($q)
     {
-        return $q->selectRaw("CONCAT_WS(' ', first_name, second_name, first_surname, second_surname) as complete_name");
+        return $q->selectRaw("id, CONCAT_WS(' ', first_name, second_name, first_surname, second_surname) as complete_name");
     }
 
     public function contractultimate()

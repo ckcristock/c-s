@@ -149,7 +149,7 @@ use App\Http\Controllers\EstadoResultadoController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GeneralController;
-
+use App\Http\Controllers\HistoryDataCompanyController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MedioMagneticoController;
@@ -588,6 +588,7 @@ Route::group(
         Route::resource('alerts', AlertController::class);
         Route::resource('geometry', GeometryController::class);
         Route::resource('measure', MeasureController::class);
+        Route::resource('history-data-company', HistoryDataCompanyController::class);
 
         Route::resource('geometry-measure', GeometryMeasureController::class);
         Route::resource('materials', MaterialController::class);
