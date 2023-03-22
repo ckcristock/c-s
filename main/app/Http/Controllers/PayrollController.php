@@ -408,6 +408,7 @@ class PayrollController extends Controller
         return $this->success('Reportado correctamente');
     }
 
+
     /*  public function store(PagosNominaStoreRequest $pagosNominaStoreRequest) */
     public function store()
     {
@@ -561,14 +562,14 @@ class PayrollController extends Controller
                 $prestamos = 0;
                 if (is_array($funci['deducciones']['deducciones'])) {
                     foreach ($funci['deducciones']['deducciones'] as $key => $value) {
-                        if ($key!='Prestamo') {
-                            $libranzaOsanciones +=$value;
+                        if ($key != 'Prestamo') {
+                            $libranzaOsanciones += $value;
                         } else {
                             $prestamos += $value;
                         }
                     }
-                    $datos['funcionarios'][$index]['libranzas']= $libranzaOsanciones;
-                    $datos['funcionarios'][$index]['prestamos']= $prestamos;
+                    $datos['funcionarios'][$index]['libranzas'] = $libranzaOsanciones;
+                    $datos['funcionarios'][$index]['prestamos'] = $prestamos;
                 }
 
                 $diasLicencia = 0;
@@ -579,15 +580,14 @@ class PayrollController extends Controller
                             $diasLicencia += $valorNovDi;
                         }
                     }
-                    $datos['funcionarios'][$index]['dias_licencia']= $diasLicencia;
+                    $datos['funcionarios'][$index]['dias_licencia'] = $diasLicencia;
                     foreach ($funci['novedades']['novedades_totales'] as $claveTot => $valorTot) {
                         if (explode(' ', $claveTot)[0] == 'Licencia') {
                             $totalLicencia += $valorTot;
                         }
                     }
-                    $datos['funcionarios'][$index]['total_licencia']= $totalLicencia;
+                    $datos['funcionarios'][$index]['total_licencia'] = $totalLicencia;
                 }
-
             }
             return Excel::download(new NominaExport($datos), 'nomina.xlsx');
         } catch (\Throwable $th) {
@@ -602,8 +602,8 @@ class PayrollController extends Controller
 
             $empresa = Company::find(1);
             $consecutivos = ComprobanteConsecutivo::where('Prefijo', 'NOM')
-                            ->orWhere('Prefijo', 'NDI')
-                            ->get();
+                ->orWhere('Prefijo', 'NDI')
+                ->get();
 
             $consecNomina = '';
             $consecNominaIndiv = '';
@@ -621,7 +621,7 @@ class PayrollController extends Controller
             $datosCabecera = new stdClass();
             $datosCabecera->Titulo = 'Colilla de Pago';
             $datosCabecera->Codigo = $data['code'];
-            $datosCabecera->Fecha = Carbon::create($data['inicio_periodo'])->toFormattedDateString(). ' al ' . Carbon::create($data['fin_periodo'])->toFormattedDateString();
+            $datosCabecera->Fecha = Carbon::create($data['inicio_periodo'])->toFormattedDateString() . ' al ' . Carbon::create($data['fin_periodo'])->toFormattedDateString();
             $datosCabecera->CodigoFormato = $consecNomina['format_code'];
 
             $company = new stdClass();
@@ -631,14 +631,14 @@ class PayrollController extends Controller
             $company->verification_digit = $empresa->social_reason;
 
             $pdf = PDF::loadView('pdf.nomina_list', [
-                                'info'=>$data['funcionarios'],
-                                'data'=> $request->all(),
-                                 'image' =>'',
-                                 'datosCabecera'=> $datosCabecera,
-                                 'company'=>$company,
-                                 'consecIndividual'=>$consecNominaIndiv,
-                                 ])
-                        ->setPaper([0,0,614.295,397.485]);
+                'info' => $data['funcionarios'],
+                'data' => $request->all(),
+                'image' => '',
+                'datosCabecera' => $datosCabecera,
+                'company' => $company,
+                'consecIndividual' => $consecNominaIndiv,
+            ])
+                ->setPaper([0, 0, 614.295, 397.485]);
             //$usuarios = $data['funcionarios'];
 
             /* return view('pdf.nomina_list',[
@@ -648,11 +648,11 @@ class PayrollController extends Controller
                         'datosCabecera'=> $datosCabecera,
                         'company'=>$company]); */
             return $pdf->stream('colilla_nomina.pdf');
-        }catch (\Throwable $th){
+        } catch (\Throwable $th) {
             return $this->error([
-            'status' => 'error',
-            'message' => 'Ocurrió un error',
-            'data' => 'Msg: '.$th->getMessage(). ' - line: ' . $th->getLine() . ' - File: '. $th->getFile()
+                'status' => 'error',
+                'message' => 'Ocurrió un error',
+                'data' => 'Msg: ' . $th->getMessage() . ' - line: ' . $th->getLine() . ' - File: ' . $th->getFile()
             ], 204);
         }
     }
@@ -670,7 +670,7 @@ class PayrollController extends Controller
      */
     protected $salario;
 
-    public function getPayrollPay($inicio = null, $fin = null)
+    public function getPayrollPay($inicio = null, $fin = null, $return_type = 'success')
     {
 
         $current = !$inicio ? true : false;
@@ -812,7 +812,8 @@ class PayrollController extends Controller
                     $retencion,
                     $tempDeducciones,
                     $fechaInicioPeriodo,
-                    $fechaFinPeriodo);
+                    $fechaFinPeriodo
+                );
 
                 //que no incluya horas extras ni ingresos adicionales
                 //$totalSalarios +=  $salario['total_valor_neto'];
@@ -855,8 +856,7 @@ class PayrollController extends Controller
             }
 
             $totalCostoEmpresa += $totalSalarios + $totalRetenciones +   $totalSeguridadSocial + $totalParafiscales + $totalProvisiones;
-
-            return $this->success([
+            $response = [
                 'frecuencia_pago' => $frecuenciaPago,
                 'inicio_periodo' => $fechaInicioPeriodo,
                 'fin_periodo' => $fechaFinPeriodo,
@@ -874,9 +874,14 @@ class PayrollController extends Controller
                 'code' => $nomina && $nomina->code ? $nomina->code : '',
                 'total_funcionarios' => count($funcionariosResponse),
                 'funcionarios' => $funcionariosResponse
-            ]);
+            ];
+            if ($return_type == 'success'){
+                return $this->success($response);
+            } else if ($return_type == 'collection') {
+                return $response;
+            }
         } catch (\Throwable $th) {
-            return $this->error(['Line: '.$th->getLine().' - File: '.$th->getFile().' Msg: '.$th->getMessage()], 204);
+            return $this->error(['Line: ' . $th->getLine() . ' - File: ' . $th->getFile() . ' Msg: ' . $th->getMessage()], 204);
         }
     }
 
@@ -966,8 +971,8 @@ class PayrollController extends Controller
     public function getPagoNetoWithParams(Person $id, $salarioBase, $tempExtras, $tempNovedades, $temIngresos, $retencion, $tempDeducciones, $fechaInicio, $fechaFin)
     {
         return NominaPago::pagoFuncionarioWithPerson($id)
-                    ->withParams($salarioBase, $tempExtras, $tempNovedades, $temIngresos, $retencion, $tempDeducciones, $fechaInicio, $fechaFin)
-                    ->calculate();
+            ->withParams($salarioBase, $tempExtras, $tempNovedades, $temIngresos, $retencion, $tempDeducciones, $fechaInicio, $fechaFin)
+            ->calculate();
     }
 
     /**
@@ -998,7 +1003,7 @@ class PayrollController extends Controller
             ->calculate();
     }
 
-    public function getIngresos( $id, $fechaInicio, $fechaFin)
+    public function getIngresos($id, $fechaInicio, $fechaFin)
     {
         return NominaIngresos::ingresosFuncionarioWithPerson($id)
             ->fromTo($fechaInicio, $fechaFin)
@@ -1061,5 +1066,16 @@ class PayrollController extends Controller
     public function getPorcentajes()
     {
         return response(PayrollSocialSecurityPerson::select('concept', 'percentage')->cursor(), 200);
+    }
+
+    public function sendPayrollEmail(Request $request)
+    {
+        $nomina = $this->getPayrollPay($request->start, $request->end, 'collection');
+        return $nomina['funcionarios'];
+        foreach ($nomina['funcionarios'] as $key => $funcionario) {
+            //  llamará a la plantilla del mail y devolvera una plantilla html
+            //construirás el PDF que tambien tiene una vista
+            // llamarás al serviocio de mail y enviarás el corrreo con esas dps cosas
+        }
     }
 }

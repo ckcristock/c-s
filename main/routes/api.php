@@ -839,6 +839,7 @@ Route::group(
         Route::post('nomina/liquidaciones/previsualizacion', [LiquidacionesController::class, 'getPdfLiquidacion']);
         Route::get('nomina/liquidaciones/dias-trabajados/{id}/{fechaFin}', [LiquidacionesController::class, 'getDiasTrabajados']);
         Route::post('nomina/get-colillas', [PayrollController::class, 'getPdfsNomina']);
+        Route::get('nomina/enviar-colillas', [PayrollController::class, 'sendPayrollEmail']);
 
         Route::resource('liquidation', LiquidationsController::class)->only(['index', 'store', 'show']);
         Route::resource('preliquidation', PreliquidatedLogController::class)->only(['index', 'store', 'show']);

@@ -210,8 +210,12 @@
             <h1 class="text-center text-white my-0">Yeiny,</h1>{{-- {{$person->fisrt_name}} --}}
             <h2 class="text-center text-white my-0">¡Te acaban de pagar tu nómina!</h2>
             <div class="d-flex justify-content-center">
+                @if ($data->genrer == 'M')
                 <object data="{{ asset('main/public/images/nomina-hombre.svg') }}" class="svg"> </object>
-                {{-- <object data="{{ asset('main/public/images/nomina-mujer.svg') }}" class="svg"> </object> --}}
+                @else
+                <object data="{{ asset('main/public/images/nomina-mujer.svg') }}" class="svg"> </object>
+                @endif
+
             </div>
             <div class="card rounded">
                 <div class="card-body pt-0">
