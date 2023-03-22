@@ -146,39 +146,43 @@ class BudgetController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->get('data');
-        $data['user_id'] = auth()->user()->id;
-        $consecutive = getConsecutive('budgets');
-        if ($consecutive->city) {
-            $abbreviation = Municipality::where('id', $data['destinity_id'])->first()->abbreviation;
-            $data['code'] = generateConsecutive('budgets', $abbreviation);
-        } else {
-            $data['code'] = generateConsecutive('budgets');
-        }
-        $budgetDb = Budget::create($data);
+        try {
+            $data = $request->get('data');
+            $data['user_id'] = auth()->user()->id;
+            $consecutive = getConsecutive('budgets');
+            if ($consecutive->city) {
+                $abbreviation = Municipality::where('id', $data['destinity_id'])->first()->abbreviation;
+                $data['code'] = generateConsecutive('budgets', $abbreviation);
+            } else {
+                $data['code'] = generateConsecutive('budgets');
+            }
+            $budgetDb = Budget::create($data);
 
-        foreach ($data['indirect_costs'] as $indirectCost) {
-            $indirectCost['budget_id'] = $budgetDb->id;
-            BudgetIndirectCost::create($indirectCost);
-        }
-        foreach ($data['items'] as $item) {
-            $item['budget_id'] = $budgetDb->id;
-            $itemDb =  BudgetItem::create($item);
-            foreach ($item['subItems'] as $subitem) {
-                $subitem['budget_item_id'] = $itemDb->id;
-                $subitem['type_module'] == 'apu_part' ?  $subitem['apu_part_id'] = $subitem['apu_id'] : '';
-                $subitem['type_module'] == 'apu_set' ?  $subitem['apu_set_id'] = $subitem['apu_id'] : '';
-                $subitem['type_module'] == 'apu_service' ?  $subitem['apu_service_id'] = $subitem['apu_id'] : '';
-                $subItemDB = BudgetItemSubitem::create($subitem);
-                foreach ($subitem['indirect_costs'] as $indirect_cost) {
-                    # code...
-                    $indirect_cost['budget_item_subitem_id'] = $subItemDB->id;
-                    BudgetItemSubitemIndirectCost::create($indirect_cost);
+            foreach ($data['indirect_costs'] as $indirectCost) {
+                $indirectCost['budget_id'] = $budgetDb->id;
+                BudgetIndirectCost::create($indirectCost);
+            }
+            foreach ($data['items'] as $item) {
+                $item['budget_id'] = $budgetDb->id;
+                $itemDb =  BudgetItem::create($item);
+                foreach ($item['subItems'] as $subitem) {
+                    $subitem['budget_item_id'] = $itemDb->id;
+                    $subitem['type_module'] == 'apu_part' ?  $subitem['apu_part_id'] = $subitem['apu_id'] : '';
+                    $subitem['type_module'] == 'apu_set' ?  $subitem['apu_set_id'] = $subitem['apu_id'] : '';
+                    $subitem['type_module'] == 'apu_service' ?  $subitem['apu_service_id'] = $subitem['apu_id'] : '';
+                    $subItemDB = BudgetItemSubitem::create($subitem);
+                    foreach ($subitem['indirect_costs'] as $indirect_cost) {
+                        # code...
+                        $indirect_cost['budget_item_subitem_id'] = $subItemDB->id;
+                        BudgetItemSubitemIndirectCost::create($indirect_cost);
+                    }
                 }
             }
+            sumConsecutive('budgets');
+            return $this->success($request);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
         }
-        sumConsecutive('budgets');
-        return $this->success($request);
     }
 
     /**
@@ -213,54 +217,57 @@ class BudgetController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-        $data = $request->all();
+        try {
+            $data = $request->all();
 
-        $budgetDb = Budget::find($id);
+            $budgetDb = Budget::find($id);
 
-        DB::table('budget_indirect_costs')->where('budget_id', $id)->delete();
+            DB::table('budget_indirect_costs')->where('budget_id', $id)->delete();
 
-        foreach ($data['indirect_costs'] as $indirectCost) {
-            $indirectCost['budget_id'] = $budgetDb->id;
-            BudgetIndirectCost::create($indirectCost);
-        }
-
-
-        if ($data['itemsTodelete'] && count($data['itemsTodelete']) > 0) {
-            BudgetService::deleteItems($data['itemsTodelete']);
-        }
-
-        if ($data['subItemsToDelete'] && count($data['subItemsToDelete']) > 0) {
-            BudgetService::deleteSubItems($data['subItemsToDelete']);
-        }
-
-        $budgetDb = Budget::find($id);
-        $budgetDb->update($request->except(['indirect_costs', 'subtotal_indirect_cost_dynamic', 'items']));
-
-
-
-        foreach ($data['items'] as $item) {
-            $item['budget_id'] = $budgetDb->id;
-            unset($item['shows']);
-            ##unset($item['subItems']);
-            unset($item['subtotal_indirect_cost_dynamic']);
-
-            # dd(['id' => $item['id'], $item]);
-
-
-            $itemDb =  BudgetItem::updateOrCreate(['id' => $item['id']], $item);
-            # AccountPlan::updateOrCreate(['id' => $request->get('id')], $request->all());
-            foreach ($item['subItems'] as $subitem) {
-                $subitem['budget_item_id'] = $itemDb->id;
-                $subitem['type_module'] == 'apu_part' ?  $subitem['apu_part_id'] = $subitem['apu_id'] : '';
-                $subitem['type_module'] == 'apu_set' ?  $subitem['apu_set_id'] = $subitem['apu_id'] : '';
-                $subitem['type_module'] == 'service' ?  $subitem['service_id'] = $subitem['apu_id'] : '';
-
-                $subItemDB = BudgetItemSubitem::updateOrCreate(['id' => $subitem['id']], $subitem);
+            foreach ($data['indirect_costs'] as $indirectCost) {
+                $indirectCost['budget_id'] = $budgetDb->id;
+                BudgetIndirectCost::create($indirectCost);
             }
-        }
 
-        return response(22);
+
+            if ($data['itemsTodelete'] && count($data['itemsTodelete']) > 0) {
+                BudgetService::deleteItems($data['itemsTodelete']);
+            }
+
+            if ($data['subItemsToDelete'] && count($data['subItemsToDelete']) > 0) {
+                BudgetService::deleteSubItems($data['subItemsToDelete']);
+            }
+
+            $budgetDb = Budget::find($id);
+            $budgetDb->update($request->except(['indirect_costs', 'subtotal_indirect_cost_dynamic', 'items']));
+
+
+
+            foreach ($data['items'] as $item) {
+                $item['budget_id'] = $budgetDb->id;
+                unset($item['shows']);
+                ##unset($item['subItems']);
+                unset($item['subtotal_indirect_cost_dynamic']);
+
+                # dd(['id' => $item['id'], $item]);
+
+
+                $itemDb =  BudgetItem::updateOrCreate(['id' => $item['id']], $item);
+                # AccountPlan::updateOrCreate(['id' => $request->get('id')], $request->all());
+                foreach ($item['subItems'] as $subitem) {
+                    $subitem['budget_item_id'] = $itemDb->id;
+                    $subitem['type_module'] == 'apu_part' ?  $subitem['apu_part_id'] = $subitem['apu_id'] : '';
+                    $subitem['type_module'] == 'apu_set' ?  $subitem['apu_set_id'] = $subitem['apu_id'] : '';
+                    $subitem['type_module'] == 'service' ?  $subitem['service_id'] = $subitem['apu_id'] : '';
+
+                    $subItemDB = BudgetItemSubitem::updateOrCreate(['id' => $subitem['id']], $subitem);
+                }
+            }
+
+            return $this->success('Actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
 
@@ -298,8 +305,10 @@ class BudgetController extends Controller
         );
         $currency = $request->get('currency');
         //return view('pdf.presupuesto_cliente',  compact('currency', 'data', 'company'));
-        $pdf = PDF::loadView('pdf.presupuesto_cliente',
-        compact('currency', 'data', 'company', 'datosCabecera', 'image'));
+        $pdf = PDF::loadView(
+            'pdf.presupuesto_cliente',
+            compact('currency', 'data', 'company', 'datosCabecera', 'image')
+        );
         return $pdf->download('presupuesto_cliente.pdf');
     }
 }

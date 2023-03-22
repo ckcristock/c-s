@@ -47,6 +47,12 @@
         border: 1px solid #dee2e6;
     }
 
+    table.table-border,
+    .table-border th,
+    .table-border td {
+        border: 1px solid;
+    }
+
     .table-bordered thead td,
     .table-bordered thead th {
         border-bottom-width: 2px;
@@ -73,6 +79,9 @@
 
     .text-center {
         text-align: center
+    }
+    .text-left {
+        text-align: left
     }
 </style>
 @include('components/cabecera', [$company, $datosCabecera, $image])
@@ -119,23 +128,18 @@
 @include('pdf.utils.item_presupuesto')
 <!-- ITEMS -->
 
-<table class="table table-borderless">
-    <thead>
-        <tr>
-            <th colspan="2" class="text-center">TOTAL PRESUPUESTO</th>
-        </tr>
-    </thead>
+<table class="div mt-4">
     <tbody>
         @if ($currency == 'cop')
             <tr>
-                <td>TOTAL COP $ </td>
-                <td class="text-right" style="width:90px"> @money($data->total_cop)</td>
+                <th class="text-left">TOTAL PRESUPUESTO COP</th>
+                <th class="text-right"> @money($data->total_cop)</th>
             </tr>
         @endif
         @if ($currency == 'usd')
             <tr>
-                <td>TOTAL USD $ </td>
-                <td class="text-right" style="width:90px"> @money($data->total_usd)</td>
+                <th class="text-left">TOTAL PRESUPUESTO USD</th>
+                <th class="text-right"> @money($data->total_usd)</th>
             </tr>
         @endif
 
