@@ -1073,31 +1073,108 @@ class PayrollController extends Controller
     public function sendPayrollEmail(Request $request)
     {
         $nomina = $this->getPayrollPay($request->start, $request->end, 'collection');
+
+        /*  $data = $request->all();
+
+            $empresa = Company::find(1);
+            $consecutivos = ComprobanteConsecutivo::where('Prefijo', 'NOM')
+                ->orWhere('Prefijo', 'NDI')
+                ->get();
+
+            $consecNomina = '';
+            $consecNominaIndiv = '';
+            foreach ($consecutivos as $consec) {
+                switch ($consec['Prefijo']) {
+                    case 'NOM':
+                        $consecNomina = $consec;
+                        break;
+                    case 'NDI':
+                        $consecNominaIndiv = $consec;
+                        break;
+                }
+            }
+
+            $datosCabecera = new stdClass();
+            $datosCabecera->Titulo = 'Colilla de Pago';
+            $datosCabecera->Codigo = $data['code'];
+            $datosCabecera->Fecha = Carbon::create($data['inicio_periodo'])->toFormattedDateString() . ' al ' . Carbon::create($data['fin_periodo'])->toFormattedDateString();
+            $datosCabecera->CodigoFormato = $consecNomina['format_code'];
+
+            $company = new stdClass();
+            $company->logo = $empresa->logo;
+            $company->name = $empresa->social_reason;
+            $company->document_number = $empresa->document_number;
+            $company->verification_digit = $empresa->social_reason;
+
+            $pdf = PDF::loadView('pdf.nomina_list', [
+                'info' => $data['funcionarios'],
+                'data' => $request->all(),
+                'image' => '',
+                'datosCabecera' => $datosCabecera,
+                'company' => $company,
+                'consecIndividual' => $consecNominaIndiv,
+            ])
+                ->setPaper([0, 0, 614.295, 397.485]); */
        // dd($nomina);
+        $data = $request->all();
+
+            $empresa = Company::find(1);
+            $consecutivos = ComprobanteConsecutivo::where('Prefijo', 'NOM')
+                ->orWhere('Prefijo', 'NDI')
+                ->get();
+
+            $consecNomina = '';
+            $consecNominaIndiv = '';
+            foreach ($consecutivos as $consec) {
+                switch ($consec['Prefijo']) {
+                    case 'NOM':
+                        $consecNomina = $consec;
+                        break;
+                    case 'NDI':
+                        $consecNominaIndiv = $consec;
+                        break;
+                }
+            }
+
+            $datosCabecera = new stdClass();
+            $datosCabecera->Titulo = 'Colilla de Pago';
+            $datosCabecera->Codigo = $data['code'];
+            $datosCabecera->Fecha = Carbon::create($data['inicio_periodo'])->toFormattedDateString() . ' al ' . Carbon::create($data['fin_periodo'])->toFormattedDateString();
+            $datosCabecera->CodigoFormato = $consecNomina['format_code'];
+
+            $company = new stdClass();
+            $company->logo = $empresa->logo;
+            $company->name = $empresa->social_reason;
+            $company->document_number = $empresa->document_number;
+            $company->verification_digit = $empresa->social_reason;
+
+            $pdf = PDF::loadView('pdf.nomina_list', [
+                'info' => $data['funcionarios'],
+                'data' => $request->all(),
+                'image' => '',
+                'datosCabecera' => $datosCabecera,
+                'company' => $company,
+                'consecIndividual' => $consecNominaIndiv,
+            ])
+                ->setPaper([0, 0, 614.295, 397.485]);
         foreach ($nomina['funcionarios'] as $key => $funcionario) {
             //dd($nomina['funcionarios']);
             $date_of_admission = Carbon::parse($funcionario['date_of_admission']);
+
             $fin_periodo = Carbon::parse($nomina['fin_periodo']);
 
+            $diff_dias = $date_of_admission->diffInDays($fin_periodo);
+
             $diff_meses_total = $date_of_admission->diffInMonths($fin_periodo);
-            $diff_anos = floor($diff_meses_total / 12);
+            $diff_years= floor($diff_meses_total / 12);
             $diff_meses_restantes = $diff_meses_total % 12;
-
-
 
 
             $email = Person::find($funcionario['id'])->email;
             if ($email) {
-                Mail::to($email)->send(new PayrollFormMail($funcionario, $nomina['fin_periodo'], $nomina['inicio_periodo'],$diff_meses_restantes, $diff_anos));
-                return "Mensaje enviado";
+                Mail::to($email)->send(new PayrollFormMail($funcionario, $nomina['fin_periodo'], $nomina['inicio_periodo'],$diff_meses_restantes, $diff_years, $diff_dias));
             }
-            //     //  llamará a la plantilla del mail y devolvera una plantilla html
-            //     //construirás el PDF que tambien tiene una vista
-            //     // llamarás al serviocio de mail y enviarás el corrreo con esas dps cosas
-            // }
-
-
-            // return redirect()->back()->with('success', 'Mensaje enviado con exito');
         }
+        return "Mensaje enviado";
     }
 }

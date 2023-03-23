@@ -15,17 +15,22 @@ class PayrollFormMail extends Mailable
     public $fin_periodo;
     public $inicio_periodo;
     public $diff_meses;
+    public $diff_meses_restantes;
+    public $diff_years;
+    public $diff_dias;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($funcionario, $fin_periodo, $inicio_periodo,$diff_meses)
+    public function __construct($funcionario, $fin_periodo, $inicio_periodo,$diff_meses_restantes, $diff_years, $diff_dias)
     {
         $this->funcionario =$funcionario;
         $this->fin_periodo =$fin_periodo;
         $this->inicio_periodo =$inicio_periodo;
-        $this->diff_meses =$diff_meses;
+        $this->diff_meses_restantes =$diff_meses_restantes;
+        $this->diff_years =$diff_years;
+        $this->diff_dias =$diff_dias;
     }
 
     /**
