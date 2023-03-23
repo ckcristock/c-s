@@ -53,10 +53,10 @@ class Quotation extends Model
         return $this->hasMany(QuotationItem::class)->with('subItems', 'quotationitemable');
     }
 
-    /* public function budgets()
+    public function budgets()
     {
         return $this->hasOne(Budget::class, 'id', 'budget_id');
-    } */
+    }
 
     public function scopeName($q)
     {

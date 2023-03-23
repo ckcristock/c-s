@@ -36,8 +36,8 @@
                                 <span> {{ $subItem->apuPart->name }}</span>
                             @endif
 
-                            @if ($subItem->apu_service)
-                                <span>22{{ $subItem->apuService->name }}</span>
+                            @if ($subItem->apu_service_id)
+                                <span>{{ $subItem->apuService->name }}</span>
                             @endif
 
                             @if (!$subItem->type_module)
