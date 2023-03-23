@@ -54,8 +54,7 @@ class WorkContractController extends Controller
                 })
                 ->join('work_contracts as w', function ($join) {
                     $join->on('w.person_id', '=', 'p.id')
-                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                join people as u2 on u2.id = a2.person_id group by u2.id)');
+                    ->where('w.liquidated', 0);
                 })
                 ->join('work_contract_types as wt', 'wt.id', 'w.work_contract_type_id')
                 ->join('positions as posi', function ($join) {
@@ -86,6 +85,12 @@ class WorkContractController extends Controller
                 })
                 ->orderByDesc('p.created_at')
                 ->paginate($pageSize, ['*'], 'page', $page)
+        );
+    }
+
+    public function getWorkContractsList($id){
+        return $this->success(
+            WorkContract::where('person_id', $id)->get()
         );
     }
 
@@ -231,8 +236,7 @@ class WorkContractController extends Controller
             ->where('p.status', '=', 'Activo')
             ->join('work_contracts as w', function ($join) {
                 $join->on('w.person_id', '=', 'p.id')
-                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-            join people as u2 on u2.id = a2.person_id group by u2.id)');
+                ->where('w.liquidated', 0);
             })
             ->join('work_contract_types as wt', function ($join) {
                 $join->on('wt.id', '=', 'w.work_contract_type_id');
@@ -252,8 +256,7 @@ class WorkContractController extends Controller
             ->where('p.status', '=', 'Activo')
             ->join('work_contracts as w', function ($join) {
                 $join->on('w.person_id', '=', 'p.id')
-                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-            join people as u2 on u2.id = a2.person_id group by u2.id)');
+                ->where('w.liquidated', 0);
             })
             ->join('work_contract_types as wt', function ($join) {
                 $join->on('wt.id', '=', 'w.work_contract_type_id');
@@ -284,6 +287,12 @@ class WorkContractController extends Controller
      */
     public function store(Request $request)
     {
+        try {
+            WorkContract::updateOrCreate( ['id' => $request->get('id')],$request->all());
+            return $this->success('Creado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**
@@ -333,8 +342,7 @@ class WorkContractController extends Controller
                 )
                 ->join('work_contracts as w', function ($join) {
                     $join->on('w.person_id', '=', 'p.id')
-                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                            join people as u2 on u2.id = a2.person_id group by u2.id)');
+                    ->where('w.liquidated', 0);
                 })
                 ->join('positions as posi', function ($join) {
                     $join->on('posi.id', '=', 'w.position_id');

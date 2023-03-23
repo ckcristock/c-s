@@ -28,8 +28,7 @@ class PersonService
             )
             ->join('work_contracts as w', function ($join) {
                 $join->on('p.id', '=', 'w.person_id')
-                    ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                        join people as u2 on u2.id = a2.person_id group by u2.id)');
+                ->where('w.liquidated', 0);
             })
             ->join('companies as c', 'c.id', '=', 'w.company_id')
             ->join('positions as pos', 'pos.id', '=', 'w.position_id')
