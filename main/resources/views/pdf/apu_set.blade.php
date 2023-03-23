@@ -12,6 +12,12 @@
         width: 100%;
     }
 
+    table.table-border,
+    .table-border th,
+    .table-border td {
+        border: 1px solid;
+    }
+
     /*   table {
         border: 1px solid black;
     } */
@@ -48,6 +54,12 @@
         text-transform: uppercase;
     }
 
+    .blocks-50 {
+        width: 50%;
+        display: inline-block;
+        text-transform: uppercase;
+    }
+
     .text-right {
         text-align: right;
     }
@@ -62,10 +74,9 @@
     }
 </style>
 @include('components/cabecera', [$company, $datosCabecera, $image])
-<hr style="border:1px dotted #ccc; ">
 
 <div class="div">
-    <div class="blocks" style="width: 50%;">
+    <div class="blocks-50">
         <strong>Nombre:</strong>
         {{ $data['name'] }}
     </div>
@@ -80,7 +91,7 @@
 </div>
 
 <div class="div">
-    <div class="blocks" style="width: 50%;">
+    <div class="blocks-50">
         <strong>Quién elabora:</strong>
         {{ $data['person']['name'] }}
     </div>
@@ -91,8 +102,8 @@
     </div>
 </div>
 
-<div class="div">
-    <div class="blocks div">
+<div class="div mt-1">
+    <div class="blocks">
         <table>
             <thead>
                 <tr>
@@ -104,7 +115,7 @@
             <tbody>
                 <tr>
                     <td>
-                        {{ $data['observation'] }}
+                        {{ isset($data['observation']) ? $data['observation'] : 'No existen observaciones.' }}
                     </td>
                 </tr>
             </tbody>
@@ -115,10 +126,10 @@
 
 
 @if (count($data['setpartlist']) > 0)
-    <h6 class="mt-2 mb-0">Listado de piezas conjunto</h6>
-    <table class="div" cellpadding="0" cellspacing="0">
+    <h6 class="mt-2 mb-0">LISTADO DE PIEZAS CONJUNTO</h6>
+    <table class="div table-border" cellpadding="0" cellspacing="0">
         <thead>
-            <tr style="background:#EFF2F7;">
+            <tr style="background:#E1EEC0;">
                 <th>Tipo</th>
                 <th>Descripción</th>
                 <th>Unidad</th>
@@ -140,7 +151,7 @@
                     <td style="text-align: center;"> {{ $setpartlist['unit']['name'] }} </td>
                     <td style="text-align: center;"> {{ $setpartlist['amount'] }} </td>
                     <td style="text-align: center;"> @money($setpartlist['unit_cost']) </td>
-                    <td style="text-align: right;"> @money($setpartlist['total']) </td>
+                    <td style="text-align: right; padding-right: 5px"> @money($setpartlist['total']) </td>
                 </tr>
             @endforeach
         </tbody>
@@ -154,10 +165,10 @@
 @endif
 
 @if (count($data['machine']) > 0)
-    <h6 class="mt-1 mb-0">Máquinas herramientas</h6>
-    <table class="div" cellpadding="0" cellspacing="0">
+    <h6 class="mt-1 mb-0" style="text-transform: uppercase">Máquinas herramientas</h6>
+    <table class="div table-border" cellpadding="0" cellspacing="0">
         <thead>
-            <tr style="background:#EFF2F7;">
+            <tr style="background:#E1EEC0;">
                 <th>Descripción</th>
                 <th>Unidad</th>
                 <th>Cantidad</th>
@@ -168,11 +179,11 @@
         <tbody>
             @foreach ($data['machine'] as $machine)
                 <tr>
-                    <td style="text-align: center;"> {{ $machine['description'] }} </td>
+                    <td style="text-align: center;"> {{ $machine['machine']['name'] }} </td>
                     <td style="text-align: center;"> {{ $machine['unit']['name'] }} </td>
                     <td style="text-align: center;"> {{ $machine['amount'] }} </td>
-                    <td style="text-align: right;"> @money($machine['unit_cost']) </td>
-                    <td style="text-align: right;"> @money($machine['total']) </td>
+                    <td style="text-align: right; padding-right: 5px"> @money($machine['unit_cost']) </td>
+                    <td style="text-align: right; padding-right: 5px"> @money($machine['total']) </td>
                 </tr>
             @endforeach
         </tbody>
@@ -186,10 +197,10 @@
 @endif
 
 @if (count($data['internal']) > 0)
-    <h6 class="mt-1 mb-0">Procesos internos</h6>
-    <table style="font-size:10px;margin-top:10px;" cellpadding="0" cellspacing="0">
+    <h6 class="mt-1 mb-0" style="text-transform: uppercase">Procesos internos</h6>
+    <table class="div table-border" cellpadding="0" cellspacing="0">
         <thead>
-            <tr style="background:#EFF2F7;">
+            <tr style="background:#E1EEC0;">
                 <th>Descripción</th>
                 <th>Unidad</th>
                 <th>Cantidad</th>
@@ -200,11 +211,11 @@
         <tbody>
             @foreach ($data['internal'] as $internal)
                 <tr>
-                    <td style="text-align: center;"> {{ $internal['description'] }} </td>
+                    <td style="text-align: center;"> {{ $internal['internal']['name'] }} </td>
                     <td style="text-align: center;"> {{ $internal['unit']['name'] }} </td>
                     <td style="text-align: center;"> {{ $internal['amount'] }} </td>
-                    <td style="text-align: right;"> @money($internal['unit_cost']) </td>
-                    <td style="text-align: right;"> @money($internal['total']) </td>
+                    <td style="text-align: right; padding-right: 5px"> @money($internal['unit_cost']) </td>
+                    <td style="text-align: right; padding-right: 5px"> @money($internal['total']) </td>
                 </tr>
             @endforeach
         </tbody>
@@ -218,10 +229,10 @@
 @endif
 
 @if (count($data['external']) > 0)
-    <h6 class="mt-1 mb-0">Procesos externos</h6>
-    <table style="font-size:10px;margin-top:10px;" cellpadding="0" cellspacing="0">
+    <h6 class="mt-1 mb-0" style="text-transform: uppercase">Procesos externos</h6>
+    <table class="div table-border" cellpadding="0" cellspacing="0">
         <thead>
-            <tr style="background:#EFF2F7;">
+            <tr style="background:#E1EEC0;">
                 <th>Descripción</th>
                 <th>Unidad</th>
                 <th>Cantidad</th>
@@ -232,11 +243,11 @@
         <tbody>
             @foreach ($data['external'] as $external)
                 <tr>
-                    <td style="text-align: center;"> {{ $external['description'] }} </td>
+                    <td style="text-align: center;"> {{ $external['external']['name'] }} </td>
                     <td style="text-align: center;"> {{ $external['unit']['name'] }} </td>
                     <td style="text-align: center;"> {{ $external['amount'] }} </td>
-                    <td style="text-align: right;"> @money($external['unit_cost']) </td>
-                    <td style="text-align: right;"> @money($external['total']) </td>
+                    <td style="text-align: right; padding-right: 5px"> @money($external['unit_cost']) </td>
+                    <td style="text-align: right; padding-right: 5px"> @money($external['total']) </td>
                 </tr>
             @endforeach
         </tbody>
@@ -250,10 +261,10 @@
 @endif
 
 @if (count($data['other']) > 0)
-    <h6 class="mt-1 mb-0">Otros</h6>
-    <table style="font-size:10px;margin-top:10px;" cellpadding="0" cellspacing="0">
+    <h6 class="mt-1 mb-0" style="text-transform: uppercase">Otros</h6>
+    <table class="div table-border" cellpadding="0" cellspacing="0">
         <thead>
-            <tr style="background:#EFF2F7;">
+            <tr style="background:#E1EEC0;">
                 <th>Descripción</th>
                 <th>Unidad</th>
                 <th>Cantidad</th>
@@ -267,8 +278,8 @@
                     <td style="text-align: center;"> {{ $other['description'] }} </td>
                     <td style="text-align: center;"> {{ $other['unit']['name'] }} </td>
                     <td style="text-align: center;"> {{ $other['amount'] }} </td>
-                    <td style="text-align: right;"> @money($other['unit_cost']) </td>
-                    <td style="text-align: right;"> @money($other['total']) </td>
+                    <td style="text-align: right; padding-right: 5px"> @money($other['unit_cost']) </td>
+                    <td style="text-align: right; padding-right: 5px"> @money($other['total']) </td>
                 </tr>
             @endforeach
         </tbody>
@@ -281,116 +292,102 @@
     </div>
 @endif
 
-<hr style="border:1px dotted #ccc;">
-
-
-<div class="blocks" style="width: 49%;margin-top: 30px">
-    <table>
-        <thead>
-            <tr>
-                <th colspan="3">
-                    <h6 class="text-center">Costos indirectos</h6>
-                    <hr style="border:1px dotted #ccc; width: 100%">
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($data['indirect'] as $indirect)
-                <tr>
-                    <td>{{ $indirect['name'] }}</td>
-                    <td class="text-center">
-                        {{ $indirect['percentage'] }}%
-                    </td>
-                    <td class="text-right">
-                        @money($indirect['value'])
-                    </td>
-                </tr>
-            @endforeach
-            <tr>
-                <td colspan="2"><b>Costo indirectos</b></td>
-                <td class="text-right">@money($data['indirect_cost_total'])</td>
-            </tr>
-        </tbody>
-    </table>
-    <table>
-        <tbody>
-            <tr>
-                <td>Costos directos + costos indirectos totales</td>
-                <td class="text-right"> @money($data['direct_costs_indirect_costs_total']) </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<div class="blocks" style="width: 50%;margin-top: 30px">
-    <table>
-        <thead>
-            <tr>
-                <th colspan="3">
-                    <h6 class="text-center">AIU</h6>
-                    <hr style="border:1px dotted #ccc; width: 100%">
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Administrativos</td>
-                <td class="text-center">
-                    {{ $data['administrative_percentage'] }}%
-                </td>
-                <td class="text-right">
-                    @money($data['administrative_value'])
-                </td>
-            </tr>
-            <tr>
-                <td>Imprevistos</td>
-                <td class="text-center">
-                    {{ $data['unforeseen_percentage'] }}%
-                </td>
-                <td class="text-right">
-                    @money($data['unforeseen_value'])
-                </td>
-            </tr>
-            <tr>
-                <td>Subtotal + Administrativos + Imprevistos</td>
-                <td class="text-center">
-                    @money($data['administrative_unforeseen_subtotal'])
-                </td>
-                <td class="text-right">
-                    @money($data['administrative_unforeseen_unit'])
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table>
-        <tbody>
-            <tr>
-                <td>Utilidad</td>
-                <td class="text-right"> {{ $data['utility_percentage'] }}% </td>
-            </tr>
-            <tr>
-                <td>Subtotal + Admin + Imprevisto + Utilidad</td>
-                <td class="text-right"> @money($data['admin_unforeseen_utility_subtotal']) </td>
-            </tr>
-        </tbody>
-    </table>
-    <table>
-        <tbody>
-            <tr>
-                <td>Precio venta total COP + Retención</td>
-                <td class="text-right"> @money($data['sale_price_cop_withholding_total'])</td>
-            </tr>
-            <tr>
-                <td>TRM</td>
-                <td class="text-right"> @money($data['trm']) </td>
-            </tr>
-        </tbody>
-    </table>
-    <table>
-        <tbody>
-            <tr>
-                <td>Precio venta total USD + Retención</td>
-                <td class="text-right"> @money($data['sale_price_usd_withholding_total']) </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+<table class="mt-1">
+    <tbody>
+        <tr>
+            <td style="vertical-align: top !important; padding-right: 20px">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="3" class="text-center">
+                                COSTOS INDIRECTOS
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($data['indirect'] as $indirect)
+                            <tr>
+                                <td>{{ $indirect['name'] }}</td>
+                                <td class="text-center">
+                                    {{ $indirect['percentage'] }}%
+                                </td>
+                                <td class="text-right">
+                                    @money($indirect['value'])
+                                </td>
+                            </tr>
+                        @endforeach
+                        <tr>
+                            <td colspan="2"><b>COSTOS INDIRECTOS</b></td>
+                            <td class="text-right">@money($data['indirect_cost_total'])</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><b>COSTOS DIRECTOS + COSTOS INDIRECTOS TOTALES</b></td>
+                            <td class="text-right"> @money($data['direct_costs_indirect_costs_total']) </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td style="vertical-align: top !important; padding-right: 20px">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="3" class="text-center">
+                                AIU
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-transform: uppercase">Administrativos</td>
+                            <td class="text-center">
+                                {{ $data['administrative_percentage'] }}%
+                            </td>
+                            <td class="text-right">
+                                @money($data['administrative_value'])
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-transform: uppercase">Imprevistos</td>
+                            <td class="text-center">
+                                {{ $data['unforeseen_percentage'] }}%
+                            </td>
+                            <td class="text-right">
+                                @money($data['unforeseen_value'])
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-transform: uppercase">Subtotal + Administrativos +
+                                Imprevistos</td>
+                            <td class="text-right">
+                                @money($data['administrative_unforeseen_subtotal'])
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-transform: uppercase">Utilidad</td>
+                            <td class="text-right"> {{ $data['utility_percentage'] }}% </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-transform: uppercase">Subtotal + Admin + Imprevisto +
+                                Utilidad</td>
+                            <td class="text-right"> @money($data['admin_unforeseen_utility_subtotal']) </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-transform: uppercase">Precio venta total COP + Retención
+                            </td>
+                            <td class="text-right"> @money($data['sale_price_cop_withholding_total'])</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-transform: uppercase">TRM</td>
+                            <td class="text-right"> @money($data['trm']) </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-transform: uppercase">Precio venta total USD + Retención
+                            </td>
+                            <td class="text-right"> USD @money($data['sale_price_usd_withholding_total']) </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>

@@ -363,6 +363,6 @@ class ApuPartController extends Controller
             'datosCabecera' => $datosCabecera,
             'image' => $image
         ]);
-        return $pdf->download('apu_pieza.pdf');
+        return $pdf->setPaper('A4', 'landscape')->download('apu_pieza.pdf');
     }
 }

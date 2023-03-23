@@ -190,11 +190,15 @@ class ThirdPartyController extends Controller
     public function store(Request $request)
     {
         $data = $request->except(["person"]);
-        $typeImage = '.' . $request->typeImage;
-        $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/', true, $typeImage);
-        $typeRut = '.' . $request->typeRut;
-        $base64 = saveBase64File($data["rut"], 'thirdPartiesRut/', false, $typeRut);
-        $data["rut"] = URL::to('/') . '/api/file?path=' . $base64;
+        if ($data['image']) {
+            $typeImage = '.' . $request->typeImage;
+            $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'third_parties/', true, $typeImage);
+        }
+        if ($data['rut']) {
+            $typeRut = '.' . $request->typeRut;
+            $base64 = saveBase64File($data["rut"], 'thirdPartiesRut/', false, $typeRut);
+            $data["rut"] = URL::to('/') . '/api/file?path=' . $base64;
+        }
         $people = request()->get('person');
         try {
             $thirdParty =  ThirdParty::create($data);
