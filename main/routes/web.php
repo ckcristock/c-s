@@ -18,5 +18,5 @@ use Illuminate\Support\Facades\View;
 */
 
 Route::get('/', function () {
-    return view('components.payroll_email');
+    return view('mails.payroll_email');
 });

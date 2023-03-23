@@ -139,6 +139,21 @@
             max-width: 50%;
         }
 
+        @media (min-width: 768px) {
+            .col-md-6 {
+                -ms-flex: 0 0 50%;
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+
+        .col-md-6 {
+            position: relative;
+            width: 100%;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
         .m-2 {
             padding: 0.5rem !important;
         }
@@ -203,46 +218,52 @@
     </style>
 </head>
 
+@php
+    function numberFormat($number) {
+        return number_format($number, 0 ,',', '.');
+    }
+@endphp
 
 <body>
-    <div class="card card-background col-6 mx-auto rounded mt-2">
+    <div class="card card-background col-md-6 mx-auto rounded mt-2">
         <div class="card-body">
-            <h1 class="text-center text-white my-0">Yeiny,</h1>{{-- {{$person->fisrt_name}} --}}
+
+            <h1 class="text-center text-white my-0">{{$funcionario['name']}}</h1>{{-- {{$person->fisrt_name}} --}}
             <h2 class="text-center text-white my-0">¡Te acaban de pagar tu nómina!</h2>
             <div class="d-flex justify-content-center">
-                @if ($data->genrer == 'M')
-                <object data="{{ asset('main/public/images/nomina-hombre.svg') }}" class="svg"> </object>
-                @else
+                {{--  @if ($data->genrer == 'M') --}}
+                <img src="{{ asset('main/public/images/nomina.svg') }}" class="svg"> </img>
+                {{-- @else
                 <object data="{{ asset('main/public/images/nomina-mujer.svg') }}" class="svg"> </object>
-                @endif
+                @endif --}}
 
             </div>
             <div class="card rounded">
                 <div class="card-body pt-0">
-                    <h6 class="text-center text-primary">El pago del día de hoy es del periodo del 1 al 31 de Enero de
-                        2023</h6>
+                    <h6 class="text-center text-primary">El pago del día de hoy es del periodo del {{ date('d', strtotime($inicio_periodo)) }}  al {{ date('d-M-Y', strtotime($fin_periodo)) }}</h6>
                     <h4 class="text-center">PAGO TOTAL RECIBIDO</h4> {{--  --}}
-                    <h1 class="text-center text-primary">$ 2.431.723</h1>
+                    <h1 class="text-center text-primary">${{ numberFormat($funcionario['salario_neto']) }}</h1>
                     <h4 class="text-center">Detalles de tu nómina</h4>
                     <table class="table">
                         <tbody>
                             <tr>
                                 <td>Salario base</td>
-                                <td class="text-right">$ 916.860</td>
+                                <td class="text-right">${{ numberFormat($funcionario['retencion']['retenciones']['Salario']) }}</td>
                             </tr>
                             <tr>
                                 <td>Ingresos adicionales</td>
-                                <td class="text-right">$ 1.588.211</td>
+                                <td class="text-right">{{ '$'.numberFormat($funcionario['retencion']['retenciones']['Ingresos'])}}
+                                </td>
                             </tr>
                             <tr>
                                 <td>Retenciones</td>
-                                <td class="text-right">$ 73.348</td>
+                                <td class="text-right">{{ '$'. numberFormat($funcionario['retencion']['valor_total'] + $funcionario['deducciones']['valor_total']) }}</td>
                             </tr>
                         </tbody>
                     </table>
                     <h6 class="text-center">Revisa todos los detalles en tu colilla de pago adjunta.</h6>
                     <h4 class="text-center text-primary mb-0">¡Felicitaciones!</h4>
-                    <h6 class="text-center mt-0">Ya llevas 8 meses en MAQMO</h6>
+                    <h6 class="text-center mt-0">Ya llevas {{$diff_meses}} meses en MAQMO como {{$funcionario['position']}} </h6>
                     <div class="text-center">
                         <small>Si tienes alguna inquietud, por favor contacta al administrador de pago de nómina de
                             compañía</small>

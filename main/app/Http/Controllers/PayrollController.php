@@ -37,6 +37,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use stdClass;
+use Illuminate\Support\Facades\Mail;
+use App\Mails\PayrollFormMail;
 
 class PayrollController extends Controller
 {
@@ -875,7 +877,7 @@ class PayrollController extends Controller
                 'total_funcionarios' => count($funcionariosResponse),
                 'funcionarios' => $funcionariosResponse
             ];
-            if ($return_type == 'success'){
+            if ($return_type == 'success') {
                 return $this->success($response);
             } else if ($return_type == 'collection') {
                 return $response;
@@ -1071,11 +1073,31 @@ class PayrollController extends Controller
     public function sendPayrollEmail(Request $request)
     {
         $nomina = $this->getPayrollPay($request->start, $request->end, 'collection');
-        return $nomina['funcionarios'];
+       // dd($nomina);
         foreach ($nomina['funcionarios'] as $key => $funcionario) {
-            //  llamará a la plantilla del mail y devolvera una plantilla html
-            //construirás el PDF que tambien tiene una vista
-            // llamarás al serviocio de mail y enviarás el corrreo con esas dps cosas
+            //dd($nomina['funcionarios']);
+            $date_of_admission = Carbon::parse($funcionario['date_of_admission']);
+            $fin_periodo = Carbon::parse($nomina['fin_periodo']);
+
+            $diff_meses_total = $date_of_admission->diffInMonths($fin_periodo);
+            $diff_anos = floor($diff_meses_total / 12);
+            $diff_meses_restantes = $diff_meses_total % 12;
+
+
+
+
+            $email = Person::find($funcionario['id'])->email;
+            if ($email) {
+                Mail::to($email)->send(new PayrollFormMail($funcionario, $nomina['fin_periodo'], $nomina['inicio_periodo'],$diff_meses_restantes, $diff_anos));
+                return "Mensaje enviado";
+            }
+            //     //  llamará a la plantilla del mail y devolvera una plantilla html
+            //     //construirás el PDF que tambien tiene una vista
+            //     // llamarás al serviocio de mail y enviarás el corrreo con esas dps cosas
+            // }
+
+
+            // return redirect()->back()->with('success', 'Mensaje enviado con exito');
         }
     }
 }
