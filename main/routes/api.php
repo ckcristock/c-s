@@ -159,6 +159,8 @@ use App\Http\Controllers\PlanCuentasController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\RawMaterialMaterialController;
 use App\Http\Controllers\RetencionController;
+use App\Http\Controllers\SeveranceInterestPaymentController;
+use App\Http\Controllers\SeverancePaymentController;
 use App\Http\Controllers\TaskTypeController;
 use App\Http\Controllers\TipoActivoFijoController;
 use App\Http\Controllers\TipoDocumentoController;
@@ -615,6 +617,8 @@ Route::group(
         Route::resource('annotation', PersonInvolvedController::class);
         Route::resource('comprobante-consecutivo', ComprobanteConsecutivoController::class);
         Route::resource('business', BusinessController::class);
+        Route::resource('severance-payments', SeverancePaymentController::class);
+        Route::resource('severance-interest-payments', SeveranceInterestPaymentController::class);
         Route::resource('quotations', QuotationController::class);
         Route::resource('contract-terms', ContractTermController::class)->except(['create', 'edit']);
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);

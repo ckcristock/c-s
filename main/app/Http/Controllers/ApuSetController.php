@@ -334,6 +334,6 @@ class ApuSetController extends Controller
             'datosCabecera' => $datosCabecera,
             'image' => $image
         ]);
-        return $pdf->download('apu_set.pdf');
+        return $pdf->setPaper('A4', 'landscape')->download('apu_set.pdf');
     }
 }

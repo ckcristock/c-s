@@ -219,7 +219,7 @@ class BusinessController extends Controller
                     'icon' => 'fas fa-money-check-alt',
                     'title' => 'Se ha agregado una cotización',
                     'person_id' => $request->person_id,
-                    'description' => $person->full_names . ' ha añadido la cotización ' . $quotation->line . ' - ' . $quotation->project . '.'
+                    'description' => $person->full_names . ' ha añadido la cotización ' . $quotation->code
                 ]);
             }
             return $this->success('Creado con éxito');
@@ -263,7 +263,7 @@ class BusinessController extends Controller
                 'icon' => $icon,
                 'title' => 'Se ha agregado un APU',
                 'person_id' => $request->person_id,
-                'description' => $person->full_names . ' ha añadido el apu ' . $apu_item->name
+                'description' => $person->full_names . ' ha añadido el APU ' . $apu_item->name
             ]);
         }
     }

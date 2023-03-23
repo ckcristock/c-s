@@ -328,7 +328,7 @@ class PlanCuentasController extends Controller
 			CONCAT(Codigo," - ", Nombre) AS Nombre_Cuenta
 		FROM Plan_Cuentas
 		WHERE
-			Nombre LIKE "%' . $match . '%" OR Codigo LIKE "%' . $match . '%" AND Movimiento = "S"
+			(Nombre LIKE "%' . $match . '%" OR Codigo LIKE "%' . $match . '%") AND Movimiento = "S"
 		ORDER BY Nombre ASC';
         } else {
             $query = '
@@ -339,10 +339,9 @@ class PlanCuentasController extends Controller
 			CONCAT(Codigo_Niif," - ", Nombre_Niif) AS Nombre_Cuenta_Niif
 		FROM Plan_Cuentas
 		WHERE
-			Nombre_Niif LIKE "%' . $match . '%" OR Codigo_Niif LIKE "%' . $match . '%" AND Movimiento = "S"
+			(Nombre_Niif LIKE "%' . $match . '%" OR Codigo_Niif LIKE "%' . $match . '%") AND Movimiento = "S"
 		ORDER BY Nombre_Niif ASC';
         }
-
 
 
         //Se crea la instancia que contiene la consulta a realizar

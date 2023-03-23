@@ -13,6 +13,11 @@
         color: #212529;
     }
 
+    .div {
+        width: 100%;
+        font-size: 9px;
+    }
+
     .table td,
     .table th {
         padding: 0.5rem;
@@ -42,6 +47,12 @@
         border: 1px solid #dee2e6;
     }
 
+    table.table-border,
+    .table-border th,
+    .table-border td {
+        border: 1px solid;
+    }
+
     .table-bordered thead td,
     .table-bordered thead th {
         border-bottom-width: 2px;
@@ -54,65 +65,81 @@
         border: 0;
     }
 
+    .blocks {
+        width: 25%;
+        display: inline-block;
+        text-transform: uppercase;
+    }
+
+    .blocks-50 {
+        width: 50%;
+        display: inline-block;
+        text-transform: uppercase;
+    }
+
     .text-center {
         text-align: center
     }
+    .text-left {
+        text-align: left
+    }
 </style>
 @include('components/cabecera', [$company, $datosCabecera, $image])
-<table class="table table-borderless">
-    <tbody>
-        <tr>
-            <td> <strong> Cliente:</strong>
-                {{ $data->customer->name }}
-            </td>
-            <td> <strong> Destino:</strong>
-                {{ $data->destiny->name }}
-            </td>
-            <td> <strong> Proyecto:</strong> {{ $data->project }}
-            </td>
-        </tr>
-        <tr>
-            <td> <strong> Linea:</strong>
-                {{ $data->line }}
-            </td>
-            <td colspan="2"> <strong> TRM:</strong>
-                @money($data->trm)
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="div">
+    <div class="blocks-50">
+        <strong>Cliente:</strong>
+        {{ $data->customer->name }}
+    </div>
+    <div class="blocks">
+        <strong>Destino:</strong>
+        {{ $data->destiny->name }}
+    </div>
+    <div class="blocks">
+        <strong>Proyecto:</strong>
+        {{ $data->project }}
+    </div>
+</div>
+<div class="div">
+    <div class="blocks-50">
+        <strong>Linea:</strong>
+        {{ $data->line }}
+    </div>
+    <div class="blocks">
+        <strong>TRM:</strong>
+        @money($data->trm)
+    </div>
+</div>
 
 <!-- Configuracion presupuestal -->
 
 <!--  END  Configuracion presupuestal -->
-
-<div class="row mb-2">
-    <p>
-        Observaciones:
-        {{ $data->observation }}
-    </p>
-</div>
+<table class="div mt-1">
+    <tbody>
+        <tr>
+            <td><strong>OBSERVACIONES</strong></td>
+        </tr>
+        <tr>
+            <td>
+                {{ isset($data->observation) ? $data->observation : 'No existen observaciones.' }}
+        </tr>
+    </tbody>
+</table>
 <!-- ITEMS -->
 @include('pdf.utils.item_presupuesto')
 <!-- ITEMS -->
 
-<table class="table table-borderless">
-    <thead>
-        <tr>
-            <th colspan="2" class="text-center">TOTAL PRESUPUESTO</th>
-        </tr>
-    </thead>
+<table class="div mt-4">
     <tbody>
         @if ($currency == 'cop')
             <tr>
-                <td>TOTAL COP $ </td>
-                <td class="text-right" style="width:90px"> @money($data->total_cop)</td>
+                <th class="text-left">TOTAL PRESUPUESTO COP</th>
+                <th class="text-right"> @money($data->total_cop)</th>
             </tr>
         @endif
         @if ($currency == 'usd')
             <tr>
-                <td>TOTAL USD $ </td>
-                <td class="text-right" style="width:90px"> @money($data->total_usd)</td>
+                <th class="text-left">TOTAL PRESUPUESTO USD</th>
+                <th class="text-right"> @money($data->total_usd)</th>
             </tr>
         @endif
 
