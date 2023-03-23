@@ -43,7 +43,8 @@
             "app/helpers/mathHelper.php",
             "app/helpers/consecutive.php",
             "app/helpers/createTask.php",
-            "app/helpers/createAlert.php"
+            "app/helpers/createAlert.php",
+            "app/helpers/historyDataCompany.php"
         ]
     },
     "autoload-dev": {

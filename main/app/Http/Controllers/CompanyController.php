@@ -41,6 +41,7 @@ class CompanyController extends Controller
 
     public function saveCompanyData(Request $request)
     {
+        $differences = findDifference($request->all(), Company::class);
         $company = Company::findOrFail($request->get('id'));
         $company_data = $request->all();
         if ($request->has('logo')) {
@@ -51,9 +52,9 @@ class CompanyController extends Controller
         if ($request->has('page_heading')) {
             $company_data['page_heading'] = URL::to('/') . '/api/image?path=' . saveBase64($company_data['page_heading'], 'company/');
         }
-        return $this->success(
-            $company->update($company_data)
-        );
+        $company->update($company_data);
+        saveHistoryCompanyData($differences, Company::class);
+        return $this->success('');
     }
 
     /**
@@ -97,7 +98,6 @@ class CompanyController extends Controller
         $data = $request->all();
         $typeImage = '.' . $request->typeImage;
         $data["logo"] = URL::to('/') . '/api/image?path=' . saveBase64($data['logo'], 'companies/', true, $typeImage);
-        dd($data);
         try {
             WorkContract::find($request->get('id'))->update($data);
             return response()->json(['message' => 'Se ha actualizado con éxito']);

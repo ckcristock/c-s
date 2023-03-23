@@ -149,7 +149,7 @@ use App\Http\Controllers\EstadoResultadoController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GeneralController;
-
+use App\Http\Controllers\HistoryDataCompanyController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MedioMagneticoController;
@@ -590,6 +590,7 @@ Route::group(
         Route::resource('alerts', AlertController::class);
         Route::resource('geometry', GeometryController::class);
         Route::resource('measure', MeasureController::class);
+        Route::resource('history-data-company', HistoryDataCompanyController::class);
 
         Route::resource('geometry-measure', GeometryMeasureController::class);
         Route::resource('materials', MaterialController::class);
@@ -715,6 +716,7 @@ Route::group(
         /* Paginations */
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
+        Route::get('work-contract-type-list', [WorkContractTypeController::class, 'getWorkContractTypeList']);
         Route::get('get-consecutivo/{table}', [ComprobanteConsecutivoController::class, 'getConsecutive']);
         Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
         Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
@@ -735,6 +737,7 @@ Route::group(
         Route::get('preLiquidado', [WorkContractController::class, 'getPreliquidated']);
         Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
         Route::get('periodoP', [WorkContractController::class, 'getTrialPeriod']);
+        Route::get('get-work-contracts-list/{id}', [WorkContractController::class, 'getWorkContractsList']);
         Route::get('memorandums', [MemorandumController::class, 'getMemorandum']);
         Route::get('ListLimitated', [memorandumTypeController::class, 'getListLimitated']);
         Route::get('process/{id}', [DisciplinaryProcessController::class, 'process']);
@@ -840,6 +843,7 @@ Route::group(
         Route::post('nomina/liquidaciones/previsualizacion', [LiquidacionesController::class, 'getPdfLiquidacion']);
         Route::get('nomina/liquidaciones/dias-trabajados/{id}/{fechaFin}', [LiquidacionesController::class, 'getDiasTrabajados']);
         Route::post('nomina/get-colillas', [PayrollController::class, 'getPdfsNomina']);
+        Route::get('nomina/enviar-colillas', [PayrollController::class, 'sendPayrollEmail']);
 
         Route::resource('liquidation', LiquidationsController::class)->only(['index', 'store', 'show']);
         Route::resource('preliquidation', PreliquidatedLogController::class)->only(['index', 'store', 'show']);

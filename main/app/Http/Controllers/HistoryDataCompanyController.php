@@ -2,24 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CompanyPaymentConfiguration;
+use App\Models\HistoryDataCompany;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class CompanyPaymentConfigurationController extends Controller
+class HistoryDataCompanyController extends Controller
 {
     use ApiResponser;
     /**
      * Display a listing of the resource.
-     * Muestra los datos de la compañia 1
-     * porque es una sola empresa
-     * Cambiar si se requiere multiempresa
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        return CompanyPaymentConfiguration::where('company_id', 1)->first();
+        return $this->success(HistoryDataCompany::with('Person')
+        ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
+    );
     }
 
     /**
@@ -40,25 +39,16 @@ class CompanyPaymentConfigurationController extends Controller
      */
     public function store(Request $request)
     {
-        $differences = findDifference($request->all(), CompanyPaymentConfiguration::class);
-
-        try {
-            $companyConfiguration = CompanyPaymentConfiguration::updateOrCreate([ 'company_id'=> $request->get('company_id') ], $request->all());
-            saveHistoryCompanyData($differences, CompanyPaymentConfiguration::class);
-            return ($companyConfiguration->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
-
+        //
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\HistoryDataCompany  $historyDataCompany
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(HistoryDataCompany $historyDataCompany)
     {
         //
     }
@@ -66,10 +56,10 @@ class CompanyPaymentConfigurationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\HistoryDataCompany  $historyDataCompany
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(HistoryDataCompany $historyDataCompany)
     {
         //
     }
@@ -78,10 +68,10 @@ class CompanyPaymentConfigurationController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Models\HistoryDataCompany  $historyDataCompany
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, HistoryDataCompany $historyDataCompany)
     {
         //
     }
@@ -89,10 +79,10 @@ class CompanyPaymentConfigurationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\HistoryDataCompany  $historyDataCompany
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(HistoryDataCompany $historyDataCompany)
     {
         //
     }
