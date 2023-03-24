@@ -139,8 +139,6 @@ use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\ChequeConsecutivoController;
 use App\Http\Controllers\CierreContableController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
-use App\Http\Controllers\LayoffController;
-use App\Http\Controllers\LayoffPersonController;
 use App\Http\Controllers\CuentaDocumentoContableController;
 use App\Http\Controllers\DepreciacionController;
 use App\Http\Controllers\DocumentoContableController;
@@ -473,8 +471,6 @@ Route::group(
 
 
         /**End */
-        Route::resource('applicants', ApplicantController::class);
-        Route::resource('bodegas', BodegasController::class)->only(['index', 'store', 'show']);
 
         Route::post('bodegas-activar-inactivar', [BodegasController::class, 'activarInactivar']);
         Route::post('grupos-bodegas', [BodegasController::class, 'storeGrupo']);
@@ -482,22 +478,8 @@ Route::group(
         Route::get('bodegas-with-estibas/{id}', [BodegasController::class, 'bodegasConGrupos']);
         Route::get('grupos-with-estibas/{id}', [BodegasController::class, 'gruposConEstibas']);
         Route::get('get-wo-for-stage', [WorkOrderController::class, 'forStage']);
-
-        Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
-        Route::resource('work-certificate', WorkCertificateController::class);
-
         Route::get('download-work-certificate/{id}', [WorkCertificateController::class, 'pdf']);
-
-        Route::resource('layoffs-certificate', LayoffsCertificateController::class);
-        Route::get('layoff-list/check-layoffs-list/{anio}' , [ LayoffController::class, 'getCheckLayoffsList']);
-        Route::get('layoff-list/paginated' , [ LayoffController::class, 'paginate']);
-        Route::apiResources([
-            'layoff-list' => LayoffController::class,
-            'layoff-person' => LayoffPersonController::class
-        ]);
-
         Route::get('download-layoffs-certificate/{id}', [LayoffsCertificateController::class, 'pdf']);
-
         Route::post('update-file-permission', [PersonController::class, 'updateFilePermission']);
         Route::get('get-file-permission/{id}', [PersonController::class, 'getFilePermission']);
         Route::get('person-profile/{id}', [PersonController::class, 'getProfile']);
@@ -508,6 +490,11 @@ Route::group(
 
 
 
+        Route::resource('applicants', ApplicantController::class);
+        Route::resource('bodegas', BodegasController::class)->only(['index', 'store', 'show']);
+        Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
+        Route::resource('work-certificate', WorkCertificateController::class);
+        Route::resource('layoffs-certificate', LayoffsCertificateController::class);
         Route::resource('pretty-cash', PrettyCashController::class);
         Route::resource('dependencies', DependencyController::class);
         Route::resource('company', CompanyController::class);
@@ -626,7 +613,6 @@ Route::group(
         Route::resource('premium', PremiumController::class)->except(['create', 'edit']);
         Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
         Route::resource('accommodations', AccommodationController::class)->except(['create', 'edit']);
-        Route::resource('accommodations', AccommodationController::class)->except(['create', 'edit']);
         Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
 
 
@@ -642,6 +628,8 @@ Route::group(
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class, 'paginate']);
+        Route::get('severance-payment-paginate', [SeverancePaymentController::class, 'paginate']);
+        Route::get('get-severance-payment', [SeverancePaymentController::class, 'getSeverancePayment']);
         Route::get('pretty-cash-paginate', [PrettyCashController::class, 'paginate']);
         Route::get('paginateRawMaterialMaterial', [RawMaterialMaterialController::class, 'paginate']);
         Route::get('category-paginate', [CategoryController::class, 'paginate']);

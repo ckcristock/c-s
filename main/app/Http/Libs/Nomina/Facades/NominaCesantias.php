@@ -67,13 +67,9 @@ class NominaCesantias extends PeriodoPago
     public function calculate()
     {
         $salarioMinimo = self::$empresa['base_salary'];
-        dd(self::$funcionario->toArray());
+        //dd(self::$funcionario->toArray());
         $this->calculoCesantias = new CalculoCesantias(self::$funcionario);
-
-
         $this->calculoCesantias->calcularCesania();
-
         return $this->calculoCesantias->crearColeccion();
-
     }
 }

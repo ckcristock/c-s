@@ -27,26 +27,28 @@ class LayoffController extends Controller
              */
             $lastYear = Carbon::now()->subYear()->year;
 
-            $inicio = Carbon::create($lastYear,01,01);
-            $fin = Carbon::create($lastYear,12,30);
+            $inicio = Carbon::create($lastYear, 01, 01);
+            $fin = Carbon::create($lastYear, 12, 30);
 
             $funcionarios = Person::/* select('id', 'identifier', 'first_name', 'second_name', 'first_surname', 'second_surname', 'status')
             -> */with('personPayrollPayments', 'severance_fund')
-            ->with(['contractultimate' => function($q) use ($inicio, $fin) {
-                $q->whereNull('date_end')
-                ->orWhere('date_end', '>=', $fin)
-                ->select('id', 'person_id', 'salary', 'turn_type', 'date_end');
-            }])
-            ->get();
+                ->with(['contractultimate' => function ($q) use ($inicio, $fin) {
+                    $q->whereNull('date_end')
+                        ->orWhere('date_end', '>=', $fin)
+                        ->select('id', 'person_id', 'salary', 'turn_type', 'date_end');
+                }])
+                ->get();
             foreach ($funcionarios as $funcionario) {
                 //dd($funcionario);
                 dd($this->getLayoffsPerson($funcionario, $inicio, $fin));
             }
             dd('asui');
             return $this->success($funcionarios);
-        }catch (\Throwable $th){
+        } catch (\Throwable $th) {
             return $this->error(
-            'msg: '. $th->getMessage(). ' - line: ' . $th->getLine() . ' - file: ' . $th->getFile(), 204);
+                'msg: ' . $th->getMessage() . ' - line: ' . $th->getLine() . ' - file: ' . $th->getFile(),
+                204
+            );
         }
     }
 
@@ -55,13 +57,13 @@ class LayoffController extends Controller
 
         try {
             $listado = Layoff::orderByDesc('period')
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
             return $this->success($listado);
-        }catch (\Throwable $th){
+        } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'message',
-                'data' =>$th->getMessage(). ' msg: ' . $th->getLine() . ' ' . $th->getFile()
+                'data' => $th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile()
             ]);
         }
     }
@@ -75,12 +77,12 @@ class LayoffController extends Controller
             } else {
                 return $this->error('Listado de cesantía no encontrado', 204);
             }
-        }catch (\Throwable $th){
-            return $this->error('Msg: ' .$th->getMessage(). ' - line: ' . $th->getLine() . ' - file: ' . $th->getFile(), 204);
+        } catch (\Throwable $th) {
+            return $this->error('Msg: ' . $th->getMessage() . ' - line: ' . $th->getLine() . ' - file: ' . $th->getFile(), 204);
         }
     }
 
-    public function getLayoffs (Request $request)
+    public function getLayoffs(Request $request)
     {
         try {
             /**Empleados activos hasta el 31 de diciembre del año que terminó
@@ -88,9 +90,11 @@ class LayoffController extends Controller
              */
             $data = Person::where('status', 'active')->get();
             return $this->success($data);
-        }catch (\Throwable $th){
+        } catch (\Throwable $th) {
             return $this->error(
-            'msg: '. $th->getMessage(). ' - line: ' . $th->getLine() . ' - file: ' . $th->getFile(), 204);
+                'msg: ' . $th->getMessage() . ' - line: ' . $th->getLine() . ' - file: ' . $th->getFile(),
+                204
+            );
         }
     }
 
@@ -147,10 +151,10 @@ class LayoffController extends Controller
     {
         try {
             return $this->success(NominaCesantias::cesantiaFuncionarioWithPerson($person)
-            ->fromTo($fechaInicio, $fechaFin)
-            ->calculate());
-        }catch (\Throwable $th){
-        return $this->error('Msg: '.$th->getMessage().' - Line: '.$th->getLine().' - file: '.$th->getFile(), 204);
+                ->fromTo($fechaInicio, $fechaFin)
+                ->calculate());
+        } catch (\Throwable $th) {
+            return $this->error('Msg: ' . $th->getMessage() . ' - Line: ' . $th->getLine() . ' - file: ' . $th->getFile(), 204);
         }
     }
 }

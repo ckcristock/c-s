@@ -7,10 +7,8 @@ use Illuminate\Support\Collection;
 
 class CalculoCesantias
 {
-    protected $cantidadHoras = [];
-    protected $horasReportadas = [];
-    private $horasTotales = [];
-    private $valorTotal;
+    protected $totalSeverance = 0;
+    protected $totalSeveranceInterest = 0;
     private $datos;
 
     public function __construct($datos = [])
@@ -21,6 +19,10 @@ class CalculoCesantias
 
     public function calcularCesania()
     {
+        foreach ($this->datos->toArray()['provision_person_payroll_payments'] as $key => $value) {
+            $this->totalSeverance += $value['severance'];
+            $this->totalSeveranceInterest += $value['severance_interest'];
+        }
         /***
          * Ley: se incluyen todos los beneficios del trabajador, incluyendo comisiones, etc.
          * La fórmula es: salario(con todos los beneficios) [por]  X días trabajados en el año
@@ -35,7 +37,7 @@ class CalculoCesantias
          * sin importar el tipo de contrato que tenga
          *
          */
-        dd(self::$datos);
+        //dd($this->datos->toArray());
     }
 
      /**
@@ -46,7 +48,8 @@ class CalculoCesantias
     public function crearColeccion()
     {
         return new Collection([
-            'funcionarios' => 'asfd'
+            'total_severance' => $this->totalSeverance,
+            'total-severance-interest' => $this->totalSeveranceInterest,
         ]);
     }
 }
