@@ -198,6 +198,10 @@ use App\Services\ExtraHoursService; //eliminar este
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('nomina_person', function () {
+    return view('pdf.nomina_person');
+});
+
 
 Route::get('/', function () {
 
