@@ -39,6 +39,7 @@ class LoanController extends Controller
                 ->when($request->date, function ($q, $fill) use($dates) {
                     $q->whereBetween('date', [$dates[0], $dates[1]]);
                 })
+                ->orderByDesc('date')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
@@ -147,6 +148,7 @@ class LoanController extends Controller
                 'l.interest_type',
                 'l.number_fees',
                 'l.payment_type',
+                'l.code',
                 'l.date'
             )
             ->join('people as p', function ($join) {
@@ -159,6 +161,12 @@ class LoanController extends Controller
         $getTotalI = $this->getTotales($proyecciones['Proyeccion'], 'Intereses');
         $getTotalV = $this->getTotales($proyecciones['Proyeccion'], 'Valor_Cuota');
         $company = Company::where('id', 1)->first();
+        $image = $company->page_heading;
+        $datosCabecera = (object) array(
+            'Titulo' => 'Amortización préstamo',
+            'Codigo' => $loan->code,
+            'Fecha' => $loan->date
+        );
         $pdf = PDF::loadView('pdf.loanpdf', [
             'proyecciones' => $proyecciones,
             'funcionario' => $loan,
@@ -166,6 +174,8 @@ class LoanController extends Controller
             'getTotalI' => $getTotalI,
             'getTotalV' => $getTotalV,
             'company' => $company,
+            'datosCabecera' => $datosCabecera,
+            'image' => $image
         ]);
         return $pdf->download('loanpdf.pdf');
     }

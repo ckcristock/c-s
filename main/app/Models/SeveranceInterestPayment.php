@@ -21,4 +21,8 @@ class SeveranceInterestPayment extends Model
     public function user(){
         return $this->belongsTo(User::class)->with('personName')->select('person_id', 'id');
     }
+
+    public function people(){
+        return $this->hasMany(SeveranceInterestPaymentPerson::class)->with('person');
+    }
 }

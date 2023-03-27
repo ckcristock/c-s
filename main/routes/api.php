@@ -630,6 +630,7 @@ Route::group(
         Route::get('paginateBodegas', [BodegasController::class, 'paginate']);
         Route::get('severance-payment-paginate', [SeverancePaymentController::class, 'paginate']);
         Route::get('get-severance-payment', [SeverancePaymentController::class, 'getSeverancePayment']);
+        Route::get('severance-payments-validate', [SeverancePaymentController::class, 'validatPay']);
         Route::get('pretty-cash-paginate', [PrettyCashController::class, 'paginate']);
         Route::get('paginateRawMaterialMaterial', [RawMaterialMaterialController::class, 'paginate']);
         Route::get('category-paginate', [CategoryController::class, 'paginate']);

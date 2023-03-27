@@ -49,7 +49,7 @@ class CalculoCesantias
     {
         return new Collection([
             'total_severance' => $this->totalSeverance,
-            'total-severance-interest' => $this->totalSeveranceInterest,
+            'total_severance_interest' => $this->totalSeveranceInterest,
         ]);
     }
 }
