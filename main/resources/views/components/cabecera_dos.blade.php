@@ -56,7 +56,7 @@
         }
 
         .bg {
-            background-color: yellow;
+            background-color: #E1EEC0;
         }
 
         .text-primary {
@@ -79,17 +79,13 @@
         .mt-4 {
             margin-top: 2rem !important;
         }
+
         .mt-10 {
             margin-top: 3rem !important;
         }
 
         .mb-0 {
             margin-bottom: 0;
-        }
-
-        .mb-1 {
-            margin-bottom: 1rem;
-            border-bottom: solid 1px;
         }
 
         .pb-0 {
@@ -105,10 +101,6 @@
             margin-right: 2rem;
         }
 
-        .my-1 {
-            margin-bottom: 0.08rem;
-            margin-top: 0.08rem;
-        }
 
         .mr-2 {
             margin-right: 2rem;
@@ -140,12 +132,12 @@
         table.table-border,
         .table-border th,
         .table-border td {
-            border: 1px solid;
+            border: 0.5px solid;
         }
 
         .table-border th,
-        .table-border td{
-            padding: 5px;
+        .table-border td {
+            padding: 3px;
         }
 
         table {
@@ -165,7 +157,7 @@
             font-size: 10px;
         }
 
-        .h-100{
+        .h-100 {
             height: 100%;
         }
     </style>
@@ -175,8 +167,10 @@
     <table class="w-100">
         <tr>
             <td>
-                <figure class="mx-4 align-bottom">
-                    <img src="{{ $company->logo }}" class="figure-img img-fluid" height="80" />
+                <figure class="align-bottom">
+                    @if ($viewImage)
+                        <img src="{{ $company->logo }}" class="figure-img img-fluid" height="60" />
+                    @endif
                     <figcaption class="figure-caption">
                         <strong>{{ $company->name }}</strong> <br /><strong>NIT:</strong>
                         {{ $company->document_number }}-{{ $company->verification_digit }}
@@ -184,7 +178,7 @@
                 </figure>
             </td>
             <td class="align-bottom">
-                <div class="text-right mx-4 ">
+                <div class="text-right">
                     <h1 class="text-primary mb-0">{{ $datosCabecera->Titulo }}</h1>
                     <h2 class="my-0">{{ $datosCabecera->Codigo }}</h2>
                     <h3 class="my-0">{{ $datosCabecera->Fecha }}</h3>
@@ -194,4 +188,4 @@
         </tr>
     </table>
 </header>
-<section class="mt-2 my-1">
+<section style="margin-top: 10px;>
