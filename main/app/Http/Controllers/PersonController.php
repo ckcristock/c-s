@@ -319,6 +319,7 @@ class PersonController extends Controller
                     "w.date_of_admission",
                     "w.date_end",
                     "w.salary",
+                    "w.transport_assistance",
                     "wc.name as contract_type",
                     "ct.name as contract_term",
                     "ct.conclude",
