@@ -790,6 +790,7 @@ Route::group(
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
+        Route::get('proyeccion_excel/{id}', [LoanController::class, 'loanExcel']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
         Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
 
@@ -1007,5 +1008,7 @@ Route::group(
         /* Estados resultados */
         Route::get('php/contabilidad/estadoresultado/descarga_pdf.php', [EstadoResultadoController::class, 'pdf']);
         Route::get('php/contabilidad/estadoresultado/descarga_excel.php', [EstadoResultadoController::class, 'excel']);
+        Route::get('php/prestamoylibranza/comprobar_prestamo.php', [LoanController::class, 'comprobarPrestamo']);
+        Route::get('php/prestamoylibranza/pazysalvo.php/{id}', [LoanController::class, 'pazSalvo']);
     }
 );
