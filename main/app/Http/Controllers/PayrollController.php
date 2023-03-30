@@ -678,7 +678,6 @@ class PayrollController extends Controller
 
     public function getPayrollPay($inicio = null, $fin = null, $return_type = 'success')
     {
-
         $current = !$inicio ? true : false;
         $frecuenciaPago =  Company::get(['payment_frequency'])->first()['payment_frequency'];
         $pagoNomina = $nomina = $paga = $idNominaExistente = null;
@@ -806,7 +805,7 @@ class PayrollController extends Controller
 
                 /* $code = PersonPayrollPayment::where('person_id', $funcionario->id)->select('code')->latest()->first(); */
                 //Nos ahorramos esta consulta poniendo una relación en Personas
-                $code = $funcionario1->personPayrollPayment->code;
+                $code = $funcionario1->personPayrollPayment->code ?? '';
                 //$previsiones = $this->getProvisiones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
 
                 $salario = $this->getPagoNetoWithParams(
@@ -838,14 +837,14 @@ class PayrollController extends Controller
                     'surname' => $funcionario->first_surname,
                     'image' => $funcionario->image,
                     'salario_neto' => $salario['total_valor_neto'],
-                    'Salario_nomina' => $funcionario1->personPayrollPayment->net_salary,
+                    'Salario_nomina' => $funcionario1->personPayrollPayment->net_salary ?? '',
                     'city' => $funcionario->place_of_birth,
                     'basic_salary' => $funcionario->contractultimate->salary,
                     'position' => $funcionario->contractultimate->position->name,
                     'code' => $code,
                     'date_of_admission' => $funcionario1->contractultimate->date_of_admission,
-                    'worked_days' => $funcionario1->personPayrollPayment->worked_days,
-                    'transportation_assitance' => $funcionario1->personPayrollPayment->transportation_assistance,
+                    'worked_days' => $funcionario1->personPayrollPayment->worked_days ?? '',
+                    'transportation_assitance' => $funcionario1->personPayrollPayment->transportation_assistance ?? '',
                     'deducciones' => $tempDeducciones,
                     'retencion' => $retencion,
                     'ingresos_contitutivos' => $temIngresos['valor_constitutivos'],
@@ -879,7 +878,7 @@ class PayrollController extends Controller
                 'nomina_paga_id' => $idNominaExistente,
                 'code' => $nomina && $nomina->code ? $nomina->code : '',
                 'total_funcionarios' => count($funcionariosResponse),
-                'email_reported' => $nomina->email_reported,
+                'email_reported' => $nomina->email_reported ?? '',
                 'funcionarios' => $funcionariosResponse
             ];
             if ($return_type == 'success') {
@@ -1159,9 +1158,14 @@ class PayrollController extends Controller
                 try {
                     Mail::to($email)->send(new PayrollFormMail($funcionario, $nomina['fin_periodo'], $nomina['inicio_periodo'], $diff_meses_restantes, $diff_years, $diff_dias, $ruta));
                 } catch (\Throwable $th) {
+
                 }
 
-
+                rmdir(public_path() . '/temporal-colillas/');
+                $ultimatePayroll->update([
+                'email_reported' => true
+        ]);
+                return $this->success("Mensaje enviado");
             }
         }
 

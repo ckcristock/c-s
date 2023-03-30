@@ -13,7 +13,7 @@ class CalculoLiquidacion
     /**
      * Constantes para cálculos de vacaciones, cesantías e intereses de cesantías
      */
-    const FACTOR_VACACIONES = 0.0416667;
+    const FACTOR_VACACIONES = 0.0416667; /*  1.25 dias vacaciones por cada 30 dias de trabajo */
     const FACTOR_CESANTIAS_PRIMA = 0.0833333;
     const FACTOR_INTERESES_CESANTIAS = 0.1200;
 
@@ -26,7 +26,7 @@ class CalculoLiquidacion
     protected $salarioBaseModified;
     protected $id;
     /**
-     * Valor de auxilio de transporte 
+     * Valor de auxilio de transporte
      *
      * @var integer
      */
@@ -57,7 +57,7 @@ class CalculoLiquidacion
     protected $baseVacacionesModified = 0;
 
     /**
-     * Días acumulados de vacaciones del funcionario hasta la fecha 
+     * Días acumulados de vacaciones del funcionario hasta la fecha
      *
      * @var float
      */
@@ -163,7 +163,7 @@ class CalculoLiquidacion
     protected $indemnizacion;
 
     /**
-     * Total pago de liquidación 
+     * Total pago de liquidación
      *
      * @var int
      */
@@ -205,7 +205,7 @@ class CalculoLiquidacion
 
     /**
      * Settear la base de vacaciones
-     * Este valor modifica al valor obtenido del cálculo de base de vacaciones 
+     * Este valor modifica al valor obtenido del cálculo de base de vacaciones
      *
      * @param integer $baseVacaciones
      * @return void
@@ -230,7 +230,7 @@ class CalculoLiquidacion
     /**
      * Settear la base de la prima
      * Este valor modifica al valor obtenido del cálculo de base de prima
-     * 
+     *
      * @param integer $basePrima
      * @return void
      */
@@ -366,7 +366,7 @@ class CalculoLiquidacion
     {
 
         if (!$existenVacaciones) {
-            $this->vacaionesUltimoPeriodo = $this->vacacionesActuales;
+            $this->vacacionesUltimoPeriodo = $this->vacacionesActuales;
         } else {
             $this->vacacionesUltimoPeriodo = $vacaciones;
         }
@@ -446,7 +446,7 @@ class CalculoLiquidacion
         $prestamos = Loan::where('person_id', $this->id)->get();
         $deuda = 0;
         foreach ($prestamos as $prestamo){
-            $deuda += $prestamo->value; 
+            $deuda += $prestamo->value;
         }
         $this->totalPrestamos = $deuda;
     }
@@ -458,12 +458,12 @@ class CalculoLiquidacion
      */
     public function calcularTotalLiquidacion()
     {
-        $this->totalLiquidacion = 
-            $this->totalVacaciones + 
-            $this->totalCesantias + 
-            $this->totalInteresesCesantias + 
-            $this->totalPrima + 
-            $this->totalIngresos - 
+        $this->totalLiquidacion =
+            $this->totalVacaciones +
+            $this->totalCesantias +
+            $this->totalInteresesCesantias +
+            $this->totalPrima +
+            $this->totalIngresos -
             $this->totalEgresos -
             $this->totalPrestamos;
     }

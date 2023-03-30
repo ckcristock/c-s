@@ -219,6 +219,7 @@ class WorkContractController extends Controller
     {
         return $this->success(
             Person::with('work_contract')->where('id', '=', $id)->first()
+            
         );
     }
 
