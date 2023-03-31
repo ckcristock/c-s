@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\SeveranceInterestPayment;
+use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
 class SeveranceInterestPaymentController extends Controller
 {
+    use ApiResponser;
     /**
      * Display a listing of the resource.
      *
@@ -44,9 +46,10 @@ class SeveranceInterestPaymentController extends Controller
      * @param  \App\Models\SeveranceInterestPayment  $severanceInterestPayment
      * @return \Illuminate\Http\Response
      */
-    public function show(SeveranceInterestPayment $severanceInterestPayment)
+
+    public function show($id)
     {
-        //
+        return $this->success(SeveranceInterestPayment::with('user', 'people')->find($id));
     }
 
     /**

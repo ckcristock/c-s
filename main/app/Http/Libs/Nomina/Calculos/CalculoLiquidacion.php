@@ -4,7 +4,8 @@ namespace App\Http\Libs\Nomina\Calculos;
 
 use App\Models\Loan;
 use Carbon\Carbon;
-
+use App\Models\PayrollFactor;
+use App\Models\WorkContract;
 /**
  * Clase para realizar el cálculo de la liquidación de x funcionario
  */
@@ -63,6 +64,7 @@ class CalculoLiquidacion
      */
     protected $vacacionesActuales;
     protected $vacacionesActualesModified = 0;
+    protected $vacacionesDisfrutadas = 0;
 
     /**
      * Dias acumulados de vacaciones del funcionario que tuvo en el último periodo de pago
@@ -170,13 +172,17 @@ class CalculoLiquidacion
     protected $totalLiquidacion;
 
 
-    public function __construct($salarioBase = 0, $auxilioTransporte = 0, $fechaIngreso, $fechaRetiro = null, $id)
+    public function __construct($salarioBase = 0, $auxilioTransporte = 0, $fechaIngreso, $fechaRetiro = null, $id, $diasLiquidacion = 0, $vacacionesActuales=0, $vacacionesActualesModified= 0)
     {
         $this->salarioBase = $salarioBase;
         $this->auxilioTransporte = $auxilioTransporte;
         $this->fechaIngreso = $fechaIngreso;
         $this->fechaRetiro = $fechaRetiro == null ? Carbon::now() : Carbon::parse($fechaRetiro);
         $this->id = $id;
+        $this->diasLiquidacion =$diasLiquidacion;
+        $this->vacacionesActuales =$vacacionesActuales;
+        $this->vacacionesActualesModified = $vacacionesActualesModified;
+
     }
 
     /**
@@ -344,14 +350,35 @@ class CalculoLiquidacion
      */
     public function calcularVacacionesActuales()
     {
+
+        $payrollFactors = PayrollFactor::where('person_id', $this->id)->where('disability_type', 'Vacaciones')->get();
+
+        if ($payrollFactors->isEmpty()) {
+            $this->vacacionesDisfrutadas = 0;
+        } else {
+            foreach ($payrollFactors as $payrollFactor) {
+                $startDate = $payrollFactor->date_start;
+                $endDate = $payrollFactor->date_end;
+                $preliquidated = PreliquidatedLog::where('person_id', $this->id)->latest()->get();
+
+                $workContract = WorkContract::where('id',$preliquidated->person_work_contract_id)
+                    ->where('date_of_admission', '<=', $endDate)
+                    ->where(function ($query) use ($startDate) {
+                        $query->where('date_end', '>=', $startDate)->orWhereNull('date_end');
+                    })
+                    ->first();
+
+                if ($workContract) {
+                    $this->vacacionesDisfrutadas += $payrollFactor->number_days;
+                }
+            }
+        }
+
         if ($this->vacacionesActualesModified > 0 && $this->vacacionesActualesModified) {
             $this->vacacionesActuales = $this->vacacionesActualesModified;
         } else {
-            $this->vacacionesActuales = number_format($this->diasLiquidacion * self::FACTOR_VACACIONES, 3, '.', '');
+            $this->vacacionesActuales = number_format($this->diasLiquidacion * self::FACTOR_VACACIONES - $this->vacacionesDisfrutadas, 1, '.', '');
 
-            // if ($this->vacacionesDisfrutadas !== 0) {
-            //     $this->vacacionesActuales -= $this->vacacionesDisfrutadas;
-            // }
         }
     }
 
@@ -389,6 +416,22 @@ class CalculoLiquidacion
      */
     public function calcularTotalCesantias()
     {
+
+        /*
+    $severance_payments = SeverancePaymentPerson::where('people_id', id)->with('severancePayment')->get();
+    $years = array();
+    foreach ($severance_payments as $severance_payment) {
+        $years[] = $severance_payment->severancePayment->year;
+    }
+    $current_year = date('Y');
+    if (in_array($current_year, $years)) {
+        $cesantias_anteriores = 0;
+    } else {
+        $cesantias_anteriores = 1; falta saber de donde llega ese total por usuario 
+    }
+    
+} */
+        /* Si ya se pagaron las cesantias del año anteior  */
         $this->totalCesantias = round($this->baseCesantias * $this->diasCesantias / 360, 0, PHP_ROUND_HALF_UP);
     }
 
@@ -638,3 +681,5 @@ class CalculoLiquidacion
         return $this->totalLiquidacion + $this->indemnizacion;
     }
 }
+
+
