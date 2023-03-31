@@ -18,7 +18,11 @@ class TravelExpenseEstimationController extends Controller
     public function index()
     {
         return $this->success(
-            TravelExpenseEstimation::get()
+            TravelExpenseEstimation::get()->map(function ($travelExpense) {
+                $travelExpense->displacement = json_decode($travelExpense->displacement);
+                $travelExpense->destination = json_decode($travelExpense->destination);
+                return $travelExpense;
+            })
         );
     }
 
@@ -27,8 +31,8 @@ class TravelExpenseEstimationController extends Controller
         $pageSize = request()->get('pageSize', 10);
         $page = request()->get('page', 1);
         $travelExpenses = TravelExpenseEstimation::when(request()->get('description'), function ($q, $fill) {
-                $q->where('description', 'like', '%' . $fill . '%');
-            })
+            $q->where('description', 'like', '%' . $fill . '%');
+        })
             ->get();
         $transformedTravelExpenses = $travelExpenses->map(function ($travelExpense) {
             $travelExpense->displacement = json_decode($travelExpense->displacement);
