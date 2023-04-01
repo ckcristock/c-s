@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApuService;
+use App\Models\ApuServiceAccompaniment;
 use App\Models\ApuServiceAssemblyStartUp;
 use App\Models\ApuServiceDimensionalValidation;
+use App\Models\ApuServiceTravelEstimationAccompaniment;
 use App\Models\ApuServiceTravelEstimationAssemblyStartUp;
 use App\Models\ApuServiceTravelEstimationDimensionalValidation;
 use App\Models\Company;
@@ -75,11 +77,13 @@ class ApuServiceController extends Controller
     {
         $data = $request->except([
             "calculate_labor",
-            "mpm_calculate_labor"
+            "mpm_calculate_labor",
+            "apm_calculate_labor",
         ]);
 
         $calculate_labor = request()->get("calculate_labor");
         $mpm_calculate_labor = request()->get("mpm_calculate_labor");
+        $apm_calculate_labor = request()->get("apm_calculate_labor");
 
         try {
             $consecutive = getConsecutive('apu_services');
@@ -108,6 +112,15 @@ class ApuServiceController extends Controller
                 foreach ($mpm_cl["viatic_estimation"] as $value) {
                     $value["apu_service_assembly_start_up_id"] = $assemblyStart["id"];
                     ApuServiceTravelEstimationAssemblyStartUp::create($value);
+                }
+            }
+
+            foreach ($apm_calculate_labor as $apm_cl) {
+                $apm_cl["apu_service_id"] = $id;
+                $accompaniment = ApuServiceAccompaniment::create($apm_cl);
+                foreach ($apm_cl["viatic_estimation"] as $value) {
+                    $value["apu_service_accompaniments_id"] = $accompaniment["id"];
+                    ApuServiceTravelEstimationAccompaniment::create($value);
                 }
             }
             sumConsecutive('apu_services');
@@ -147,6 +160,13 @@ class ApuServiceController extends Controller
                 },
                 "assembliesStartUp.travelEstimationAssembliesStartUp" => function ($q) {
                     $q->select("*");
+                },
+                "accompaniments" => function ($q) {
+                    $q->select("*")
+                        ->with('profiles');
+                },
+                "accompaniments.travelEstimationAccompaniment" => function ($q) {
+                    $q->select("*");
                 }
             ])
                 ->where("id", $id)
@@ -178,11 +198,13 @@ class ApuServiceController extends Controller
         try {
             $data = $request->except([
                 "calculate_labor",
-                "mpm_calculate_labor"
+                "mpm_calculate_labor",
+                "apm_calculate_labor",
             ]);
 
             $calculate_labor = request()->get("calculate_labor");
             $mpm_calculate_labor = request()->get("mpm_calculate_labor");
+            $apm_calculate_labor = request()->get("apm_calculate_labor");
 
             ApuService::find($id)->update($data);
 
@@ -214,6 +236,22 @@ class ApuServiceController extends Controller
                     foreach ($mpm_cl["viatic_estimation"] as $value) {
                         $value["apu_service_assembly_start_up_id"] = $assemblyStart["id"];
                         ApuServiceTravelEstimationAssemblyStartUp::create($value);
+                    }
+                }
+            }
+
+            if ($apm_calculate_labor) {
+                $accompaniment_ =  ApuServiceAccompaniment::where("apu_service_id", $id)->get();
+                foreach ($accompaniment_ as $value) {
+                    ApuServiceTravelEstimationAccompaniment::where("apu_service_accompaniments_id",  $value["id"])->delete();
+                }
+                ApuServiceAccompaniment::where("apu_service_id", $id)->delete();
+                foreach ($apm_calculate_labor as $apm_cl) {
+                    $apm_cl["apu_service_id"] = $id;
+                    $accompaniment = ApuServiceAccompaniment::create($apm_cl);
+                    foreach ($apm_cl["viatic_estimation"] as $value) {
+                        $value["apu_service_accompaniments_id"] = $accompaniment["id"];
+                        ApuServiceTravelEstimationAccompaniment::create($value);
                     }
                 }
             }

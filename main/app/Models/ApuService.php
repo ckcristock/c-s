@@ -27,11 +27,14 @@ class ApuService extends Model
         'subtotal_administrative_unforeseen',
         'subtotal_administrative_unforeseen_utility',
         'subtotal_assembly_commissioning',
+        'subtotal_accompaniment',
         'subtotal_dimensional_validation',
         'subtotal_labor',
         'subtotal_labor_mpm',
+        'subtotal_labor_apm',
         'subtotal_travel_expense',
         'subtotal_travel_expense_mpm',
+        'subtotal_travel_expense_apm',
         'trm',
         'code',
         'format_code',
@@ -103,5 +106,10 @@ class ApuService extends Model
     public function assembliesStartUp()
     {
         return $this->hasMany(ApuServiceAssemblyStartUp::class);
+    }
+
+    public function accompaniments()
+    {
+        return $this->hasMany(ApuServiceAccompaniment::class);
     }
 }
