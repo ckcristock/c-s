@@ -92,6 +92,20 @@
         margin: 1rem 0;
     }
 </style>
+@php
+
+
+    function getDesplazamiento($value)
+    {
+        $desplazamientos = [['text' => 'Aero', 'value' => 1], ['text' => 'Terrestre', 'value' => 2], ['text' => 'N/A', 'value' => 3]];
+        foreach ($desplazamientos as $desplazamiento) {
+            if ($desplazamiento['value'] == $value) {
+                return $desplazamiento['text'];
+            }
+        }
+        return null;
+    }
+@endphp
 @include('components/cabecera', [$company, $datosCabecera, $image])
 <hr>
 <div class="div">
@@ -130,6 +144,10 @@
         </tr>
     </tbody>
 </table>
+
+@if (count($data['dimensionalValidation']) > 0 || count($data['assembliesStartUp']) > 0 || count($data['accompaniments']) > 0)
+    <h5>MAQMO</h5>
+@endif
 
 @if (count($data['dimensionalValidation']) > 0)
     <h5 class="mt-2 text-center mb-0">VALIDACIÓN DIMENSIONAL</h5>
@@ -173,7 +191,7 @@
                         {{ $dimentional['profiles']['profile'] }}
                     </td>
                     <td class="align-middle">
-                        {{ $dimentional['displacement_type'] }}
+                        {{ getDesplazamiento($dimentional['displacement_type']) }}
                     </td>
                     <td class="align-middle">
                         {{ $dimentional['people_number'] }}
@@ -299,7 +317,6 @@
     </div>
     <hr />
 @endif
-
 @if (count($data['assembliesStartUp']) > 0)
     <h5 class="text-center mb-0">MONTAJE DE EQUIPOS</h5>
     <h6 class="mb-0">CÁLCULO DE MANO DE OBRA</h6>
@@ -346,7 +363,7 @@
                         {{ $assemblies['profiles']['profile'] }}
                     </td>
                     <td class="align-middle">
-                        {{ $assemblies['displacement_type'] }}
+                        {{ getDesplazamiento($assemblies['displacement_type']) }}
                     </td>
                     <td class="align-middle">
                         {{ $assemblies['people_number'] }}
@@ -518,7 +535,7 @@
                         {{ $accompaniment['profiles']['profile'] }}
                     </td>
                     <td class="align-middle">
-                        {{ $accompaniment['displacement_type'] }}
+                        {{ getDesplazamiento($accompaniment['displacement_type']) }}
                     </td>
                     <td class="align-middle">
                         {{ $accompaniment['people_number'] }}
@@ -644,10 +661,443 @@
     </div>
     <hr>
 @endif
+@if (count($data['dimensionalValidation']) > 0 || count($data['assembliesStartUp']) > 0 || count($data['accompaniments']) > 0)
 <div class="text-right" style="font-size: 10px;">
     <strong>SUBTOTAL GENERAL VIÁTICOS + MANO DE OBRA: </strong>
     @money($data['general_subtotal_travel_expense_labor'])
 </div>
+@endif
+
+@if (count($data['dimensionalValidationC']) > 0 || count($data['assembliesStartUpC']) > 0 || count($data['accompanimentsC']) > 0)
+    <h5>CONTRATISTAS</h5>
+@endif
+
+@if (count($data['dimensionalValidationC']) > 0)
+    <h5 class="mt-2 text-center mb-0">VALIDACIÓN DIMENSIONAL</h5>
+    <h6 class="mb-0">CÁLCULO DE MANO DE OBRA</h6>
+    <table class="div table-border">
+        <thead>
+            <tr class="table-primary" style="background:#E1EEC0;">
+                <th colspan="3" class="text-center">DATOS</th>
+                <th colspan="3" class="text-center">DESPLAZAMIENTO</th>
+                <th colspan="3" class="text-center">ORDINARIAS</th>
+                <th colspan="3" class="text-center">FESTIVAS</th>
+            </tr>
+        </thead>
+        <thead class="bg-light">
+            <tr class="text-center text-uppercase" style="background:#E1EEC0;">
+                <th class="align-middle">Perfil</th>
+                <th class="align-middle">Tipo Desplaza</th>
+                <th class="align-middle">N. Persona</th>
+                <th class="align-middle">N. Días</th>
+                <th class="align-middle">Jornada</th>
+                <th class="align-middle">Horas</th>
+                <th class="align-middle">N. Días</th>
+                <th class="align-middle">Jornada</th>
+                <th class="align-middle">Horas</th>
+                <th class="align-middle">N. Días</th>
+                <th class="align-middle">Jornada</th>
+                <th class="align-middle">Horas</th>
+            </tr>
+        </thead>
+        @foreach ($data['dimensionalValidationC'] as $key => $dimentional)
+            <tbody>
+                <tr class="text-center">
+                    <td class="align-middle">
+                        {{ $dimentional['profiles']['profile'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ getDesplazamiento($dimentional['displacement_type']) }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $dimentional['people_number'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $dimentional['days_number_displacement'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $dimentional['workind_day_displacement'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $dimentional['hours_displacement'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $dimentional['days_number_ordinary'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $dimentional['working_day_ordinary'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $dimentional['hours_ordinary'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $dimentional['days_number_festive'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $dimentional['working_day_festive'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $dimentional['hours_festive'] }}
+                    </td>
+                </tr>
+            </tbody>
+        @endforeach
+    </table>
+
+    <h6 class="mb-0">Viáticos</h6>
+    @foreach ($data['dimensionalValidationC'] as $k => $dimentional)
+        @if ($loop->iteration % 3 == 1)
+            <div class="row-b">
+        @endif
+        <div class="col col-4">
+            <table class="div table-border">
+                <thead>
+                    <tr class="table-primary text-uppercase" style="background:#E1EEC0;">
+                        <th class="text-center">Perfil</th>
+                        <th>{{ $dimentional['profiles']['profile'] }}</th>
+                        <th colspan="3" class="text-center">Viáticos</th>
+                    </tr>
+                </thead>
+                <thead class="bg-light">
+                    <tr class="text-center text-uppercase" style="background:#E1EEC0;">
+                        <th>Descripción</th>
+                        <th>Unidad</th>
+                        <th>Cantidad</th>
+                        <th>Valor Unitario</th>
+                        <th>Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($dimentional['travelEstimationDimensionalValidationsC'] as $j => $itemx)
+                        <tr class="text-center">
+                            <td>{{ $itemx['description'] }}</td>
+                            <td>{{ $itemx['unit'] }}</td>
+                            <td>{{ $itemx['amount'] }}</td>
+                            <td class="text-right">
+                                @money($itemx['unit_value'])
+                            </td>
+                            <td class="text-right">
+                                @money($itemx['total_value'])
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-right text-uppercase">Subtotal</th>
+                        <th class="text-right">
+                            @money($dimentional['subtotal'])
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        @if ($loop->iteration % 3 == 0 || $loop->last)
+            </div>
+        @endif
+    @endforeach
+    <div class="row">
+        <div class="text-right" style="font-size: 10px;">
+            <strong>SUBTOTAL VIÁTICOS: </strong>
+            @money($data['subtotal_travel_expense_vd_c'])
+        </div>
+        <div class="text-right" style="font-size: 10px;">
+            <strong>SUBTOTAL VALID DIMENSIONAL: </strong>
+            @money($data['subtotal_dimensional_validation_c'])
+        </div>
+    </div>
+    <hr />
+@endif
+
+@if (count($data['assembliesStartUpC']) > 0)
+    <h5 class="text-center mb-0">MONTAJE DE EQUIPOS</h5>
+    <h6 class="mb-0">CÁLCULO DE MANO DE OBRA</h6>
+    <table class="div table-border">
+        <thead>
+            <tr style="background:#E1EEC0;">
+                <th colspan="4">DATOS</th>
+                <th colspan="3" class="text-center">DESPLAZAMIENTO</th>
+                <th colspan="3" class="text-center">ORDINARIAS</th>
+                <th colspan="3" class="text-center">FESTIVAS</th>
+            </tr>
+        </thead>
+        <thead class="bg-light">
+            <tr class="text-center text-uppercase">
+                <th class="align-middle">Item</th>
+                <th class="align-middle">Perfil</th>
+                <th class="align-middle">Tipo Desplaza</th>
+                <th class="align-middle">N. Persona</th>
+                <th class="align-middle">N. Días</th>
+                <th class="align-middle">Jornada</th>
+                <th class="align-middle">Horas</th>
+                <th class="align-middle">N. Días</th>
+                <th class="align-middle">Jornada</th>
+                <th class="align-middle">Horas</th>
+                <th class="align-middle">N. Días</th>
+                <th class="align-middle">Jornada</th>
+                <th class="align-middle">Horas</th>
+            </tr>
+        </thead>
+        @foreach ($data['assembliesStartUpC'] as $key => $assemblies)
+            <tbody>
+                <tr class="text-center">
+                    <td class="align-middle">
+                        {{ $key + 1 }}
+                    </td>
+                    <td class="align-middle" *ngIf="item.profiles">
+                        {{ $assemblies['profiles']['profile'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ getDesplazamiento($assemblies['displacement_type']) }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['people_number'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['days_number_displacement'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['workind_day_displacement'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['hours_displacement'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['days_number_ordinary'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['working_day_ordinary'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['hours_ordinary'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['days_number_festive'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['working_day_festive'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['hours_festive'] }}
+                    </td>
+                </tr>
+            </tbody>
+        @endforeach
+    </table>
+    <h6 class="mb-0">Viáticos</h6>
+    @foreach ($data['assembliesStartUpC'] as $k => $assemblies_)
+        @if ($loop->iteration % 3 == 1)
+            <div class="row-b">
+        @endif
+        <div class="col col-4">
+            <table class="div table-border">
+                <thead>
+                    <tr class="table-primary text-uppercase" style="background:#E1EEC0;">
+                        <th class="text-center">Perfil</th>
+                        <th>{{ $assemblies_['profiles']['profile'] }}</th>
+                        <th colspan="3" class="text-center">Viáticos</th>
+                    </tr>
+                </thead>
+                <thead class="bg-light">
+                    <tr class="text-center text-uppercase" style="background:#E1EEC0;">
+                        <th>Descripción</th>
+                        <th>Unidad</th>
+                        <th>Cantidad</th>
+                        <th>Valor Unitario</th>
+                        <th>Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($assemblies_['travelEstimationAssembliesStartUpC'] as $j => $itemxx)
+                        <tr class="text-center">
+                            <td>{{ $itemxx['description'] }}</td>
+                            <td>{{ $itemxx['unit'] }}</td>
+                            <td>{{ $itemxx['amount'] }}</td>
+                            <td class="text-right">
+                                @money($itemxx['unit_value'])
+                            </td>
+                            <td class="text-right">
+                                @money($itemxx['total_value'])
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-right text-uppercase">Subtotal</th>
+                        <th class="text-right">
+                            @money($assemblies_['subtotal'])
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        @if ($loop->iteration % 3 == 0 || $loop->last)
+            </div>
+        @endif
+    @endforeach
+    <div class="row">
+        <div class="text-right" style="font-size: 10px;">
+            <strong>SUBTOTAL VIÁTICOS: </strong>
+            @money($data['subtotal_travel_expense_me_c'])
+        </div>
+        <div class="text-right" style="font-size: 10px;">
+            <strong>SUBTOTAL MONTAJE DE EQUIPOS: </strong>
+            @money($data['subtotal_assembly_c'])
+        </div>
+
+    </div>
+    <hr>
+@endif
+
+@if (count($data['accompanimentsC']) > 0)
+    <h5 class="text-center mb-0">ACOMPAÑAMIENTO Y PUESTA EN MARCHA</h5>
+    <h6 class="mb-0">CÁLCULO DE MANO DE OBRA</h6>
+    <table class="div table-border">
+        <thead>
+            <tr style="background:#E1EEC0;">
+                <th colspan="4">DATOS</th>
+                <th colspan="3" class="text-center">DESPLAZAMIENTO</th>
+                <th colspan="3" class="text-center">ORDINARIAS</th>
+                <th colspan="3" class="text-center">FESTIVAS</th>
+            </tr>
+        </thead>
+        <thead class="bg-light">
+            <tr class="text-center text-uppercase">
+                <th class="align-middle">Item</th>
+                <th class="align-middle">Perfil</th>
+                <th class="align-middle">Tipo Desplaza</th>
+                <th class="align-middle">N. Persona</th>
+                <th class="align-middle">N. Días</th>
+                <th class="align-middle">Jornada</th>
+                <th class="align-middle">Horas</th>
+                <th class="align-middle">N. Días</th>
+                <th class="align-middle">Jornada</th>
+                <th class="align-middle">Horas</th>
+                <th class="align-middle">N. Días</th>
+                <th class="align-middle">Jornada</th>
+                <th class="align-middle">Horas</th>
+            </tr>
+        </thead>
+        @foreach ($data['accompanimentsC'] as $key => $assemblies)
+            <tbody>
+                <tr class="text-center">
+                    <td class="align-middle">
+                        {{ $key + 1 }}
+                    </td>
+                    <td class="align-middle" *ngIf="item.profiles">
+                        {{ $assemblies['profiles']['profile'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ getDesplazamiento($assemblies['displacement_type']) }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['people_number'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['days_number_displacement'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['workind_day_displacement'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['hours_displacement'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['days_number_ordinary'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['working_day_ordinary'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['hours_ordinary'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['days_number_festive'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['working_day_festive'] }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $assemblies['hours_festive'] }}
+                    </td>
+                </tr>
+            </tbody>
+        @endforeach
+    </table>
+    <h6 class="mb-0">Viáticos</h6>
+    @foreach ($data['accompanimentsC'] as $k => $assemblies_)
+        @if ($loop->iteration % 3 == 1)
+            <div class="row-b">
+        @endif
+        <div class="col col-4">
+            <table class="div table-border">
+                <thead>
+                    <tr class="table-primary text-uppercase" style="background:#E1EEC0;">
+                        <th class="text-center">Perfil</th>
+                        <th>{{ $assemblies_['profiles']['profile'] }}</th>
+                        <th colspan="3" class="text-center">Viáticos</th>
+                    </tr>
+                </thead>
+                <thead class="bg-light">
+                    <tr class="text-center text-uppercase" style="background:#E1EEC0;">
+                        <th>Descripción</th>
+                        <th>Unidad</th>
+                        <th>Cantidad</th>
+                        <th>Valor Unitario</th>
+                        <th>Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($assemblies_['travelEstimationAccompanimentC'] as $j => $itemxx)
+                        <tr class="text-center">
+                            <td>{{ $itemxx['description'] }}</td>
+                            <td>{{ $itemxx['unit'] }}</td>
+                            <td>{{ $itemxx['amount'] }}</td>
+                            <td class="text-right">
+                                @money($itemxx['unit_value'])
+                            </td>
+                            <td class="text-right">
+                                @money($itemxx['total_value'])
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-right text-uppercase">Subtotal</th>
+                        <th class="text-right">
+                            @money($assemblies_['subtotal'])
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        @if ($loop->iteration % 3 == 0 || $loop->last)
+            </div>
+        @endif
+    @endforeach
+    <div class="row">
+        <div class="text-right" style="font-size: 10px;">
+            <strong>SUBTOTAL VIÁTICOS: </strong>
+            @money($data['subtotal_travel_expense_apm_c'])
+        </div>
+        <div class="text-right" style="font-size: 10px;">
+            <strong>SUBTOTAL ACOMPAÑAMIENTO Y PUESTA EN MARCHA: </strong>
+            @money($data['subtotal_accompaniment_c'])
+        </div>
+
+    </div>
+    <hr>
+@endif
+
+@if (count($data['dimensionalValidationC']) > 0 || count($data['assembliesStartUpC']) > 0 || count($data['accompanimentsC']) > 0)
+<div class="text-right" style="font-size: 10px;">
+    <strong>SUBTOTAL GENERAL VIÁTICOS + MANO DE OBRA: </strong>
+    @money($data['general_subtotal_travel_expense_labor_c'])
+</div>
+@endif
+
 <h5 class="text-center">AIU</h5>
 <table class="table-border" style="font-size: 15px; text-transform: uppercase">
     <tbody>

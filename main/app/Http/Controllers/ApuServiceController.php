@@ -4,11 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\ApuService;
 use App\Models\ApuServiceAccompaniment;
+use App\Models\ApuServiceAccompanimentContractor;
+use App\Models\ApuServiceAssemblyEquipmentContractor;
 use App\Models\ApuServiceAssemblyStartUp;
 use App\Models\ApuServiceDimensionalValidation;
+use App\Models\ApuServiceDimensionalValidationContractors;
 use App\Models\ApuServiceTravelEstimationAccompaniment;
+use App\Models\ApuServiceTravelEstimationAccompanimentContractor;
+use App\Models\ApuServiceTravelEstimationAssemblyEquipmentContractor;
 use App\Models\ApuServiceTravelEstimationAssemblyStartUp;
 use App\Models\ApuServiceTravelEstimationDimensionalValidation;
+use App\Models\ApuServiceTravelEstimationDimensionalValidationContractors;
 use App\Models\Company;
 use App\Models\Municipality;
 use App\Traits\ApiResponser;
@@ -79,11 +85,17 @@ class ApuServiceController extends Controller
             "calculate_labor",
             "mpm_calculate_labor",
             "apm_calculate_labor",
+            "c_apm_calculate_labor",
+            "c_me_calculate_labor",
+            "c_vd_calculate_labor",
         ]);
 
         $calculate_labor = request()->get("calculate_labor");
         $mpm_calculate_labor = request()->get("mpm_calculate_labor");
         $apm_calculate_labor = request()->get("apm_calculate_labor");
+        $c_apm_calculate_labor = request()->get("c_apm_calculate_labor");
+        $c_me_calculate_labor = request()->get("c_me_calculate_labor");
+        $c_vd_calculate_labor = request()->get("c_vd_calculate_labor");
 
         try {
             $consecutive = getConsecutive('apu_services');
@@ -123,6 +135,34 @@ class ApuServiceController extends Controller
                     ApuServiceTravelEstimationAccompaniment::create($value);
                 }
             }
+            //!Contratistas c_vd_calculate_labor
+            foreach ($c_apm_calculate_labor as $c_amp_cl) {
+                $c_amp_cl["apu_service_id"] = $id;
+                $accompanimentC = ApuServiceAccompanimentContractor::create($c_amp_cl);
+                foreach ($c_amp_cl["viatic_estimation"] as $value) {
+                    $value["apu_service_accompaniment_contractors_id"] = $accompanimentC["id"];
+                    ApuServiceTravelEstimationAccompanimentContractor::create($value);
+                }
+            }
+
+            foreach ($c_me_calculate_labor as $c_me_cl) {
+                $c_me_cl["apu_service_id"] = $id;
+                $assemblyEquipentC = ApuServiceAssemblyEquipmentContractor::create($c_me_cl);
+                foreach ($c_me_cl["viatic_estimation"] as $value) {
+                    $value["apu_service_assembly_equipment_contractor_id"] = $assemblyEquipentC["id"];
+                    ApuServiceTravelEstimationAssemblyEquipmentContractor::create($value);
+                }
+            }
+
+            foreach ($c_vd_calculate_labor as $c_vd_cl) {
+                $c_vd_cl["apu_service_id"] = $id;
+                $dimsionalValidC = ApuServiceDimensionalValidationContractors::create($c_vd_cl);
+                foreach ($c_vd_cl["viatic_estimation"] as $value) {
+                    $value["apu_service_dimensional_validation_contractors_id"] = $dimsionalValidC["id"];
+                    ApuServiceTravelEstimationDimensionalValidationContractors::create($value);
+                }
+            }
+
             sumConsecutive('apu_services');
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
@@ -167,6 +207,28 @@ class ApuServiceController extends Controller
                 },
                 "accompaniments.travelEstimationAccompaniment" => function ($q) {
                     $q->select("*");
+                },
+                //!contratistas
+                "dimensionalValidationC" => function ($q) {
+                    $q->select("*")
+                        ->with('profiles');
+                },
+                "dimensionalValidationC.travelEstimationDimensionalValidationsC" => function ($q) {
+                    $q->select("*");
+                },
+                "assembliesStartUpC" => function ($q) {
+                    $q->select("*")
+                        ->with('profiles');
+                },
+                "assembliesStartUpC.travelEstimationAssembliesStartUpC" => function ($q) {
+                    $q->select("*");
+                },
+                "accompanimentsC" => function ($q) {
+                    $q->select("*")
+                        ->with('profiles');
+                },
+                "accompanimentsC.travelEstimationAccompanimentC" => function ($q) {
+                    $q->select("*");
                 }
             ])
                 ->where("id", $id)
@@ -200,11 +262,17 @@ class ApuServiceController extends Controller
                 "calculate_labor",
                 "mpm_calculate_labor",
                 "apm_calculate_labor",
+                "c_apm_calculate_labor",
+                "c_me_calculate_labor",
+                "c_vd_calculate_labor",
             ]);
 
             $calculate_labor = request()->get("calculate_labor");
             $mpm_calculate_labor = request()->get("mpm_calculate_labor");
             $apm_calculate_labor = request()->get("apm_calculate_labor");
+            $c_apm_calculate_labor = request()->get("c_apm_calculate_labor");
+            $c_me_calculate_labor = request()->get("c_me_calculate_labor");
+            $c_vd_calculate_labor = request()->get("c_vd_calculate_labor");
 
             ApuService::find($id)->update($data);
 
@@ -252,6 +320,54 @@ class ApuServiceController extends Controller
                     foreach ($apm_cl["viatic_estimation"] as $value) {
                         $value["apu_service_accompaniments_id"] = $accompaniment["id"];
                         ApuServiceTravelEstimationAccompaniment::create($value);
+                    }
+                }
+            }
+
+            if ($c_apm_calculate_labor) {
+                $data =  ApuServiceAccompanimentContractor::where("apu_service_id", $id)->get();
+                foreach ($data as $value) {
+                    ApuServiceTravelEstimationAccompanimentContractor::where("apu_service_accompaniment_contractors_id",  $value["id"])->delete();
+                }
+                ApuServiceAccompanimentContractor::where("apu_service_id", $id)->delete();
+                foreach ($c_apm_calculate_labor as $c_amp_cl) {
+                    $c_amp_cl["apu_service_id"] = $id;
+                    $accompanimentC = ApuServiceAccompanimentContractor::create($c_amp_cl);
+                    foreach ($c_amp_cl["viatic_estimation"] as $value) {
+                        $value["apu_service_accompaniment_contractors_id"] = $accompanimentC["id"];
+                        ApuServiceTravelEstimationAccompanimentContractor::create($value);
+                    }
+                }
+            }
+
+            if ($c_me_calculate_labor) {
+                $data =  ApuServiceAssemblyEquipmentContractor::where("apu_service_id", $id)->get();
+                foreach ($data as $value) {
+                    ApuServiceTravelEstimationAssemblyEquipmentContractor::where("apu_service_assembly_equipment_contractor_id",  $value["id"])->delete();
+                }
+                ApuServiceAssemblyEquipmentContractor::where("apu_service_id", $id)->delete();
+                foreach ($c_me_calculate_labor as $c_me_cl) {
+                    $c_me_cl["apu_service_id"] = $id;
+                    $assemblyEquipentC = ApuServiceAssemblyEquipmentContractor::create($c_me_cl);
+                    foreach ($c_me_cl["viatic_estimation"] as $value) {
+                        $value["apu_service_assembly_equipment_contractor_id"] = $assemblyEquipentC["id"];
+                        ApuServiceTravelEstimationAssemblyEquipmentContractor::create($value);
+                    }
+                }
+            }
+
+            if ($c_vd_calculate_labor) {
+                $data =  ApuServiceDimensionalValidationContractors::where("apu_service_id", $id)->get();
+                foreach ($data as $value) {
+                    ApuServiceTravelEstimationDimensionalValidationContractors::where("apu_service_dimensional_validation_contractors_id",  $value["id"])->delete();
+                }
+                ApuServiceDimensionalValidationContractors::where("apu_service_id", $id)->delete();
+                foreach ($c_vd_calculate_labor as $c_vd_cl) {
+                    $c_vd_cl["apu_service_id"] = $id;
+                    $dimsionalValidC = ApuServiceDimensionalValidationContractors::create($c_vd_cl);
+                    foreach ($c_vd_cl["viatic_estimation"] as $value) {
+                        $value["apu_service_dimensional_validation_contractors_id"] = $dimsionalValidC["id"];
+                        ApuServiceTravelEstimationDimensionalValidationContractors::create($value);
                     }
                 }
             }

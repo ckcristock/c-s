@@ -22,6 +22,7 @@ class ApuService extends Model
         'unforeseen_value',
         'utility_percentage',
         'general_subtotal_travel_expense_labor',
+        'general_subtotal_travel_expense_labor_c',
         'sale_price_cop_withholding_total',
         'sale_price_usd_withholding_total',
         'subtotal_administrative_unforeseen',
@@ -29,12 +30,18 @@ class ApuService extends Model
         'subtotal_assembly_commissioning',
         'subtotal_accompaniment',
         'subtotal_dimensional_validation',
+        'subtotal_dimensional_validation_c',
+        'subtotal_assembly_c',
+        'subtotal_accompaniment_c',
         'subtotal_labor',
         'subtotal_labor_mpm',
         'subtotal_labor_apm',
         'subtotal_travel_expense',
         'subtotal_travel_expense_mpm',
         'subtotal_travel_expense_apm',
+        'subtotal_travel_expense_vd_c',
+        'subtotal_travel_expense_me_c',
+        'subtotal_travel_expense_apm_c',
         'trm',
         'code',
         'format_code',
@@ -111,5 +118,20 @@ class ApuService extends Model
     public function accompaniments()
     {
         return $this->hasMany(ApuServiceAccompaniment::class);
+    }
+
+    public function dimensionalValidationC()
+    {
+        return $this->hasMany(ApuServiceDimensionalValidationContractors::class);
+    }
+
+    public function assembliesStartUpC()
+    {
+        return $this->hasMany(ApuServiceAssemblyEquipmentContractor::class);
+    }
+
+    public function accompanimentsC()
+    {
+        return $this->hasMany(ApuServiceAccompanimentContractor::class);
     }
 }
