@@ -2,15 +2,25 @@
 
 namespace App\Http\Libs\Nomina\Calculos;
 
+use App\Http\Controllers\SeverancePaymentController;
+use App\Http\Libs\Nomina\Facades\NominaCesantias;
 use App\Models\Loan;
 use Carbon\Carbon;
 use App\Models\PayrollFactor;
+use App\Models\Person;
 use App\Models\WorkContract;
+use App\Models\PreliquidatedLog;
+use App\Models\SeverancePaymentPerson;
+use App\Traits\ApiResponser;
+use Illuminate\Support\Facades\DB;
+use App\Models\SeveranceInterestPaymentPerson;
+
 /**
  * Clase para realizar el cálculo de la liquidación de x funcionario
  */
 class CalculoLiquidacion
 {
+    use ApiResponser;
     /**
      * Constantes para cálculos de vacaciones, cesantías e intereses de cesantías
      */
@@ -172,17 +182,16 @@ class CalculoLiquidacion
     protected $totalLiquidacion;
 
 
-    public function __construct($salarioBase = 0, $auxilioTransporte = 0, $fechaIngreso, $fechaRetiro = null, $id, $diasLiquidacion = 0, $vacacionesActuales=0, $vacacionesActualesModified= 0)
+    public function __construct($salarioBase = 0, $auxilioTransporte = 0, $fechaIngreso, $fechaRetiro = null, $id, $diasLiquidacion = 0, $vacacionesActuales = 0, $vacacionesActualesModified = 0)
     {
         $this->salarioBase = $salarioBase;
         $this->auxilioTransporte = $auxilioTransporte;
         $this->fechaIngreso = $fechaIngreso;
         $this->fechaRetiro = $fechaRetiro == null ? Carbon::now() : Carbon::parse($fechaRetiro);
         $this->id = $id;
-        $this->diasLiquidacion =$diasLiquidacion;
-        $this->vacacionesActuales =$vacacionesActuales;
+        $this->diasLiquidacion = $diasLiquidacion;
+        $this->vacacionesActuales = $vacacionesActuales;
         $this->vacacionesActualesModified = $vacacionesActualesModified;
-
     }
 
     /**
@@ -361,7 +370,7 @@ class CalculoLiquidacion
                 $endDate = $payrollFactor->date_end;
                 $preliquidated = PreliquidatedLog::where('person_id', $this->id)->latest()->get();
 
-                $workContract = WorkContract::where('id',$preliquidated->person_work_contract_id)
+                $workContract = WorkContract::where('id', $preliquidated->person_work_contract_id)
                     ->where('date_of_admission', '<=', $endDate)
                     ->where(function ($query) use ($startDate) {
                         $query->where('date_end', '>=', $startDate)->orWhereNull('date_end');
@@ -378,7 +387,6 @@ class CalculoLiquidacion
             $this->vacacionesActuales = $this->vacacionesActualesModified;
         } else {
             $this->vacacionesActuales = number_format($this->diasLiquidacion * self::FACTOR_VACACIONES - $this->vacacionesDisfrutadas, 1, '.', '');
-
         }
     }
 
@@ -416,24 +424,69 @@ class CalculoLiquidacion
      */
     public function calcularTotalCesantias()
     {
+        $severance_payments = SeverancePaymentPerson::where('people_id', $this->id)->with('severancePayment')->get();
+        $years = array();
+        foreach ($severance_payments as $severance_payment) {
+            $years[] = $severance_payment->severancePayment->year;
+        }
 
-        /*
-    $severance_payments = SeverancePaymentPerson::where('people_id', id)->with('severancePayment')->get();
-    $years = array();
-    foreach ($severance_payments as $severance_payment) {
-        $years[] = $severance_payment->severancePayment->year;
+        $current_year = date('Y');
+        if (in_array($current_year, $years)) {
+            $cesantias_anteriores = 0;
+        } else {
+            $funcionario = $this->getFuncionario();
+            $cesantias_anteriores = $funcionario['total_cesantias']['total_severance'];
+            //dd($cesantias_anteriores);
+        }
+
+        $this->totalCesantias = round($this->baseCesantias * $this->diasCesantias / 360 + $cesantias_anteriores, 0, PHP_ROUND_HALF_UP);
     }
-    $current_year = date('Y');
-    if (in_array($current_year, $years)) {
-        $cesantias_anteriores = 0;
-    } else {
-        $cesantias_anteriores = 1; falta saber de donde llega ese total por usuario 
+
+    function getFuncionario()
+    {
+        $lastYear = Carbon::now()->subYear()->year;
+        $inicio = Carbon::create($lastYear, 01, 01);
+        $fin = Carbon::create($lastYear, 12, 30);
+        $preliquidated = PreliquidatedLog::where('person_id', $this->id)->latest()->first();
+        $workContract = WorkContract::find($preliquidated->person_work_contract_id);
+        $date_start = Carbon::create($workContract['date_of_admission'])->year;
+        if ($date_start > $lastYear) {
+            $inicio_aux = $date_start;
+        } else {
+            $inicio_aux = $inicio;
+        }
+        
+        $funcionario = Person::with('severance_fund')
+            ->with(['contractultimate' => function ($q) {
+                $q->select('id', 'person_id', 'salary', 'turn_type', 'date_end', 'work_contract_type_id', 'contract_term_id', 'position_id');
+            }])
+
+            ->with(['personPayrollPayments' => function ($query) use ($inicio_aux, $fin) {
+                $query->whereBetween('created_at', [$inicio_aux, $fin]);
+            }])
+            ->with(['provisionPersonPayrollPayments' => function ($query) use ($inicio_aux, $fin) {
+                $query->whereBetween('created_at', [$inicio_aux, $fin]);
+            }])
+            ->select('id', 'image', DB::raw("CONCAT_WS(' ', first_name, second_name, first_surname, second_surname) as full_names"))
+            ->find($this->id);
+
+            //dd($funcionario);
+            $funcionario['total_cesantias'] = $this->getSeverancePerson($funcionario, $inicio, $fin);
+
+        return $funcionario;
     }
-    
-} */
-        /* Si ya se pagaron las cesantias del año anteior  */
-        $this->totalCesantias = round($this->baseCesantias * $this->diasCesantias / 360, 0, PHP_ROUND_HALF_UP);
+
+    public function getSeverancePerson($person, $inicio, $fin)
+    {
+        try {
+            return NominaCesantias::cesantiaFuncionarioWithPerson($person)
+                ->fromTo($inicio, $fin)
+                ->calculate();
+        } catch (\Throwable $th) {
+            return $this->error('Msg: ' . $th->getMessage() . ' - Line: ' . $th->getLine() . ' - file: ' . $th->getFile(), 204);
+        }
     }
+    /* Si ya se pagaron las cesantias del año anteior  */
 
     /**
      * Calcular el total de pago por concepto de intereses a las cesantias
@@ -442,9 +495,27 @@ class CalculoLiquidacion
      */
     public function calcularTotalInteresesCesantias()
     {
-        $this->totalInteresesCesantias = round($this->totalCesantias * self::FACTOR_INTERESES_CESANTIAS * ($this->diasCesantias / 360), 0, PHP_ROUND_HALF_UP);
-    }
+    $interest_severance_payments = SeveranceInterestPaymentPerson::where('people_id', $this->id)->with('severanceInterestPayment')->get();
+        $years = array();
+        foreach ($interest_severance_payments as $interest_severance_payment) {
+            $years[] = $interest_severance_payment->severanceInterestPayment->year;
+        }
 
+        $current_year = date('Y');
+        if (in_array($current_year, $years)) {
+            $intereses_cesantias_anteriores = 0;
+        } else {
+            $funcionario = $this->getFuncionario();
+            $intereses_cesantias_anteriores = $funcionario['total_cesantias']['total_severance_interest'];
+            //dd($cesantias_anteriores);
+        }
+    {
+        $this->totalInteresesCesantias = round(($this->totalCesantias * self::FACTOR_INTERESES_CESANTIAS * ($this->diasCesantias / 360)) +  $intereses_cesantias_anteriores, 0, PHP_ROUND_HALF_UP);
+        $funcionario = $this->getFuncionario();
+        //dd($intereses_cesantias_anteriores,$this->totalInteresesCesantias );
+
+    }
+    }
     /**
      * Calcular el total de pago por concepto de prima
      *
@@ -488,7 +559,7 @@ class CalculoLiquidacion
     {
         $prestamos = Loan::where('person_id', $this->id)->get();
         $deuda = 0;
-        foreach ($prestamos as $prestamo){
+        foreach ($prestamos as $prestamo) {
             $deuda += $prestamo->value;
         }
         $this->totalPrestamos = $deuda;
@@ -681,5 +752,3 @@ class CalculoLiquidacion
         return $this->totalLiquidacion + $this->indemnizacion;
     }
 }
-
-

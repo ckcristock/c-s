@@ -62,9 +62,13 @@ class SeverancePaymentController extends Controller
             $lastYear = Carbon::now()->subYear()->year;
             $inicio = Carbon::create($lastYear, 01, 01);
             $fin = Carbon::create($lastYear, 12, 30);
+
+
+            /* HOLI SOY MAFE, RECUERDA agregar validacion de date_start >= a 01-01-last year  */
+
             $funcionarios = Person::with('severance_fund')
                 ->with(['contractultimate' => function ($q) {
-                    $q->select('id', 'person_id', 'salary', 'turn_type', 'date_end', 'work_contract_type_id', 'contract_term_id', 'position_id');
+                    $q->select('id', 'person_id', 'salary', 'turn_type', 'date_end', 'date_of_admission', 'work_contract_type_id', 'contract_term_id', 'position_id');
                 }])
                 ->with(['personPayrollPayments' => function ($query) use ($inicio, $fin) {
                     $query->whereBetween('created_at', [$inicio, $fin]);
