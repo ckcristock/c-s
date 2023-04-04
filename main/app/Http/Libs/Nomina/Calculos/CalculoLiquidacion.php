@@ -368,7 +368,7 @@ class CalculoLiquidacion
             foreach ($payrollFactors as $payrollFactor) {
                 $startDate = $payrollFactor->date_start;
                 $endDate = $payrollFactor->date_end;
-                $preliquidated = PreliquidatedLog::where('person_id', $this->id)->latest()->get();
+                $preliquidated = PreliquidatedLog::where('person_id', $this->id)->latest()->first();
 
                 $workContract = WorkContract::where('id', $preliquidated->person_work_contract_id)
                     ->where('date_of_admission', '<=', $endDate)
@@ -424,7 +424,7 @@ class CalculoLiquidacion
      */
     public function calcularTotalCesantias()
     {
-        $severance_payments = SeverancePaymentPerson::where('people_id', $this->id)->with('severancePayment')->get();
+        $severance_payments = SeverancePaymentPerson::where('person_id', $this->id)->with('severancePayment')->get();
         $years = array();
         foreach ($severance_payments as $severance_payment) {
             $years[] = $severance_payment->severancePayment->year;
@@ -495,7 +495,7 @@ class CalculoLiquidacion
      */
     public function calcularTotalInteresesCesantias()
     {
-    $interest_severance_payments = SeveranceInterestPaymentPerson::where('people_id', $this->id)->with('severanceInterestPayment')->get();
+    $interest_severance_payments = SeveranceInterestPaymentPerson::where('person_id', $this->id)->with('severanceInterestPayment')->get();
         $years = array();
         foreach ($interest_severance_payments as $interest_severance_payment) {
             $years[] = $interest_severance_payment->severanceInterestPayment->year;

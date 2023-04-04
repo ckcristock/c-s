@@ -19,6 +19,8 @@ use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\PreliquidatedLog;
+use App\Models\WorkContract;
 
 class LiquidacionesController extends Controller
 {
@@ -216,14 +218,33 @@ class LiquidacionesController extends Controller
     public function getDiasTrabajados($id, $fechaFin)
     {
         $fecha = explode('-', $fechaFin);
+        
         $ultimoPago = PersonPayrollPayment::where('person_id', $id)->latest('created_at')->first();
+        
         $fechaInicioPeriodo = Carbon::createFromFormat("Y-m-d H:i:s", $ultimoPago->created_at)->format("Y-m-d H:i:s");
+        
+
+
         $fechaFinPeriodo = Carbon::create($fecha[0], $fecha[1], $fecha[2], 0, 0, 0)->format("Y-m-d H:i:s");
+        
+        
         $fechasNovedades = function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
             return $query->whereBetween('date_start', [$fechaInicioPeriodo, $fechaFinPeriodo])
                 ->whereBetween('date_end', [$fechaInicioPeriodo, $fechaFinPeriodo])
                 ->with('disability_leave');
         };
+       
+        $preliquidated = PreliquidatedLog::where('person_id', $id)->latest()->first();
+
+        $workContract = WorkContract::where('id', $preliquidated->person_work_contract_id)
+                    ->where('date_of_admission', '<=', $fechaFinPeriodo)
+                    ->where(function ($query) use ($fechaInicioPeriodo) {
+                        $query->where('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end');
+                    })
+                    ->first();
+
+        
+
 
         $funcionario = Person::where('id', $id)->whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
             return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
@@ -232,6 +253,8 @@ class LiquidacionesController extends Controller
         })
             ->with(['payroll_factors' => $fechasNovedades])
             ->first(['id', 'identifier', 'first_name', 'first_surname', 'image']);
+
+           
 
         if (!$funcionario) {
             $funcionariosResponse = [
@@ -296,7 +319,7 @@ class LiquidacionesController extends Controller
                 'valor_ingresos_no_salariales' => $temIngresos['valor_no_constitutivos'],
                 'valor_deducciones' => $this->getDeducciones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total']
             ];
-            //dd($funcionariosResponse);
+            
             return $this->success($funcionariosResponse);
         } catch (\Throwable $th) {
             //throw $th;
