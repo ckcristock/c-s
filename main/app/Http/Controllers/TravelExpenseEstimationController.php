@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TravelExpenseEstimation;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TravelExpenseEstimationController extends Controller
 {
@@ -17,19 +18,34 @@ class TravelExpenseEstimationController extends Controller
     public function index()
     {
         return $this->success(
-            TravelExpenseEstimation::with('travelExpenseEstimationValues')->get()
+            TravelExpenseEstimation::get()->map(function ($travelExpense) {
+                $travelExpense->displacement = json_decode($travelExpense->displacement);
+                $travelExpense->destination = json_decode($travelExpense->destination);
+                return $travelExpense;
+            })
         );
     }
 
     public function paginate()
     {
-        return $this->success(
-            TravelExpenseEstimation::with('travelExpenseEstimationValues')
-            ->when(request()->get('description'), function ($q, $fill) {
-                $q->where('description', 'like', '%' . $fill . '%');
-            })
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        $pageSize = request()->get('pageSize', 10);
+        $page = request()->get('page', 1);
+        $travelExpenses = TravelExpenseEstimation::when(request()->get('description'), function ($q, $fill) {
+            $q->where('description', 'like', '%' . $fill . '%');
+        })
+            ->get();
+        $transformedTravelExpenses = $travelExpenses->map(function ($travelExpense) {
+            $travelExpense->displacement = json_decode($travelExpense->displacement);
+            $travelExpense->destination = json_decode($travelExpense->destination);
+            return $travelExpense;
+        });
+        $paginatedTravelExpenses = new LengthAwarePaginator(
+            $transformedTravelExpenses->forPage($page, $pageSize),
+            $transformedTravelExpenses->count(),
+            $pageSize,
+            $page
         );
+        return $this->success($paginatedTravelExpenses);
     }
 
     /**
@@ -51,7 +67,11 @@ class TravelExpenseEstimationController extends Controller
     public function store(Request $request)
     {
         try {
-            $travelExpense = TravelExpenseEstimation::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
+            $data = $request->all();
+            $data['displacement'] = json_encode($request->displacement);
+            $data['destination'] = json_encode($request->destination);
+            //dd($data);
+            $travelExpense = TravelExpenseEstimation::updateOrCreate(['id' => $request->get('id')], $data);
             return ($travelExpense->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
             return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);

@@ -229,6 +229,6 @@ class Person extends Model
 
     public function scopeOnlyName($q)
     {
-        return $q->select('image', DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
+        return $q->select('id', 'image', DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
     }
 }

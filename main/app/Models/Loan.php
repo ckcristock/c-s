@@ -33,7 +33,7 @@ class Loan extends Model
 	];
 	public function person()
 	{
-		return $this->belongsTo(Person::class, 'person_id', 'id');
+		return $this->belongsTo(Person::class, 'person_id', 'id')->fullName();
 	}
 	public function user()
 	{

@@ -23,5 +23,6 @@ class SeverancePaymentPerson extends Model
     public function severancePayment() {
         return $this->belongsTo(SeverancePayment::class);
     }
+
 }
 

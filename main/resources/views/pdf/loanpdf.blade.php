@@ -18,180 +18,151 @@
         text-transform: uppercase;
         margin-bottom: 0;
     }
+
+    .blocks {
+        width: 25%;
+        display: inline-block;
+        text-transform: uppercase;
+    }
+
+    .blocks-50 {
+        width: 50%;
+        display: inline-block;
+        text-transform: uppercase;
+        font-size: 11px;
+    }
+
+    .div {
+        width: 100%;
+        font-size: 9px;
+    }
+
+    table.table-border,
+    .table-border th,
+    .table-border td {
+        border: 1px solid;
+    }
+
+    .table-border th,
+    .table-border td {
+        padding: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: transparent;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center
+    }
+
+    .border-top {
+        border-top:1px solid black
+    }
 </style>
-<table>
+@include('components/cabecera', [$company, $datosCabecera, $image])
+<div class="div">
+    <div class="blocks-50">
+        <strong>IDENTIFICACIÓN EMPLEADO:</strong>
+        {{ number_format($funcionario->identifier, 0, '', '.') }}
+    </div>
+    <div class="blocks-50">
+        <strong>NOMBRE EMPLEADO:</strong>
+        {{ $funcionario->first_name . ' ' . $funcionario->second_name . ' ' . $funcionario->first_surname . ' ' . $funcionario->second_surname }}
+    </div>
+</div>
+<div class="div">
+    <div class="blocks-50">
+        <strong>VALOR PRÉSTAMOS:</strong>
+        ${{ number_format($funcionario->value, 2, ',', '.') }}
+    </div>
+    <div class="blocks-50">
+        <strong>INTERÉS:</strong>
+        {{ number_format($funcionario->interest, 2, ',', '.') }}%
+    </div>
+</div>
+<div class="div">
+    <div class="blocks-50">
+        <strong>CUOTAS:</strong>
+        {{ $funcionario->number_fees }}
+    </div>
+    <div class="blocks-50">
+        <strong>VALOR CUOTA:</strong>
+        ${{ number_format($funcionario->monthly_fee, 2, ',', '.') }}
+    </div>
+</div>
+
+<table class="div table-border" cellpadding="0" cellspacing="0">
+    <thead>
+        <tr style="background:#E1EEC0;">
+            <th class="text-center">CUOTA</th>
+            <th class="text-center">FECHA DESCUENTO</th>
+            <th class="text-center">AMORTIZACIÓN</th>
+            <th class="text-center">INTERESES</th>
+            <th class="text-center">TOTAL CUOTA</th>
+            <th class="text-center">SALDO</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($proyecciones['Proyeccion'] as $i => $value)
+            <tr>
+                <td class="text-center">
+                    {{ $i + 1 }}
+                </td>
+                <td class="text-center">
+                    {{ $value['Fecha'] }}
+                </td>
+                <td class="text-right">
+                    ${{ number_format($value['Amortizacion'], 2, ',', '.') }}
+                </td>
+                <td class="text-right">
+                    ${{ number_format($value['Intereses'], 2, ',', '.') }}
+                </td>
+                <td class="text-right">
+                    ${{ number_format($value['Valor_Cuota'], 2, '.', ',') }}
+                </td>
+                <td class="text-right">
+                    ${{ number_format($value['Saldo'], 2, '.', ',') }}
+                </td>
+            </tr>
+        @endforeach
+    </tbody>
+
+    <tr>
+        <td colspan="2" class="text-right">
+            TOTALES:</td>
+        <td class="text-right">
+            ${{ number_format($getTotalA), 2, '.', ',' }}
+        </td>
+        <td class="text-right">
+            ${{ number_format($getTotalI), 2, '.', ',' }}
+        </td>
+        <td class="text-right">
+            ${{ number_format($getTotalV), 2, '.', ',' }}
+        </td>
+        <td class="text-right"></td>
+    </tr>
+</table>
+<h6>Atentamente:</h6>
+<table style="margin-top:4rem">
     <tbody>
         <tr>
-            <td class="td-header" style="font-family:'Roboto', sans-serif;">
-                <img src="{{ public_path('/images/logo.png') }}" style="width:120px;" />
-                {{ $company->name }}<br>
-                NIT: {{ $company->document_number }}<br>
-                {{ $company->address }}<br>
-                TEL: {{ $company->phone }}
+            <td class="border-top text-center" style="margin-right: 10px">
+                {{ $funcionario->first_name . ' ' . $funcionario->first_surname }}
             </td>
-            <td style="width: 200px;"> </td>
-            <td>
-                <h4 style="font-size:18px;line-height:22px;font-family:'Roboto', sans-serif;">AMORTIZACIÓN PRESTAMO</h4>
-                <h5 style="font-size:16px;line-height:16px;font-family:'Roboto', sans-serif;"> {{ $funcionario->date }}
-                </h5>
-            </td>
-            <td>
-                <img src="{{ public_path('/images/sinqr.png') }}"
-                    style="width: 130px; max-width:100% margin-top:-10px;" />
-            </td>
+            <td></td>
+            <td class="border-top text-center">Representante legal</td>
+        </tr>
+        <tr>
+            <td class="text-center">C.C. {{ number_format($funcionario->identifier, 0, ',', '.') }}</td>
+            <td></td>
+            <td></td>
         </tr>
     </tbody>
-</table>
-<hr style="border:1px dotted #ccc;width:730px;">
-<table style="background: #e6e6e6;">
-    <tr style=" min-height: 200px; background: #e6e6e6;padding: 15px; border-radius: 10px; margin: 0;">
-
-        <td style="font-size:11px;font-family:'Roboto',sans-serif;font-weight:bold;width:200px;padding:5px">
-            Identificación Empleado:
-        </td>
-
-        <td style="font-size:11px;width:510px;padding:5px">
-            {{ number_format($funcionario->identifier, 0, '', '.') }}
-        </td>
-
-    </tr>
-
-    <tr style=" min-height: 200px; background: #e6e6e6; padding: 15px; border-radius: 10px; margin: 0;">
-        <td style="font-size:11px;font-weight:bold;font-family:'Roboto', sans-serif;width:200px;padding:5px">
-            Nombre Empleado:
-        </td>
-        <td style="font-size:11px;width:510px;padding:5px;font-family:'Roboto', sans-serif;">
-            {{ $funcionario->first_name . ' ' . $funcionario->second_name . ' ' . $funcionario->first_surname . ' ' . $funcionario->second_surname }}
-        </td>
-    </tr>
-    <tr style=" min-height: 200px; background: #e6e6e6; padding: 15px; border-radius: 10px; margin: 0;">
-        <td style="font-size:11px;font-family:'Roboto', sans-serif;font-weight:bold;width:200px;padding:5px">
-            Valor Prestamo:
-        </td>
-        <td style="font-size:11px;width:510px;padding:5px;font-family:'Roboto', sans-serif;">
-            $ {{ number_format($funcionario->value, 2, ',', '.') }}
-        </td>
-    </tr>
-    <tr style=" min-height: 200px; background: #e6e6e6; padding: 15px; border-radius: 10px; margin: 0;">
-        <td style="font-size:11px;font-family:'Roboto', sans-serif;font-weight:bold;width:200px;padding:5px">
-            Interes:
-        </td>
-        <td style="font-size:11px;width:510px;padding:5px;font-family:'Roboto', sans-serif;">
-            {{ number_format($funcionario->interest, 2, ',', '.') }}%
-        </td>
-    </tr>
-    <tr style=" min-height: 200px; background: #e6e6e6; padding: 15px; border-radius: 10px; margin: 0;">
-        <td style="font-size:11px;font-family:'Roboto', sans-serif;font-weight:bold;width:200px;padding:5px">
-            Cuotas:
-        </td>
-        <td style="font-size:11px;width:510px;padding:5px;font-family:'Roboto', sans-serif;">
-            {{ $funcionario->number_fees }}
-        </td>
-    </tr>
-    <tr style=" min-height: 200px; background: #e6e6e6; padding: 15px; border-radius: 10px; margin: 0;">
-        <td style="font-size:11px;font-family:'Roboto', sans-serif;font-weight:bold;width:200px;padding:5px">
-            Valor Cuota:
-        </td>
-        <td style="font-size:11px;width:510px;padding:5px;font-family:'Roboto', sans-serif;">
-            $ {{ number_format($funcionario->monthly_fee, 2, ',', '.') }}
-        </td>
-    </tr>
-</table>
-<table style="font-size:10px;margin-top:10px;" cellpadding="0" cellspacing="0">
-    <tr>
-        <td
-            style="width:60px;font-family:'Roboto', sans-serif;max-width:60px;font-weight:bold;background:#cecece;;border:1px solid #cccccc;">
-            Cuota
-        </td>
-        <td
-            style="width:150px;font-family:'Roboto', sans-serif;font-weight:bold;background:#cecece;text-align:center;border:1px solid #cccccc;">
-            Fecha Descuento
-        </td>
-        <td
-            style="width:140px;font-family:'Roboto', sans-serif;font-weight:bold;background:#cecece;text-align:center;border:1px solid #cccccc;">
-            Amortización
-        </td>
-        <td
-            style="width:120px;font-family:'Roboto', sans-serif;max-width:120px;font-weight:bold;background:#cecece;text-align:center;border:1px solid #cccccc;">
-            Intereses
-        </td>
-        <td
-            style="width:120px;font-family:'Roboto', sans-serif;font-weight:bold;background:#cecece;text-align:center;border:1px solid #cccccc;">
-            Total Cuota
-        </td>
-        <td
-            style="width:120px;font-family:'Roboto', sans-serif;font-weight:bold;background:#cecece;text-align:center;border:1px solid #cccccc;">
-            Saldo
-        </td>
-    </tr>
-
-    @foreach ($proyecciones['Proyeccion'] as $i => $value)
-        <tr>
-            <td
-                style="vertical-align:center;font-size:9px;font-family:'Roboto', sans-serif;width:50px;max-width:50px;text-align:center;border:1px solid #cccccc;">
-                {{ $i + 1 }}
-            </td>
-            <td
-                style="vertical-align:center;text-align:center;font-family:'Roboto', sans-serif;font-size:9px;width:90px;border:1px solid #cccccc;">
-                {{ $value['Fecha'] }}
-            </td>
-            <td
-                style="vertical-align:center;text-align:right;font-family:'Roboto', sans-serif;font-size:9px;word-break:break-all;width:60px;max-width:60px;border:1px solid #cccccc;">
-                $ {{ number_format($value['Amortizacion'], 2, ',', '.') }}
-            </td>
-            <td
-                style="width:100px;max-width:100px;text-align:right;font-family:'Roboto', sans-serif;font-size:9px;word-break:break-all;border:1px solid #cccccc;">
-                $ {{ number_format($value['Intereses'], 2, ',', '.') }}
-            </td>
-            <td
-                style="vertical-align:center;text-align:right;font-family:'Roboto', sans-serif;font-size:9px;text-align:right;width:75px;border:1px solid #cccccc;">
-                $ {{ number_format($value['Valor_Cuota'], 2, '.', ',') }}
-            </td>
-            <td
-                style="vertical-align:center;text-align:right;font-family:'Roboto', sans-serif;font-size:9px;text-align:right;width:75px;border:1px solid #cccccc;">
-                $ {{ number_format($value['Saldo'], 2, '.', ',') }}
-            </td>
-        </tr>
-    @endforeach
-
-    <tr>
-        <td colspan="2"
-            style="padding:4px;font-family:'Roboto', sans-serif;text-align:right;border:1px solid #cccccc;font-weight:bold;font-size:12px">
-            TOTALES:</td>
-        <td style="padding:4px;text-align:right;border:1px solid #cccccc;">
-            $ {{ number_format($getTotalA), 2, '.', ',' }}
-        </td>
-        <td style="padding:4px;text-align:right;border:1px solid #cccccc;">
-            $ {{ number_format($getTotalI), 2, '.', ',' }}
-        </td>
-        <td style="padding:4px;text-align:right;border:1px solid #cccccc;">
-            $ {{ number_format($getTotalV), 2, '.', ',' }}
-        </td>
-        <td style="padding:4px;text-align:right;border:1px solid #cccccc;"></td>
-    </tr>
-</table>
-<p style="margin-top:10px;font-family:'Roboto', sans-serif;">Atentamente;</p>
-<table style="margin-top:50px">
-    <tr>
-        <td style="width:400px;padding-left:10px">
-            <table>
-                <tr>
-                    <td
-                        style="width:300px;font-weight:bold;font-family:'Roboto', sans-serif; border-top:1px solid black; text-align:center;">
-                        {{ $funcionario->first_name . ' ' . $funcionario->first_surname }}</td>
-                    <td style="width:30px;"></td>
-                    <td
-                        style="width:300px;font-weight:bold;font-family:'Roboto', sans-serif; border-top:1px solid black; text-align:center;">
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width:300px;font-weight:bold;font-family:'Roboto', sans-serif; text-align:center;">C.C.
-                        {{ number_format($funcionario->identifier, 0, ',', '.') }} </td>
-                    <td style="width:30px;"></td>
-                    <td style="width:300px;font-weight:bold;font-family:'Roboto', sans-serif; text-align:center;">
-                        Representante Legal</td>
-                </tr>
-            </table>
-        </td>
-    </tr>
 </table>

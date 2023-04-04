@@ -63,7 +63,6 @@ class SeverancePaymentController extends Controller
             $inicio = Carbon::create($lastYear, 01, 01);
             $fin = Carbon::create($lastYear, 12, 30);
 
-
             /* HOLI SOY MAFE, RECUERDA agregar validacion de date_start >= a 01-01-last year  */
 
             $funcionarios = Person::with('severance_fund')
