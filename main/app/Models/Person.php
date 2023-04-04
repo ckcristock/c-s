@@ -198,6 +198,11 @@ class Person extends Model
         return $this->hasMany(PersonPayrollPayment::class, 'person_id', 'id');
     }
 
+    public function provisionPersonPayrollPayments()
+    {
+        return $this->hasMany(ProvisionsPersonPayrollPayment::class, 'person_id', 'id');
+    }
+
     public function bonusPerson()
     {
         return $this->hasMany(BonusPerson::class);
@@ -224,6 +229,6 @@ class Person extends Model
 
     public function scopeOnlyName($q)
     {
-        return $q->select('image', DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
+        return $q->select('id', 'image', DB::raw('CONCAT_WS(" ", first_name, first_surname) as person'));
     }
 }

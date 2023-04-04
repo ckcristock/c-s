@@ -46,7 +46,12 @@ class User extends Authenticatable implements JWTSubject
 
     public function person()
     {
-        return $this->belongsTo(Person::class);
+        return $this->belongsTo(Person::class)->fullName();
+    }
+
+    public function personName()
+    {
+        return $this->belongsTo(Person::class, 'person_id', 'id')->completeName();
     }
 
     protected $casts = [

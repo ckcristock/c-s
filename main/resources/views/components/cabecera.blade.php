@@ -124,7 +124,7 @@
                         <h1 class="text-primary mb-0">{{ $datosCabecera->Titulo }}</h1>
                         <h2 class=my-0>{{ $datosCabecera->Codigo }}</h2>
                         <h3 class=my-0>{{ $datosCabecera->Fecha }}</h3>
-                        <small>{{ $datosCabecera->CodigoFormato }}</small>
+                        <small>{{ $datosCabecera->CodigoFormato ?? '' }}</small>
                     </div>
                 </td>
             </tr>

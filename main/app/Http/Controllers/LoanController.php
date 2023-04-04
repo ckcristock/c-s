@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\LoanExport;
 use App\Models\Company;
 use App\Models\Loan;
 use App\Services\LoanService;
@@ -9,6 +10,10 @@ use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade as PDF;
+use App\Http\Services\consulta;
+use Carbon\Carbon;
+use NumberFormatter;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LoanController extends Controller
 {
@@ -36,9 +41,10 @@ class LoanController extends Controller
                         $q->where('id', $fill);
                     });
                 })
-                ->when($request->date, function ($q, $fill) use($dates) {
+                ->when($request->date, function ($q, $fill) use ($dates) {
                     $q->whereBetween('date', [$dates[0], $dates[1]]);
                 })
+                ->orderByDesc('date')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
@@ -147,6 +153,7 @@ class LoanController extends Controller
                 'l.interest_type',
                 'l.number_fees',
                 'l.payment_type',
+                'l.code',
                 'l.date'
             )
             ->join('people as p', function ($join) {
@@ -159,6 +166,12 @@ class LoanController extends Controller
         $getTotalI = $this->getTotales($proyecciones['Proyeccion'], 'Intereses');
         $getTotalV = $this->getTotales($proyecciones['Proyeccion'], 'Valor_Cuota');
         $company = Company::where('id', 1)->first();
+        $image = $company->page_heading;
+        $datosCabecera = (object) array(
+            'Titulo' => 'Amortización préstamo',
+            'Codigo' => $loan->code,
+            'Fecha' => $loan->date
+        );
         $pdf = PDF::loadView('pdf.loanpdf', [
             'proyecciones' => $proyecciones,
             'funcionario' => $loan,
@@ -166,8 +179,26 @@ class LoanController extends Controller
             'getTotalI' => $getTotalI,
             'getTotalV' => $getTotalV,
             'company' => $company,
+            'datosCabecera' => $datosCabecera,
+            'image' => $image
         ]);
         return $pdf->download('loanpdf.pdf');
+    }
+    public function loanExcel($id)
+    {
+        $loan = Loan::with('person')->find($id);
+        $proyecciones = $this->proyeccionAmortizacion($loan->value, $loan->monthly_fee, $loan->interest, $loan->payment_type, $loan->date);
+        $getTotalA = $this->getTotales($proyecciones['Proyeccion'], 'Amortizacion');
+        $getTotalI = $this->getTotales($proyecciones['Proyeccion'], 'Intereses');
+        $getTotalV = $this->getTotales($proyecciones['Proyeccion'], 'Valor_Cuota');
+        $company = Company::where('id', 1)->first();
+        $image = $company->page_heading;
+        return Excel::download(new LoanExport($loan, $proyecciones, $getTotalA, $getTotalI, $getTotalV, $company),'proyeccion.xlsx');
+        /* $datosCabecera = (object) array(
+            'Titulo' => 'Amortización préstamo',
+            'Codigo' => $loan->code,
+            'Fecha' => $loan->date
+        ); */
     }
 
     public function getTotales($data, $tipo)
@@ -232,5 +263,48 @@ class LoanController extends Controller
         }
 
         return $response;
+    }
+
+    public function comprobarPrestamo()
+    {
+        $id  = (isset($_REQUEST['empleado']) ? $_REQUEST['empleado'] : '');
+        $tipo  = (isset($_REQUEST['tipo']) ? $_REQUEST['tipo'] :  '');
+
+        $query = 'SELECT DISTINCT P.type, P.state, P.id
+            FROM loans P
+            INNER JOIN loan_fees PC ON P.id = PC.loan_id
+            WHERE person_id = ' . $id . ' AND P.type = "' . $tipo . '" ';
+        $oCon = new consulta();
+        $oCon->setTipo('Simple');
+        $oCon->setQuery($query);
+        $response = $oCon->getData();
+        unset($oCon);
+
+        return json_encode($response);
+    }
+
+    public function pazSalvo($id)
+    {
+        $loan = Loan::with('person')->find($id);
+        $numberFormat = new NumberFormatter("es", NumberFormatter::SPELLOUT);
+        $today = Carbon::now();
+        $dia = Carbon::parse($today)->format("d");
+        $mes = Carbon::parse($today)->locale('es')->translatedFormat('F');
+        $diaEnletras = $numberFormat->format($dia);
+        $company = Company::where('id', 1)->first();
+        $datosCabecera = (object) array(
+            'Titulo' => 'Paz y salvo',
+            'Codigo' => $loan->code,
+            'Fecha' => $loan->date
+        );
+        $pdf = PDF::loadView('pdf.loan_paz_salvo', [
+            'data' => $loan,
+            'company' => $company,
+            'datosCabecera' => $datosCabecera,
+            'image' => $company->page_heading,
+            'mes' => $mes,
+            'diaEnletras' => $diaEnletras,
+        ]);
+        return $pdf->download('loan_paz_salvo.pdf');
     }
 }
