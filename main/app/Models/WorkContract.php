@@ -22,7 +22,8 @@ class WorkContract extends Model
         'company_id',
         'fixed_turn_id',
         'person_id',
-        'date_of_admission'
+        'date_of_admission',
+        'transport_assistance'
     ];
 
     public function scopeAlias($q, $alias){

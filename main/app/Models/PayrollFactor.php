@@ -34,7 +34,7 @@ class PayrollFactor extends Model
 
     public function person()
     {
-        return $this->belongsTo(Person::class)->with('contractultimate');
+        return $this->belongsTo(Person::class)->fullName()->with('contractultimate');
     }
 
     public function pay_vacations()

@@ -16,7 +16,7 @@ class HistoryDataCompanyController extends Controller
      */
     public function index()
     {
-        return $this->success(HistoryDataCompany::with('Person')
+        return $this->success(HistoryDataCompany::with('Person')->where('data_name', '<>', 'logo')->where('data_name', '<>', 'typeImage')->orderByDesc('created_at')
         ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
     );
     }

@@ -19,7 +19,7 @@
             background-image: url({{ $image }});
         }
 
-        td {
+       td {
             font-size: 10px;
             background-color: transparent;
         }
@@ -108,7 +108,7 @@
 
 <body>
     <header>
-        <table class="w-100">
+        <table class="w-100" >
             <tr>
                 <td class="align-top">
                     <figure class="figure">
