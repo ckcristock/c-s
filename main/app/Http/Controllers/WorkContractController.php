@@ -46,8 +46,9 @@ class WorkContractController extends Controller
                     'co.name as company_name',
                     'w.date_of_admission',
                     'w.date_end',
+                    'w.id as work_contract_id',
+                    'w.liquidated',
                     'wt.name as work_contract_type',
-                    'wt.conclude'
                 )
                 ->when(Request()->get('person'), function ($q, $fill) {
                     $q->where(DB::raw('concat(p.first_name, " ",p.first_surname)'), 'like', '%' . $fill . '%');
@@ -218,6 +219,7 @@ class WorkContractController extends Controller
     {
         return $this->success(
             Person::with('work_contract')->where('id', '=', $id)->first()
+            
         );
     }
 

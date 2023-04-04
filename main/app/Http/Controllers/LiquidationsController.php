@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Liquidation;
 use App\Models\Person;
+use App\Models\WorkContract;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 

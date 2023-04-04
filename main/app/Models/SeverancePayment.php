@@ -26,3 +26,4 @@ class SeverancePayment extends Model
         return $this->hasMany(SeverancePaymentPerson::class)->with('person');
     }
 }
+

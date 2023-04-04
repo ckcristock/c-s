@@ -16,6 +16,9 @@ class SeveranceInterestPaymentPerson extends Model
     ];
 
     public function person() {
-        return $this->belongsTo(Person::class)->onlyName();
+        return $this->belongsTo(Person::class);
+    }
+    public function severanceInterestPayment(){
+        return $this->belongsTo(SeveranceInterestPayment::class);
     }
 }

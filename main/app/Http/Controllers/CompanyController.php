@@ -53,6 +53,7 @@ class CompanyController extends Controller
             $company_data['page_heading'] = URL::to('/') . '/api/image?path=' . saveBase64($company_data['page_heading'], 'company/');
         }
         $company->update($company_data);
+        
         saveHistoryCompanyData($differences, Company::class);
         return $this->success('');
     }

@@ -31,6 +31,7 @@ class PayrollPayment extends Model
     "electronic_reported_date",
     "user_electronic_reported",
     "company_id",
+    "email_reported"
    ];
 
     public function personPayrollPayment()

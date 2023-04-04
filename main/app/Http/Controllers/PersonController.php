@@ -256,7 +256,7 @@ class PersonController extends Controller
                     "p.title",
                     "p.status"
                 )
-                ->join("work_contracts as w", function ($join) {
+                ->leftJoin("work_contracts as w", function ($join) {
                     $join->on(
                         "p.id",
                         "=",
@@ -319,6 +319,7 @@ class PersonController extends Controller
                     "w.date_of_admission",
                     "w.date_end",
                     "w.salary",
+                    "w.transport_assistance",
                     "wc.name as contract_type",
                     "ct.name as contract_term",
                     "ct.conclude",
