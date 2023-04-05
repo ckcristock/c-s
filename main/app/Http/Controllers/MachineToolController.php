@@ -76,7 +76,7 @@ class MachineToolController extends Controller
                 $this->success([
                 'title' => '¡Actualizado con éxito!',
                 'text' => 'El proceso ha sido actualizado satisfactoriamente'
-                ]); 
+                ]);
             } else if ($request->type_id == '3') {
                 $unit = ExternalProcess::updateOrCreate(['id' => $request->get('id')], $request->all());
                 return ($unit->wasRecentlyCreated)
@@ -165,8 +165,8 @@ class MachineToolController extends Controller
         ->join('units as u', 'u.id', '=', 'e.unit_id')
         ->union($internalProcesses)
         ->union($machine)
-        
-        ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
+
+        ->paginate(request()->get('pageSize', 50), ['*'], 'page', request()->get('page', 1));
         return $this->success($externalProcesses);
         /* return $this->success(
             MachineTool::with('unit')

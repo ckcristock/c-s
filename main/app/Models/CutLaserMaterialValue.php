@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class CutLaserMaterialValue extends Model
 {
     use HasFactory;
-    protected $fillable = ['thickness', 'unit_value', 'actual_speed', 'seconds_percing', 'cut_laser_material_id'];
+    protected $fillable = ['thickness', 'actual_speed', 'seconds_percing', 'cut_laser_material_id'];
+    protected $hidden = ['unit_value'];
 
     public function cutLaserMaterial()
     {
