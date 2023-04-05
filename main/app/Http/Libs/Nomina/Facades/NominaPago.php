@@ -87,7 +87,7 @@ class NominaPago extends PeriodoPago
      * retorna una nueva instancia de la clase
      *
      * @param App\Models\Person $persona
-     * 
+     *
      **/
     public static function pagoFuncionarioWithPerson($persona)
     {
@@ -100,7 +100,7 @@ class NominaPago extends PeriodoPago
     {
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
-
+        
         $this->facadeSalario = NominaSalario::salarioFuncionarioWithPerson(self::$funcionario)
                                 ->fromTo($this->fechaInicio,$this->fechaFin)
                                 ->calculate();

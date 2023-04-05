@@ -10,6 +10,7 @@ use App\Models\PayrollFactor;
 use App\Models\Person;
 use App\Models\WorkContract;
 use App\Models\PreliquidatedLog;
+use App\Models\ProvisionsPersonPayrollPayment;
 use App\Models\SeverancePaymentPerson;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\DB;
@@ -286,7 +287,6 @@ class CalculoLiquidacion
         if (Carbon::parse($this->fechaIngreso) > $fechaInicioAnio) {
             $fechaInicioAnio = Carbon::parse($this->fechaIngreso);
         }
-
         $this->diasCesantias = $this->fechaRetiro->diffInDays($fechaInicioAnio);
     }
 
@@ -430,13 +430,26 @@ class CalculoLiquidacion
             $years[] = $severance_payment->severancePayment->year;
         }
 
-        $current_year = date('Y');
+        $current_year = Carbon::now()->subYear()->year;
+        $inicio = Carbon::create($current_year, 01, 01);
+        $fin = Carbon::create($current_year, 12, 31);
         if (in_array($current_year, $years)) {
             $cesantias_anteriores = 0;
         } else {
             $funcionario = $this->getFuncionario();
-            $cesantias_anteriores = $funcionario['total_cesantias']['total_severance'];
-            //dd($cesantias_anteriores);
+            $preliquidated = PreliquidatedLog::where('person_id', $funcionario->id)->latest()->first();
+            $workContract = WorkContract::find($preliquidated->person_work_contract_id);
+            $date_of_admission = Carbon::create($workContract->date_of_admission);
+            if ($date_of_admission >= $inicio) {
+                $start = $date_of_admission;
+            } else {
+                $start = $inicio;
+            }
+            $cesantias_anteriores = 0;
+            $provisions = ProvisionsPersonPayrollPayment::where('person_id', $funcionario->id)->whereBetween('created_at', [$start, $fin])->get();
+            foreach ($provisions as $provision) {
+                $cesantias_anteriores += $provision['severance'];
+            }
         }
 
         $this->totalCesantias = round($this->baseCesantias * $this->diasCesantias / 360 + $cesantias_anteriores, 0, PHP_ROUND_HALF_UP);
@@ -455,7 +468,7 @@ class CalculoLiquidacion
         } else {
             $inicio_aux = $inicio;
         }
-        
+
         $funcionario = Person::with('severance_fund')
             ->with(['contractultimate' => function ($q) {
                 $q->select('id', 'person_id', 'salary', 'turn_type', 'date_end', 'work_contract_type_id', 'contract_term_id', 'position_id');
@@ -470,8 +483,8 @@ class CalculoLiquidacion
             ->select('id', 'image', DB::raw("CONCAT_WS(' ', first_name, second_name, first_surname, second_surname) as full_names"))
             ->find($this->id);
 
-            //dd($funcionario);
-            $funcionario['total_cesantias'] = $this->getSeverancePerson($funcionario, $inicio, $fin);
+        //dd($funcionario);
+        $funcionario['total_cesantias'] = $this->getSeverancePerson($funcionario, $inicio, $fin);
 
         return $funcionario;
     }
@@ -495,26 +508,38 @@ class CalculoLiquidacion
      */
     public function calcularTotalInteresesCesantias()
     {
-    $interest_severance_payments = SeveranceInterestPaymentPerson::where('person_id', $this->id)->with('severanceInterestPayment')->get();
+        $interest_severance_payments = SeveranceInterestPaymentPerson::where('person_id', $this->id)->with('severanceInterestPayment')->get();
         $years = array();
         foreach ($interest_severance_payments as $interest_severance_payment) {
             $years[] = $interest_severance_payment->severanceInterestPayment->year;
         }
 
-        $current_year = date('Y');
+        $current_year = Carbon::now()->subYear()->year;
+        $inicio = Carbon::create($current_year, 01, 01);
+        $fin = Carbon::create($current_year, 12, 31);
         if (in_array($current_year, $years)) {
             $intereses_cesantias_anteriores = 0;
         } else {
             $funcionario = $this->getFuncionario();
-            $intereses_cesantias_anteriores = $funcionario['total_cesantias']['total_severance_interest'];
-            //dd($cesantias_anteriores);
-        }
-    {
-        $this->totalInteresesCesantias = round(($this->totalCesantias * self::FACTOR_INTERESES_CESANTIAS * ($this->diasCesantias / 360)) +  $intereses_cesantias_anteriores, 0, PHP_ROUND_HALF_UP);
-        $funcionario = $this->getFuncionario();
-        //dd($intereses_cesantias_anteriores,$this->totalInteresesCesantias );
+            $preliquidated = PreliquidatedLog::where('person_id', $funcionario->id)->latest()->first();
+            $workContract = WorkContract::find($preliquidated->person_work_contract_id);
+            $date_of_admission = Carbon::create($workContract->date_of_admission);
+            if ($date_of_admission >= $inicio) {
+                $start = $date_of_admission;
+            } else {
+                $start = $inicio;
+            }
+            $intereses_cesantias_anteriores = 0;
+            $provisions = ProvisionsPersonPayrollPayment::where('person_id', $funcionario->id)->whereBetween('created_at', [$start, $fin])->get();
+            foreach ($provisions as $provision) {
+                $intereses_cesantias_anteriores += $provision['severance_interest'];
+            }
+        } {
+            $this->totalInteresesCesantias = round(($this->totalCesantias * self::FACTOR_INTERESES_CESANTIAS * ($this->diasCesantias / 360)) +  $intereses_cesantias_anteriores, 0, PHP_ROUND_HALF_UP);
+            $funcionario = $this->getFuncionario();
+            //dd($intereses_cesantias_anteriores,$this->totalInteresesCesantias );
 
-    }
+        }
     }
     /**
      * Calcular el total de pago por concepto de prima

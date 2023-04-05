@@ -2,6 +2,7 @@
 
 namespace App\Http\Libs\Nomina\Calculos;
 
+use App\Models\WorkContractType;
 use Illuminate\Support\Carbon;
 
 /**
@@ -124,9 +125,17 @@ class CalculoIndemnizacion
      */
     public function calcularTotalIndemnizacion()
     {
-        if ($this->tipoContrato === 1) {
+        $wct = WorkContractType::get();
+        foreach ($wct as $item) {
+            if ($item['name'] == 'Fijo') {
+                $fijo = $item['id'];
+            } else if ($item['name'] == 'Indefinido') {
+                $indefinido = $item['id'];
+            }
+        }
+        if ($this->tipoContrato === $fijo) {
             $this->calcularTerminoFijo();
-        } else if ($this->tipoContrato == 2) {
+        } else if ($this->tipoContrato == $indefinido) {
             $this->calcularTerminoIndefinido();
         }
     }
