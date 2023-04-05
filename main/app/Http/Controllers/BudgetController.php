@@ -77,7 +77,7 @@ class BudgetController extends Controller
                     },
                     'customer' => function ($q) {
                         $q->select('id', 'nit')
-                            ->selectRaw('IFNULL(social_reason, CONCAT_WS(" ",first_name, first_name) ) as name');
+                            ->selectRaw('IFNULL(social_reason, CONCAT_WS(" ",first_name, first_surname) ) as name');
                     }
                 ]
             )

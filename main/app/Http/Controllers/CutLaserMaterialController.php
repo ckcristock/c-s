@@ -101,6 +101,7 @@ class CutLaserMaterialController extends Controller
      */
     public function update(Request $request, $id)
     {
+        dd($request->all());
         $cutLaserMaterials = $request->except('materials');
         $materials = $request->get('materials');
         try {
