@@ -59,7 +59,7 @@
     <i class="fas fa-cogs"></i> {{ strtoupper($data['description']) }}
 </div>
 <table class="div table-border">
-    <thead >
+    <thead>
         <tr style="background:#E1EEC0;">
             <th>#</th>
             <th>Descripción</th>
@@ -73,26 +73,46 @@
             <tr class="text-center">
                 <td>{{ $key + 1 }}</td>
                 <td class="text-left">
-                    <b>{{ $item['name'] }}</b>
-                    @if (count($item['subItems']) > 0)
-                    <p>Comprende:</p>
-                    <ul class="mb-0">
-                        @foreach ($item['subItems'] as $subitem)
-                            <li>{{ $subitem['description'] }}</li>
-                        @endforeach
-                    </ul>
-                    @endif
+                    {!! $item['name'] !!}
+
                 </td>
                 <td>{{ $item['cuantity'] }}</td>
                 @if ($data['money_type'] == 'cop')
-                    <td>@money($item['value_cop']) (SIN IVA)</td>
-                    <td>@money($item['total_cop']) (SIN IVA)</td>
+                    <td class="text-right">@money($item['value_cop'])</td>
+                    <td class="text-right">@money($item['total_cop'])</td>
                 @endif
                 @if ($data['money_type'] == 'usd')
-                    <td>@money($item['value_usd'])</td>
-                    <td>@money($item['total_usd'])</td>
+                    <td class="text-right">USD @money($item['value_usd'])</td>
+                    <td class="text-right">USD @money($item['total_usd'])</td>
                 @endif
             </tr>
+            @if (count($item['subItems']) > 0)
+                @foreach ($item['subItems'] as $key2 => $subitem)
+                    <tr>
+                        <td class="text-center">{{ $key + 1 }}.{{ $key2 + 1 }}</td>
+                        <td>
+                            <div>{!! $subitem['description'] !!}</div>
+                        </td>
+                        <td class="text-center">{{ $subitem['cuantity'] }}</td>
+                        @if ($data['money_type'] == 'cop')
+                            <td class="text-right">
+                                @money($subitem['value_cop'])
+                            </td>
+                            <td class="text-right">
+                                @money($subitem['total_cop'])
+                            </td>
+                        @endif
+                        @if ($data['money_type'] == 'usd')
+                            <td class="text-right">
+                                USD @money($subitem['value_usd'])
+                            </td>
+                            <td class="text-right">
+                                USD @money($subitem['total_usd'])
+                            </td>
+                        @endif
+                    </tr>
+                @endforeach
+            @endif
         @endforeach
     </tbody>
 </table>

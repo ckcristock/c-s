@@ -853,6 +853,7 @@ Route::group(
         /****** End Rutas del modulo APU CONJUNTO ******/
 
         Route::post('budgets-download-client', [BudgetController::class, 'downloadClient']);
+        Route::get('budgets-download-intern/{id}', [BudgetController::class, 'downloadIntern']);
         /****** Rutas del modulo APU Servicio ******/
         Route::get('activateOrInactApuService', [ApuServiceController::class, 'activateOrInactivate']);
         /****** End Rutas del modulo APU Servicio ******/

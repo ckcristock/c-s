@@ -17,7 +17,7 @@ class IndirectCostController extends Controller
     public function index()
     {
         return $this->success(
-            IndirectCost::where('state', 'Activo')->get(['name as text', 'id as value', 'percentage'])
+            IndirectCost::where('state', 'Activo')->get(['name as text', 'id as value', 'percentage', 'apply_service'])
         );
     }
 

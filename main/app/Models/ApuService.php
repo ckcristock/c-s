@@ -23,6 +23,7 @@ class ApuService extends Model
         'utility_percentage',
         'general_subtotal_travel_expense_labor',
         'general_subtotal_travel_expense_labor_c',
+        'total_unit_cost',
         'sale_price_cop_withholding_total',
         'sale_price_usd_withholding_total',
         'subtotal_administrative_unforeseen',
@@ -79,7 +80,7 @@ class ApuService extends Model
                 created_at,
                 person_id,
                 typeapu_name,
-                general_subtotal_travel_expense_labor as unit_cost,
+                total_unit_cost as unit_cost,
                 third_party_id
             ')
         )

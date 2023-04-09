@@ -1,92 +1,75 @@
 <style>
-    .table-items {
-        font-size: 0.65rem;
-    }
-
-    .table-items thead>tr>th {
-        color: rgb(18, 95, 196);
-        border: 1px solid gainsboro;
-        border-radius: 2px;
-    }
-
-    .table-items input {
-        font-size: 0.65rem;
-    }
-
-    .table-items th {
-        text-align: center;
-        font-weight: 900;
-    }
-
-    /* .values {
-    padding: 5px 0px;
-    margin: 0!important;
-
-    text-align: right;
-  } */
-    .fa,
-    .fas,
-    .far {
-        cursor: pointer;
-    }
-
-
-
-    .detachable {
-        cursor: pointer;
-    }
-
-    .form-control-plaintext {
-        background-color: transparent;
-    }
-
-
-    .header-item {
-        background-color: rgb(255, 255, 255);
-        color: #232247;
-    }
-
-    /*  */
     * {
-        font-family: 'Roboto', sans-serif
-    }
-
-    .page-content {
-        width: 100%;
-    }
-
-    .row {
-        display: inline-block;
-        width: 100%;
-    }
-
-
-    td,
-    th {
-        font-size: 13px;
+        font-family: 'Roboto', sans-serif;
     }
 
     table {
-        width: 100%;
         border-collapse: collapse;
-        margin-bottom: 5px;
     }
 
-    .section {
-        padding: 10px;
+    .table {
         width: 100%;
-        background-color: gainsboro;
+        margin-bottom: 1rem;
+        color: #212529;
     }
 
-    .td-header {
-        font-size: 10px;
-        line-height: 20px;
+    .div {
+        width: 100%;
+        font-size: 9px;
+    }
+    .div-small td {
+        font-size: 7px;
+    }
+    .div-small {
+        width: 100%;
+        font-size: 7px;
     }
 
-    .titular {
-        /*  font-size: 11px; */
-        text-transform: uppercase;
-        /*   margin-bottom: 0; */
+    .table td,
+    .table th {
+        padding: 0.5rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .table thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table tbody+tbody {
+        border-top: 2px solid #dee2e6;
+    }
+
+    .table-bordered {
+        border: 1px solid #dee2e6;
+    }
+
+    .table-bordered {
+        border: 1px solid #dee2e6;
+    }
+
+    .table-bordered td,
+    .table-bordered th {
+        border: 1px solid #dee2e6;
+    }
+
+    table.table-border,
+    .table-border th,
+    .table-border td {
+        border: 1px solid;
+    }
+
+    .table-bordered thead td,
+    .table-bordered thead th {
+        border-bottom-width: 2px;
+    }
+
+    .table-borderless tbody+tbody,
+    .table-borderless td,
+    .table-borderless th,
+    .table-borderless thead th {
+        border: 0;
     }
 
     .blocks {
@@ -95,116 +78,107 @@
         text-transform: uppercase;
     }
 
-    .text-right {
-        text-align: right;
+    .blocks-50 {
+        width: 50%;
+        display: inline-block;
+        text-transform: uppercase;
     }
 
     .text-center {
         text-align: center
     }
 
+    .text-left {
+        text-align: left
+    }
 
-    .card {
-        display: block;
-        background-color: gray;
-        padding: 5px 3px;
-        margin-bottom: 5px;
+    .text-uppercase{
+        text-transform: uppercase
     }
 </style>
-
+@include('components/cabecera', [$company, $datosCabecera, $image])
 <div class="page-content">
-
-    <div class="mb-4">
-        <div class="card">
-            <h4 class="t">PRESUPUESTO DE PROYECTO MAQUINADOS Y MONTAJES</h4>
+    <div class="div">
+        <div class="blocks-50">
+            <strong>Cliente:</strong>
+            {{ $data->customer->name }}
+        </div>
+        <div class="blocks">
+            <strong>Destino:</strong>
+            {{ $data->destiny->name }}
+        </div>
+        <div class="blocks">
+            <strong>Proyecto:</strong>
+            {{ $data->project }}
+        </div>
+    </div>
+    <div class="div">
+        <div class="blocks-50">
+            <strong>Linea:</strong>
+            {{ $data->line }}
+        </div>
+        <div class="blocks">
+            <strong>TRM:</strong>
+            @money($data->trm)
         </div>
     </div>
 
-    <div class="card">
-        <table>
+    <!-- Configuracion presupuestal -->
+    <table class="div mt-4">
+        <thead>
             <tr>
-                <td> <strong> Cliente:</strong>
-                    {{ $data->customer->name }}
-                </td>
-                <td> <strong> Destino:</strong>
-                    {{ $data->destiny->name }}
-                </td>
-                <td> <strong> Proyecto:</strong> {{ $data->project }}
-                </td>
+                <th class="text-center" colspan="2">
+                    <h5>% DE CONFIGURACIÓN PRESUPUESTAL</h5>
+                </th>
             </tr>
-            <tr>
-                <td> <strong> Linea:</strong>
-                    {{ $data->line }}
-                </td>
-                <td> <strong> TRM:</strong>
-                    @money($data->trm)
-                </td>
+        </thead>
+        <tbody class="bg-light">
 
-            </tr>
-        </table>
-
-        <!-- Configuracion presupuestal -->
-        <div style="margin-top:10px ;">
-            <table class="table table-striped table-sm">
-                <thead>
-                    <tr>
-                        <th class="text-center" colspan="3">
-                            <h5>% De configuración presupuestal</h5>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-light">
-
-                    @foreach ($data->indirectCosts as $item)
-                        <tr>
-                            <td> {{ $item->indirectCost->name }} </td>
-                            <td class="text-right">
-                                {{ $item->percentage }}
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        <!--  END  Configuracion presupuestal -->
-
-        <div class="row mb-2">
-            <div class="col-12">
-                <div class="form-group">
-                    <label for="staticEmail">Observaciones</label>
-                    {{ $data->observation }}
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ITEMS -->
-    @include('pdf.utils.item_presupuesto')
-    <!-- ITEMS -->
-
-    <div class="col-12 card card-body">
-        <table class="table table-sm table-striped">
-
-            <thead>
+            @foreach ($data->indirectCosts as $item)
                 <tr>
-                    <th colspan="2" class="text-center">TOTAL PRESUPUESTO</th>
+                    <td> {{ $item->indirectCost->name }} </td>
+                    <td class="text-right">
+                        {{ $item->percentage }}%
+                    </td>
                 </tr>
-            </thead>
+            @endforeach
+        </tbody>
+    </table>
+    <!--  END  Configuracion presupuestal -->
+
+    <table class="div mt-1">
+        <tbody>
+            <tr>
+                <td><strong>OBSERVACIONES</strong></td>
+            </tr>
+            <tr>
+                <td>
+                    {{ isset($data->observation) ? $data->observation : 'No existen observaciones.' }}
+            </tr>
+        </tbody>
+    </table>
+    <!-- ITEMS -->
+    @include('pdf.utils.item_presupuesto_interno')
+    <!-- ITEMS -->
+
+    <div class="div mt-4">
+        <table class="table table-sm table-striped">
             <tbody>
                 <tr>
-                    <td>TOTAL COP $ </td>
-                    <td class="text-right" style="width:90px"> {{ $data->total_cop }}</td>
+                    <td>TOTAL COP</td>
+                    <td class="text-right"> @money($data->total_cop)</td>
                 </tr>
                 <tr>
-                    <td>TOTAL USD $ </td>
-                    <td class="text-right" style="width:90px"> {{ $data->total_usd }}</td>
+                    <td>TOTAL USD</td>
+                    <td class="text-right"> @money($data->total_usd)</td>
                 </tr>
                 <tr>
-                    <td>V/U VENTA PRORRATEADO COP $ </td>
-                    <td class="text-right" style="width:90px"> {{ $data->unit_value_prorrateado_cop }}</td>
+                    <td>V/U VENTA PRORRATEADO COP</td>
+                    <td class="text-right"> @money($data->unit_value_prorrateado_cop)</td>
                 </tr>
                 <tr>
-                    <td>V/U VENTA PRORRATEADO USD $ </td>
-                    <td class="text-right" style="width:90px"> {{ $data->unit_value_prorrateado_usd }}</td>
+                    <td>V/U VENTA PRORRATEADO USD</td>
+                    <td class="text-right"> @money($data->unit_value_prorrateado_usd)</td>
                 </tr>
             </tbody>
         </table>
