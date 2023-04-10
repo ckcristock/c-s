@@ -35,6 +35,7 @@ class DiaryService
 			->where('p.status', '!=', 'liquidado')
 
 			->select("p.first_name", "p.first_surname", "p.id", "p.image")
+            ->orderBy("p.first_name")
 			->get();
 	}
 	public static function getDiaries($personId, $dates)

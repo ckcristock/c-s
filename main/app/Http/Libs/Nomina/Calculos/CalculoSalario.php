@@ -20,36 +20,38 @@ class CalculoSalario implements Coleccion
     private $fechaFin;
     private $diasNoTrabajados = 0;
 
-    public function __construct($salarioBase, $diasNovedades, $fechaInicio, $fechaFin)
+    public function __construct($salarioBase, $diasNovedades, $fechaInicio, $fechaFin, $liquidated = false)
     {
         $this->salarioBase = $salarioBase;
         $this->salarioPromedio = $salarioBase;
         $this->diasNovedades = $diasNovedades;
         $this->fechaInicio = new Carbon($fechaInicio);
         $this->fechaFin = new Carbon($fechaFin);
-
         $this->diasPeriodo = $this->fechaFin->diffInDays($this->fechaInicio) + 1;
 
         //var_dump($this->diasPeriodo);
-        $this->diasPeriodo = (($this->diasPeriodo > 30 ) ? 30 : (($this->diasPeriodo>16 && $this->diasPeriodo<30) ? 30 : ((($this->diasPeriodo>15&&$this->diasPeriodo<28)||$this->diasPeriodo<14)  ? 15 : $this->diasPeriodo))) ;
+        if (!$liquidated) {
+            $this->diasPeriodo = (($this->diasPeriodo > 30 ) ? 30 : (($this->diasPeriodo>16 && $this->diasPeriodo<30) ? 30 : ((($this->diasPeriodo>15&&$this->diasPeriodo<28)||$this->diasPeriodo<14)  ? 15 : $this->diasPeriodo))) ;
+        }
+        //dd($this->diasPeriodo);
     }
 
     public function verificarFechasContrato($fechaInicio, $fechaFin)
     {
-        
+
         $inicio = $fechaInicio != null ?  Carbon::parse($fechaInicio) : $this->fechaInicio;
         $fin = $fechaFin != null ?  Carbon::parse($fechaFin) : $this->fechaFin;
 
         if ($inicio->greaterThan($this->fechaInicio)) {
-            
-            
+
+
             if (Carbon::now()->daysInMonth > 30) {
                 $this->diasNoTrabajados = $inicio->diffInDays($this->fechaInicio);
             } else {
                 $this->diasNoTrabajados = $inicio->diffInDays($this->fechaInicio);
             }
         }
-        
+
         if ($fin->lessThan($this->fechaFin)) {
             //echo "entro al else<br>";
             if (Carbon::now()->daysInMonth > 30) {
@@ -88,12 +90,12 @@ class CalculoSalario implements Coleccion
     public function calcularDiasTrabajados()
     {
         $this->diasTrabajados = $this->diasPeriodo - $this->diasNovedades;
-        
+
         if ($this->diasNoTrabajados > 0) {
             $this->diasTrabajados -= $this->diasNoTrabajados;
         }
-        
-        
+
+
         return $this;
     }
 
