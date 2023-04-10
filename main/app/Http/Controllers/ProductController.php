@@ -185,7 +185,7 @@ class ProductController extends Controller
                 })
                 ->whereNotNull("P.Codigo_Barras")
                 ->whereRaw("P.Estado='Activo'")
-                ->whereRaw("P.Codigo_Barras!=''")
+                /* ->whereRaw("P.Codigo_Barras!=''") */
                 ->where(function ($query) {
                     $query->whereRaw("P.Embalaje NOT LIKE 'MUESTRA MEDICA%'")
                         ->orWhereNull("P.Embalaje")->orWhereRaw("P.Embalaje=''");
