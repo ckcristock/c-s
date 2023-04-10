@@ -77,8 +77,9 @@ class BudgetController extends Controller
                     },
                     'customer' => function ($q) {
                         $q->select('id', 'nit')
-                            ->selectRaw('IFNULL(social_reason, CONCAT_WS(" ",first_name, first_name) ) as name');
-                    }
+                            ->selectRaw('IFNULL(social_reason, CONCAT_WS(" ",first_name, first_surname) ) as name');
+                    },
+                    'items'
                 ]
             )
                 ->when($request->customer, function ($q, $fill) {
@@ -105,6 +106,10 @@ class BudgetController extends Controller
                 })
                 ->when($request->code, function ($q, $fill) {
                     $q->where('code', 'like', "%$fill%");
+                })
+                ->when($request->date, function ($query, $date) {
+                    $date_filter = date('Y-m-d', strtotime($date));
+                    return $query->whereDate('created_at', $date_filter);
                 })
                 ->orderBy('id', 'desc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
@@ -258,9 +263,14 @@ class BudgetController extends Controller
                     $subitem['budget_item_id'] = $itemDb->id;
                     $subitem['type_module'] == 'apu_part' ?  $subitem['apu_part_id'] = $subitem['apu_id'] : '';
                     $subitem['type_module'] == 'apu_set' ?  $subitem['apu_set_id'] = $subitem['apu_id'] : '';
-                    $subitem['type_module'] == 'service' ?  $subitem['service_id'] = $subitem['apu_id'] : '';
+                    $subitem['type_module'] == 'apu_service' ?  $subitem['apu_service_id'] = $subitem['apu_id'] : '';
 
                     $subItemDB = BudgetItemSubitem::updateOrCreate(['id' => $subitem['id']], $subitem);
+                    BudgetItemSubitemIndirectCost::where('budget_item_subitem_id', $subItemDB->id)->delete();
+                    foreach ($subitem['indirect_costs'] as $indirect_cost) {
+                        $indirect_cost['budget_item_subitem_id'] = $subItemDB->id;
+                        BudgetItemSubitemIndirectCost::create($indirect_cost);
+                    }
                 }
             }
 
@@ -308,6 +318,25 @@ class BudgetController extends Controller
         $pdf = PDF::loadView(
             'pdf.presupuesto_cliente',
             compact('currency', 'data', 'company', 'datosCabecera', 'image')
+        );
+        return $pdf->download('presupuesto_cliente.pdf');
+    }
+
+    public function downloadIntern($id)
+    {
+        $company = Company::first();
+        $image = $company->page_heading;
+        $data = BudgetService::show($id);
+        $datosCabecera = (object) array(
+            'Titulo' => 'Presupuesto',
+            'Codigo' => $data->code,
+            'Fecha' => $data->created_at,
+            'CodigoFormato' => $data->format_code
+        );
+        //return view('pdf.presupuesto',  compact('data', 'company','datosCabecera', 'image'));
+        $pdf = PDF::loadView(
+            'pdf.presupuesto',
+            compact('data', 'company', 'datosCabecera', 'image')
         );
         return $pdf->download('presupuesto_cliente.pdf');
     }

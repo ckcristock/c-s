@@ -14,7 +14,7 @@ class RawMaterialMaterialController extends Controller
     {
         return $this->success(
             RawMaterialMaterial::with('product')
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->paginate(request()->get('pageSize', 50), ['*'], 'page', request()->get('page', 1))
         );
     }
     /**

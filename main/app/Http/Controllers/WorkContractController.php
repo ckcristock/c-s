@@ -84,7 +84,7 @@ class WorkContractController extends Controller
                 ->when(Request()->get('company'), function ($q, $fill) {
                     $q->where('co.id', 'like', '%' . $fill . '%');
                 })
-                ->orderByDesc('p.created_at')
+                ->orderBy('p.first_name')
                 ->paginate($pageSize, ['*'], 'page', $page)
         );
     }
@@ -219,7 +219,7 @@ class WorkContractController extends Controller
     {
         return $this->success(
             Person::with('work_contract')->where('id', '=', $id)->first()
-            
+
         );
     }
 

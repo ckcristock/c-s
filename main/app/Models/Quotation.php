@@ -30,7 +30,8 @@ class Quotation extends Model
         'client_id',
         'status',
         'format_code',
-        'third_party_person_id'
+        'third_party_person_id',
+        'budget_id'
     ];
 
     public function municipality()

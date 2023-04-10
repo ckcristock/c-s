@@ -30,7 +30,7 @@ class GeometryController extends Controller
                 ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
                 })
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->paginate(request()->get('pageSize', 50), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -56,7 +56,7 @@ class GeometryController extends Controller
             $data = $request->except(["measures"]);
             if ($data["image"] != ''){
                 $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'geometries/', true);
-            }              
+            }
             $geometry = Geometry::create($data);
             $measures = request()->get('measures');
 

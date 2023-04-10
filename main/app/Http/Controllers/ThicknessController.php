@@ -7,7 +7,7 @@ use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
 class ThicknessController extends Controller
-{  
+{
     use ApiResponser;
     /**
      * Display a listing of the resource.
@@ -28,7 +28,7 @@ class ThicknessController extends Controller
                 ->when(request()->get('thickness'), function ($q, $fill) {
                     $q->where('thickness', 'like','%'.$fill.'%');
                 })
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->paginate(request()->get('pageSize', 50), ['*'], 'page', request()->get('page', 1))
         );
 
     }
