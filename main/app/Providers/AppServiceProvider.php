@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Doctrine\DBAL\Types\Type;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Type::addType('double', 'Doctrine\DBAL\Types\FloatType');
         Blade::directive('money', function ($amount) {
             return "<?php echo '$' . number_format($amount, 2, ',', '.'); ?>";
         });

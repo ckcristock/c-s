@@ -1101,6 +1101,24 @@
 <h5 class="text-center">AIU</h5>
 <table class="table-border" style="font-size: 15px; text-transform: uppercase">
     <tbody>
+        <tr>
+            <td colspan="2">Subtotal maqmo</td>
+            <td class="text-right">
+              @money($data["general_subtotal_travel_expense_labor"])
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">Subtotal contratistas</td>
+            <td class="text-right">
+              @money($data["general_subtotal_travel_expense_labor_c"])
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">Maqmo + Contratistas</td>
+            <td class="text-right">
+              @money($data["total_unit_cost"])
+            </td>
+          </tr>
         <tr class="text-right">
             <td class="text-left">Administrativos</td>
             <td>{{ $data['administrative_percentage'] }}%</td>

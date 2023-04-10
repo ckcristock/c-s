@@ -28,7 +28,7 @@ class TravelExpenseEstimationController extends Controller
 
     public function paginate()
     {
-        $pageSize = request()->get('pageSize', 10);
+        $pageSize = request()->get('pageSize', 50);
         $page = request()->get('page', 1);
         $travelExpenses = TravelExpenseEstimation::when(request()->get('description'), function ($q, $fill) {
             $q->where('description', 'like', '%' . $fill . '%');

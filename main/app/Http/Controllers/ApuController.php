@@ -45,7 +45,7 @@ class ApuController extends Controller
         $queryService = DB::table('apu_services as ap')
             ->join('third_parties as tp', 'ap.third_party_id', 'tp.id')
             ->join('cities as c', 'ap.city_id', 'c.id')
-            ->select('ap.id as apu_id', 'ap.name', 'line', 'ap.created_at', 'ap.general_subtotal_travel_expense_labor as unit_cost')
+            ->select('ap.id as apu_id', 'ap.name', 'line', 'ap.created_at', 'ap.total_unit_cost as unit_cost')
             ->selectRaw(
                 'IFNULL(tp.social_reason, CONCAT_WS(" ",tp.first_name,tp.first_name) ) as custumer,
                 "apu_set" as type_module, "S" as type, "Servicio" as type_name, c.name as city, false as selected '
@@ -61,6 +61,7 @@ class ApuController extends Controller
 
     public function paginate(Request $request)
     {
+
         $query = ApuPart::with(
             'thirdParty',
             'city:id,name',

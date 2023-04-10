@@ -31,8 +31,8 @@ class ApuProfileController extends Controller
                 $q->where('profile', 'like', '%' . $fill . '%');
             })
                 ->where('id', '!=', 1)
-                ->orderBy('state')
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->orderBy('profile')
+                ->paginate(request()->get('pageSize', 50), ['*'], 'page', request()->get('page', 1))
         );
     }
 

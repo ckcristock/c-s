@@ -39,7 +39,7 @@ class MaterialController extends Controller
                 /* ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('name', 'like', '%' . $fill . '%');
                 }) */
-                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->paginate(request()->get('pageSize', 50), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -143,7 +143,7 @@ class MaterialController extends Controller
         $thicknesses = $request->get('thicknesses');
 
         $dynamic = request()->get("dynamic");
-        ProductService::updateProduct($data, $dynamic);
+        //ProductService::updateProduct($data, $dynamic);
 
 
         if (!$material) {
@@ -151,12 +151,12 @@ class MaterialController extends Controller
         }
         try {
             Material::find($id)->update($material);
-            MaterialField::where("material_id", $id)->delete();
+            /* MaterialField::where("material_id", $id)->delete(); */
             MaterialThickness::where("material_id", $id)->delete();
-            foreach ($fields as $field) {
+            /* foreach ($fields as $field) {
                 $field["material_id"] = $id;
                 MaterialField::create($field);
-            }
+            } */
             foreach ($thicknesses as $thickness) {
                 $thickness["material_id"] = $id;
                 MaterialThickness::create($thickness);

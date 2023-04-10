@@ -43,7 +43,7 @@ class BudgetService
                     )
                         ->with(
                             ['indirectCost' => function ($q) {
-                                $q->select('id', 'name');
+                                $q->select('id', 'name', 'apply_service');
                             }]
                         );
                 },

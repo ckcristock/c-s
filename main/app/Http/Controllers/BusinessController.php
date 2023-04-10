@@ -50,7 +50,7 @@ class BusinessController extends Controller
     public function paginate(Request $request)
     {
         return $this->success(
-            Business::with('thirdParty', 'thirdPartyPerson', 'country', 'city', 'businessBudget')
+            Business::with('thirdParty', 'thirdPartyPerson', 'country', 'city', 'businessBudget', 'quotations')
                 ->orderByDesc('created_at')
                 ->when($request->name, function ($q, $fill) {
                     $q->where('name', 'like', "%$fill%");
@@ -87,7 +87,7 @@ class BusinessController extends Controller
             $quotations = $request->quotations;
             $apus = $request->apu;
             $consecutive = getConsecutive('businesses');
-            $business = Business::create($request->except('budgets'));
+            $business = Business::create($request->except('budgets', 'apu', 'quotations'));
             if ($consecutive->city) {
                 $abbreviation = Municipality::where('id', $request->city_id)->first()->abbreviation;
                 $business['code'] = generateConsecutive('businesses', $abbreviation);
@@ -110,6 +110,7 @@ class BusinessController extends Controller
                         'business_id' =>  $business->id
                     ]);
                     $quotation = Quotation::where('id', $value['id'])->first();
+                    $business->update(['quotation_value' => $quotation->total_cop]);
                     $this->addEventToHistroy([
                         'business_id' => $business->id,
                         'icon' => 'fas fa-money-check-alt',
@@ -161,6 +162,7 @@ class BusinessController extends Controller
                         'business_id' =>  $business->id
                     ]);
                     $budget_ = Budget::where('id', $budget['id'])->first();
+                    $business->update(['budget_value' => $budget_->total_cop]);
                     $this->addEventToHistroy([
                         'business_id' => $business->id,
                         'icon' => 'fas fa-money-bill',
@@ -181,13 +183,13 @@ class BusinessController extends Controller
     {
         try {
             $person = Person::where('id', $request->person_id)->fullName()->first();
-            Business::where('id', $request->business_id)->update(['budget_value' => $request->budget_value]);
             foreach ($request->get('budgets') as $budget) {
                 BusinessBudget::create([
                     'budget_id' => $budget['budget_id'],
                     'business_id' =>  $budget['business_budget_id']
                 ]);
                 $budget_ = Budget::where('id', $budget['budget_id'])->first();
+                Business::where('id', $request->business_id)->update(['budget_value' => $budget_->total_cop]);
                 $this->addEventToHistroy([
                     'business_id' => $request->business_id,
                     'icon' => 'fas fa-money-bill',
@@ -207,13 +209,14 @@ class BusinessController extends Controller
         try {
             $person = Person::where('id', $request->person_id)->fullName()->first();
             $business = Business::where('id', $request->business_id)->first();
-            $business->update(['quotation_value' => $request->quotation_value]);
+
             foreach ($request->quotations as $quotation) {
                 BusinessQuotation::create([
                     'quotation_id' => $quotation['quotation_id'],
                     'business_id' =>  $quotation['business_id']
                 ]);
                 $quotation = Quotation::where('id', $quotation['quotation_id'])->first();
+                $business->update(['quotation_value' => $quotation->total_cop]);
                 $this->addEventToHistroy([
                     'business_id' => $business->id,
                     'icon' => 'fas fa-money-check-alt',
@@ -291,9 +294,19 @@ class BusinessController extends Controller
     {
         if ($request->label == 'budget') {
             $aux = BusinessBudget::where('id', $request->item['id'])->first();
+            if ($request->status == 'Aprobado') {
+                BusinessBudget::where('business_id', $aux->business_id)->update(['status' => 'Rechazado']);
+                $budget = Budget::find($aux->budget_id);
+                Business::find($aux->business_id)->update(['budget_value' => $budget->total_cop]);
+            }
             $aux->update(['status' => $request->status]);
         } else if ($request->label == 'quotation') {
             $aux = BusinessQuotation::where('id', $request->item['id'])->first();
+            if ($request->status == 'Aprobada') {
+                BusinessQuotation::where('business_id', $aux->business_id)->update(['status' => 'Rechazada']);
+                $quotation = Quotation::find($aux->quotation_id);
+                Business::find($aux->business_id)->update(['quotation_value' => $quotation->total_cop]);
+            }
             $aux->update(['status' => $request->status]);
         }
         return $this->success('holi');

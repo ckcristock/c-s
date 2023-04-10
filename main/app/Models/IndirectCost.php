@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class IndirectCost extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'percentage', 'state'];
+    protected $fillable = ['name', 'percentage', 'apply_service', 'state'];
 }

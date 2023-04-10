@@ -45,7 +45,7 @@ class Business extends Model
 
     public function businessBudget()
     {
-        return $this->hasMany(BusinessBudget::class)->with('budget')->orderByDesc('status');
+        return $this->hasMany(BusinessBudget::class)->with('budget');
     }
 
     public function quotations()
