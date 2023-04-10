@@ -30,6 +30,11 @@ class PreliquidatedLog extends Model
         return $this->belongsTo(WorkContract::class, 'person_id', 'person_id');
     }
 
+    public function workContractBT ()
+    {
+        return $this->belongsTo(WorkContract::class, 'person_work_contract_id', 'id')->with('position.dependency', 'work_contract_type');
+    }
+
     public function user ()
     {
         return $this->belongsTo(User::class, 'person_id', 'person_id');

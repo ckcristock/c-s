@@ -19,6 +19,8 @@ use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\PreliquidatedLog;
+use App\Models\WorkContract;
 
 class LiquidacionesController extends Controller
 {
@@ -213,25 +215,40 @@ class LiquidacionesController extends Controller
     }
 
 
-    public function getDiasTrabajados($id, $fechaFin)
-    {
+    public function getDiasTrabajados($id, $fechaFin){
+
+        // $ultimoPago = PersonPayrollPayment::where('person_id', $id)->latest('created_at')->first();
+
+        // $fechaInicioPeriodo = Carbon::createFromFormat("Y-m-d H:i:s", $ultimoPago->created_at)->format("Y-m-d H:i:s");
         $fecha = explode('-', $fechaFin);
-        $ultimoPago = PersonPayrollPayment::where('person_id', $id)->latest('created_at')->first();
-        $fechaInicioPeriodo = Carbon::createFromFormat("Y-m-d H:i:s", $ultimoPago->created_at)->format("Y-m-d H:i:s");
-        $fechaFinPeriodo = Carbon::create($fecha[0], $fecha[1], $fecha[2], 0, 0, 0)->format("Y-m-d H:i:s");
+
+        $ultimoPago= PersonPayrollPayment::where('person_id', $id)->with('payrollPayment')->latest('created_at')->first();
+        //return($ultimopayroll);
+
+        $fechaInicioPeriodo =  Carbon::createFromFormat("Y-m-d", $ultimoPago->payrollPayment->end_period)->format("Y-m-d H:i:s");
+        //return($fechaInicioPeriodo);
+
+        $preliquidated = PreliquidatedLog::where('person_id', $id)->latest()->first();
+        //return($preliquidated);
+
+        $fechaFinPeriodo =  Carbon::createFromFormat("Y-m-d H:i:s", $preliquidated->liquidated_at)->format("Y-m-d H:i:s");
+       // return($fechaFinPeriodo);
+
+        // $fechaFin = Carbon::create($fecha[0], $fecha[1], $fecha[2], 0, 0, 0)->format("Y-m-d H:i:s");
+        // //return($fechaFinPeriodo);
+
         $fechasNovedades = function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
             return $query->whereBetween('date_start', [$fechaInicioPeriodo, $fechaFinPeriodo])
                 ->whereBetween('date_end', [$fechaInicioPeriodo, $fechaFinPeriodo])
                 ->with('disability_leave');
         };
 
-        $funcionario = Person::where('id', $id)->whereHas('contractultimate', function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
-            return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
-                ->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end')
-                ->where('liquidated', '0');
-        })
+        $funcionario = Person::where('id', $id)
+            ->with('contractUltimateLiquidated')
             ->with(['payroll_factors' => $fechasNovedades])
             ->first(['id', 'identifier', 'first_name', 'first_surname', 'image']);
+        $funcionario['contractultimate'] = $funcionario['contractUltimateLiquidated']['workContractBT'];
+       return($funcionario);
 
         if (!$funcionario) {
             $funcionariosResponse = [
@@ -296,7 +313,7 @@ class LiquidacionesController extends Controller
                 'valor_ingresos_no_salariales' => $temIngresos['valor_no_constitutivos'],
                 'valor_deducciones' => $this->getDeducciones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total']
             ];
-            //dd($funcionariosResponse);
+
             return $this->success($funcionariosResponse);
         } catch (\Throwable $th) {
             //throw $th;
