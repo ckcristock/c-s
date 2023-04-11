@@ -23,16 +23,22 @@ class FixedTurnController extends Controller
 		);
 	}
 
-    public function paginate()
-    {
-        return $this->success(
+     public function paginate()
+     {
+         return $this->success(
 			FixedTurn::orderBy('state')->select("id as value", "name as text", "state")
-			->when(request()->get('name'), function ($q, $fill) {
-				$q->where('name', 'like', '%' . $fill . '%');
-			})
-			->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
-		);
-    }
+	 		->when(request()->get('name'), function ($q, $fill) {
+	 			$q->where('name', 'like', '%' . $fill . '%');
+	 		})
+	 		->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+	 	);
+     }
+
+     public function activeFixedTurns(){
+        return $this->success(
+			FixedTurn::where('state', '=', 'Activo')->select("id as value", "name as text", "state")->get()
+	 	);
+     }
 
 	/**
 	 * Show the form for creating a new resource.

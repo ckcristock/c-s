@@ -655,6 +655,7 @@ Route::group(
         Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
         Route::get('paginateDocumentType', [DocumentTypesController::class, 'paginate']);
         Route::get('paginate-fixed-turns', [FixedTurnController::class, 'paginate']);
+        Route::get('fixed-turns_active', [FixedTurnController::class, 'activeFixedTurns']);
         Route::get('paginateCountries', [CountryController::class, 'paginate']);
         Route::get('paginateArl', [ArlController::class, 'paginate']);
         Route::get('paginatePensionFun', [PensionFundController::class, 'paginate']);

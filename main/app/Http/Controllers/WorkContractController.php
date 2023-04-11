@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade as PDF;
 use DateTime;
+use Illuminate\Support\Facades\Cache;
 use NumberFormatter;
 
 class WorkContractController extends Controller
@@ -55,7 +56,7 @@ class WorkContractController extends Controller
                 })
                 ->join('work_contracts as w', function ($join) {
                     $join->on('w.person_id', '=', 'p.id')
-                    ->where('w.liquidated', 0);
+                        ->where('w.liquidated', 0);
                 })
                 ->join('work_contract_types as wt', 'wt.id', 'w.work_contract_type_id')
                 ->join('positions as posi', function ($join) {
@@ -89,7 +90,8 @@ class WorkContractController extends Controller
         );
     }
 
-    public function getWorkContractsList($id){
+    public function getWorkContractsList($id)
+    {
         return $this->success(
             WorkContract::where('person_id', $id)->get()
         );
@@ -238,7 +240,7 @@ class WorkContractController extends Controller
             ->where('p.status', '=', 'Activo')
             ->join('work_contracts as w', function ($join) {
                 $join->on('w.person_id', '=', 'p.id')
-                ->where('w.liquidated', 0);
+                    ->where('w.liquidated', 0);
             })
             ->join('work_contract_types as wt', function ($join) {
                 $join->on('wt.id', '=', 'w.work_contract_type_id');
@@ -258,7 +260,7 @@ class WorkContractController extends Controller
             ->where('p.status', '=', 'Activo')
             ->join('work_contracts as w', function ($join) {
                 $join->on('w.person_id', '=', 'p.id')
-                ->where('w.liquidated', 0);
+                    ->where('w.liquidated', 0);
             })
             ->join('work_contract_types as wt', function ($join) {
                 $join->on('wt.id', '=', 'w.work_contract_type_id');
@@ -290,7 +292,7 @@ class WorkContractController extends Controller
     public function store(Request $request)
     {
         try {
-            WorkContract::updateOrCreate( ['id' => $request->get('id')],$request->all());
+            WorkContract::updateOrCreate(['id' => $request->get('id')], $request->all());
             return $this->success('Creado con éxito');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
@@ -344,7 +346,7 @@ class WorkContractController extends Controller
                 )
                 ->join('work_contracts as w', function ($join) {
                     $join->on('w.person_id', '=', 'p.id')
-                    ->where('w.liquidated', 0);
+                        ->where('w.liquidated', 0);
                 })
                 ->join('positions as posi', function ($join) {
                     $join->on('posi.id', '=', 'w.position_id');
@@ -371,10 +373,16 @@ class WorkContractController extends Controller
 
     public function getTurnTypes()
     {
-        $listaRaw = explode(",", DB::table('information_schema.COLUMNS')
-            ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_turnos")
-            ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?', [env('DB_DATABASE') . "-work_contracts-turn_type"])
-            ->first()->lista_turnos);
+        $cacheKey = 'lista_turnos';
+        if (Cache::has($cacheKey)) {
+            $listaRaw = Cache::get($cacheKey);
+        } else {
+            $listaRaw = DB::table('information_schema.COLUMNS')
+                ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?', [env('DB_DATABASE') . "-work_contracts-turn_type"])
+                ->value(DB::raw("SUBSTR(column_type, 7, LENGTH(column_type) - 8)"));
+            $listaRaw = explode(",", $listaRaw);
+            Cache::put($cacheKey, $listaRaw, 60 * 24);
+        }
         $lista = [];
         foreach ($listaRaw as $value) {
             $lista[] = ["tipoTurno" => str_replace("'", "", $value)];
