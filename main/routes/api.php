@@ -139,6 +139,7 @@ use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\ChequeConsecutivoController;
 use App\Http\Controllers\CierreContableController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
+use App\Http\Controllers\CreditNoteTypeController;
 use App\Http\Controllers\CuentaDocumentoContableController;
 use App\Http\Controllers\DepreciacionController;
 use App\Http\Controllers\DocumentoContableController;
@@ -613,6 +614,7 @@ Route::group(
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
         Route::resource('premium', PremiumController::class)->except(['create', 'edit']);
         Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
+        Route::resource('credit-note-type', CreditNoteTypeController::class);
         Route::resource('accommodations', AccommodationController::class)->except(['create', 'edit']);
         Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
 
@@ -681,6 +683,7 @@ Route::group(
         Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
         Route::get('paginateUnits', [UnitController::class, 'paginate']);
         Route::get('paginateMachines', [MachineToolController::class, 'paginate']);
+        Route::get('paginate-credit-note-types', [CreditNoteTypeController::class, 'paginate']);
         Route::get('paginateInternalProcesses', [InternalProcessController::class, 'paginate']);
         Route::get('paginateExternalProcesses', [ExternalProcessController::class, 'paginate']);
         Route::get('paginateMeasure', [MeasureController::class, 'paginate']);

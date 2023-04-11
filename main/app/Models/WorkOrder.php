@@ -16,6 +16,7 @@ class WorkOrder extends Model
         'quotation_id',
         'delivery_date',
         'date',
+        'name',
         'third_party_id',
         'municipality_id',
         'third_party_person_id',
