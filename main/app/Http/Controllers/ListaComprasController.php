@@ -283,7 +283,7 @@ class ListaComprasController extends Controller
             $productos = $datos['Productos'];
             unset($datos['Productos']);
             /* $result = DB::table("Orden_Compra_Nacional")->updateOrInsert( */
-            $result = OrdenCompraNacional::createOrInsert(
+            $result = OrdenCompraNacional::updateOrCreate(
                 ['Id_Orden_Compra_Nacional' => $datos['Id_Orden_Compra_Nacional']],
                 $datos
             );
