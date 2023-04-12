@@ -32,29 +32,18 @@ class ProductController extends Controller
 
         $data = Product::alias('p')->join('Subcategoria as s', 's.id_subcategoria', 'p.id_subcategoria')
             ->join('Categoria_Nueva as c', 'c.Id_Categoria_Nueva', 's.Id_Categoria_Nueva')
-            ->leftJoin('product_dotation_types as pdt', 'pdt.id', 'p.Producto_Dotation_Type_Id')
             ->leftJoin('inventary_dotations as ido', 'ido.product_id', 'p.Id_Producto')
             ->leftJoin('units as u', 'u.id', 'p.Unidad_Medida')
             ->select(
                 'p.Id_Producto',
-                'p.Codigo_Cum',
-                'p.Codigo_Cum as Cum',
-                'p.Principio_Activo',
-                'p.Descripcion_ATC',
                 'p.Codigo_Barras',
                 'p.Presentacion',
                 'p.Unidad_Medida',
                 'p.Id_Categoria',
                 'p.Id_Subcategoria',
-                'p.Laboratorio_Generico as Generico',
-                'p.Laboratorio_Comercial as Comercial',
-                'p.Invima as Invima',
-                'p.Imagen as Foto',
-                'p.Producto_Dotation_Type_Id',
                 'p.Nombre_Comercial',
+                'p.Imagen as Foto',
                 'p.Embalaje',
-                'p.Tipo as Tipo',
-                'p.Id_Tipo_Activo_Fijo',
                 'ido.status',
                 'ido.id as id_inventary_dotations',
                 'ido.code as code_inventary_dotations',
@@ -63,22 +52,6 @@ class ProductController extends Controller
             );
 
 
-        /*  if ($tipoCatalogo == 'Medicamento' || $tipoCatalogo == 'Material' ) { */
-        # code...
-        $data->selectRaw(
-            'LTRIM(CONCAT(
-                ifnull(p.Principio_Activo,""), if(isnull(p.Presentacion),""," "),
-                ifnull(p.Presentacion,""), if(isnull(p.Concentracion),""," "),
-                ifnull(p.Concentracion,""), if(isnull(p.Nombre_Comercial),""," "),
-                ifnull(p.Nombre_Comercial,""), if(isnull(p.Unidad_Medida),""," "),
-                ifnull(p.Unidad_Medida,""), if(isnull(p.Embalaje),""," "),
-                ifnull(p.Embalaje,"")
-            )) as Nombre,
-            s.Nombre as Subcategoria,
-            c.Nombre as Categoria,
-            concat(u.name," (",u.unit,")") as Nom_unidad_medida'
-        );
-        /*    } */
 
         $data->when(request()->get("company_id"), function ($q, $fill) {
             $q->where("p.company_id", $fill);

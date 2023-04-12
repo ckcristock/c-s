@@ -23,6 +23,12 @@ class CategoryController extends Controller
         );
     }
 
+    public function indexForSelect(){
+        return $this->success(
+            NewCategory::active()->get(['Id_Categoria_Nueva as value', 'Nombre as text'])
+        );
+    }
+
     public function paginate()
     {
         return $this->success(
