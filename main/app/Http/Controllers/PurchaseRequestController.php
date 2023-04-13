@@ -49,7 +49,27 @@ class PurchaseRequestController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try{
+            $purchaseRequest=PurchaseRequest::updateOrcreate([
+            'category_id' => $request->input('category_id'),
+            'expected_date' => $request->input('expected_date'),
+            'observations' => $request->input('observations')
+        ]);
+        
+        $products = $request->input('products');
+        foreach($products as $product){
+            $purchaseRequest->productPurchaseRequest()->updateOrCreate([
+                'product_id'=>$product['id'],
+                'name'=>$product['name'],
+                'ammount'=>$product['ammount']
+            ]);
+        }
+
+        return $this->success('Creado con éxito');
+        
+        }catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**

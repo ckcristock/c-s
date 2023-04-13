@@ -792,6 +792,8 @@ Route::group(
         Route::delete("category-variable/{id}", [CategoryController::class, 'deleteVariable']);
         Route::get("get-category-for-select", [CategoryController::class, 'indexForSelect']);
         Route::get("get-product-typeahead", [PurchaseRequestController::class, 'getProducts']);
+        Route::post("purchase-request", [PurchaseRequestController::class, 'store']);
+        
 
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
