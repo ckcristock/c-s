@@ -14,13 +14,14 @@ class PurchaseRequest extends Model
     protected $fillable = [
         'category_id',
         'expected_date',
-        'observations',   
+        'observations', 
+        'status',
+        'quantity_of_products'    
     ];
 
     public function productPurchaseRequest()
     {
         return $this->hasMany(ProductPurchaseRequest::class);
     }
-
 
 }

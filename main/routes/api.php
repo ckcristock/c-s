@@ -791,8 +791,12 @@ Route::group(
         Route::put("category-active/{id}", [CategoryController::class, 'turningOnOff']);
         Route::delete("category-variable/{id}", [CategoryController::class, 'deleteVariable']);
         Route::get("get-category-for-select", [CategoryController::class, 'indexForSelect']);
+
+        Route::resource("purchase-request", PurchaseRequestController::class);
+        Route::get("paginate-purchase-request",[PurchaseRequestController::class,'paginate']);
         Route::get("get-product-typeahead", [PurchaseRequestController::class, 'getProducts']);
-        Route::post("purchase-request", [PurchaseRequestController::class, 'store']);
+        
+        
         
 
 

@@ -28,9 +28,25 @@ class PurchaseRequestController extends Controller
      */
     public function index()
     {
-        //
+        
     }
-
+    
+    public function paginate(Request $request){
+        return $this->success(
+            PurchaseRequest::with('productPurchaseRequest')
+            ->when($request->purchase_request_id, function ($q, $fill) {
+                $q->where('id', 'like', "%$fill%");
+            })
+            ->when($request->purchase_request_date, function ($q, $fill) {
+                $q->where('created_at', 'like', "%$fill%");
+            })
+            ->when($request->status, function ($q, $fill) {
+                $q->where('status', 'like', "%$fill%");
+            })
+            ->orderByDesc('created_at')
+            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+        );
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -53,7 +69,7 @@ class PurchaseRequestController extends Controller
             $purchaseRequest=PurchaseRequest::updateOrcreate([
             'category_id' => $request->input('category_id'),
             'expected_date' => $request->input('expected_date'),
-            'observations' => $request->input('observations')
+            'observations' => $request->input('observations')  //
         ]);
         
         $products = $request->input('products');
@@ -64,6 +80,10 @@ class PurchaseRequestController extends Controller
                 'ammount'=>$product['ammount']
             ]);
         }
+        $purchaseRequest->refresh(); 
+        $numberOfProducts = $purchaseRequest->productPurchaseRequest()->count();
+        
+        $purchaseRequest->update(['quantity_of_products' => $numberOfProducts]);
 
         return $this->success('Creado con éxito');
         
