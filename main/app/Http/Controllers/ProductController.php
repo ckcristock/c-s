@@ -139,14 +139,6 @@ class ProductController extends Controller
             Product::alias('P')
                 ->select(
                     "P.Nombre_Comercial",
-                    "P.Codigo_Cum",
-                    DB::raw("IF(ifnull(CONCAT(P.Nombre_Comercial, P.Cantidad, P.Unidad_Medida, P.Principio_Activo, P.Presentacion, P.Concentracion),'') = '',
-                    P.Nombre_Comercial,
-                    CONCAT(P.Nombre_Comercial,' ', P.Cantidad,' ', P.Unidad_Medida, ' (',P.Principio_Activo, ' ', P.Presentacion, ' ', P.Concentracion,')'
-                    )) as Nombre"),
-                    "P.Nombre_Comercial",
-                    "P.Laboratorio_Comercial",
-                    "P.Laboratorio_Generico",
                     "P.Id_Producto",
                     "P.Embalaje_id",
                     "P.Cantidad_Presentacion",

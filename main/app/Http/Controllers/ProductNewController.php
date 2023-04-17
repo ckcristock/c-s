@@ -8,10 +8,13 @@ use App\Models\NewCategory;
 use App\Models\Packaging;
 use App\Models\Product;
 use App\Models\Subcategory;
+use App\Models\SubcategoryVariable;
+use App\Models\Tax;
 use App\Models\Unit;
 use App\Models\VariableProduct;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 
 class ProductNewController extends Controller
@@ -22,25 +25,27 @@ class ProductNewController extends Controller
     public function paginate(Request $request)
     {
         return $this->success(
-            Product::with('subcategory', 'category', 'unit')
+            Product::with('subcategory', 'category', 'unit', 'packaging', 'tax')
                 ->when($request->company_id, function ($q, $fill) {
-                    $q->where("p.company_id", $fill);
+                    $q->where("company_id", $fill);
                 })
                 ->when($request->categoria, function ($q, $fill) {
-                    $q->where("p.Id_Categoria", '=', $fill);
+                    $q->where("Id_Categoria", $fill);
                 })
                 ->when($request->subcategoria, function ($q, $fill) {
-                    $q->where("p.Id_Subcategoria", '=', $fill);
+                    $q->where("Id_Subcategoria", $fill);
                 })
                 ->when($request->nombre, function ($q, $fill) {
-                    $q->where("p.Nombre_Comercial", 'like', "%$fill%");
+                    $q->where("Nombre_Comercial", 'like', "%$fill%");
                 })
                 ->when($request->estado, function ($q, $fill) {
-                    $q->where("p.Estado", '=', $fill);
+                    $q->where("Estado", '=', $fill);
                 })
                 ->when($request->imagen, function ($q, $fill) {
-                    $q->where('p.Imagen', (($fill == 'con') ? "!=" : "="), null);
-                })->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                    $q->where('Imagen', (($fill == 'con') ? "!=" : "="), null);
+                })
+                ->orderBy('Nombre_Comercial')
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
@@ -61,11 +66,12 @@ class ProductNewController extends Controller
         $categories = NewCategory::with(['subcategories' => function ($q) {
             $q->select('Id_Subcategoria', 'Id_Categoria_Nueva', 'Id_Subcategoria as value', 'Nombre as text');
         }])->get(['Id_Categoria_Nueva', 'Id_Categoria_Nueva as value', 'Nombre as text']);
-
+        $taxes = Tax::get(['Id_Impuesto as value', 'Valor as text']);
         return $this->success([
             'categories' => $categories,
             'packagings' => $packaging,
-            'units' => $unit
+            'units' => $unit,
+            'taxes' => $taxes
         ]);
     }
 
@@ -83,17 +89,36 @@ class ProductNewController extends Controller
     {
     }
 
+    public function listarProductos(Request $request)
+    {
+        return $this->success(
+            Product::where('Estado', 'Activo')
+                ->with('unit', 'packaging', 'tax')
+                ->when($request->categoria, function ($q, $fill) {
+                    $q->where("Id_Categoria", $fill);
+                })
+                ->when($request->subcategoria, function ($q, $fill) {
+                    $q->where("Id_Subcategoria", $fill);
+                })
+                ->get()
+        );
+    }
+
     public function store(Request $request)
     {
         //dd('holi');
         $data = $request->except(['category_variables', 'subcategory_variables']);
         $category_variables = $request->category_variables;
         $subcategory_variables = $request->subcategory_variables;
-        if (!$request->Id_Producto) {
+        if (!$request->Id_Producto && $request->Imagen) {
             $base64 = saveBase64($request->Imagen, 'fotos_productos/', true, '.' . explode("/", $request->typeFile)[1]);
             $data['Imagen'] = URL::to('/') . '/api/image?path=' . $base64;
         } else {
             $actualData = Product::find($request->Id_Producto);
+            if ($request->Imagen != $actualData->Imagen) {
+                $base64 = saveBase64($request->Imagen, 'fotos_productos/', true, '.' . explode("/", $request->typeFile)[1]);
+                $data['Imagen'] = URL::to('/') . '/api/image?path=' . $base64;
+            }
         }
         $product = Product::updateOrCreate(["Id_Producto" => $data["Id_Producto"]], $data);
         if ($product->wasRecentlyCreated) {
@@ -111,11 +136,25 @@ class ProductNewController extends Controller
                 }
             }
         }
-        //!Hay que borrar las variables creadas y registrar cambios jeje
         $all_variables = array_merge($category_variables, $subcategory_variables);
         foreach ($all_variables as $value) {
+            if ($value['subcategory_variables_id']) {
+                $label = SubcategoryVariable::find($value['subcategory_variables_id'])->label;
+            } else {
+                $label = CategoryVariable::find($value['category_variables_id'])->label;
+            }
+            if ($value['id']) {
+                $actualDataVariable = VariableProduct::find($value['id']);
+            }
             $value['product_id'] = $product->Id_Producto;
-            VariableProduct::create($value);
+            $variable = VariableProduct::updateOrCreate(['id' => $value['id']], $value);
+            if ($variable->wasRecentlyCreated) {
+                $this->newDataActivity($variable->valor, $label, $product->Id_Producto);
+            } else {
+                if ($value['valor'] != $actualDataVariable['valor']) {
+                    $this->changeDataActivity($variable->valor, $label, $product->Id_Producto, $actualDataVariable->valor);
+                }
+            }
         }
     }
 
@@ -124,6 +163,8 @@ class ProductNewController extends Controller
         switch ($key) {
             case 'Id_Producto':
                 break;
+            case 'typeFile':
+                break;
             case 'Presentacion':
                 $key = 'presentacion';
                 $this->createActivity(
@@ -131,8 +172,23 @@ class ProductNewController extends Controller
                     "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
                 );
                 break;
+            case 'impuesto_id':
+                $key = 'impuesto';
+                $campo = Tax::find($campo)->Valor;
+                $this->createActivity(
+                    $id,
+                    "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
+                );
+                break;
             case 'Nombre_Comercial':
                 $key = 'nombre';
+                $this->createActivity(
+                    $id,
+                    "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
+                );
+                break;
+            case 'Referencia':
+                $key = 'referencia';
                 $this->createActivity(
                     $id,
                     "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
@@ -156,11 +212,12 @@ class ProductNewController extends Controller
                 break;
             case 'Imagen':
                 $key = 'imagen';
-                $campo = '';
-                $this->createActivity(
-                    $id,
-                    "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
-                );
+                if ($campo) {
+                    $this->createActivity(
+                        $id,
+                        "El campo '" . $key . "' fue ingresado."
+                    );
+                }
                 break;
             case 'Id_Categoria':
                 $key = 'categoría';
@@ -196,6 +253,10 @@ class ProductNewController extends Controller
                 );
                 break;
             default:
+                $this->createActivity(
+                    $id,
+                    "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
+                );
                 break;
         }
     }
@@ -205,6 +266,8 @@ class ProductNewController extends Controller
         switch ($key) {
             case 'Id_Producto':
                 break;
+            case 'typeFile':
+                break;
             case 'Presentacion':
                 $key = 'presentacion';
                 $this->createActivity(
@@ -216,6 +279,18 @@ class ProductNewController extends Controller
                 break;
             case 'Nombre_Comercial':
                 $key = 'nombre';
+
+                $this->createActivity(
+                    $id,
+                    (isset($oldData))
+                        ? "El campo '" . $key . "' fue modificado de '" . $oldData . "' a '" . $campo . "'."
+                        : "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
+                );
+                break;
+            case 'impuesto_id':
+                $key = 'impuesto';
+                $campo = Tax::find($campo)->Valor;
+                $oldData = Tax::find($oldData)->Valor;
                 $this->createActivity(
                     $id,
                     (isset($oldData))
@@ -226,6 +301,7 @@ class ProductNewController extends Controller
             case 'Unidad_Medida':
                 $key = 'unidad de medida';
                 $campo = Unit::find($campo)->name;
+                $oldData = Unit::find($oldData)->name;
                 $this->createActivity(
                     $id,
                     (isset($oldData))
@@ -243,9 +319,8 @@ class ProductNewController extends Controller
                         : "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
                 );
                 break;
-            case 'Imagen':
-                $key = 'imagen';
-                $campo = '';
+            case 'Referencia':
+                $key = 'referencia';
                 $this->createActivity(
                     $id,
                     (isset($oldData))
@@ -253,9 +328,21 @@ class ProductNewController extends Controller
                         : "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
                 );
                 break;
+            case 'Imagen':
+                $key = 'imagen';
+                if ($campo) {
+                    $this->createActivity(
+                        $id,
+                        (isset($oldData))
+                            ? "El campo '" . $key . "' fue modificado."
+                            : "El campo '" . $key . "' fue ingresado."
+                    );
+                }
+                break;
             case 'Id_Categoria':
                 $key = 'categoría';
                 $campo = NewCategory::find($campo)->Nombre;
+                $oldData = NewCategory::find($oldData)->Nombre;
                 $this->createActivity(
                     $id,
                     (isset($oldData))
@@ -277,6 +364,7 @@ class ProductNewController extends Controller
             case 'Id_Subcategoria':
                 $key = 'subcategoría';
                 $campo = Subcategory::find($campo)->Nombre;
+                $oldData = Subcategory::find($oldData)->Nombre;
                 $this->createActivity(
                     $id,
                     (isset($oldData))
@@ -287,6 +375,7 @@ class ProductNewController extends Controller
             case 'Embalaje_id':
                 $key = 'embalaje';
                 $campo = Packaging::find($campo)->name;
+                $oldData = Packaging::find($oldData)->name ?? '';
                 $this->createActivity(
                     $id,
                     (isset($oldData))
@@ -295,15 +384,22 @@ class ProductNewController extends Controller
                 );
                 break;
             default:
+                $this->createActivity(
+                    $id,
+                    (isset($oldData))
+                        ? "El campo '" . $key . "' fue modificado de '" . $oldData . "' a '" . $campo . "'."
+                        : "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
+                );
                 break;
         }
     }
 
     function createActivity($id, $details)
     {
+        //dd($details);
         ActividadProducto::create([
             "Id_Producto" => $id,
-            "Person_Id" => 1,
+            "Person_Id" => auth()->user()->id,
             "Detalles" => $details
         ]);
     }
@@ -311,7 +407,7 @@ class ProductNewController extends Controller
     public function show($id)
     {
         return $this->success(
-            Product::with('subcategory', 'category', 'unit', 'activity', 'variables', 'packaging')
+            Product::with('subcategory', 'category', 'unit', 'activity', 'variables', 'packaging', 'tax')
                 ->find($id)
         );
     }

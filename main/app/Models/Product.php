@@ -20,7 +20,7 @@ class Product extends Model
         'Imagen',
         'Id_Categoria',
         'Referencia',
-        'Gravado',
+        'impuesto_id',
         'Estado',
         'Id_Subcategoria',
         'company_id',
@@ -55,7 +55,7 @@ class Product extends Model
 
     public function activity()
     {
-        return $this->hasMany(ActividadProducto::class, 'Id_Producto', 'Id_Producto')->with('funcionario');
+        return $this->hasMany(ActividadProducto::class, 'Id_Producto', 'Id_Producto')->with('funcionario')->orderByDesc('Id_Actividad_Producto');
     }
 
     public function variables()
@@ -66,5 +66,10 @@ class Product extends Model
     public function packaging()
     {
         return $this->belongsTo(Packaging::class, 'Embalaje_id');
+    }
+
+    public function tax()
+    {
+        return $this->belongsTo(Tax::class, 'impuesto_id', 'Id_Impuesto');
     }
 }

@@ -41,4 +41,19 @@ class OrdenCompraNacional extends Model
         ->withPivot('Id_Inventario','Costo','Cantidad','Iva','Total')->as('detalles')
         ->withTimestamps();
     }
+
+    public function person()
+    {
+        return $this->belongsTo(Person::class, 'Identificacion_Funcionario')->fullName();
+    }
+
+    public function third()
+    {
+        return $this->belongsTo(ThirdParty::class, 'Id_Proveedor')->fullName();
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Bodegas::class, 'Id_Bodega_Nuevo');
+    }
 }

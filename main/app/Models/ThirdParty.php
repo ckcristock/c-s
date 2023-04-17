@@ -77,32 +77,36 @@ class ThirdParty extends Model
     {
         return $this->belongsTo(AccountPlan::class);
     }
-    public function scopeName($q, $alias='full_name')
+    public function scopeName($q, $alias = 'full_name')
     {
         // Si se envió 'select *' retire 'social_reason' de la lista de campos
-        if(is_null($q->getQuery()->columns)){
-            $q2=DB::query()->fromSub($q,"s")->get();
+        if (is_null($q->getQuery()->columns)) {
+            $q2 = DB::query()->fromSub($q, "s")->get();
             $columnas = array_keys((array) $q2->first());
-            $columnas = array_diff($columnas,["social_reason"]);
+            $columnas = array_diff($columnas, ["social_reason"]);
             $q->select($columnas);
         }
-        return $q->addSelect(DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname, second_name, second_surname)) as '.$alias));
+        return $q->addSelect(DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname, second_name, second_surname)) as ' . $alias));
     }
 
     public function scopeName2($q)
     {
-        return $q->select('*',
+        return $q->select(
+            '*',
             DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as text'),
             'id as value',
-    );
+        );
     }
 
-
+    public function scopeFullName($q) {
+        return $q->select('*', DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as full_name'));
+    }
 
     public function quotations()
     {
         return $this->hasMany(Quotation::class, 'customer_id')->with('municipality', 'client', 'items');
     }
+
     public function budgets()
     {
         return $this->hasMany(Budget::class, 'customer_id')->with(

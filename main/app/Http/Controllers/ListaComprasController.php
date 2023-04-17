@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\ThirdParty;
 use App\Traits\ApiResponser;
 use Hamcrest\Core\IsTypeOf;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ListaComprasController extends Controller
@@ -25,48 +26,37 @@ class ListaComprasController extends Controller
 
     public function __construct()
     {
-        $this->proveedores = ThirdParty::name("social_reason")->whereRaw("is_supplier = 'Proveedor'");
+        $this->proveedores = ThirdParty::name("social_reason")->whereRaw("is_supplier = 1");
     }
 
     public function index()
     {
+        return $this->success('');
+    }
+
+    public function paginate(Request $request)
+    {
+
         return $this->success(
-            /* DB::table("Orden_Compra_Nacional","OCN") */
-            OrdenCompraNacional::alias("OCN")
-                ->select(DB::raw("concat(
-                p.first_name,
-              IF(ifnull(p.second_name,'') != '',' ',''),
-                ifnull(p.second_name,''),
-                ' ',
-                p.first_surname,
-              IF(ifnull(p.second_surname,'') != '',' ',''),
-                ifnull(p.second_surname,'')
-            ) as Funcionario"), "OCN.*", "pr.social_reason as Proveedor", "p.image")
-                ->joinSub($this->proveedores, "pr", function ($join) {
-                    $join->on("pr.id", "=", "OCN.Id_Proveedor");
+            OrdenCompraNacional::with('person', 'third')
+                ->when($request->est, function ($q, $fill) {
+                    $q->where('Estado', $fill);
                 })
-                ->join("people as p", function ($join) {
-                    $join->on("p.id", "=", "OCN.Identificacion_Funcionario");
+                ->when($request->cod, function ($q, $fill) {
+                    $q->where('Codigo', 'like', "%$fill%");
                 })
-                ->when((request('tipo') == "filtrado") ? request('funcionario') : false, function ($q, $fill) {
-                    $q->where("OCN.Identificacion_Funcionario", '=', $fill);
-                })
-                ->when(request()->get('est'), function ($q, $fill) {
-                    $q->where('OCN.Estado', '=', $fill);
-                })
-                ->when(request()->get('cod'), function ($q, $fill) {
-                    $q->where('OCN.Codigo', 'like', '%' . $fill . '%');
-                })
-                ->when(request()->get('prov'), function ($q, $fill) {
+                ->when($request->prov, function ($q, $fill) {
                     $q->where('pr.social_reason', 'like', '%' . $fill . '%');
                 })
-                ->when(request()->get('fecha'), function ($q, $fill) {
+                ->when($request->fecha, function ($q, $fill) {
                     $q->whereBetween(DB::raw("DATE_FORMAT(Fecha, '%Y-%m-%d')"), explode(" - ", $fill));
                 })
-                ->when(request('func'), function ($q, $fill) {
-                    $q->where("OCN.Identificacion_Funcionario", '=', $fill)
-                        ->orWhere(DB::raw("concat(p.first_name,' ',p.first_surname)"), 'like', '%' . $fill . '%');
-                })->orderByDesc("OCN.Fecha")
+                ->when($request->func, function ($q, $fill) {
+                    $q->whereHas('person', function ($query) use ($fill) {
+                        $query->where('first_name', 'like', "%$fill%");
+                    });
+                })
+                ->orderByDesc("created_at")
                 ->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1))
         );
     }
@@ -334,15 +324,17 @@ class ListaComprasController extends Controller
 
     public function getEstadosCompra()
     {
-        $listaRaw = explode(",", DB::table('information_schema.COLUMNS')
-            ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_estados")
-            ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?', [env('DB_DATABASE') . "-orden_compra_nacional-estado"])
-            ->first()->lista_estados);
-        $lista = [];
-        foreach ($listaRaw as $value) {
-            $lista[] = ["estado" => str_replace("'", "", $value)];
-        }
-        return $this->success($lista);
+        $enumValues = Cache::remember('enum_values_orden_compra_nacional_estado', 60, function () {
+            $columnInfo = DB::select('SELECT COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?', [
+                env('DB_DATABASE'),
+                'orden_compra_nacional',
+                'estado'
+            ])[0];
+            return array_map(function ($value) {
+                return trim($value, "'");
+            }, explode(',', substr($columnInfo->COLUMN_TYPE, 5, -1)));
+        });
+        return $this->success($enumValues);
     }
 
     public function setEstadoCompra()
