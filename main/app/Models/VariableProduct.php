@@ -18,4 +18,14 @@ class VariableProduct extends Model
     public function scopeAlias($q, $alias){
         return $q->from($q->getQuery()->from." as ".$alias);
     }
+
+    public function categoryVariables()
+    {
+        return $this->belongsTo(CategoryVariable::class);
+    }
+
+    public function subCategoryVariables()
+    {
+        return $this->belongsTo(SubcategoryVariable::class, 'subcategory_variables_id');
+    }
 }

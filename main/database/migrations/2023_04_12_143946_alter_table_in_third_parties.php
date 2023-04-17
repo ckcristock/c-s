@@ -15,6 +15,8 @@ class AlterTableInThirdParties extends Migration
     {
         Schema::table('third_parties', function (Blueprint $table) {
             $table->dropColumn('third_party_type');
+            $table->boolean('is_client')->nullable();
+            $table->boolean('is_supplier')->nullable();
         });
     }
 
@@ -26,7 +28,9 @@ class AlterTableInThirdParties extends Migration
     public function down()
     {
         Schema::table('third_parties', function (Blueprint $table) {
-            //
+            $table->dropColumn('is_client');
+            $table->dropColumn('is_supplier');
+            $table->enum('third_party_type', ['Cliente', 'Proveedor'])->nullable();
         });
     }
 }

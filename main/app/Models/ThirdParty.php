@@ -14,7 +14,8 @@ class ThirdParty extends Model
     /* protected $fillable = [
         'nit',
         'person_type',
-        'third_party_type',
+        'is_client',
+        'is_supplier',
         'social_reason',
         'first_name',
         'second_name',

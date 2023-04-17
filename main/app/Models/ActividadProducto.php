@@ -26,6 +26,6 @@ class ActividadProducto extends Model
 
     public function funcionario()
     {
-        return $this->belongsTo(Person::class, "Person_Id");
+        return $this->belongsTo(Person::class, "Person_Id")->onlyName();
     }
 }

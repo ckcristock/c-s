@@ -153,8 +153,10 @@ use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MedioMagneticoController;
 use App\Http\Controllers\ModuloController;
+use App\Http\Controllers\PackagingController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\PlanCuentasController;
+use App\Http\Controllers\ProductNewController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\RawMaterialMaterialController;
 use App\Http\Controllers\RetencionController;
@@ -211,7 +213,7 @@ Route::get('/', function () {
 
 });
 
-Route::get('prueba', function(){
+Route::get('prueba', function () {
     return Accommodation::all();
 });
 Route::get('/generate-users', function () {
@@ -493,6 +495,7 @@ Route::group(
 
 
         Route::resource('applicants', ApplicantController::class);
+        Route::resource('packaging', PackagingController::class);
         Route::resource('bodegas', BodegasController::class)->only(['index', 'store', 'show']);
         Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
         Route::resource('work-certificate', WorkCertificateController::class);
@@ -631,6 +634,7 @@ Route::group(
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class, 'paginate']);
+        Route::get('packaging-paginate', [PackagingController::class, 'paginate']);
         Route::get('severance-payment-paginate', [SeverancePaymentController::class, 'paginate']);
         Route::get('get-severance-payment', [SeverancePaymentController::class, 'getSeverancePayment']);
         Route::get('severance-payments-validate', [SeverancePaymentController::class, 'validatPay']);
@@ -778,6 +782,14 @@ Route::group(
         //se ejecuta al crear
         Route::get("subcategory-field/{id}", [SubcategoryController::class, 'getField']);
 
+        //!PRUEBAS PARA NUEVO CONTROLADOR DE PRODUCTOS
+        Route::get("nuevo-paginar-producto", [ProductNewController::class, 'paginate']);
+        Route::resource("product2", ProductNewController::class);
+        Route::get("product-create-data", [ProductNewController::class, 'getDataCreate']);
+        Route::get("variables-category/{id}", [ProductNewController::class, 'getVariablesCat']);
+        Route::get("variables-subcategory/{id}", [ProductNewController::class, 'getVariablesSubCat']);
+        //!FIN DE PRUEBAS
+
         //se ejecuta al editar
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
@@ -797,8 +809,6 @@ Route::group(
         Route::get('proyeccion_excel/{id}', [LoanController::class, 'loanExcel']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
         Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
-
-        Route::get('get-estados-producto', [ProductController::class, 'getEstados']);
         Route::get('all-zones', [ZonesController::class, 'allZones']);
         Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
         Route::get('municipalities-for-dep/{id}', [MunicipalityController::class, 'municipalitiesForDep']);

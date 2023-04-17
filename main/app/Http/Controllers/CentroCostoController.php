@@ -56,7 +56,7 @@ class CentroCostoController extends Controller
                 (IF(CC.Id_Centro_Padre != 0, (SELECT Nombre FROM Centro_Costo WHERE Id_Centro_Costo = CC.Id_Centro_Padre), "Sin Padre")) AS PadreCentro,
                 IF(CC.Id_Tipo_Centro != 0, (SELECT Nombre FROM Tipo_Centro WHERE Id_Tipo_Centro = CC.Id_Tipo_Centro), "") AS Tipo_Centro,
                 (CASE CC.Id_Tipo_Centro
-                    WHEN 1 THEN (SELECT CONCAT(first_name, " ", first_surname) AS Nombre FROM third_parties WHERE id = CC.Valor_Tipo_Centro AND third_party_type = "Cliente")
+                    WHEN 1 THEN (SELECT CONCAT(first_name, " ", first_surname) AS Nombre FROM third_parties WHERE id = CC.Valor_Tipo_Centro AND is_client = 1)
                     WHEN 2 THEN (SELECT name FROM departments WHERE id = CC.Valor_Tipo_Centro)
                     WHEN 4 THEN (SELECT name FROM municipalities WHERE id = CC.Valor_Tipo_Centro)
                     ELSE ""
@@ -619,7 +619,7 @@ class CentroCostoController extends Controller
             WHEN 1 THEN
             (SELECT CONCAT(first_name, ' ',first_surname) AS Nombre
             FROM third_parties WHERE id = CC.Valor_Tipo_Centro
-            AND third_party_type = 'Cliente')
+            AND is_client = 1)
             WHEN 2 THEN (SELECT name FROM departments
             WHERE id = CC.Valor_Tipo_Centro)
             WHEN 3 THEN (SELECT name FROM municipalities
