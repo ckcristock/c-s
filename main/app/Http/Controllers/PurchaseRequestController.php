@@ -28,26 +28,30 @@ class PurchaseRequestController extends Controller
      */
     public function index()
     {
-        
     }
-    
-    public function paginate(Request $request){
+
+    public function paginate(Request $request)
+    {
         return $this->success(
             PurchaseRequest::with('productPurchaseRequest')
-            ->when($request->purchase_request_id, function ($q, $fill) {
-                $q->where('id', 'like', "%$fill%");
-            })
-            ->when($request->purchase_request_date, function ($q, $fill) {
-                $q->where('created_at', 'like', "%$fill%");
-            })
-            ->when($request->status, function ($q, $fill) {
-                $q->where('status', 'like', "%$fill%");
-            })
-            ->orderByDesc('created_at')
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                ->when($request->purchase_request_id, function ($q, $fill) {
+                    $q->where('id', 'like', "%$fill%");
+                })
+                ->when($request->start_created_at, function ($q, $fill) use ($request) {
+                    $q->where('created_at', '>=', $fill)
+                    ->where('created_at', '<=', $request->end_created_at.' 23:59:59');
+                })
+                ->when($request->start_expected_date, function ($q, $fill) use ($request) {
+                    $q->whereBetween('expected_date', [$fill, $request->end_expected_date]);
+                })
+                ->when($request->status, function ($q, $fill) {
+                    $q->where('status', 'like', "%$fill%");
+                })
+                ->orderByDesc('created_at')
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
-    /**
+    /**   
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -65,29 +69,31 @@ class PurchaseRequestController extends Controller
      */
     public function store(Request $request)
     {
-        try{
-            $purchaseRequest=PurchaseRequest::updateOrcreate([
-            'category_id' => $request->input('category_id'),
-            'expected_date' => $request->input('expected_date'),
-            'observations' => $request->input('observations')  //
-        ]);
-        
-        $products = $request->input('products');
-        foreach($products as $product){
-            $purchaseRequest->productPurchaseRequest()->updateOrCreate([
-                'product_id'=>$product['id'],
-                'name'=>$product['name'],
-                'ammount'=>$product['ammount']
-            ]);
-        }
-        $purchaseRequest->refresh(); 
-        $numberOfProducts = $purchaseRequest->productPurchaseRequest()->count();
-        
-        $purchaseRequest->update(['quantity_of_products' => $numberOfProducts]);
+        try {
+            $purchaseRequest = PurchaseRequest::updateOrcreate(
+                ['id' => $request->id],
+                [
+                    'category_id' => $request->input('category_id'),
+                    'expected_date' => $request->input('expected_date'),
+                    'observations' => $request->input('observations')  //
+                ]
+            );
 
-        return $this->success('Creado con éxito');
-        
-        }catch (\Throwable $th) {
+            $products = $request->input('products');
+            foreach ($products as $product) {
+                $purchaseRequest->productPurchaseRequest()->updateOrCreate([
+                    'product_id' => $product['id'],
+                    'name' => $product['name'],
+                    'ammount' => $product['ammount']
+                ]);
+            }
+            $purchaseRequest->refresh();
+            $numberOfProducts = $purchaseRequest->productPurchaseRequest()->count();
+
+            $purchaseRequest->update(['quantity_of_products' => $numberOfProducts]);
+
+            return $this->success('Creado con éxito');
+        } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
     }
@@ -98,9 +104,9 @@ class PurchaseRequestController extends Controller
      * @param  \App\Models\PurchaseRequest  $purchaseRequest
      * @return \Illuminate\Http\Response
      */
-    public function show(PurchaseRequest $purchaseRequest)
+    public function show($id)
     {
-        //
+        return $this->success(PurchaseRequest::with('productPurchaseRequest')->find($id));
     }
 
     /**
