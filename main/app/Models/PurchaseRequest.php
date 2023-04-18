@@ -15,7 +15,10 @@ class PurchaseRequest extends Model
         'expected_date',
         'observations', 
         'status',
-        'quantity_of_products'    
+        'quantity_of_products',  
+        'user_id',
+        'code',
+        'format_code'
     ];
 
     public function productPurchaseRequest()

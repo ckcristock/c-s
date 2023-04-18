@@ -34,8 +34,8 @@ class PurchaseRequestController extends Controller
     {
         return $this->success(
             PurchaseRequest::with('productPurchaseRequest')
-                ->when($request->purchase_request_id, function ($q, $fill) {
-                    $q->where('id', 'like', "%$fill%");
+                ->when($request->code, function ($q, $fill) {
+                    $q->where('code', 'like', "%$fill%");
                 })
                 ->when($request->start_created_at, function ($q, $fill) use ($request) {
                     $q->where('created_at', '>=', $fill)
@@ -70,29 +70,22 @@ class PurchaseRequestController extends Controller
     public function store(Request $request)
     {
         try {
+
+            $data = $request->except('products');
+            $products = $request->products;
+            $data['user_id'] = auth()->user()->id;
+            $data['code'] = generateConsecutive('purchase_requests');
+            $data['quantity_of_products'] = count($products);
             $purchaseRequest = PurchaseRequest::updateOrcreate(
-                ['id' => $request->id],
-                [
-                    'category_id' => $request->input('category_id'),
-                    'expected_date' => $request->input('expected_date'),
-                    'observations' => $request->input('observations')  //
-                ]
+                ['id' => $request->id], $data
             );
-
-            $products = $request->input('products');
+            
             foreach ($products as $product) {
-                $purchaseRequest->productPurchaseRequest()->updateOrCreate([
-                    'product_id' => $product['id'],
-                    'name' => $product['name'],
-                    'ammount' => $product['ammount']
-                ]);
+                $purchaseRequest->productPurchaseRequest()->updateOrCreate(['id' => $product['id']], $product);
             }
-            $purchaseRequest->refresh();
-            $numberOfProducts = $purchaseRequest->productPurchaseRequest()->count();
-
-            $purchaseRequest->update(['quantity_of_products' => $numberOfProducts]);
-
+            sumConsecutive('purchase_requests');
             return $this->success('Creado con éxito');
+            
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
