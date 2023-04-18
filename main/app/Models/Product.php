@@ -16,6 +16,7 @@ class Product extends Model
         'Unidad_Medida',
         'Cantidad',
         'Codigo_Barras',
+        'Precio',
         'Nombre_Comercial',
         'Imagen',
         'Id_Categoria',

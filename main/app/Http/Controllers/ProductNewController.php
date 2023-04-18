@@ -202,6 +202,13 @@ class ProductNewController extends Controller
                     "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
                 );
                 break;
+            case 'Precio':
+                $key = 'precio';
+                $this->createActivity(
+                    $id,
+                    "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
+                );
+                break;
             case 'Cantidad':
             case 'Codigo_Barras':
                 $key = 'código de barras';
@@ -289,8 +296,17 @@ class ProductNewController extends Controller
                 break;
             case 'impuesto_id':
                 $key = 'impuesto';
-                $campo = Tax::find($campo)->Valor;
-                $oldData = Tax::find($oldData)->Valor;
+                $campo = Tax::find($campo)->Valor ?? '';
+                $oldData = Tax::find($oldData)->Valor ?? '';
+                $this->createActivity(
+                    $id,
+                    (isset($oldData))
+                        ? "El campo '" . $key . "' fue modificado de '" . $oldData . "' a '" . $campo . "'."
+                        : "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
+                );
+                break;
+            case 'Precio':
+                $key = 'precio';
                 $this->createActivity(
                     $id,
                     (isset($oldData))

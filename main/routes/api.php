@@ -887,7 +887,7 @@ Route::group(
         Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
         Route::get('get-history-business/{id}', [BusinessController::class, 'getHistory']);
         Route::post('change-status-in-business', [BusinessController::class, 'changeStatusInBusiness']);
-
+        Route::get("get-product-typeahead-oc", [ListaComprasController::class, 'getProducts']);
         Route::post('import-validator-account-plans/{delete}', [PlanCuentasController::class, 'validateExcel']);
         Route::post('import-initial-balances', [PlanCuentasController::class, 'importInitialBalances']);
         Route::get('import-commercial-puc', [PlanCuentasController::class, 'importCommercialPuc']);
@@ -898,7 +898,6 @@ Route::group(
         Route::get('php/categoria_nueva/detalle_categoria_nueva_departamento.php', [CategoriaNuevaController::class, 'categoriaDepartamento']);
         Route::get('php/comprasnacionales/lista_compras', [ListaComprasController::class, 'paginate']);
         Route::get('php/comprasnacionales/datos_compras_nacionales', [ListaComprasController::class, 'datosComprasNacionales']);
-        Route::get('php/comprasnacionales/detalles_compras_nacionales', [ListaComprasController::class, 'detallesComprasNacionales']);
         Route::get('php/comprasnacionales/detalle_perfil', [ListaComprasController::class, 'detallePerfil']);
         Route::get('php/comprasnacionales/detalle_rechazo', [ListaComprasController::class, 'detalleRechazo']);
         Route::get('php/comprasnacionales/actividad_orden_compra', [ListaComprasController::class, 'actividadOrdenCompra']);

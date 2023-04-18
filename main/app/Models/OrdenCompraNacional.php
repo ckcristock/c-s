@@ -15,20 +15,20 @@ class OrdenCompraNacional extends Model
     [
         'Codigo',
         'Identificacion_Funcionario',
-        'Fecha',
-        'Id_Bodega',
-        'Tipo_Bodega',
         'Id_Bodega_Nuevo',
-        'Id_Punto_Dispensacion',
         'Id_Proveedor',
         'Observaciones',
         'Fecha_Entrega_Probable',
+        'Fecha_Entrega_Real',
         'Tipo',
         'Estado',
-        'Fecha_Creacion_Compra',
         'Codigo_Qr',
         'Aprobacion',
-        'Id_Pre_Compra'
+        'Id_Pre_Compra',
+        'format_code',
+        'Subtotal',
+        'Iva',
+        'Total',
     ];
 
     public function scopeAlias($q, $alias){
@@ -40,6 +40,11 @@ class OrdenCompraNacional extends Model
         return $this->belongsToMany(Product::class, "Producto_Orden_Compra_Nacional", "Id_Orden_Compra_Nacional", "Id_Producto")
         ->withPivot('Id_Inventario','Costo','Cantidad','Iva','Total')->as('detalles')
         ->withTimestamps();
+    }
+
+    public function products()
+    {
+        return $this->hasMany(ProductoOrdenCompraNacional::class, 'Id_Orden_Compra_Nacional', 'Id_Orden_Compra_Nacional')->with('product', 'tax');
     }
 
     public function person()
@@ -55,5 +60,10 @@ class OrdenCompraNacional extends Model
     public function store()
     {
         return $this->belongsTo(Bodegas::class, 'Id_Bodega_Nuevo');
+    }
+
+    public function activity()
+    {
+        return $this->hasMany(ActividadOrdenCompra::class, 'Id_Orden_Compra_Nacional', 'Id_Orden_Compra_Nacional')->with('person');
     }
 }
