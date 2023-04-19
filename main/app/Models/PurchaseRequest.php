@@ -23,7 +23,7 @@ class PurchaseRequest extends Model
 
     public function productPurchaseRequest()
     {
-        return $this->hasMany(ProductPurchaseRequest::class);
+        return $this->hasMany(ProductPurchaseRequest::class)->with('product');
     }
 
 }
