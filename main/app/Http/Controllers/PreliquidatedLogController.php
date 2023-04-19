@@ -35,6 +35,7 @@ class PreliquidatedLogController extends Controller
                 ->when($request->person_id, function ($q, $fill) {
                     $q->where('id', $fill);
                 })
+                ->fullName()
                 ->where('p.status', 'PreLiquidado')
                 ->get()
                 ->load('onePreliquidatedLog')

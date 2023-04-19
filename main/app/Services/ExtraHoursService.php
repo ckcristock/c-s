@@ -87,7 +87,8 @@ class ExtraHoursService
         }
 
         return $query->select('p.first_name', 'p.first_surname', 'p.id', 'p.image', 'w.turn_type')
-            ->get();
+        ->orderBy("p.first_name")
+        ->get();
     }
 
     public function calcularExtras($funcionario)

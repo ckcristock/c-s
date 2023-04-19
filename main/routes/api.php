@@ -156,6 +156,7 @@ use App\Http\Controllers\ModuloController;
 use App\Http\Controllers\PackagingController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\PlanCuentasController;
+use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\ProductNewController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\RawMaterialMaterialController;
@@ -661,6 +662,7 @@ Route::group(
         Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
         Route::get('paginateDocumentType', [DocumentTypesController::class, 'paginate']);
         Route::get('paginate-fixed-turns', [FixedTurnController::class, 'paginate']);
+        Route::get('fixed-turns_active', [FixedTurnController::class, 'activeFixedTurns']);
         Route::get('paginateCountries', [CountryController::class, 'paginate']);
         Route::get('paginateArl', [ArlController::class, 'paginate']);
         Route::get('paginatePensionFun', [PensionFundController::class, 'paginate']);
@@ -803,6 +805,15 @@ Route::group(
         Route::get("category-field/{id}", [CategoryController::class, 'getField']);
         Route::put("category-active/{id}", [CategoryController::class, 'turningOnOff']);
         Route::delete("category-variable/{id}", [CategoryController::class, 'deleteVariable']);
+        Route::get("get-category-for-select", [CategoryController::class, 'indexForSelect']);
+
+        Route::resource("purchase-request", PurchaseRequestController::class);
+        Route::get("paginate-purchase-request",[PurchaseRequestController::class,'paginate']);
+        Route::get("get-product-typeahead", [PurchaseRequestController::class, 'getProducts']);
+        
+        
+        
+
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);

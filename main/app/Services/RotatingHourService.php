@@ -34,7 +34,7 @@ class RotatingHourService
             {
                 $q->where(DB::raw('concat(p.first_name, " ",p.first_surname)'), 'like', '%' . $fill . '%');
             })
-			->select("p.first_name", "p.first_surname", "p.id", "p.image")
+			->select("p.first_name", "p.first_surname", "p.id", "p.image")->orderBy("p.first_name")
 			->get()->toArray();
 	}
 	public static function getHours($personId)

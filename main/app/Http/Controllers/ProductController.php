@@ -41,6 +41,7 @@ class ProductController extends Controller
                 'p.Id_Subcategoria',
                 'p.Nombre_Comercial',
                 'p.Imagen as Foto',
+                'p.Embalaje',
                 'p.Embalaje_id',
                 'c.Nombre as Categoria',
                 's.Nombre as Subcategoria',
@@ -52,6 +53,7 @@ class ProductController extends Controller
                 'p.Estado',
                 'p.Referencia'
             );
+
         $data->when($request->company_id, function ($q, $fill) {
             $q->where("p.company_id", $fill);
         })

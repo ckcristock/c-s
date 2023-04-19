@@ -27,6 +27,7 @@ class RotatingTurnHourController extends Controller
                 ->when(Request()->get('group_id'), function ($q, $fill) {
                     $q->where('id', $fill);
                 })->get(["id", "name"]);
+
             $groupsGlob = [];
             foreach ($groups as $key => &$group) {
                 $dependencies = DB::table("dependencies")
@@ -45,12 +46,12 @@ class RotatingTurnHourController extends Controller
                 foreach ($dependencies as $key2 => &$dependency) {
                     $dependency->people = RotatingHourService::getPeople(
                         $dependency->id,
-                        $company->id
+                        $company->id,
                     );
-
+                    //dd($dependency);
                     /*     dd($dependency->people); */
                     if (!$dependency->people) {
-                        /* dd($dependency);
+                         /*dd($dependency);
                         var_dump('em', $dependency['people']);
                         exit; */
                         unset($dependencies[$key2]);
@@ -61,6 +62,7 @@ class RotatingTurnHourController extends Controller
                         $person->fixed_turn_hours = RotatingHourService::getHours(
                             $person->id,
                         );
+
                     }
                     $depLocal[] = $dependency;
                 }

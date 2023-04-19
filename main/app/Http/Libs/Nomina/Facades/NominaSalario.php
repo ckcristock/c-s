@@ -37,7 +37,7 @@ class NominaSalario extends PeriodoPago
      * @var App\Http\Libs\Nomina\Calculos\CalculoNovedades;
      */
     protected $calculoNovedades;
-    
+
     /**
      * Instancia de la clase CalculoNovedades
      *
@@ -94,15 +94,16 @@ class NominaSalario extends PeriodoPago
         $this->fechaFin = $fechaFin;
         $this->verifiyNovedadesFromTo($this->fechaInicio, $this->fechaFin);
 
-
         $this->calculoSalario = new CalculoSalario(
             self::$funcionario->contractultimate->salary,
             $this->calculoNovedades->getDias(),
             $this->fechaInicio,
-            $this->fechaFin
+            $this->fechaFin,
+            true
         );
 
 
+        //dd($this->calculoSalario);
 
         return $this;
     }
