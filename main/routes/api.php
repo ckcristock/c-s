@@ -4,6 +4,7 @@
 
 use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\AccountPlanController;
+use App\Http\Controllers\ActaRecepcionController;
 use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
@@ -153,6 +154,7 @@ use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MedioMagneticoController;
 use App\Http\Controllers\ModuloController;
+use App\Http\Controllers\OrdenCompraNacionalController;
 use App\Http\Controllers\PackagingController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\PlanCuentasController;
@@ -810,9 +812,9 @@ Route::group(
         Route::resource("purchase-request", PurchaseRequestController::class);
         Route::get("paginate-purchase-request",[PurchaseRequestController::class,'paginate']);
         Route::get("get-product-typeahead", [PurchaseRequestController::class, 'getProducts']);
-        
-        
-        
+
+
+
 
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
@@ -1037,5 +1039,9 @@ Route::group(
         Route::get('php/prestamoylibranza/pazysalvo.php/{id}', [LoanController::class, 'pazSalvo']);
         /* Compras nacionales */
         Route::get('php/comprasnacionales/descarga_pdf.php/{id}', [ListaComprasController::class, 'descargar']);
+        /* Compras pendientes */
+        Route::get('php/bodega_nuevo/lista_compras_pendientes.php', [OrdenCompraNacionalController::class, 'listarPendientes']);
+        /* Acta recepcion */
+        Route::get('php/actarecepcion_nuevo/lista_actas_pendientes.php', [ActaRecepcionController::class, 'listarPendientes']);
     }
 );
