@@ -139,6 +139,7 @@ use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\ChequeConsecutivoController;
 use App\Http\Controllers\CierreContableController;
 use App\Http\Controllers\ComprobanteConsecutivoController;
+use App\Http\Controllers\CreditNoteTypeController;
 use App\Http\Controllers\CuentaDocumentoContableController;
 use App\Http\Controllers\DepreciacionController;
 use App\Http\Controllers\DocumentoContableController;
@@ -152,8 +153,10 @@ use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MedioMagneticoController;
 use App\Http\Controllers\ModuloController;
+use App\Http\Controllers\PackagingController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\PlanCuentasController;
+use App\Http\Controllers\ProductNewController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\RawMaterialMaterialController;
 use App\Http\Controllers\RetencionController;
@@ -210,7 +213,7 @@ Route::get('/', function () {
 
 });
 
-Route::get('prueba', function(){
+Route::get('prueba', function () {
     return Accommodation::all();
 });
 Route::get('/generate-users', function () {
@@ -492,6 +495,7 @@ Route::group(
 
 
         Route::resource('applicants', ApplicantController::class);
+        Route::resource('packaging', PackagingController::class);
         Route::resource('bodegas', BodegasController::class)->only(['index', 'store', 'show']);
         Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
         Route::resource('work-certificate', WorkCertificateController::class);
@@ -613,6 +617,7 @@ Route::group(
         Route::resource('payroll-manager', PayrollManagerController::class)->except(['create', 'edit', 'update', 'destroy']);
         Route::resource('premium', PremiumController::class)->except(['create', 'edit']);
         Route::resource('bonuses', BonusController::class)->except(['create', 'edit']);
+        Route::resource('credit-note-type', CreditNoteTypeController::class);
         Route::resource('accommodations', AccommodationController::class)->except(['create', 'edit']);
         Route::post('query-bonuses', [BonusController::class, 'consultaPrima']);
 
@@ -629,6 +634,7 @@ Route::group(
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class, 'paginate']);
+        Route::get('packaging-paginate', [PackagingController::class, 'paginate']);
         Route::get('severance-payment-paginate', [SeverancePaymentController::class, 'paginate']);
         Route::get('get-severance-payment', [SeverancePaymentController::class, 'getSeverancePayment']);
         Route::get('severance-payments-validate', [SeverancePaymentController::class, 'validatPay']);
@@ -681,6 +687,7 @@ Route::group(
         Route::get('paginateGeometry', [GeometryController::class, 'paginate']);
         Route::get('paginateUnits', [UnitController::class, 'paginate']);
         Route::get('paginateMachines', [MachineToolController::class, 'paginate']);
+        Route::get('paginate-credit-note-types', [CreditNoteTypeController::class, 'paginate']);
         Route::get('paginateInternalProcesses', [InternalProcessController::class, 'paginate']);
         Route::get('paginateExternalProcesses', [ExternalProcessController::class, 'paginate']);
         Route::get('paginateMeasure', [MeasureController::class, 'paginate']);
@@ -775,6 +782,14 @@ Route::group(
         //se ejecuta al crear
         Route::get("subcategory-field/{id}", [SubcategoryController::class, 'getField']);
 
+        //!PRUEBAS PARA NUEVO CONTROLADOR DE PRODUCTOS
+        Route::get("product2-paginate", [ProductNewController::class, 'paginate']);
+        Route::resource("product2", ProductNewController::class);
+        Route::get("product-create-data", [ProductNewController::class, 'getDataCreate']);
+        Route::get("variables-category/{id}", [ProductNewController::class, 'getVariablesCat']);
+        Route::get("variables-subcategory/{id}", [ProductNewController::class, 'getVariablesSubCat']);
+        //!FIN DE PRUEBAS
+
         //se ejecuta al editar
         Route::get("subcategory-edit/{id?}/{idSubcategoria}", [SubcategoryController::class, 'getFieldEdit']);
         Route::resource("product", ProductController::class)->only(['index', 'store', 'update']);
@@ -794,8 +809,6 @@ Route::group(
         Route::get('proyeccion_excel/{id}', [LoanController::class, 'loanExcel']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
         Route::post('approve/{id}', [TravelExpenseController::class, 'approve']);
-
-        Route::get('get-estados-producto', [ProductController::class, 'getEstados']);
         Route::get('all-zones', [ZonesController::class, 'allZones']);
         Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
         Route::get('municipalities-for-dep/{id}', [MunicipalityController::class, 'municipalitiesForDep']);
@@ -874,7 +887,7 @@ Route::group(
         Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
         Route::get('get-history-business/{id}', [BusinessController::class, 'getHistory']);
         Route::post('change-status-in-business', [BusinessController::class, 'changeStatusInBusiness']);
-
+        Route::get("get-product-typeahead-oc", [ListaComprasController::class, 'getProducts']);
         Route::post('import-validator-account-plans/{delete}', [PlanCuentasController::class, 'validateExcel']);
         Route::post('import-initial-balances', [PlanCuentasController::class, 'importInitialBalances']);
         Route::get('import-commercial-puc', [PlanCuentasController::class, 'importCommercialPuc']);
@@ -883,13 +896,12 @@ Route::group(
         Route::get('php/categoria_nueva/detalle_categoria_nueva_general.php', [CategoriaNuevaController::class, 'index']);
         Route::get('php/genericos/departamentos.php', [CategoriaNuevaController::class, 'getDepartamentos']);
         Route::get('php/categoria_nueva/detalle_categoria_nueva_departamento.php', [CategoriaNuevaController::class, 'categoriaDepartamento']);
-        Route::get('php/comprasnacionales/lista_compras', [ListaComprasController::class, 'index']);
+        Route::get('php/comprasnacionales/lista_compras', [ListaComprasController::class, 'paginate']);
         Route::get('php/comprasnacionales/datos_compras_nacionales', [ListaComprasController::class, 'datosComprasNacionales']);
-        Route::get('php/comprasnacionales/detalles_compras_nacionales', [ListaComprasController::class, 'detallesComprasNacionales']);
         Route::get('php/comprasnacionales/detalle_perfil', [ListaComprasController::class, 'detallePerfil']);
         Route::get('php/comprasnacionales/detalle_rechazo', [ListaComprasController::class, 'detalleRechazo']);
         Route::get('php/comprasnacionales/actividad_orden_compra', [ListaComprasController::class, 'actividadOrdenCompra']);
-        Route::get('php/comprasnacionales/lista_productos', [ProductController::class, 'listarProductos']);
+        Route::get('php/comprasnacionales/lista_productos', [ProductNewController::class, 'listarProductos']);
         Route::get('php/rotativoscompras/lista_pre_compra', [ListaComprasController::class, 'preCompras']);
         Route::get('php/funcionarios/lista_funcionarios', [ListaComprasController::class, 'getFuncionarios']);
         Route::get('php/rotativoscompras/detalle_pre_compra/{id}', [ListaComprasController::class, 'detallePreCompra']);

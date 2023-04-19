@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActividadOrdenCompra;
 use App\Models\OrdenCompraNacional;
 use App\Models\Perfil;
 use App\Models\Person;
 use App\Models\PreCompra;
 use App\Models\Product;
+use App\Models\ProductoOrdenCompraNacional;
 use Illuminate\Http\Request;
 use App\Models\ThirdParty;
 use App\Traits\ApiResponser;
 use Hamcrest\Core\IsTypeOf;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ListaComprasController extends Controller
@@ -25,108 +28,60 @@ class ListaComprasController extends Controller
 
     public function __construct()
     {
-        $this->proveedores = ThirdParty::name("social_reason")->whereRaw("third_party_type = 'Proveedor'");
+        $this->proveedores = ThirdParty::name("social_reason")->whereRaw("is_supplier = 1");
     }
 
     public function index()
     {
+        return $this->success('');
+    }
+
+    public function paginate(Request $request)
+    {
+
         return $this->success(
-            /* DB::table("Orden_Compra_Nacional","OCN") */
-            OrdenCompraNacional::alias("OCN")
-                ->select(DB::raw("concat(
-                p.first_name,
-              IF(ifnull(p.second_name,'') != '',' ',''),
-                ifnull(p.second_name,''),
-                ' ',
-                p.first_surname,
-              IF(ifnull(p.second_surname,'') != '',' ',''),
-                ifnull(p.second_surname,'')
-            ) as Funcionario"), "OCN.*", "pr.social_reason as Proveedor", "p.image")
-                ->joinSub($this->proveedores, "pr", function ($join) {
-                    $join->on("pr.id", "=", "OCN.Id_Proveedor");
+            OrdenCompraNacional::with('person', 'third')
+                ->when($request->est, function ($q, $fill) {
+                    $q->where('Estado', $fill);
                 })
-                ->join("people as p", function ($join) {
-                    $join->on("p.id", "=", "OCN.Identificacion_Funcionario");
+                ->when($request->cod, function ($q, $fill) {
+                    $q->where('Codigo', 'like', "%$fill%");
                 })
-                ->when((request('tipo') == "filtrado") ? request('funcionario') : false, function ($q, $fill) {
-                    $q->where("OCN.Identificacion_Funcionario", '=', $fill);
-                })
-                ->when(request()->get('est'), function ($q, $fill) {
-                    $q->where('OCN.Estado', '=', $fill);
-                })
-                ->when(request()->get('cod'), function ($q, $fill) {
-                    $q->where('OCN.Codigo', 'like', '%' . $fill . '%');
-                })
-                ->when(request()->get('prov'), function ($q, $fill) {
+                ->when($request->prov, function ($q, $fill) {
                     $q->where('pr.social_reason', 'like', '%' . $fill . '%');
                 })
-                ->when(request()->get('fecha'), function ($q, $fill) {
+                ->when($request->fecha, function ($q, $fill) {
                     $q->whereBetween(DB::raw("DATE_FORMAT(Fecha, '%Y-%m-%d')"), explode(" - ", $fill));
                 })
-                ->when(request('func'), function ($q, $fill) {
-                    $q->where("OCN.Identificacion_Funcionario", '=', $fill)
-                        ->orWhere(DB::raw("concat(p.first_name,' ',p.first_surname)"), 'like', '%' . $fill . '%');
-                })->orderByDesc("OCN.Fecha")
+                ->when($request->func, function ($q, $fill) {
+                    $q->whereHas('person', function ($query) use ($fill) {
+                        $query->where('first_name', 'like', "%$fill%");
+                    });
+                })
+                ->orderByDesc("created_at")
                 ->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1))
         );
     }
 
-    public function datosComprasNacionales()
+    public function getProducts(Request $request)
     {
-        /* $query = DB::table("Orden_Compra_Nacional","OCN") */
-        $query = OrdenCompraNacional::alias("OCN")
-            ->select([
-                "ocn.Codigo",
-                "ocn.Fecha AS Fecha_Compra",
-                "ocn.Tipo",
-                "ocn.Estado",
-                "ocn.Aprobacion",
-                "pr.social_reason AS Proveedor",
-                DB::raw("IFNULL(b.Nombre,IFNULL(pd.Nombre,'Ninguno')) AS Bodega,
-            DATE_FORMAT(ocn.Fecha_Entrega_Probable, '%d/%m/%Y') AS Fecha_Probable"),
-                "ocn.Observaciones",
-                "ocn.Codigo_Qr"
-            ])
-            ->joinSub($this->proveedores, "pr", function ($join) {
-                $join->on("pr.id", "=", "OCN.Id_Proveedor");
-            })
-            ->leftJoin("Bodega_Nuevo as b", function ($join) {
-                $join->on("b.Id_Bodega_Nuevo", "=", "OCN.Id_Bodega_Nuevo");
-            })
-            ->leftJoin("Punto_Dispensacion as pd", function ($join) {
-                $join->on("pd.Id_Punto_Dispensacion", "=", "OCN.Id_Punto_Dispensacion");
-            })
-            ->when(request()->get('id'), function ($q, $fill) {
-                $q->where("OCN.Id_Orden_Compra_Nacional", $fill);
-            });
-        return $this->success($query->first());
+        return $this->success(
+            Product::with('unit', 'packaging', 'tax')
+                ->when($request->search, function ($query, $fill) {
+                    $query->where('Nombre_Comercial', 'like', "%$fill%");
+                })
+                ->when($request->subcategory_id, function ($query, $fill) {
+                    $query->where('Id_Subcategoria', $fill);
+                })
+                ->get(['*', 'Nombre_Comercial as name'])->take(10)
+        );
     }
 
-    public function detallesComprasNacionales()
+    public function datosComprasNacionales(Request $request)
     {
-        $query = DB::table("Producto_Orden_Compra_Nacional as POCN")
-            ->select([
-                DB::raw("IF(ifnull(CONCAT(PRD.Principio_Activo, PRD.Presentacion, PRD.Concentracion, PRD.Cantidad, PRD.Unidad_Medida),'') = '',
-                CONCAT(PRD.Nombre_Comercial,' ',PRD.Laboratorio_Comercial),
-                CONCAT(PRD.Principio_Activo,' ', PRD.Presentacion,' ', PRD.Concentracion, ' ', PRD.Cantidad, ' ', PRD.Unidad_Medida))
-            as Nombre_Producto"),
-                "PRD.Embalaje", "PRD.Nombre_Comercial",
-                "POCN.Costo as Costo",
-                "POCN.Cantidad as Cantidad",
-                "POCN.Iva as Iva",
-                "POCN.Total as Total",
-                "POCN.Id_Producto as Id_Producto",
-                "PRD.Cantidad_Presentacion AS Presentacion",
-                DB::raw("'0' as Rotativo")
-            ])
-            ->join("Producto as PRD", function ($join) {
-                $join->on("PRD.Id_Producto", "=", "POCN.Id_Producto");
-            })
-            ->when(request()->get('id'), function ($q, $fill) {
-                $q->where("POCN.Id_Orden_Compra_Nacional", $fill);
-            });
-
-        return $this->success($query->get());
+        $query = OrdenCompraNacional::with('products', 'person', 'third', 'store', 'activity')
+            ->find($request->id);
+        return $this->success($query);
     }
 
     public function actividadOrdenCompra()
@@ -276,73 +231,60 @@ class ListaComprasController extends Controller
         );
     }
 
-    public function storeCompra()
+    public function storeCompra(Request $request)
     {
         try {
-            $datos = request()->get('datos');
-            $productos = $datos['Productos'];
-            unset($datos['Productos']);
-            /* $result = DB::table("Orden_Compra_Nacional")->updateOrInsert( */
-            $result = OrdenCompraNacional::createOrInsert(
-                ['Id_Orden_Compra_Nacional' => $datos['Id_Orden_Compra_Nacional']],
-                $datos
+            $data = $request->except('Productos');
+            $data['Codigo'] = generateConsecutive('Orden_Compra_Nacional');
+            $productos = $request->Productos;
+            $ocn = OrdenCompraNacional::updateOrCreate(
+                ['Id_Orden_Compra_Nacional' => $data['Id_Orden_Compra_Nacional']],
+                $data
             );
-            /* $ordenNueva = (!isset($datos['Id_Orden_Compra_Nacional']));
-            $result=($ordenNueva)?
-                DB::table('Orden_Compra_Nacional')
-                ->latest('Id_Orden_Compra_Nacional')->first()
-            :
-                DB::table('Orden_Compra_Nacional')
-                ->where('Id_Orden_Compra_Nacional',$datos['Id_Orden_Compra_Nacional'])->get();  */
-
-            $ordenNueva = $result->wasRecentlyCreated;
-            /* DB::table("Orden_Compra_Nacional")
-            -> */
-            OrdenCompraNacional::where('Id_Orden_Compra_Nacional', $result->Id_Orden_Compra_Nacional)
-                ->update(['Codigo' => "OC" . $result->Id_Orden_Compra_Nacional]);
-
-            if (request()->get('id_pre_compra')) {
-                DB::table("Pre_Compra")->updateOrInsert(
-                    ['Id_Pre_Compra' => request()->get('id_pre_compra')],
-                    ['Id_Orden_Compra_Nacional' => $result->Id_Orden_Compra_Nacional]
-                );
-            }
-
+            $ordenNueva = $ocn->wasRecentlyCreated;
             foreach ($productos as $producto) {
-                $producto['Id_Orden_Compra_Nacional'] = $result->Id_Orden_Compra_Nacional;
-                DB::table("Producto_Orden_Compra_Nacional")->updateOrInsert(
-                    ['Id_Producto_Orden_Compra_Nacional' => $producto['Id_Producto']],
+                $producto['Id_Orden_Compra_Nacional'] = $ocn->Id_Orden_Compra_Nacional;
+                ProductoOrdenCompraNacional::updateOrCreate(
+                    ['Id_Producto_Orden_Compra_Nacional' => $producto['Id_Producto_Orden_Compra_Nacional']],
                     $producto
                 );
             }
-
-            DB::table("Actividad_Orden_Compra")->insert(
+            ActividadOrdenCompra::create(
                 [
-                    'Id_Orden_Compra_Nacional' => $result->Id_Orden_Compra_Nacional,
-                    'Identificacion_Funcionario' => $result->Identificacion_Funcionario,
-                    'Detalles' => "Se " . (($ordenNueva) ? 'creó' : 'editó') . " la orden de compra con codigo OC" . $result->Id_Orden_Compra_Nacional,
+                    'Id_Orden_Compra_Nacional' => $ocn->Id_Orden_Compra_Nacional,
+                    'Identificacion_Funcionario' => $ocn->Identificacion_Funcionario,
+                    'Detalles' => "Se " . (($ordenNueva) ? 'creó' : 'editó') . " la orden de compra con código " . $ocn->Codigo,
                     'Fecha' => date("Y-m-d H:i:s"),
                     'Estado' => ($ordenNueva) ? 'Creacion' : 'Edicion'
                 ]
             );
-
+            sumConsecutive('Orden_Compra_Nacional');
             return $this->success('Orden de compra ' . (($ordenNueva) ? 'creada' : 'actualizada') . ' con éxito');
         } catch (\Throwable $th) {
             return $this->errorResponse(["file" => $th->getFile() . ":" . $th->getLine(), "err" => $th->getCode(), "data" => $th->getMessage()]);
         }
     }
 
+    /* if (request()->get('id_pre_compra')) {
+        DB::table("Pre_Compra")->updateOrInsert(
+            ['Id_Pre_Compra' => request()->get('id_pre_compra')],
+            ['Id_Orden_Compra_Nacional' => $result->Id_Orden_Compra_Nacional]
+        );
+    } */
+
     public function getEstadosCompra()
     {
-        $listaRaw = explode(",", DB::table('information_schema.COLUMNS')
-            ->selectRaw("substr(left(column_type,LENGTH(column_type)-1),6) AS lista_estados")
-            ->whereRaw('CONCAT_WS("-",table_schema,TABLE_NAME,COLUMN_NAME)=?', [env('DB_DATABASE') . "-orden_compra_nacional-estado"])
-            ->first()->lista_estados);
-        $lista = [];
-        foreach ($listaRaw as $value) {
-            $lista[] = ["estado" => str_replace("'", "", $value)];
-        }
-        return $this->success($lista);
+        $enumValues = Cache::remember('enum_values_orden_compra_nacional_estado', 60, function () {
+            $columnInfo = DB::select('SELECT COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?', [
+                env('DB_DATABASE'),
+                'orden_compra_nacional',
+                'estado'
+            ])[0];
+            return array_map(function ($value) {
+                return trim($value, "'");
+            }, explode(',', substr($columnInfo->COLUMN_TYPE, 5, -1)));
+        });
+        return $this->success($enumValues);
     }
 
     public function setEstadoCompra()

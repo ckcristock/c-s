@@ -83,7 +83,7 @@ class BodegasController extends Controller
     }
 
     public function impuestos(){
-        return $this->success(DB::table("Impuesto")->select("Valor")->get());
+        return $this->success(DB::table("Impuesto")->get());
     }
 
     /**

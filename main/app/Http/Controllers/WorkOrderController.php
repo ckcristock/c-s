@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CentroCosto;
+use App\Models\CentroCostoWorkOrder;
 use App\Models\WorkOrder;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -110,6 +112,20 @@ class WorkOrderController extends Controller
             $data['code'] = generateConsecutive('work_orders', 'BGA');
         }
         $updateOrCreate = WorkOrder::updateOrCreate(['id' => $request->id], $data);
+        if ($updateOrCreate->wasRecentlyCreated) {
+            $centroCosto = CentroCosto::create([
+                'Nombre' => $updateOrCreate->name,
+                'Codigo' => '121' . $updateOrCreate->code,
+                'Id_Centro_Padre' => 4,
+                'Id_Tipo_Centro' => 3,
+                'Movimiento' => 'Si',
+                'company_id' => 1,
+            ]);
+            CentroCostoWorkOrder::create([
+                'centro_costo_id' => $centroCosto->Id_Centro_Costo,
+                'work_order_id' => $updateOrCreate->id
+            ]);
+        }
         $updateOrCreate->wasRecentlyCreated ? sumConsecutive('work_orders') : '';
         return $this->success($request->all());
     }
