@@ -176,18 +176,21 @@ class LiquidacionesController extends Controller
 
         return PayrollOvertime::extrasFuncionarioWithPerson($id)->fromTo($fechaInicio, $fechaFin);
     }
+
     public function getPagoNeto($persona, $fechaInicio, $fechaFin)
     {
         return NominaPago::pagoFuncionarioWithPerson($persona)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
     }
+
     public function getRetenciones($id, $fechaInicio, $fechaFin)
     {
         return  NominaRetenciones::retencionesFuncionarioWithPerson($id)
             ->fromTo($fechaInicio, $fechaFin)
             ->calculate();
     }
+
     public function getProvisiones($persona, $fechaInicio, $fechaFin)
     {
         return NominaProvisiones::provisionesFuncionarioWithPerson($persona)
@@ -217,13 +220,13 @@ class LiquidacionesController extends Controller
 
     public function getDiasTrabajados($id, $fechaFin){
 
-        // $ultimoPago = PersonPayrollPayment::where('person_id', $id)->latest('created_at')->first();
+       // $ultimoPago = PersonPayrollPayment::where('person_id', $id)->latest('created_at')->first();
+       // $fechaInicioPeriodo = Carbon::createFromFormat("Y-m-d H:i:s", $ultimoPago->created_at)->format("Y-m-d H:i:s");
 
-        // $fechaInicioPeriodo = Carbon::createFromFormat("Y-m-d H:i:s", $ultimoPago->created_at)->format("Y-m-d H:i:s");
         $fecha = explode('-', $fechaFin);
-
+        //return($fechaFin);
         $ultimoPago= PersonPayrollPayment::where('person_id', $id)->with('payrollPayment')->latest('created_at')->first();
-        //return($ultimopayroll);
+        //dd($ultimoPago);
 
         $fechaInicioPeriodo =  Carbon::createFromFormat("Y-m-d", $ultimoPago->payrollPayment->end_period)->format("Y-m-d H:i:s");
         //return($fechaInicioPeriodo);
@@ -232,10 +235,9 @@ class LiquidacionesController extends Controller
         //return($preliquidated);
 
         $fechaFinPeriodo =  Carbon::createFromFormat("Y-m-d H:i:s", $preliquidated->liquidated_at)->format("Y-m-d H:i:s");
-       // return($fechaFinPeriodo);
+        //return($fechaFinPeriodo);
 
         // $fechaFin = Carbon::create($fecha[0], $fecha[1], $fecha[2], 0, 0, 0)->format("Y-m-d H:i:s");
-        // //return($fechaFinPeriodo);
 
         $fechasNovedades = function ($query) use ($fechaInicioPeriodo, $fechaFinPeriodo) {
             return $query->whereBetween('date_start', [$fechaInicioPeriodo, $fechaFinPeriodo])
@@ -248,7 +250,7 @@ class LiquidacionesController extends Controller
             ->with(['payroll_factors' => $fechasNovedades])
             ->first(['id', 'identifier', 'first_name', 'first_surname', 'image']);
         $funcionario['contractultimate'] = $funcionario['contractUltimateLiquidated']['workContractBT'];
-       return($funcionario);
+        //return($funcionario);
 
         if (!$funcionario) {
             $funcionariosResponse = [
@@ -284,6 +286,7 @@ class LiquidacionesController extends Controller
             $tempExtras = $this->getExtrasTotales($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);
             $extras = $tempExtras['valor_total'];
             $salario = $this->getPagoNeto($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['total_valor_neto'];
+            //return( $salario);
             $retencion = $this->getRetenciones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
             $provision = $this->getProvisiones($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo)['valor_total'];
             $temIngresos = $this->getIngresos($funcionario, $fechaInicioPeriodo, $fechaFinPeriodo);

@@ -100,7 +100,6 @@ class NominaPago extends PeriodoPago
     {
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
-        
         $this->facadeSalario = NominaSalario::salarioFuncionarioWithPerson(self::$funcionario)
                                 ->fromTo($this->fechaInicio,$this->fechaFin)
                                 ->calculate();

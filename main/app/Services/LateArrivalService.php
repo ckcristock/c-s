@@ -127,6 +127,7 @@ class LateArrivalService
                 $q->where('p.id',$fill);
             })
             ->select('p.first_name', 'p.first_surname', 'p.id','p.image')
+            ->orderBy("p.first_name")
             ->get();
     }
 

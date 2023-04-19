@@ -78,23 +78,9 @@ class ContractFinish extends Command
             ->where('id', $contrato->persona )->first();
             if ($contrato->dayDiff == 30) {
                 if ($contrato->renewed == null) {
-                    Alert::create([
-                        'person_id' => 1,
-                        'user_id' => $contrato->persona,
-                        'modal' => 0,
-                        'icon' => 'fas fa-file-contract',
-                        'type' => 'Finalización de contrato',
-                        'description' => 'Se le informa que su contrato finalizará el día '.$contrato->date_end
-                    ]);
-                    Alert::create([
-                        'person_id' => 1,
-                        'user_id' => 1,
-                        'modal' => 0,
-                        'icon' => 'fas fa-file-contract',
-                        'type' => 'Notificación de finalización de contrato',
-                        'description' => 'El funcionario '.$person->full_names.' con el contrato número CON'.$contrato->contract_id.' fue notificado
-                        de su finalización para el día '.$contrato->date_end
-                    ]);
+                    $this->not1($contrato);
+                    $this->not2($contrato, $person, 1);
+                    $this->not2($contrato,  $person, 11670);
                     WorkContractFinishConditions::create([
                         'person_id' => $contrato->persona,
                         'contract_id' => $contrato->contract_id,
@@ -114,21 +100,50 @@ class ContractFinish extends Command
                     unset($condicionesContratoARenovar->updated_at);
                     WorkContract::create($condicionesContratoARenovar->toArray());
                 }
-                Alert::create([
-                    'person_id' => 1,
-                    'user_id' => 1,
-                    'modal' => 0,
-                    'icon' => 'fas fa-file-contract',
-                    'type' => 'Preliquidación de funcionario',
-                    'url' => ($contrato->renewed == 0)?'/rrhh/liquidados':'/ajustes/informacion-base/funcionario/'.$contrato->persona,
-                    'description' => ($contrato->renewed == 0)?'El funcionario '.$person->full_names.' con el contrato número CON'.$contrato->contract_id.' fue preliquidado
-                    y su contrato finalizado.':'El contrato número CON'.$contrato->contract_id.' con el funcionario '.$person->full_names.' fue renovado.'
-                ]);
+                    $this->not3($contrato, $person, 1);
+                    $this->not3($contrato,  $person, 11670);
+
                 WorkContract::where('id', $contrato->contract_id)
                 ->update(["liquidated" => 1]);
                 WorkContractFinishConditions::where('contract_id', $contrato->contract_id)
                 ->delete();
             }
         });
+    }
+
+    function not1($contrato) {
+        Alert::create([
+            'person_id' => 1,
+            'user_id' => $contrato->persona,
+            'modal' => 0,
+            'icon' => 'fas fa-file-contract',
+            'type' => 'Finalización de contrato',
+            'description' => 'Se le informa que su contrato finalizará el día '.$contrato->date_end
+        ]);
+    }
+
+    function not2($contrato, $person, $id) {
+        Alert::create([
+            'person_id' => 1,
+            'user_id' => $id,
+            'modal' => 0,
+            'icon' => 'fas fa-file-contract',
+            'type' => 'Notificación de finalización de contrato',
+            'description' => 'El funcionario '.$person->full_names.' con el contrato número CON'.$contrato->contract_id.' fue notificado
+            de su finalización para el día '.$contrato->date_end
+        ]);
+    }
+
+    function not3($contrato, $person, $id) {
+        Alert::create([
+            'person_id' => 1,
+            'user_id' => $id,
+            'modal' => 0,
+            'icon' => 'fas fa-file-contract',
+            'type' => 'Preliquidación de funcionario',
+            'url' => ($contrato->renewed == 0)?'/rrhh/liquidados':'/ajustes/informacion-base/funcionario/'.$contrato->persona,
+            'description' => ($contrato->renewed == 0)?'El funcionario '.$person->full_names.' con el contrato número CON'.$contrato->contract_id.' fue preliquidado
+            y su contrato finalizado.':'El contrato número CON'.$contrato->contract_id.' con el funcionario '.$person->full_names.' fue renovado.'
+        ]);
     }
 }

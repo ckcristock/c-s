@@ -62,7 +62,7 @@ class NominaSeguridad extends PeriodoPago
     {
         //self::$funcionario = Person::with('contractultimate')->findOrFail($id);
         //self::$funcionario = $persona;
-        //dd(gettype($persona));
+        //dd($persona);
         if (gettype($persona)==='string' || gettype($persona)==='integer') {
             self::$funcionario = Person::with('contractultimate')->findOrFail($persona);
         }else {
@@ -76,7 +76,9 @@ class NominaSeguridad extends PeriodoPago
     public function fromTo($fechaInicio, $fechaFin)
     {
         $this->fechaInicio = $fechaInicio;
+        //dd($this->fechaInicio);
         $this->fechaFin = $fechaFin;
+        //dd($this->fechaFin);
 
         $this->facadeRetenciones = NominaRetenciones::retencionesFuncionarioWithPerson(self::$funcionario)
             ->fromTo($this->fechaInicio, $this->fechaFin)
