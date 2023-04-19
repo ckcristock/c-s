@@ -27,17 +27,17 @@ class AccommodationController extends Controller
     }
 
     public function paginate()
-	{
-		return $this->success(
-			Accommodation:://with('hotels')
-            withTrashed()
-			->when( request()->get('name') , function($q, $fill)
-			{
-				$q->where('name','like','%'.$fill.'%');
-			})
-			->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1))
-		);
-	}
+    {
+        return $this->success(
+            Accommodation:: //with('hotels')
+                withTrashed()
+                ->when(request()->get('name'), function ($q, $fill) {
+                    $q->where('name', 'like', "%$fill%");
+                })
+                ->orderBy('deleted_at')
+                ->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1))
+        );
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -48,12 +48,12 @@ class AccommodationController extends Controller
     public function store(Request $request)
     {
         try {
-            $nuevo = Accommodation:: withTrashed()->updateOrCreate(['id'=>$request->id],[
-                'name'=>$request->name
+            $nuevo = Accommodation::withTrashed()->updateOrCreate(['id' => $request->id], [
+                'name' => $request->name
             ]);
             return ($nuevo->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(). ' msg: ' . $th->getLine() . ' ' . $th->getFile(),204);
+            return $this->error($th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 204);
         }
     }
 
@@ -94,10 +94,10 @@ class AccommodationController extends Controller
             if ($register) {
                 return $this->success('Registro eliminado exitosamente');
             } else {
-                return $this->error('Occurrió un error al intentar borrar',204);
+                return $this->error('Occurrió un error al intentar borrar', 204);
             }
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(). ' msg: ' . $th->getLine() . ' ' . $th->getFile(),204);
+            return $this->error($th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 204);
         }
     }
 
@@ -113,16 +113,16 @@ class AccommodationController extends Controller
             $data = $request->all()['data'];
 
             $register = Accommodation::withTrashed()
-                        ->where('id' ,$data['id'])
-                        ->restore();
+                ->where('id', $data['id'])
+                ->restore();
 
             if ($register) {
                 return $this->success('Registro restaurado exitosamente');
             } else {
-                return $this->error('Occurrió un error al intentar activar',204);
+                return $this->error('Occurrió un error al intentar activar', 204);
             }
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(). ' msg: ' . $th->getLine() . ' ' . $th->getFile(),204);
+            return $this->error($th->getMessage() . ' msg: ' . $th->getLine() . ' ' . $th->getFile(), 204);
         }
     }
 }

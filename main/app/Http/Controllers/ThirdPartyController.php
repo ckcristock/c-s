@@ -35,11 +35,13 @@ class ThirdPartyController extends Controller
             $q->where(DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname))'), 'like', '%' . $fill . '%');
             /* $q->where('social_reason', 'like', '%' . $fill . '%'); */
         })
-        ->when(Request()->get('third_party_type'), function ($q, $fill) {
-            if (request()->get('third_party_type') == 'Todos') {
+        ->when($request->third_party_type, function ($q, $fill) {
+            if ($fill == 'Todos') {
                 return null;
-            } else {
-                $q->where('third_party_type', 'like', '%' . $fill . '%');
+            } else if ($fill == 'Cliente') {
+                $q->where('is_client', 1);
+            } else if ($fill == 'Proveedor') {
+                $q->where('is_supplier', 1);
             }
         })
         ->when(Request()->get('email'), function ($q, $fill) {
@@ -96,7 +98,7 @@ class ThirdPartyController extends Controller
                     $q->where(DB::raw('concat(IFNULL(social_reason, " "), IFNULL(first_name,"")," ",IFNULL(first_surname,"") )'), 'like', '%' . $fill . '%');
                 })
                 ->where('state', 'Activo')
-                ->where('third_party_type', 'Proveedor')
+                ->where('is_supplier', 1)
                 ->get()
         );
     }
@@ -113,7 +115,7 @@ class ThirdPartyController extends Controller
                 $q->where(DB::raw('concat(IFNULL(social_reason, " "), IFNULL(first_name,"")," ",IFNULL(first_surname,"") )'), 'like', '%' . $fill . '%');
             })
                 ->where('state', 'Activo')
-                ->where('third_party_type', 'Cliente')
+                ->where('is_client', 1)
                 ->orderBy('text')
                 ->get()
         );
@@ -201,6 +203,12 @@ class ThirdPartyController extends Controller
         }
         $people = request()->get('person');
         try {
+            if (in_array('Cliente', $data['third_party_type'])) {
+                $data['is_client'] = true;
+            }
+            if (in_array('Proveedor', $data['third_party_type'])){
+                $data['is_supplier'] = true;
+            }
             $thirdParty =  ThirdParty::create($data);
             foreach ($people as $person) {
                 $person["third_party_id"] = $thirdParty->id;
@@ -300,6 +308,16 @@ class ThirdPartyController extends Controller
         }
         $people = request()->get('person');
         try {
+            if (in_array('Cliente', $data['third_party_type'])) {
+                $data['is_client'] = true;
+            } else {
+                $data['is_client'] = false;
+            }
+            if (in_array('Proveedor', $data['third_party_type'])){
+                $data['is_supplier'] = true;
+            } else {
+                $data['is_supplier'] = false;
+            }
             $thirdParty = ThirdParty::find($id)
                 ->update($data);
             foreach ($people as $person) {
@@ -333,7 +351,7 @@ class ThirdPartyController extends Controller
         $query = 'SELECT PR.id as Id_Proveedor,
             IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname, second_name, second_surname))  as NombreProveedor
             FROM third_parties PR
-            WHERE PR.third_party_type = "Cliente" ';
+            WHERE PR.is_client = 1 ';
 
         $oCon = new consulta();
         $oCon->setQuery($query);
@@ -433,10 +451,10 @@ class ThirdPartyController extends Controller
                          FROM people';
         } else if ($tipo == 'Cliente') {
             $select = 'SELECT id as Id_Cliente, IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) AS Nombre
-            FROM third_parties WHERE third_party_type = "Cliente"';
+            FROM third_parties WHERE is_client = 1';
         } else if ($tipo == 'Proveedor') {
             $select = 'SELECT id AS Id_Cliente ,
-                        IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) AS Nombre FROM third_parties WHERE third_party_type = "Proveedor" ';
+                        IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) AS Nombre FROM third_parties WHERE is_supplier = 1 ';
         }
         return $select;
     }
