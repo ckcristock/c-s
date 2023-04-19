@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActividadOrdenCompra;
+use App\Models\Company;
 use App\Models\OrdenCompraNacional;
 use App\Models\Perfil;
 use App\Models\Person;
@@ -11,10 +12,13 @@ use App\Models\Product;
 use App\Models\ProductoOrdenCompraNacional;
 use Illuminate\Http\Request;
 use App\Models\ThirdParty;
+use App\Models\TipoRechazo;
 use App\Traits\ApiResponser;
+use Carbon\Carbon;
 use Hamcrest\Core\IsTypeOf;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class ListaComprasController extends Controller
 {
@@ -287,35 +291,28 @@ class ListaComprasController extends Controller
         return $this->success($enumValues);
     }
 
-    public function setEstadoCompra()
+    public function setEstadoCompra(Request $request)
     {
         try {
-            /* DB::table("Orden_Compra_Nacional")
-            -> */
-            OrdenCompraNacional::where('Id_Orden_Compra_Nacional', request()->get("id"))
-                ->update(['Estado' => request()->get("estado")]);
-
-
+            OrdenCompraNacional::find($request->id)->update(['Estado' => $request->estado]);
             $motivo = "";
-            if (in_array(request()->get("estado"), ['Aprobada', 'Rechazada'])) {
-                if (request()->get("motivo") != "") {
-                    $motivo = " con el siguiente motivo: " . DB::table("Tipo_Rechazo")
-                        ->where("Id_Tipo_Rechazo", request()->get("motivo"))->first()->Nombre;
-                }
 
-                DB::table("Actividad_Orden_Compra")->insert(
+            if (in_array($request->estado, ['Aprobada', 'Rechazada'])) {
+                if ($request->motivo) {
+                    $motivo = " con el siguiente motivo: " . TipoRechazo::find($request->motivo)->Nombre;
+                }
+                ActividadOrdenCompra::create(
                     [
-                        'Id_Orden_Compra_Nacional' => request()->get("id"),
-                        'Identificacion_Funcionario' => request()->get("funcionario"),
-                        'Detalles' => 'Esta orden de compra ha sido ' . strtolower(request()->get("estado")) . ' exitosamente' . $motivo . '.',
-                        'Fecha' => date("Y-m-d H:i:s"),
-                        'Estado' => (request()->get("estado") == "Aprobada") ? 'Aprobacion' : 'Rechazada'
+                        'Id_Orden_Compra_Nacional' => $request->id,
+                        'Identificacion_Funcionario' => auth()->user()->id,
+                        'Detalles' => 'Ha sido ' . strtolower($request->estado) . $motivo . '.',
+                        'Fecha' => Carbon::now(),
+                        'Estado' => ($request->estado == "Aprobada") ? 'Aprobacion' : 'Rechazada'
                     ]
                 );
             }
-
             return $this->success([
-                "mensaje" => 'Esta orden de compra ha sido ' . strtolower(request()->get("estado")) . ' exitosamente' . $motivo . '.',
+                "mensaje" => 'Orden de compra ' . strtolower($request->estado) . $motivo . '.',
                 "tipo" => "success",
                 "titulo" => "Operación exitosa"
             ]);
@@ -330,5 +327,24 @@ class ListaComprasController extends Controller
                 ]
             ]);
         }
+    }
+
+    public function descargar($id)
+    {
+        $company = Company::first();
+        $image = $company->page_heading;
+        $data = OrdenCompraNacional::with('products', 'person', 'third', 'store', 'activity')
+            ->find($id);
+        $datosCabecera = (object) array(
+            'Titulo' => 'Orden de compra',
+            'Codigo' => $data->Codigo,
+            'Fecha' => $data->created_at,
+            'CodigoFormato' => $data->format_code
+        );
+        $pdf = PDF::loadView(
+            'pdf.orden_compra',
+            compact('data', 'company', 'datosCabecera', 'image')
+        );
+        return $pdf->download('orden_compra.pdf');
     }
 }

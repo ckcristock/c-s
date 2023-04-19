@@ -1035,5 +1035,7 @@ Route::group(
         Route::get('php/contabilidad/estadoresultado/descarga_excel.php', [EstadoResultadoController::class, 'excel']);
         Route::get('php/prestamoylibranza/comprobar_prestamo.php', [LoanController::class, 'comprobarPrestamo']);
         Route::get('php/prestamoylibranza/pazysalvo.php/{id}', [LoanController::class, 'pazSalvo']);
+        /* Compras nacionales */
+        Route::get('php/comprasnacionales/descarga_pdf.php/{id}', [ListaComprasController::class, 'descargar']);
     }
 );
