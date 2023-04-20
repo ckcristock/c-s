@@ -31,10 +31,16 @@ class PurchaseRequestController extends Controller
     {
     }
 
+    public function getDatosPurchaseRequest(Request $request){
+        $query = PurchaseRequest::with('productPurchaseRequest','person')
+            ->find($request->id);
+        return $this->success($query);
+    }
+
     public function paginate(Request $request)
     {
         return $this->success(
-            PurchaseRequest::with('productPurchaseRequest')
+            PurchaseRequest::with('productPurchaseRequest','person')
                 ->when($request->code, function ($q, $fill) {
                     $q->where('code', 'like', "%$fill%");
                 })
@@ -47,6 +53,11 @@ class PurchaseRequestController extends Controller
                 })
                 ->when($request->status, function ($q, $fill) {
                     $q->where('status', 'like', "%$fill%");
+                })
+                ->when($request->funcionario, function ($q, $fill) {
+                    $q->whereHas('person', function ($query) use ($fill) {
+                        $query->where('first_name', 'like', "%$fill%");
+                    });
                 })
                 ->orderByDesc('created_at')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))

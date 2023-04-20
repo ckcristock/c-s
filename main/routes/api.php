@@ -810,6 +810,7 @@ Route::group(
         Route::resource("purchase-request", PurchaseRequestController::class);
         Route::get("paginate-purchase-request",[PurchaseRequestController::class,'paginate']);
         Route::get("get-product-typeahead", [PurchaseRequestController::class, 'getProducts']);
+        Route::get("datos-purchase-request", [PurchaseRequestController::class, 'getDatosPurchaseRequest']);
         
         
         
