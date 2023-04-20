@@ -1,20 +1,36 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\Mail;
+
+use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
+use App\Http\Controllers\FuncionariosController as Funcionario;
 use App\Http\Controllers\DiariosController as Diarios;
 use App\Http\Controllers\LlegadasTardeController as Llegadas;
+use App\Models\Cliente;
 use App\Models\Company;
+use App\Models\Correo;
+use App\Models\Empresa;
 use App\Models\Marcation;
+use App\Models\Person;
 use App\Services\MarcationService;
 use App\Services\PersonService;
 use Carbon\Carbon;
+use Facade\FlareClient\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+
 /* require_once $path = base_path('vendor/pear/http_request2/HTTP/Request2.php'); */
+
 date_default_timezone_set('America/Bogota');
+
+
 class AsistenciaController extends Controller
 {
     public function validar()
@@ -33,15 +49,22 @@ class AsistenciaController extends Controller
             $imgBase64 = request()->imagen;
             $temperatura = request()->temperatura;
             $image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imgBase64));
+
             $file_path = 'temporales/' . Str::random(30) . time() . '.png';
             Storage::disk('public')->put($file_path, $image, 'public');
+
             $tem = URL::to('/') . '/api/image?path=' . $file_path;
+
+
             //return $fully;
             //$fully = 'https://backend.sigmaqmo.com/storage/app/public/people/Arb9cDfbiLFpCUCDeVA6uvujh82ynL1631109731.png';
+
             $fully = str_replace('storage', 'storage/app/public', $tem);
+
             //return response($fully);
             $empresa = Company::where('id', 1)->get();
             /*$ cliente = Cliente::with('face')->where('documento', $empresa[0]["numero_documento"])->get(); */
+
             $params = [
                 'returnFaceId' => 'true',
                 'returnFaceLandmarks' => 'false',
@@ -119,15 +142,22 @@ class AsistenciaController extends Controller
                     //$resp = $response->getBody();
                     //Log::info($response->json());
                     $resp = $response->json();
+
+
                     if (key_exists('candidates', $resp[0]) && count($res) > 0) {
                         $candidatos = $resp[0]['candidates'];
+
                         if (count($candidatos) > 0) {
                             $candidato = $candidatos[0]['personId'];
+
                             if ($candidato != '') {
                                 $hactual = date("H:i:s");
                                 $hoy = date('Y-m-d');
                                 $ayer = date("Y-m-d", strtotime(date("Y-m-d") . ' - 1 day'));
                                 $funcionario = PersonService::funcionario_turno($candidato, $dias[date("w", strtotime($hoy))], $hoy, $ayer);
+
+
+
                                 if ($funcionario) {
                                     $tipo_turno = $funcionario->contractultimate->turn_type;
                                     switch ($tipo_turno) {
@@ -209,11 +239,9 @@ class AsistenciaController extends Controller
 
     public function comprobarAccesoInstantaneo($func, $journy): bool
     {
-
-        $horaEntrada = Carbon::parse($func->diariosTurnoFijo[0]['hora_' . $journy]);
+        $horaEntrada = Carbon::parse($func->diariosTurnoFijo[0][$journy]);
         $horaActual = Carbon::now();
         $diferencia = $horaEntrada->diffInMinutes($horaActual);
-
         if ($diferencia <= 9) {
             return false;
         }
@@ -233,27 +261,33 @@ class AsistenciaController extends Controller
 
     private function ValidaTurnoFijo($func, $hoy, $hactual, $fully, $temperatura, $empresa)
     {
+
         if (count($func->diariosTurnoFijo) != 0) {
 
             if ($func->diariosTurnoFijo[0]['leave_time_one'] == null) {
-                if (!$this->comprobarAccesoInstantaneo($func, 'entrada_uno')) {
+                if (!$this->comprobarAccesoInstantaneo($func, 'entry_time_one')) {
                     return $this->responseAccesoInstantaneo($func);
                 }
             }
 
             if ($func->diariosTurnoFijo[0]['leave_time_two'] == null && $func->diariosTurnoFijo[0]['entry_time_two'] != null) {
-                if (!$this->comprobarAccesoInstantaneo($func, 'entrada_dos')) {
+                if (!$this->comprobarAccesoInstantaneo($func, 'entry_time_two')) {
                     return $this->responseAccesoInstantaneo($func);
                 }
             }
 
             if ($func->diariosTurnoFijo[0]['entry_time_two'] == null && $func->diariosTurnoFijo[0]['leave_time_one'] != null) {
-                if (!$this->comprobarAccesoInstantaneo($func, 'salida_uno')) {
+                if (!$this->comprobarAccesoInstantaneo($func, 'leave_time_one')) {
                     return $this->responseAccesoInstantaneo($func);
                 }
             }
         }
+
+
+
         /** VALIDACION DE TURNO FIJO ASIGNADO AL FUNCIONARIO */
+
+
         if (count($func->diariosTurnoFijo) == 0) {
             /** VALIDO LA ENTRADA */
             if (isset($func->contractultimate->fixedTurn->horariosTurnoFijo[0])) {
@@ -551,9 +585,11 @@ class AsistenciaController extends Controller
     }
     private function ValidaTurnoRotativo($func, $hoy, $ayer, $hactual, $fully, $temperatura, $empresa)
     {
+
         if (count($func->diariosTurnoRotativoAyer) > 0) {
             $rotativo_ayer = $func->diariosTurnoRotativoAyer[0];
-            $turno_rotativo_ayer = $rotativo_ayer->RotatingTurn;
+            $turno_rotativo_ayer = $rotativo_ayer->turnoRotativo;
+
             $startTime = Carbon::parse($hoy . " " . $hactual);
             $finishTime = Carbon::parse($ayer . " " . $turno_rotativo_ayer->entry_time_one);
             $totalDuration = $finishTime->diffInSeconds($startTime) / 3600;

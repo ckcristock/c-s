@@ -1041,7 +1041,14 @@ Route::group(
         Route::get('php/comprasnacionales/descarga_pdf.php/{id}', [ListaComprasController::class, 'descargar']);
         /* Compras pendientes */
         Route::get('php/bodega_nuevo/lista_compras_pendientes.php', [OrdenCompraNacionalController::class, 'listarPendientes']);
+        Route::get('php/bodega_nuevo/acta_recepcion_comprad_test.php', [OrdenCompraNacionalController::class, 'actaRecepcionCompra']);
+        Route::get('php/actarecepcion/codigo_barrad.php', [OrdenCompraNacionalController::class, 'codigoBarras']);
         /* Acta recepcion */
         Route::get('php/actarecepcion_nuevo/lista_actas_pendientes.php', [ActaRecepcionController::class, 'listarPendientes']);
+        Route::get('php/actarecepcion/lista_acta_anula.php', [ActaRecepcionController::class, 'listarAnuladas']);
+        Route::get('php/facturasventas/causales_anulacion.php', [ActaRecepcionController::class, 'indexCausalAnulacion']);
+        Route::get('php/actarecepcion_nuevo/lista_actarecepcion.php', [ActaRecepcionController::class, 'listarActas']);
+        Route::get('php/bodega_nuevo/detalle_acta_recepcion.php', [ActaRecepcionController::class, 'detalleActa']);
+        Route::get('php/actarecepcion/actividades_acta_recepcion_compra.php', [ActaRecepcionController::class, 'getActividadesActa']);
     }
 );

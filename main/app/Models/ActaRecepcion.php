@@ -33,4 +33,24 @@ class ActaRecepcion extends Model
         'Fecha_Anulacion',
         'Codigo_Qr'
     ];
+
+    public function bodega()
+    {
+        return $this->belongsTo(Bodegas::class, 'Id_Bodega_Nuevo', 'Id_Bodega_Nuevo');
+    }
+
+    public function person()
+    {
+        return $this->belongsTo(Person::class, 'Identificacion_Funcionario');
+    }
+
+    public function third()
+    {
+        return $this->belongsTo(ThirdParty::class, 'Id_Proveedor');
+    }
+
+    public function causal()
+    {
+        return $this->belongsTo(CausalAnulacion::class, 'Id_Causal_Anulacion');
+    }
 }
