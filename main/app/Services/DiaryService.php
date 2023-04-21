@@ -34,7 +34,7 @@ class DiaryService
 			})
 			->where('p.status', '!=', 'liquidado')
 
-			->select("p.first_name", "p.first_surname", "p.id", "p.image")
+			->select("p.first_name", "p.first_surname", "p.id", "p.image", DB::raw("CONCAT_WS(' ', first_name, second_name, first_surname, second_surname) as completed_name"))
             ->orderBy("p.first_name")
 			->get();
 	}

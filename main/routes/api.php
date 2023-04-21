@@ -152,6 +152,7 @@ use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\HistoryDataCompanyController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\MarcationController;
 use App\Http\Controllers\MedioMagneticoController;
 use App\Http\Controllers\ModuloController;
 use App\Http\Controllers\OrdenCompraNacionalController;
@@ -637,6 +638,7 @@ Route::group(
 
         /* Paginations */
         Route::get('paginateBodegas', [BodegasController::class, 'paginate']);
+        Route::get('paginate-marcations', [MarcationController::class, 'paginate']);
         Route::get('packaging-paginate', [PackagingController::class, 'paginate']);
         Route::get('severance-payment-paginate', [SeverancePaymentController::class, 'paginate']);
         Route::get('get-severance-payment', [SeverancePaymentController::class, 'getSeverancePayment']);

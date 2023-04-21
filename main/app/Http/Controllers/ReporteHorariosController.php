@@ -68,8 +68,7 @@ class ReporteHorariosController extends Controller
                                 $person->id,
                                 $dates
                             );
-                        } 
-
+                        }
                     }
                 }
                 if ($group->dependencies->isEmpty()) {

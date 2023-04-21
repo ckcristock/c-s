@@ -15,4 +15,9 @@ class Marcation extends Model
         'date',
         'person_id'
     ];
+
+    public function person()
+    {
+        return $this->belongsTo(Person::class)->onlyName();
+    }
 }
