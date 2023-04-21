@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductPurchaseRequest;
 use App\Models\PurchaseRequest;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -30,22 +31,33 @@ class PurchaseRequestController extends Controller
     {
     }
 
+    public function getDatosPurchaseRequest(Request $request){
+        $query = PurchaseRequest::with('productPurchaseRequest','person')
+            ->find($request->id);
+        return $this->success($query);
+    }
+
     public function paginate(Request $request)
     {
         return $this->success(
-            PurchaseRequest::with('productPurchaseRequest')
+            PurchaseRequest::with('productPurchaseRequest','person')
                 ->when($request->code, function ($q, $fill) {
                     $q->where('code', 'like', "%$fill%");
                 })
                 ->when($request->start_created_at, function ($q, $fill) use ($request) {
                     $q->where('created_at', '>=', $fill)
-                    ->where('created_at', '<=', $request->end_created_at.' 23:59:59');
+                        ->where('created_at', '<=', $request->end_created_at . ' 23:59:59');
                 })
                 ->when($request->start_expected_date, function ($q, $fill) use ($request) {
                     $q->whereBetween('expected_date', [$fill, $request->end_expected_date]);
                 })
                 ->when($request->status, function ($q, $fill) {
                     $q->where('status', 'like', "%$fill%");
+                })
+                ->when($request->funcionario, function ($q, $fill) {
+                    $q->whereHas('person', function ($query) use ($fill) {
+                        $query->where('first_name', 'like', "%$fill%");
+                    });
                 })
                 ->orderByDesc('created_at')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
@@ -70,22 +82,30 @@ class PurchaseRequestController extends Controller
     public function store(Request $request)
     {
         try {
-
-            $data = $request->except('products');
+            $products_delete = $request->products_delete;
+            $data = $request->except('products', 'products_delete');
             $products = $request->products;
             $data['user_id'] = auth()->user()->id;
-            $data['code'] = generateConsecutive('purchase_requests');
+            if (!$request->id) {
+                $data['code'] = generateConsecutive('purchase_requests');
+            }
             $data['quantity_of_products'] = count($products);
             $purchaseRequest = PurchaseRequest::updateOrcreate(
-                ['id' => $request->id], $data
+                ['id' => $request->id],
+                $data
             );
-            
+            if (count($products_delete) > 0 ) {
+                foreach ($products_delete as $product) {
+                    ProductPurchaseRequest::find($product)->delete();
+                }
+            }
             foreach ($products as $product) {
                 $purchaseRequest->productPurchaseRequest()->updateOrCreate(['id' => $product['id']], $product);
             }
-            sumConsecutive('purchase_requests');
+            if (!$request->id) {
+                sumConsecutive('purchase_requests');
+            }
             return $this->success('Creado con éxito');
-            
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
