@@ -53,14 +53,14 @@ class AsistenciaController extends Controller
             $file_path = 'temporales/' . Str::random(30) . time() . '.png';
             Storage::disk('public')->put($file_path, $image, 'public');
 
-            $tem = URL::to('/') . '/api/image?path=' . $file_path; 
+            $tem = URL::to('/') . '/api/image?path=' . $file_path;
 
 
             //return $fully;
             //$fully = 'https://backend.sigmaqmo.com/storage/app/public/people/Arb9cDfbiLFpCUCDeVA6uvujh82ynL1631109731.png';
 
             $fully = str_replace('storage', 'storage/app/public', $tem);
-           
+
             //return response($fully);
             $empresa = Company::where('id', 1)->get();
             /*$ cliente = Cliente::with('face')->where('documento', $empresa[0]["numero_documento"])->get(); */
@@ -239,11 +239,9 @@ class AsistenciaController extends Controller
 
     public function comprobarAccesoInstantaneo($func, $journy): bool
     {
-
-        $horaEntrada = Carbon::parse($func->diariosTurnoFijo[0]['hora_' . $journy]);
+        $horaEntrada = Carbon::parse($func->diariosTurnoFijo[0][$journy]);
         $horaActual = Carbon::now();
         $diferencia = $horaEntrada->diffInMinutes($horaActual);
-
         if ($diferencia <= 9) {
             return false;
         }
@@ -263,22 +261,23 @@ class AsistenciaController extends Controller
 
     private function ValidaTurnoFijo($func, $hoy, $hactual, $fully, $temperatura, $empresa)
     {
+
         if (count($func->diariosTurnoFijo) != 0) {
 
             if ($func->diariosTurnoFijo[0]['leave_time_one'] == null) {
-                if (!$this->comprobarAccesoInstantaneo($func, 'entrada_uno')) {
+                if (!$this->comprobarAccesoInstantaneo($func, 'entry_time_one')) {
                     return $this->responseAccesoInstantaneo($func);
                 }
             }
 
             if ($func->diariosTurnoFijo[0]['leave_time_two'] == null && $func->diariosTurnoFijo[0]['entry_time_two'] != null) {
-                if (!$this->comprobarAccesoInstantaneo($func, 'entrada_dos')) {
+                if (!$this->comprobarAccesoInstantaneo($func, 'entry_time_two')) {
                     return $this->responseAccesoInstantaneo($func);
                 }
             }
 
             if ($func->diariosTurnoFijo[0]['entry_time_two'] == null && $func->diariosTurnoFijo[0]['leave_time_one'] != null) {
-                if (!$this->comprobarAccesoInstantaneo($func, 'salida_uno')) {
+                if (!$this->comprobarAccesoInstantaneo($func, 'leave_time_one')) {
                     return $this->responseAccesoInstantaneo($func);
                 }
             }
@@ -589,7 +588,7 @@ class AsistenciaController extends Controller
 
         if (count($func->diariosTurnoRotativoAyer) > 0) {
             $rotativo_ayer = $func->diariosTurnoRotativoAyer[0];
-            $turno_rotativo_ayer = $rotativo_ayer->RotatingTurn;
+            $turno_rotativo_ayer = $rotativo_ayer->turnoRotativo;
 
             $startTime = Carbon::parse($hoy . " " . $hactual);
             $finishTime = Carbon::parse($ayer . " " . $turno_rotativo_ayer->entry_time_one);
@@ -633,12 +632,12 @@ class AsistenciaController extends Controller
             $rotativo_hoy = $func->diariosTurnoRotativoHoy[0];
 
             $totalDuration = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->entry_time_one);
-           
+
 
             if ($totalDuration > 600) {
                 if ($rotativo_hoy->turnoRotativo->breack == 1 && $rotativo_hoy->breack_time_one == null) {
                     //guardar entrada launch
-                   
+
                     MarcationService::marcation('success', $fully, $func->id, 'El funcionario Ingresa al break');
                     $datos = array(
                         'breack_one_date' => $hoy,

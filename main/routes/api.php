@@ -4,6 +4,7 @@
 
 use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\AccountPlanController;
+use App\Http\Controllers\ActaRecepcionController;
 use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ApplicantController;
@@ -153,6 +154,7 @@ use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MedioMagneticoController;
 use App\Http\Controllers\ModuloController;
+use App\Http\Controllers\OrdenCompraNacionalController;
 use App\Http\Controllers\PackagingController;
 use App\Http\Controllers\PayrollManagerController;
 use App\Http\Controllers\PlanCuentasController;
@@ -811,11 +813,7 @@ Route::group(
         Route::get("paginate-purchase-request",[PurchaseRequestController::class,'paginate']);
         Route::get("get-product-typeahead", [PurchaseRequestController::class, 'getProducts']);
         Route::get("datos-purchase-request", [PurchaseRequestController::class, 'getDatosPurchaseRequest']);
-        
-        
-        
-
-
+           
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
         Route::get('proyeccion_excel/{id}', [LoanController::class, 'loanExcel']);
@@ -1038,5 +1036,16 @@ Route::group(
         Route::get('php/prestamoylibranza/pazysalvo.php/{id}', [LoanController::class, 'pazSalvo']);
         /* Compras nacionales */
         Route::get('php/comprasnacionales/descarga_pdf.php/{id}', [ListaComprasController::class, 'descargar']);
+        /* Compras pendientes */
+        Route::get('php/bodega_nuevo/lista_compras_pendientes.php', [OrdenCompraNacionalController::class, 'listarPendientes']);
+        Route::get('php/bodega_nuevo/acta_recepcion_comprad_test.php', [OrdenCompraNacionalController::class, 'actaRecepcionCompra']);
+        Route::get('php/actarecepcion/codigo_barrad.php', [OrdenCompraNacionalController::class, 'codigoBarras']);
+        /* Acta recepcion */
+        Route::get('php/actarecepcion_nuevo/lista_actas_pendientes.php', [ActaRecepcionController::class, 'listarPendientes']);
+        Route::get('php/actarecepcion/lista_acta_anula.php', [ActaRecepcionController::class, 'listarAnuladas']);
+        Route::get('php/facturasventas/causales_anulacion.php', [ActaRecepcionController::class, 'indexCausalAnulacion']);
+        Route::get('php/actarecepcion_nuevo/lista_actarecepcion.php', [ActaRecepcionController::class, 'listarActas']);
+        Route::get('php/bodega_nuevo/detalle_acta_recepcion.php', [ActaRecepcionController::class, 'detalleActa']);
+        Route::get('php/actarecepcion/actividades_acta_recepcion_compra.php', [ActaRecepcionController::class, 'getActividadesActa']);
     }
 );
