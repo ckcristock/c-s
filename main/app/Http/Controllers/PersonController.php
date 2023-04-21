@@ -44,6 +44,7 @@ class PersonController extends Controller
                         });
                     });
                 })
+                ->orderBy('first_name')
                 ->get([
                     "id as value",
                     DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),
