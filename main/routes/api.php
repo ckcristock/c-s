@@ -815,7 +815,7 @@ Route::group(
         Route::get("paginate-purchase-request",[PurchaseRequestController::class,'paginate']);
         Route::get("get-product-typeahead", [PurchaseRequestController::class, 'getProducts']);
         Route::get("datos-purchase-request", [PurchaseRequestController::class, 'getDatosPurchaseRequest']);
-           
+
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
         Route::get('proyeccion_excel/{id}', [LoanController::class, 'loanExcel']);
@@ -1049,5 +1049,7 @@ Route::group(
         Route::get('php/actarecepcion_nuevo/lista_actarecepcion.php', [ActaRecepcionController::class, 'listarActas']);
         Route::get('php/bodega_nuevo/detalle_acta_recepcion.php', [ActaRecepcionController::class, 'detalleActa']);
         Route::get('php/actarecepcion/actividades_acta_recepcion_compra.php', [ActaRecepcionController::class, 'getActividadesActa']);
+        Route::post('php/bodega_nuevo/guardar_acta_recepciond.php', [ActaRecepcionController::class, 'save']);
+
     }
 );

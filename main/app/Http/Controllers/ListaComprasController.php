@@ -294,7 +294,11 @@ class ListaComprasController extends Controller
     public function setEstadoCompra(Request $request)
     {
         try {
-            OrdenCompraNacional::find($request->id)->update(['Estado' => $request->estado]);
+            if ($request->estado == 'Anulada' || $request->estado == 'Pendiente') {
+                OrdenCompraNacional::find($request->id)->update(['Estado' => $request->estado]);
+            } else {
+                OrdenCompraNacional::find($request->id)->update(['Aprobacion' => $request->estado]);
+            }
             $motivo = "";
 
             if (in_array($request->estado, ['Aprobada', 'Rechazada'])) {
