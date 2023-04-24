@@ -13,7 +13,8 @@ class ProductPurchaseRequest extends Model
         'purchase_request_id',
         'product_id',
         'name',
-        'ammount',       
+        'ammount',
+        'status'
     ];
 
     public function purchaseRequest()
@@ -24,5 +25,11 @@ class ProductPurchaseRequest extends Model
     public function product() {
         return $this->belongsTo(Product::class, 'product_id', 'Id_Producto')->with('unit');
     }
+
+    public function quotation() {
+        return $this->hasMany(QuotationPurchaseRequest::class, 'product_purchase_request_id', 'id');
+    }
+
+
 
 }

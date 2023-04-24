@@ -13,9 +13,9 @@ class PurchaseRequest extends Model
     protected $fillable = [
         'category_id',
         'expected_date',
-        'observations', 
+        'observations',
         'status',
-        'quantity_of_products',  
+        'quantity_of_products',
         'user_id',
         'code',
         'format_code'
@@ -23,12 +23,17 @@ class PurchaseRequest extends Model
 
     public function productPurchaseRequest()
     {
-        return $this->hasMany(ProductPurchaseRequest::class)->with('product');
+        return $this->hasMany(ProductPurchaseRequest::class)->with('product', 'quotation');
     }
 
     public function person()
     {
         return $this->belongsTo(Person::class, 'user_id')->fullName()->with('contractultimate');
+    }
+
+    public function quotationPurchaseRequest()
+    {
+        return $this->hasMany(QuotationPurchaseRequest::class);
     }
 
 }

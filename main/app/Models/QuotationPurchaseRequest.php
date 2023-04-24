@@ -10,12 +10,17 @@ class QuotationPurchaseRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'purchase_request_id',    
+        'product_purchase_request_id',
         'code',
         'format_code',
-        'Id_Proveedor',    
+        'third_party_id',
         'total_price',
         'status',
-        'file',                
+        'file',
     ];
+
+    public function purchaseRequest()
+    {
+        return $this->belongsTo(PurchaseRequest::class);
+    }
 }

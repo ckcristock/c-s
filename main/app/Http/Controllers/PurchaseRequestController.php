@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductPurchaseRequest;
 use App\Models\PurchaseRequest;
+use App\Models\QuotationPurchaseRequest;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 class PurchaseRequestController extends Controller
 {
@@ -31,16 +33,12 @@ class PurchaseRequestController extends Controller
     {
     }
 
-    public function getDatosPurchaseRequest(Request $request){
-        $query = PurchaseRequest::with('productPurchaseRequest','person')
-            ->find($request->id);
-        return $this->success($query);
-    }
+
 
     public function paginate(Request $request)
     {
         return $this->success(
-            PurchaseRequest::with('productPurchaseRequest','person')
+            PurchaseRequest::with('productPurchaseRequest', 'person')
                 ->when($request->code, function ($q, $fill) {
                     $q->where('code', 'like', "%$fill%");
                 })
@@ -63,7 +61,7 @@ class PurchaseRequestController extends Controller
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
-    /**   
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -94,7 +92,7 @@ class PurchaseRequestController extends Controller
                 ['id' => $request->id],
                 $data
             );
-            if (count($products_delete) > 0 ) {
+            if (count($products_delete) > 0) {
                 foreach ($products_delete as $product) {
                     ProductPurchaseRequest::find($product)->delete();
                 }
@@ -119,7 +117,7 @@ class PurchaseRequestController extends Controller
      */
     public function show($id)
     {
-        return $this->success(PurchaseRequest::with('productPurchaseRequest')->find($id));
+        return $this->success(PurchaseRequest::with('productPurchaseRequest', 'person')->find($id));
     }
 
     /**
@@ -154,5 +152,22 @@ class PurchaseRequestController extends Controller
     public function destroy(PurchaseRequest $purchaseRequest)
     {
         //
+    }
+
+    public function saveQuotationPurchaseRequest(Request $request)
+    {
+        $items = $request->items;
+        $code = generateConsecutive('quotation_purchase_requests');
+        foreach ($items as $key => $value) {
+            $value['code'] = $code . '-' . ($key + 1);
+            $base64 = saveBase64File($value["file"], 'cotizaciones-solicitud-compra/', false, '.pdf');
+            $value['file'] = URL::to('/') . '/api/file-view?path=' . $base64;
+            QuotationPurchaseRequest::create($value);
+            $product = ProductPurchaseRequest::find($value['product_purchase_request_id']);
+            $product->update(['status' => 'Cotizaciones cargadas']);
+        }
+        PurchaseRequest::find($product->purchase_request_id)->update(['status' => 'Cotizada']);
+        sumConsecutive('quotation_purchase_requests');
+        return $this->success('holi');
     }
 }
