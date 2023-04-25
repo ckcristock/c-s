@@ -145,4 +145,5 @@ class ThirdParty extends Model
     {
         return $this->belongsTo(DocumentTypes::class, 'document_type');
     }
+
 }

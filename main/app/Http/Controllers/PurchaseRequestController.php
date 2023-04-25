@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductPurchaseRequest;
 use App\Models\PurchaseRequest;
+use App\Models\Quotation;
 use App\Models\QuotationPurchaseRequest;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -169,5 +170,35 @@ class PurchaseRequestController extends Controller
         PurchaseRequest::find($product->purchase_request_id)->update(['status' => 'Cotizada']);
         sumConsecutive('quotation_purchase_requests');
         return $this->success('holi');
+    }
+
+    public function getQuotationPurchaserequest($id)
+    {
+        $quotation = QuotationPurchaseRequest::where('product_purchase_request_id', $id)->with('thirdParty')->get();
+        return $this->success($quotation);
+    }
+
+    public function saveQuotationApproved($id)
+    {
+        $quotationPurchase = QuotationPurchaseRequest::find($id);
+        $quotationPurchase->update(['status' => 'Aprobada']);
+        $quotationIds =
+            QuotationPurchaseRequest::where('product_purchase_request_id', $quotationPurchase->product_purchase_request_id)
+                ->where('id', '<>', $id)
+                ->pluck('id');
+        QuotationPurchaseRequest::whereIn('id', $quotationIds)->update(['status' => 'Rechazada']);
+
+        /**
+         *modificacion migracion enum falta Cotizacion aprobada
+         *actualizar status a Cotizacion aprobada de un producto
+         *recorrer productos que tengas el mismo purchase_request_id y si ya todos estan aprobados entonces que el status de purchase_request se actualice a aprobada
+         * agregar a tabla principal en el front cantidad de productos cotizados
+         * condicionar todos los botones (cargar, aprobar, ver, nueva order)
+         * modal de ver cotizacion aprobada
+         * boton de cotizacion general
+         * actividad
+         */
+
+        return $this->success('Operación existosa');
     }
 }
