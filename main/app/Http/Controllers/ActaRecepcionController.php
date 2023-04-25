@@ -8,9 +8,11 @@ use App\Http\Services\consulta;
 use App\Http\Services\QueryBaseDatos;
 use App\Http\Services\PaginacionData;
 use App\Http\Services\complex;
+use App\Http\Services\Costo_Promedio;
 use App\Http\Services\Contabilizar;
 use App\Http\Services\Configuracion;
 use App\Http\Services\conf;
+use App\Http\Services\HttpResponse;
 use App\Models\ActaRecepcion;
 use App\Models\CausalAnulacion;
 use Exception;
@@ -165,7 +167,7 @@ class ActaRecepcionController extends Controller
             SELECT
             ARC.Id_Acta_Recepcion AS Id_Acta, ARC.Codigo, ARC.Estado,
             ARC.Fecha_Creacion,ARC.Tipo_Acta,  F.image AS Imagen,
-            B.Nombre as Bodega,  B.Id_Bodega_Nuevo AS Id_Bodega_Nuevo ,  OCN.Codigo as Codigo_Compra_N,  P.Nombre as Proveedor,
+            B.Nombre as Bodega,  B.Id_Bodega_Nuevo AS Id_Bodega_Nuevo ,  OCN.Codigo as Codigo_Compra_N, IFNULL(P.social_reason, CONCAT_WS(" ", P.first_name, P.first_surname)) as Proveedor,
             NULL Codigo_Remision, OCN.created_at as Fecha_Compra_N,
             (
                 CASE
@@ -183,8 +185,8 @@ class ActaRecepcionController extends Controller
             LEFT JOIN Bodega_Nuevo B
             ON B.Id_Bodega_Nuevo = ARC.Id_Bodega_Nuevo
 
-            INNER JOIN Proveedor P
-            ON P.Id_Proveedor = ARC.Id_Proveedor
+            INNER JOIN third_parties P
+            ON P.id = ARC.Id_Proveedor
 
             UNION ALL
             #ACTA DE RECEPCION REMISION
@@ -285,7 +287,7 @@ class ActaRecepcionController extends Controller
                 GROUP BY F.Id_Acta_Recepcion
             ) AS Factura,
             B.Nombre as Nombre_Bodega,
-            (SELECT P.Nombre FROM Proveedor P WHERE P.Id_Proveedor=AR.Id_Proveedor) AS Proveedor,
+            (SELECT IFNULL(P.social_reason, CONCAT_WS(" ", P.first_name, P.first_surname)) FROM third_parties P WHERE P.id=AR.Id_Proveedor) AS Proveedor,
             (SELECT PAR.Codigo_Compra
                 FROM Producto_Acta_Recepcion PAR
                 WHERE PAR.Id_Acta_Recepcion=AR.Id_Acta_Recepcion
@@ -316,9 +318,9 @@ class ActaRecepcionController extends Controller
         if (!$tipo) {
             $query3 = 'SELECT AR.*,
                 B.Nombre as Nombre_Bodega,
-                P.Nombre as NombreProveedor,
-                P.Direccion as DireccionProveedor,
-                P.Telefono as TelefonoProveedor,
+                IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as NombreProveedor,
+                P.cod_dian_address as DireccionProveedor,
+                P.landline as TelefonoProveedor,
                 (SELECT PAR.Codigo_Compra
                     FROM Producto_Acta_Recepcion PAR
                     WHERE PAR.Id_Acta_Recepcion=AR.Id_Acta_Recepcion
@@ -326,14 +328,14 @@ class ActaRecepcionController extends Controller
                 ) AS Codigo_Compra
                 FROM Acta_Recepcion AR
                 INNER JOIN Bodega_Nuevo B ON AR.Id_Bodega_Nuevo =B.Id_Bodega_Nuevo
-                INNER JOIN Proveedor P On P.Id_Proveedor = AR.Id_Proveedor
+                INNER JOIN third_parties P On P.id = AR.Id_Proveedor
                 WHERE AR.Id_Acta_Recepcion=' . $id_acta;
         } else {
             $query3 = 'SELECT AR.*,
                 PD.Nombre as Nombre_Bodega,
-                P.Nombre as NombreProveedor,
-                P.Direccion as DireccionProveedor,
-                P.Telefono as TelefonoProveedor,
+                IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as NombreProveedor,
+                P.cod_dian_address as DireccionProveedor,
+                P.landline as TelefonoProveedor,
                 (SELECT PAR.Codigo_Compra
                     FROM Producto_Acta_Recepcion PAR
                     WHERE PAR.Id_Acta_Recepcion=AR.Id_Acta_Recepcion
@@ -341,7 +343,7 @@ class ActaRecepcionController extends Controller
                 ) AS Codigo_Compra
                 FROM Acta_Recepcion AR
                 INNER JOIN Punto_Dispensacion PD ON AR.Id_Punto_Dispensacion=PD.Id_Punto_Dispensacion
-                INNER JOIN Proveedor P On P.Id_Proveedor = AR.Id_Proveedor
+                INNER JOIN third_parties P On P.id = AR.Id_Proveedor
                 WHERE AR.Id_Acta_Recepcion=' . $id_acta;
         }
 
@@ -406,24 +408,24 @@ class ActaRecepcionController extends Controller
             $impuesto += ((int)$prod->Cantidad * $prod->Precio * ((int)$prod->Impuesto / 100));
         }
         $total += $subtotal + $impuesto;
-        $productos_final[$k + 1] = $prod;
-        $productos_final[$k + 1]->Lotes = $lotes;
+        //$productos_final[$k + 1] = $prod;
+        //$productos_final[$k + 1]->Lotes = $lotes;
         $resultado = [];
 
         $resultado["Datos"] = $datos;
         $resultado["Datos2"] = $datos2;
-        $resultado["Datos2"]["ConteoProductos"] = count($productos_final);
+        //$resultado["Datos2"]["ConteoProductos"] = count($productos_final);
         $resultado["Datos2"]["Subtotal"] = $subtotal;
         $resultado["Datos2"]["Impuesto"] = $impuesto;
         $resultado["Datos2"]["Total"] = $total;
 
         $resultado["Productos"] = $productos_acta;
-        $resultado["ProductosNuevo"] = $productos_final;
+        //$resultado["ProductosNuevo"] = $productos_final;
 
         $resultado["Facturas"] = $facturas;
 
 
-        echo json_encode($resultado);
+        return response()->json($resultado);
     }
 
     public function getActividadesActa()
@@ -471,7 +473,7 @@ class ActaRecepcionController extends Controller
 
     public function save()
     {
-        $company_id = (isset($_REQUEST['company_id']) ? $_REQUEST['company_id'] : '');
+        $company_id = 1;
 
         // //Objeto de la clase que almacena los archivos
         //$storer = new FileStorer();
@@ -499,7 +501,7 @@ class ActaRecepcionController extends Controller
         $prov_ret = $this->GetInfoRetencionesProveedor($datos['Id_Proveedor']);
         $columns = array_column($facturas, 'Retenciones');
 
-        if (/* $prov_ret['Tipo_Retencion'] == 'Permanente' || */ $prov_ret['Tipo_Reteica'] == 'Permanente') {
+        if (/* $prov_ret['Tipo_Retencion'] == 'Permanente' || */$prov_ret['Tipo_Reteica'] == 'Permanente') {
             if ($prov_ret['Id_Plan_Cuenta_Retefuente'] != '' || $prov_ret['Id_Plan_Cuenta_Reteica'] != '') {
                 if (count($columns) == 0) {
                     $resultado['mensaje'] = "Ha ocurrido un incoveniente con las retenciones de las facturas cargadas, contacte con el administrador del sistema!";
@@ -526,12 +528,11 @@ class ActaRecepcionController extends Controller
         switch ($tipoCompra) {
 
             case "Nacional": {
-                    $query = "SELECT	Id_Orden_Compra_Nacional as id,company_id, Codigo,Identificacion_Funcionario,Id_Bodega_Nuevo,Id_Proveedor
-                FROM Orden_Compra_Nacional WHERE Codigo = '" . $codigoCompra . "' AND company_id = $company_id";
+                    $query = "SELECT Id_Orden_Compra_Nacional as id, Codigo, Identificacion_Funcionario, Id_Bodega_Nuevo, Id_Proveedor
+                        FROM Orden_Compra_Nacional WHERE Codigo = '" . $codigoCompra . "'";
 
                     $oCon->setQuery($query);
                     $detalleCompra = $oCon->getData();
-
                     $oCon->setTipo('Multiple');
                     unset($oCon);
                     break;
@@ -540,7 +541,7 @@ class ActaRecepcionController extends Controller
 
                     $query = "SELECT Id_Orden_Compra_Internacional as id,Codigo,I
                 dentificacion_Funcionario,Id_Bodega_Nuevo,Id_Proveedor FROM Orden_Compra_Internacional
-                WHERE Codigo = '" . $codigoCompra . "' AND company_id = $company_id";
+                WHERE Codigo = '" . $codigoCompra . "'";
                     $oCon->setQuery($query);
                     $detalleCompra = $oCon->getData();
                     $oCon->setTipo('Multiple');
@@ -558,11 +559,9 @@ class ActaRecepcionController extends Controller
         }
         if ($datos['Tipo'] == 'Nacional') {
             $oItem->Id_Orden_Compra_Nacional = $datos['Id_Orden_Compra'];
-            $oItem->company_id = $detalleCompra['company_id'];
         } else {
             $oItem->Id_Orden_Compra_Internacional = $datos['Id_Orden_Compra'];
         }
-        $datos['company_id'] = $company_id;
 
         $oItem->save();
         $id_Acta_Recepcion = $oItem->getId();
@@ -610,7 +609,6 @@ class ActaRecepcionController extends Controller
                     $oItem2->Persona_Reporta = $datos['Identificacion_Funcionario'];
                     $oItem2->Tipo = "Compra";
                     $oItem2->Id_Acta_Recepcion_Compra = $id_Acta_Recepcion;
-                    $oItem2->company_id = $company_id;
                     $oItem2->save();
                     $id_no_conforme = $oItem2->getId();
                     unset($oItem2);
@@ -688,8 +686,6 @@ class ActaRecepcionController extends Controller
                         $oItem2->Persona_Reporta = $datos['Identificacion_Funcionario'];
                         $oItem2->Tipo = "Compra";
                         $oItem2->Id_Acta_Recepcion_Compra = $id_Acta_Recepcion;
-                        $oItem2->company_id = $company_id;
-
                         $oItem2->save();
                         $id_no_conforme = $oItem2->getId();
                         unset($oItem2);
@@ -842,9 +838,6 @@ class ActaRecepcionController extends Controller
             if ($oItem->Id_Subcategoria != $value["Id_Subcategoria"]) {
                 $oItem->Id_Subcategoria = $value["Id_Subcategoria"];
             }
-            if ($oItem->Peso_Presentacion_Regular != $value["Peso"]) {
-                $oItem->Peso_Presentacion_Regular = $value["Peso"];
-            }
             if (isset($_FILES["fotos$h"]['name'])) {
                 $posicion2 = strrpos($_FILES["fotos$h"]['name'], '.') + 1;
                 $extension2 =  substr($_FILES["fotos$h"]['name'], $posicion2);
@@ -930,7 +923,7 @@ class ActaRecepcionController extends Controller
         $datos_movimiento_contable['Productos'] = $datosProductos;
         $datos_movimiento_contable['Facturas'] = $facturas;
 
-        $contabilizar->CrearMovimientoContable('Acta Recepcion', $datos_movimiento_contable);
+        //$contabilizar->CrearMovimientoContable('Acta Recepcion', $datos_movimiento_contable);
 
         echo json_encode($resultado);
     }
@@ -962,13 +955,13 @@ class ActaRecepcionController extends Controller
             Codigo
         FROM Acta_Recepcion
         WHERE
-            Codigo = "' . $codigo . '" AND company_id = ' . $company_id;
+            Codigo = "' . $codigo . '"';
 
         $oCon = new consulta();
         $oCon->setQuery($query);
         $acta = $oCon->getData();
         unset($oCon);
-        if ($acta['Codigo']) {
+        if ($acta && $acta['Codigo']) {
             $estado = true;
         }
         return $estado;
@@ -998,5 +991,146 @@ class ActaRecepcionController extends Controller
         unset($oCon);
 
         return $proveedor;
+    }
+    function generarqr($tipo, $id, $ruta)
+    {
+        $errorCorrectionLevel = 'H';
+        $matrixPointSize = min(max((int)5, 1), 10);
+        $nombre = md5($tipo . '|' . $id . '|' . $errorCorrectionLevel . '|' . $matrixPointSize) . '.png';
+        $filename = $_SERVER["DOCUMENT_ROOT"] . "/" . $ruta . $nombre;
+
+        return ($nombre);
+    }
+
+    public function aprobarActa()
+    {
+        $id_acta_recepcion = isset($_REQUEST['id']) ? $_REQUEST['id'] : false;
+        $id_bodega_nuevo = isset($_REQUEST['Id_Bodega_Nuevo']) ? $_REQUEST['Id_Bodega_Nuevo'] : false;
+        $funcionario = isset($_REQUEST['funcionario']) ? $_REQUEST['funcionario'] : false;
+        try {
+            if ($id_acta_recepcion) {
+                $oItemA = new complex('Acta_Recepcion', 'Id_Acta_Recepcion', $id_acta_recepcion);
+                $acta = $oItemA->getData();
+                //actualizar costo promedio
+                $query = 'SELECT PA.Id_Producto, PA.Cantidad, PA.Precio,
+                         PA.Impuesto,PA.Factura,
+                         P.Nombre_Comercial, P.Referencia
+                FROM Producto_Acta_Recepcion PA
+                INNER JOIN Producto P ON P.Id_Producto = PA.Id_Producto
+                WHERE PA.Id_Acta_Recepcion = ' . $id_acta_recepcion;
+                $oCon = new consulta();
+                $oCon->setQuery($query);
+                $oCon->setTipo('Multiple');
+                $productos = $oCon->getData();
+                unset($oItem);
+                //$catalgoS = new CatalogoService();
+                //$catalgoS->setActa($acta);
+                $paraUbicar = 0;
+                foreach ($productos as $key => $producto) {
+                    $costopromedio =  new Costo_Promedio($producto["Id_Producto"], $producto["Cantidad"], $producto["Precio"]);
+                    $costopromedio->actualizarCostoPromedio();
+                    unset($costopromedio);
+                    if ($producto['Tipo_Catalogo'] == 'Activo_Fijo') {
+                        # code...
+                        //$catalgoS->guardarActivoFijo($producto);
+                    }
+                    if ($producto['Tipo_Catalogo'] == 'Dotacion_EPP') {
+                        //$catalgoS->actualizarInventario($producto, $id_bodega_nuevo);
+                    }
+                    $producto['Ubicar'] == 0 ?  $paraUbicar++ : null;
+                }
+                $oItemA->Estado =  $paraUbicar == count($productos) ? 'Acomodada' : 'Aprobada';
+                $oItemA->save();
+                unset($oItemA);
+                //Consultar el codigo del acta y el id de la orden de compra
+                $query_codido_acta = 'SELECT
+                                Codigo,
+                                Id_Orden_Compra_Nacional
+                            FROM
+                                Acta_Recepcion
+                            WHERE
+                                Id_Acta_Recepcion = ' . $id_acta_recepcion;
+
+                $oCon = new consulta();
+                $oCon->setQuery($query_codido_acta);
+                $acta_data = $oCon->getData();
+                unset($oCon);
+                //Guardando paso en el seguimiento del acta en cuestion
+                $oItem = new complex('Actividad_Orden_Compra', "Id_Acta_Recepcion_Compra");
+                $oItem->Id_Orden_Compra_Nacional = $acta_data['Id_Orden_Compra_Nacional'];
+                $oItem->Id_Acta_Recepcion_Compra = $id_acta_recepcion;
+                $oItem->Identificacion_Funcionario = $funcionario;
+                $oItem->Detalles = "Se aprobo y se ingreso el Acta con codigo " . $acta_data['Codigo'];
+                $oItem->Fecha = date("Y-m-d H:i:s");
+                $oItem->Estado = 'Aprobacion';
+                $oItem->save();
+                unset($oItem);
+                if ($acta_data) {
+                    $resultado['mensaje'] = "Se ha aprobado e ingresado correctamente el acta al inventario";
+                    $resultado['tipo'] = "success";
+                    $resultado['titulo'] = "Operaci��n Exitosa";
+                } else {
+                    $resultado['mensaje'] = "Ha ocurrido un error inesperado. Por favor intentelo de nuevo";
+                    $resultado['tipo'] = "error";
+                    $resultado['titulo'] = "Error";
+                }
+                return response()->json($resultado);
+            }
+            //code...
+        } catch (\Throwable $th) {
+
+            return response()->json($th->getMessage());
+        }
+    }
+
+    public function anularActa()
+    {
+        $queryObj = new QueryBaseDatos();
+        $response = array();
+        $http_response = new HttpResponse();
+        //$contabilizar = new Contabilizar();
+        $modelo = (isset($_REQUEST['modelo']) ? $_REQUEST['modelo'] : '');
+        $modelo = json_decode($modelo, true);
+        $oItem = new complex("Acta_Recepcion", "Id_Acta_Recepcion", $modelo['Id_Acta_Recepcion']);
+        $data = $oItem->getData();
+        $fecha = date('Y-m-d', strtotime($data['Fecha_Creacion']));
+        //if ($contabilizar->validarMesOrAnioCerrado($fecha)) {
+        if (true) {
+            $oItem->Estado = "Anulada";
+            $oItem->Id_Causal_Anulacion = $modelo['Id_Causal_Anulacion'];
+            $oItem->Observaciones_Anulacion = $modelo['Observaciones'];
+            $oItem->Funcionario_Anula = $modelo['Identificacion_Funcionario'];
+            $oItem->Fecha_Anulacion = date("Y-m-d H:i:s");
+            $oItem->save();
+            unset($oItem);
+            $query = 'SELECT *
+        FROM  Actividad_Orden_Compra
+        WHERE
+            Detalles LIKE "Se recibio el acta%" AND  Id_Acta_Recepcion_Compra = ' . $modelo['Id_Acta_Recepcion'];
+            $queryObj->SetQuery($query);
+            $actividad = $queryObj->ExecuteQuery('simple');
+            $oItem = new complex("Actividad_Orden_Compra", "Id_Actividad_Orden_Compra", $actividad['Id_Actividad_Orden_Compra']);
+            $oItem->delete();
+            unset($oItem);
+            $oItem = new complex("Orden_Compra_Nacional", "Id_Orden_Compra_Nacional", $actividad['Id_Orden_Compra_Nacional']);
+            $oItem->Estado = "Pendiente";
+            $oItem->save();
+            unset($oItem);
+            $this->AnularMovimientoContable($modelo['Id_Acta_Recepcion']);
+            $http_response->SetRespuesta(0, 'Registro exitoso', 'Se ha anulado correctamente el acta de recepcion');
+            $response = $http_response->GetRespuesta();
+        } else {
+            $http_response->SetRespuesta(3, 'No es posible', 'No es posible anular esta acta debido a que el mes o el año del documento ha sido cerrado contablemente. Si tienes alguna duda por favor comunicarse con el departamento de contabilidad.');
+            $response = $http_response->GetRespuesta();
+        }
+
+        echo json_encode($response);
+    }
+
+    function AnularMovimientoContable($idRegistroModulo)
+    {
+        //  global $contabilizar;
+
+        //$contabilizar->AnularMovimientoContable($idRegistroModulo, 15);
     }
 }

@@ -150,6 +150,7 @@ use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\HistoryDataCompanyController;
+use App\Http\Controllers\InventarioNuevoController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MarcationController;
@@ -1050,6 +1051,9 @@ Route::group(
         Route::get('php/bodega_nuevo/detalle_acta_recepcion.php', [ActaRecepcionController::class, 'detalleActa']);
         Route::get('php/actarecepcion/actividades_acta_recepcion_compra.php', [ActaRecepcionController::class, 'getActividadesActa']);
         Route::post('php/bodega_nuevo/guardar_acta_recepciond.php', [ActaRecepcionController::class, 'save']);
-
+        Route::post('php/actarecepcion_nuevo/aprobar_acta.php', [ActaRecepcionController::class, 'aprobarActa']);
+        Route::post('php/actarecepcion/anular_acta.php', [ActaRecepcionController::class, 'anularActa']);
+        /* Inventario nuevo */
+        Route::get('php/inventario_nuevo/lista_inventario.php', [InventarioNuevoController::class, 'listar']);
     }
 );

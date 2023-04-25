@@ -274,6 +274,7 @@ class item
 		if ($this->pk_value == 0) {
 			return (NULL);
 		} else {
+            //dd($this->attribs);
 			return stripslashes($this->attribs[$key]);
 		}
 	}

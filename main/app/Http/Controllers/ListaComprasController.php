@@ -74,8 +74,8 @@ class ListaComprasController extends Controller
                 ->when($request->search, function ($query, $fill) {
                     $query->where('Nombre_Comercial', 'like', "%$fill%");
                 })
-                ->when($request->subcategory_id, function ($query, $fill) {
-                    $query->where('Id_Subcategoria', $fill);
+                ->when($request->category_id, function ($query, $fill) {
+                    $query->where('Id_Categoria', $fill);
                 })
                 ->get(['*', 'Nombre_Comercial as name'])->take(10)
         );

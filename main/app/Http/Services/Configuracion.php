@@ -21,7 +21,7 @@ class Configuracion
     function prefijoConsecutivo($index)
     {
 
-        $query = 'SELECT * FROM Configuracion WHERE company_id = ' . $this->company_id;
+        $query = 'SELECT * FROM Configuracion WHERE Id_Configuracion = ' . $this->company_id;
         $oCon = new consulta();
         $oCon->setQuery($query);
         $nc = $oCon->getData();
@@ -58,7 +58,7 @@ class Configuracion
         sleep(strval(rand(2, 8)));
         # $query = "SELECT  MAX(Codigo)  AS Codigo FROM $mod ";
         $query = "SELECT MAX(N.Codigo) AS Codigo
-         FROM ( SELECT Codigo FROM $mod  WHERE company_id = $this->company_id ORDER BY Id_$mod DESC LIMIT 2
+         FROM ( SELECT Codigo FROM $mod ORDER BY Id_$mod DESC LIMIT 2
          )N ";
 
 
@@ -75,14 +75,14 @@ class Configuracion
 
         $cod = $prefijo . $NumeroCodigo;
 
-        $query = "SELECT Id_$mod AS ID FROM $mod WHERE Codigo = '$cod' AND company_id = $this->company_id ";
+        $query = "SELECT Id_$mod AS ID FROM $mod WHERE Codigo = '$cod'";
         $oCon = new consulta();
         $oCon->setQuery($query);
         $res2 = $oCon->getData();
         unset($oCon);
 
 
-        if ($res2["ID"]) {
+        if ($res2 && $res2["ID"]) {
             sleep(strval(rand(0, 3)));
             $this->getConsecutivo($mod, $tipo_consecutivo);
         }
