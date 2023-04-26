@@ -180,25 +180,38 @@ class PurchaseRequestController extends Controller
 
     public function saveQuotationApproved($id)
     {
+        // actualizacion status quotations purchase request
         $quotationPurchase = QuotationPurchaseRequest::find($id);
         $quotationPurchase->update(['status' => 'Aprobada']);
         $quotationIds =
             QuotationPurchaseRequest::where('product_purchase_request_id', $quotationPurchase->product_purchase_request_id)
-                ->where('id', '<>', $id)
-                ->pluck('id');
+            ->where('id', '<>', $id)
+            ->pluck('id');
         QuotationPurchaseRequest::whereIn('id', $quotationIds)->update(['status' => 'Rechazada']);
+        // actualizacion status product purchase request
+        $productPurchaseRequest = ProductPurchaseRequest::find($quotationPurchase->product_purchase_request_id);
+        $productPurchaseRequest->update(['status' => 'Cotización Aprobada']);
 
-        /**
-         *modificacion migracion enum falta Cotizacion aprobada
-         *actualizar status a Cotizacion aprobada de un producto
-         *recorrer productos que tengas el mismo purchase_request_id y si ya todos estan aprobados entonces que el status de purchase_request se actualice a aprobada
-         * agregar a tabla principal en el front cantidad de productos cotizados
-         * condicionar todos los botones (cargar, aprobar, ver, nueva order)
-         * modal de ver cotizacion aprobada
-         * boton de cotizacion general
-         * actividad
-         */
-
+        // actualizacion status  purchase request
+        $purchaseRequest = PurchaseRequest::find($productPurchaseRequest->purchase_request_id);
+        $allProductsPurchaseRequestApproved = ProductPurchaseRequest::where('purchase_request_id', $purchaseRequest->id)
+        ->where('status', '<>', 'Cotización Aprobada')  //valor diff de cotizacion aprobada
+        ->count() == 0;
+        if ($allProductsPurchaseRequestApproved) {
+            $purchaseRequest->update(['status' => 'Aprobada']);
+        }
         return $this->success('Operación existosa');
     }
 }
+
+
+/**
+ *modificacion migracion enum falta Cotizacion aprobada
+ *actualizar status a Cotizacion aprobada de un producto
+ *recorrer productos que tengas el mismo purchase_request_id y si ya todos estan aprobados entonces que el status de purchase_request se actualice a aprobada
+ * agregar a tabla principal en el front cantidad de productos cotizados
+ * condicionar todos los botones (cargar, aprobar, ver, nueva order, editar afuera), que aparezcan y desaparezcan según status de la solicitud
+ * modal de ver cotizacion aprobada
+ * boton de cotizacion general
+ * actividad
+ */
