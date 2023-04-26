@@ -136,6 +136,7 @@ use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\BorradorContabilidadController;
 use App\Http\Controllers\CategoriaNuevaController;
+use App\Http\Controllers\CausalNoConformeController;
 use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\ChequeConsecutivoController;
 use App\Http\Controllers\CierreContableController;
@@ -974,6 +975,7 @@ Route::group(
         /* Retencion */
         Route::get('php/activofijo/retenciones.php', [RetencionController::class, 'index']);
         Route::get('php/contabilidad/lista_retenciones.php', [RetencionController::class, 'lista']);
+        Route::get('php/GENERALES/retenciones/get_retenciones_modalidad.php', [RetencionController::class, 'getRetencionesModalidad']);
         /* Tipos activos fijos */
         Route::get('php/tipoactivo/get_tipo_activos.php', [TipoActivoFijoController::class, 'index']);
         Route::get('php/tipoactivo/get_lista_tipo_activo.php', [TipoActivoFijoController::class, 'paginate']);
@@ -1053,7 +1055,11 @@ Route::group(
         Route::post('php/bodega_nuevo/guardar_acta_recepciond.php', [ActaRecepcionController::class, 'save']);
         Route::post('php/actarecepcion_nuevo/aprobar_acta.php', [ActaRecepcionController::class, 'aprobarActa']);
         Route::post('php/actarecepcion/anular_acta.php', [ActaRecepcionController::class, 'anularActa']);
+        Route::get('php/actarecepcion_nuevo/lista_impuesto_mes.php', [ActaRecepcionController::class, 'listaImpuestoMes']);
+        Route::get('php/actarecepcion_nuevo/lista_subcategorias.php', [ActaRecepcionController::class, 'listaSubcategorias']);
         /* Inventario nuevo */
         Route::get('php/inventario_nuevo/lista_inventario.php', [InventarioNuevoController::class, 'listar']);
+        /* Causal no conforme */
+        Route::get('php/actarecepcion/causal_no_conformes.php', [CausalNoConformeController::class, 'listar']);
     }
 );

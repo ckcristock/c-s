@@ -6,6 +6,8 @@ use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use App\Http\Services\consulta;
 use App\Models\OrdenCompraNacional;
+use App\Models\Product;
+use App\Models\ProductoOrdenCompraNacional;
 use Illuminate\Support\Facades\DB;
 
 class OrdenCompraNacionalController extends Controller
@@ -136,71 +138,52 @@ class OrdenCompraNacionalController extends Controller
         return response()->json($resultado);
     }
 
-    public function codigoBarras()
+    public function codigoBarras(Request $request)
     {
-        $codigo = isset($_REQUEST['codigo']) ? $_REQUEST['codigo'] : false;
-        $orden = isset($_REQUEST['orden']) ? $_REQUEST['orden'] : false;
-        $query = "SELECT Id_Producto FROM Producto WHERE Codigo_Barras LIKE '$codigo%'";
-        $oCon = new consulta();
-        $oCon->setQuery($query);
-        $resultado = $oCon->getData();
-        unset($oCon);
-        $query = 'SELECT Id_Orden_Compra_Nacional, Codigo FROM Orden_Compra_Nacional WHERE Codigo="' . $orden . '"';
-        $oCon = new consulta();
-        $oCon->setQuery($query);
-        $orden = $oCon->getData();
-        unset($oCon);
-        $cum = explode("-", $resultado['Id_Producto']);
-        $condicion = '';
-        if ($orden['Id_Orden_Compra_Nacional']) {
-            $condicion .= "  AND POC.Id_Orden_Compra_Nacional=" . $orden['Id_Orden_Compra_Nacional'];
+        $codigo = request()->input('codigo');
+        $orden = request()->input('orden');
+        $productos = Product::with('packaging')->where('Codigo_Barras', 'like', "$codigo%")->get();
+        if ($productos->isEmpty()) {
+            return response()->json([]);
         }
-        if ($resultado['Id_Producto'] && $orden['Id_Orden_Compra_Nacional']) {
-            $query = ' SELECT IFNULL(CONCAT(P.Presentacion," ", P.Cantidad," ", P.Unidad_Medida),
-                CONCAT(P.Nombre_Comercial)) as Nombre_Producto,
-                P.Imagen AS Foto,
-                "No" as Eliminado,
-                P.Id_Categoria,
-                P.Id_Subcategoria,
-                P.Id_Producto,
-                P.Nombre_Comercial,
-                IFNULL((SELECT POC.Id_Producto_Orden_Compra_Nacional
-                    FROM Producto_Orden_Compra_Nacional POC
-                    INNER JOIN Producto P ON POC.Id_Producto=P.Id_Producto
-                    WHERE P.Id_Producto LIKE "%' . $cum[0] . '%" ' . $condicion . ' LIMIT 1 ),0) as Id_Producto_Orden_Compra,
-                IFNULL((SELECT SUM(POC.Cantidad) FROM Producto_Orden_Compra_Nacional POC WHERE POC.Id_Producto=' . $resultado['Id_Producto'] . $condicion . ' GROUP BY POC.Id_Producto ),0) as CantidadProducto,
-                IFNULL((SELECT POC.Total FROM Producto_Orden_Compra_Nacional POC WHERE POC.Id_Producto=' . $resultado['Id_Producto'] . $condicion . ' GROUP BY POC.Id_Producto ),0) as CostoProducto,
-                P.Embalaje_id,
-                IF(P.impuesto_id=2,19,0) AS Impuesto
-                FROM Producto P
-                WHERE P.Id_Producto=' . $resultado['Id_Producto'];
-        }
-
-        $oCon = new consulta();
-        $oCon->setQuery($query);
-        $resultado = $oCon->getData();
-        unset($oCon);
-
-        if ($resultado['Id_Producto'] != $resultado['Id_Producto_Orden_Compra'] && $resultado['Id_Producto_Orden_Compra'] != 0) {
-            $resultado['Diferente'] = true;
-        }
-        $prod[0]['Precio'] = '0';
-        $prod[0]['Cantidad'] = '0';
-        $prod[0]['Fecha_Vencimiento'] = '';
-        $prod[0]['Impuesto'] = $resultado['Impuesto'];
-        $prod[0]['Subtotal'] = 0;
-        $prod[0]['Lote'] = '';
-        $prod[0]['Factura'] = '';
-        $prod[0]['Id_Producto'] = $resultado['Id_Producto'];
-        $prod[0]['Id_Producto_Orden_Compra'] = $resultado['Id_Producto_Orden_Compra'];
-        $prod[0]['Codigo_Compra'] = $orden['Codigo'];
-        $prod[0]['Required'] = true;
-        $prod[0]['No_Conforme'] = 0;
-        $resultado['producto'] = $prod;
-
-
-
-
-        echo json_encode($resultado);
+        $producto = $productos->first();
+        $ordenCompraNacional = OrdenCompraNacional::where('Codigo', $orden)->first();
+        $productoOrdenCompraNacional = ProductoOrdenCompraNacional::where('Id_Producto', $producto->Id_Producto)
+            ->when($ordenCompraNacional, function ($query) use ($ordenCompraNacional) {
+                return $query->where('Id_Orden_Compra_Nacional', $ordenCompraNacional->Id_Orden_Compra_Nacional);
+            })
+            ->first();
+        $nombreProducto = $producto->Nombre_Comercial;
+        $resultado = [
+            'Id_Producto' => $producto->Id_Producto,
+            'Diferente' => $productoOrdenCompraNacional && $productoOrdenCompraNacional->Id_Producto_Orden_Compra_Nacional != $producto->Id_Producto ? true : false,
+            'producto' => [
+                [
+                    'Nombre_Producto' => $nombreProducto,
+                    'Foto' => $producto->Imagen,
+                    'Eliminado' => 'No',
+                    'Id_Categoria' => $producto->Id_Categoria,
+                    'Id_Subcategoria' => $producto->Id_Subcategoria,
+                    'Id_Producto' => $producto->Id_Producto,
+                    'Nombre_Comercial' => $producto->Nombre_Comercial,
+                    'Id_Producto_Orden_Compra' => $productoOrdenCompraNacional ? $productoOrdenCompraNacional->Id_Producto_Orden_Compra_Nacional : 0,
+                    'CantidadProducto' => $productoOrdenCompraNacional ? $productoOrdenCompraNacional->Cantidad : 0,
+                    'CostoProducto' => $productoOrdenCompraNacional ? $productoOrdenCompraNacional->Total : 0,
+                    'Embalaje_id' => $producto->Embalaje_id,
+                    'Embalaje' => $producto->packaging->name,
+                    'Impuesto' => $producto->impuesto_id == 2 ? 19 : 0,
+                    'Precio' => '0',
+                    'Cantidad' => '0',
+                    'Fecha_Vencimiento' => '',
+                    'Subtotal' => 0,
+                    'Lote' => '',
+                    'Factura' => '',
+                    'Codigo_Compra' => $ordenCompraNacional ? $ordenCompraNacional->Codigo : '',
+                    'Required' => true,
+                    'No_Conforme' => 0,
+                ]
+            ],
+        ];
+        return response()->json($resultado);
     }
 }

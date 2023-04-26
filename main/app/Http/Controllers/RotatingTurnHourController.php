@@ -14,14 +14,12 @@ class RotatingTurnHourController extends Controller
     use ApiResponser;
     public function getDatosGenerales($semana)
     {
-        //return $semana;
         $companies = Company::when(
             Request()->get("company_id"),
             function ($q, $fill) {
                 $q->where("id", $fill);
             }
         )->get();
-
         foreach ($companies as $keyG => &$company) {
             $groups = DB::table("groups")
                 ->when(Request()->get('group_id'), function ($q, $fill) {
@@ -48,33 +46,23 @@ class RotatingTurnHourController extends Controller
                         $dependency->id,
                         $company->id,
                     );
-                    //dd($dependency);
-                    /*     dd($dependency->people); */
                     if (!$dependency->people) {
-                         /*dd($dependency);
-                        var_dump('em', $dependency['people']);
-                        exit; */
                         unset($dependencies[$key2]);
                         continue;
                     }
-
                     foreach ($dependency->people as &$person) {
                         $person->fixed_turn_hours = RotatingHourService::getHours(
                             $person->id,
                         );
-
                     }
                     $depLocal[] = $dependency;
                 }
-
-
                 if (!$depLocal) {
                     unset($groups[$key]);
                     continue;
                 }
                 $group->dependencies = [];
                 $group->dependencies = $depLocal;
-
                 $groupsGlob[] = $group;
             }
             if ($groups->isEmpty()) {

@@ -16,71 +16,112 @@ use App\Http\Services\HttpResponse;
 use App\Models\ActaRecepcion;
 use App\Models\CausalAnulacion;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ActaRecepcionController extends Controller
 {
     use ApiResponser;
 
-    public function listarPendientes()
+    public function listaImpuestoMes()
     {
-        $query = 'SELECT ARC.Id_Acta_Recepcion, ARC.Codigo, ARC.Fecha_Creacion, F.image as Imagen, B.Nombre as Bodega, OCN.Codigo as Codigo_Compra_N,  OCN.Id_Bodega_Nuevo,
-        (CASE
-                WHEN ARC.Tipo = "Nacional" THEN ARC.Id_Orden_Compra_Nacional
-                ELSE ARC.Id_Orden_Compra_Internacional
-        END) AS Id_Orden_Compra,
-        ( SELECT GROUP_CONCAT(Factura) FROM Factura_Acta_Recepcion WHERE Id_Acta_Recepcion = ARC.Id_Acta_Recepcion ) as Facturas,
-        ARC.Tipo, ARC.Estado
-        FROM Acta_Recepcion ARC
-        LEFT JOIN people F
-        ON F.id = ARC.Identificacion_Funcionario
-        LEFT JOIN Orden_Compra_Nacional OCN
-        ON OCN.Id_Orden_Compra_Nacional = ARC.Id_Orden_Compra_Nacional
-        LEFT JOIN Bodega_Nuevo B
-        ON B.Id_Bodega_Nuevo = ARC.Id_Bodega_Nuevo
-        WHERE ARC.Estado = "Pendiente"
-        HAVING OCN.Id_Bodega_Nuevo
-        ORDER BY ARC.Fecha_Creacion DESC, ARC.Codigo DESC';
+        $query = 'SELECT * FROM Impuesto ';
 
         $oCon = new consulta();
         $oCon->setTipo('Multiple');
         $oCon->setQuery($query);
-        $actarecepcion = $oCon->getData();
+        $resultado['Impuesto'] = $oCon->getData();
         unset($oCon);
 
+        $query = 'SELECT Meses_Vencimiento FROM Configuracion ';
 
+        $oCon = new consulta();
+        $oCon->setQuery($query);
+        $resultado['Meses'] = $oCon->getData();
+        unset($oCon);
 
-        echo json_encode($actarecepcion);
+        $query = 'SELECT Id_Bodega_Nuevo, Nombre  FROM Bodega_Nuevo ';
+
+        $oCon = new consulta();
+        $oCon->setTipo('Multiple');
+        $oCon->setQuery($query);
+        $resultado['Bodega'] = $oCon->getData();
+        unset($oCon);
+
+        return response()->json($resultado);
     }
 
-    public function listarAnuladas()
+    public function listaSubcategorias()
     {
-        $pag = (isset($_REQUEST['pag']) ? $_REQUEST['pag'] : '');
-        $tam = (isset($_REQUEST['tam']) ? $_REQUEST['tam'] : '');
-        $condicion = '';
+        $id = isset($_REQUEST['id_bodega']) ? $_REQUEST['id_bodega'] : false;
+        $query = 'SELECT S.*, C.Nombre As Categoria_Nueva FROM Subcategoria S
+            INNER JOIN Categoria_Nueva C ON S.Id_Categoria_Nueva = C.Id_Categoria_Nueva
+            ORDER BY Id_Categoria_Nueva ';
+        $oCon = new consulta();
+        $oCon->setTipo('Multiple');
+        $oCon->setQuery($query);
+        $resultado = $oCon->getData();
+        $resultado = $this->separarPorEstiba($resultado);
+        unset($oCon);
+        return response()->json($resultado);
+    }
 
-        if (isset($_REQUEST['codigo']) && $_REQUEST['codigo']) {
-            $condicion .= " AND AR.Codigo LIKE '%" . $_REQUEST['codigo'] . "%'";
+    function separarPorEstiba($resultado)
+    {
+        $porCategorias = [];
+        $porCategorias[0]['Categoria_Nueva'] = $resultado[0]->Categoria_Nueva;
+        $porCategorias[0]['Subcategorias'] = [];
+
+        $XEstiba = 0; //index por Estiba
+        $XProducto = 0; //index Por Producto
+
+        foreach ($resultado as $key => $categorias) {
+
+            if ($porCategorias[$XEstiba]['Categoria_Nueva'] == $categorias->Categoria_Nueva) {
+                $porCategorias[$XEstiba]['Subcategorias'][$XProducto]['Nombre_Subcategoria'] = $categorias->Nombre;
+                $porCategorias[$XEstiba]['Subcategorias'][$XProducto]['Id_Subcategoria'] = $categorias->Id_Subcategoria;
+                $XProducto++;
+            } else {
+                $XEstiba++;
+                $XProducto = 0;
+                $porCategorias[$XEstiba]['Categoria_Nueva'] = $categorias['Categoria_Nueva'];
+                $porCategorias[$XEstiba]['Subcategorias'][$XProducto]['Nombre_Subcategoria'] = $categorias['Nombre'];
+
+                $porCategorias[$XEstiba]['Subcategorias'][$XProducto]['Id_Subcategoria'] = $categorias['Id_Subcategoria'];
+                $XProducto++;
+            }
         }
-        $query = 'SELECT
-            AR.*,
-            OCN.Codigo AS Codigo_Orden,(SELECT IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) FROM third_parties WHERE id=AR.Id_Proveedor) as Proveedor
-        FROM Acta_Recepcion AR
-        INNER JOIN Orden_Compra_Nacional OCN ON AR.Id_Orden_Compra_Nacional = OCN.Id_Orden_Compra_Nacional
-        WHERE AR.Estado="Anulada" ' . $condicion . ' Order By AR.Id_Acta_Recepcion DESC  ';
+        return $porCategorias;
+    }
 
-        $query_count = '
-        SELECT
-            COUNT(AR.Id_Acta_Recepcion) AS Total
-            FROM Acta_Recepcion AR
-            INNER JOIN Orden_Compra_Nacional OCN ON AR.Id_Orden_Compra_Nacional = OCN.Id_Orden_Compra_Nacional
-            WHERE AR.Estado="Anulada" ' . $condicion;
+    public function listarPendientes()
+    {
+        $actaRecepcion = ActaRecepcion::select(
+            '*',
+            DB::raw('( SELECT GROUP_CONCAT(Factura) FROM Factura_Acta_Recepcion WHERE Id_Acta_Recepcion = Acta_Recepcion.Id_Acta_Recepcion ) as Facturas')
+        )
+            ->with('person')
+            ->with(['orden' => function ($q) {
+                $q->where('Id_Bodega_Nuevo', '<>', null);
+            }])
+            ->with('bodega:Id_Bodega_Nuevo,Nombre')
+            ->where('Acta_Recepcion.Estado', '=', 'Pendiente')
+            ->orderBy('Fecha_Creacion', 'desc')
+            ->orderBy('Codigo', 'desc')
+            ->get();
 
-        $paginationData = new PaginacionData($tam, $query_count, $pag);
-        $queryObj = new QueryBaseDatos($query);
-        $actas_realizadas = $queryObj->Consultar('Multiple', true, $paginationData);
 
-        echo json_encode($actas_realizadas);
+        return response()->json($actaRecepcion);
+    }
+
+    public function listarAnuladas(Request $request)
+    {
+        return $this->success(ActaRecepcion::with('orden', 'causal', 'third')
+            ->where('Estado', 'Anulada')
+            ->when($request->codigo, function ($q, $fill) {
+                $q->where('Codigo', 'like', "%$fill%");
+            })
+            ->paginate(request()->get('tam', 10), ['*'], 'page', request()->get('pag', 1)));
     }
 
     public function indexCausalAnulacion()
@@ -275,10 +316,23 @@ class ActaRecepcionController extends Controller
         echo json_encode($actarecepcion);
     }
 
-    public function detalleActa()
+    public function detalleActa(Request $request)
     {
-        //return $this->success(ActaRecepcion::with('bodega', 'person', 'third', 'causal')->find(1));
-        $id_acta = (isset($_REQUEST['id']) ? $_REQUEST['id'] : '');
+        return $this->success(
+            ActaRecepcion::with(
+                'bodega',
+                'person',
+                'third',
+                'causal',
+                'facturas',
+                'orden.activity',
+                'products.product.unit',
+                'products.product.packaging',
+                'products.product.tax'
+            )
+                ->find($request->id)
+        );
+        /* $id_acta = (isset($_REQUEST['id']) ? $_REQUEST['id'] : '');
         $tipo = (isset($_REQUEST['Tipo'])) ? $_REQUEST['Tipo'] : false;
         $query = 'SELECT AR.*,
             (SELECT GROUP_CONCAT(F.Factura SEPARATOR " / ")
@@ -425,7 +479,7 @@ class ActaRecepcionController extends Controller
         $resultado["Facturas"] = $facturas;
 
 
-        return response()->json($resultado);
+        return response()->json($resultado); */
     }
 
     public function getActividadesActa()
@@ -475,7 +529,7 @@ class ActaRecepcionController extends Controller
     {
         $company_id = 1;
 
-        // //Objeto de la clase que almacena los archivos
+        //Objeto de la clase que almacena los archivos
         //$storer = new FileStorer();
         //echo 'asd';exit;
         $contabilizar = new Contabilizar();
@@ -722,29 +776,29 @@ class ActaRecepcionController extends Controller
                 $porcentaje = $oCon->getData();
                 unset($oCon);
                 //datos
-                $cum_producto = $this->GetCodigoCum($item['Id_Producto']);
+                //$cum_producto = $this->GetCodigoCum($item['Id_Producto']);
                 foreach ($porcentaje as  $value) {
-                    $query = 'SELECT * FROM Producto_Lista_Ganancia WHERE Cum="' . $cum_producto . '" AND Id_lista_Ganancia=' . $value['Id_Lista_Ganancia'];
+                    $query = 'SELECT * FROM Producto_Lista_Ganancia WHERE Id_lista_Ganancia=' . $value->Id_Lista_Ganancia;
                     $oCon = new consulta();
                     $oCon->setQuery($query);
                     $cum = $oCon->getData();
                     unset($oCon);
                     if ($cum) {
-                        $precio = number_format($item['Precio'] / ((100 - $value['Porcentaje']) / 100), 0, '.', '');
+                        $precio = number_format($item['Precio'] / ((100 - $value->Porcentaje) / 100), 0, '.', '');
                         if ($cum['Precio'] < $precio) {
                             $oItem = new complex('Producto_Lista_Ganancia', 'Id_Producto_Lista_Ganancia', $cum['Id_Producto_Lista_Ganancia']);
 
                             $oItem->Precio = $precio;
-                            $oItem->Id_Lista_Ganancia = $value['Id_Lista_Ganancia'];
+                            $oItem->Id_Lista_Ganancia = $value->Id_Lista_Ganancia;
                             $oItem->save();
                             unset($oItem);
                         }
                     } else {
                         $oItem = new complex('Producto_Lista_Ganancia', 'Id_Producto_Lista_Ganancia');
-                        $oItem->Cum = $cum_producto;
-                        $precio = number_format($item['Precio'] / ((100 - $value['Porcentaje']) / 100), 0, '.', '');
+                        //$oItem->Cum = $cum_producto;
+                        $precio = number_format($item['Precio'] / ((100 - $value->Porcentaje) / 100), 0, '.', '');
                         $oItem->Precio = $precio;
-                        $oItem->Id_Lista_Ganancia = $value['Id_Lista_Ganancia'];
+                        $oItem->Id_Lista_Ganancia = $value->Id_Lista_Ganancia;
                         $oItem->save();
                         unset($oItem);
                     }
@@ -1104,9 +1158,8 @@ class ActaRecepcionController extends Controller
             $oItem->save();
             unset($oItem);
             $query = 'SELECT *
-        FROM  Actividad_Orden_Compra
-        WHERE
-            Detalles LIKE "Se recibio el acta%" AND  Id_Acta_Recepcion_Compra = ' . $modelo['Id_Acta_Recepcion'];
+                FROM  Actividad_Orden_Compra
+                WHERE Detalles LIKE "Se recibio el acta%" AND  Id_Acta_Recepcion_Compra = ' . $modelo['Id_Acta_Recepcion'];
             $queryObj->SetQuery($query);
             $actividad = $queryObj->ExecuteQuery('simple');
             $oItem = new complex("Actividad_Orden_Compra", "Id_Actividad_Orden_Compra", $actividad['Id_Actividad_Orden_Compra']);
