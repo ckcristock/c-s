@@ -10,6 +10,7 @@ use App\Models\QuotationPurchaseRequest;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
+use Mockery\Undefined;
 
 class PurchaseRequestController extends Controller
 {
@@ -118,7 +119,7 @@ class PurchaseRequestController extends Controller
      */
     public function show($id)
     {
-        return $this->success(PurchaseRequest::with('productPurchaseRequest', 'person')->find($id));
+        return $this->success(PurchaseRequest::with('productPurchaseRequest', 'person','quotationPurchaseRequest')->find($id));
     }
 
     /**
@@ -154,7 +155,7 @@ class PurchaseRequestController extends Controller
     {
         //
     }
-
+    //Funcion que guarda cotizaciones cargadas por producto
     public function saveQuotationPurchaseRequest(Request $request)
     {
         $items = $request->items;
@@ -164,17 +165,74 @@ class PurchaseRequestController extends Controller
             $base64 = saveBase64File($value["file"], 'cotizaciones-solicitud-compra/', false, '.pdf');
             $value['file'] = URL::to('/') . '/api/file-view?path=' . $base64;
             QuotationPurchaseRequest::create($value);
-            $product = ProductPurchaseRequest::find($value['product_purchase_request_id']);
-            $product->update(['status' => 'Cotizaciones cargadas']);
+
+
+
+            if ($value["product_purchase_request_id"]) {
+                $product = ProductPurchaseRequest::find($value['product_purchase_request_id']);
+                $product->update(['status' => 'Cotizaciones cargadas']);
+            }
+
+            if ($value["purchase_request_id"]) {
+                $purchase = PurchaseRequest::find($value['purchase_request_id']);
+                $products = $purchase->productPurchaseRequest()->get();
+
+                foreach ($products as $product) {
+                    $product->update(['status' => 'Cotizaciones cargadas']);
+                }
+            }
         }
-        PurchaseRequest::find($product->purchase_request_id)->update(['status' => 'Cotizada']);
+        if ($value["product_purchase_request_id"]) {
+            PurchaseRequest::find($product->purchase_request_id)->update(['status' => 'Cotizada']);
+        } else {
+            PurchaseRequest::find($value['purchase_request_id'])->update(['status' => 'Cotizada']);
+        }
+
+        sumConsecutive('quotation_purchase_requests');
+        return $this->success('holi');
+    }
+
+    public function saveGeneralQuotationPurchaseRequest(Request $request)
+    {
+        $items = $request->items;
+        $code = generateConsecutive('quotation_purchase_requests');
+        foreach ($items as $key => $value) {
+            $value['code'] = $code . '-' . ($key + 1);
+            $base64 = saveBase64File($value["file"], 'cotizaciones-solicitud-compra/', false, '.pdf');
+            $value['file'] = URL::to('/') . '/api/file-view?path=' . $base64;
+            QuotationPurchaseRequest::create($value);
+
+
+            // $product = ProductPurchaseRequest::find($value['product_purchase_request_id']);
+            // $product->update(['status' => 'Cotizaciones cargadas']);
+        }
+        // PurchaseRequest::find($product->purchase_request_id)->update(['status' => 'Cotizada']);
         sumConsecutive('quotation_purchase_requests');
         return $this->success('holi');
     }
 
     public function getQuotationPurchaserequest($id)
     {
-        $quotation = QuotationPurchaseRequest::where('product_purchase_request_id', $id)->with('thirdParty')->get();
+
+
+        $quotationInGeneral = QuotationPurchaseRequest::whereNull('product_purchase_request_id')
+        ->where('purchase_request_id', $id)->with('thirdParty')->get();
+        //dd($quotationInGeneral);
+        $quotationsPerProduct = QuotationPurchaseRequest::whereNull('purchase_request_id')
+        ->where('product_purchase_request_id', $id)->with('thirdParty')->get();
+        //dd($quotationsPerProduct);
+
+        if($quotationsPerProduct && $quotationInGeneral->isEmpty()){
+            $quotation = $quotationsPerProduct;
+
+        }
+
+        if($quotationInGeneral && $quotationsPerProduct->isEmpty()){
+            $quotation = $quotationInGeneral;
+
+        }
+        //dd($quotation);
+
         return $this->success($quotation);
     }
 
@@ -184,10 +242,24 @@ class PurchaseRequestController extends Controller
         $quotationPurchase = QuotationPurchaseRequest::find($id);
         $quotationPurchase->update(['status' => 'Aprobada']);
         $quotationIds =
-            QuotationPurchaseRequest::where('product_purchase_request_id', $quotationPurchase->product_purchase_request_id)
+        QuotationPurchaseRequest::whereNotNull('product_purchase_request_id')
+        ->where('product_purchase_request_id', $quotationPurchase->product_purchase_request_id)
             ->where('id', '<>', $id)
             ->pluck('id');
+        //dd($quotationIds);
+        $quotationsIdsGeneral=
+        QuotationPurchaseRequest::whereNotNull('purchase_request_id')
+        ->where('purchase_request_id', $quotationPurchase->purchase_request_id)
+            ->where('id', '<>', $id)
+            ->pluck('id');
+        //dd($quotationsIdsGeneral);
+        if (!$quotationIds->isEmpty()) {
         QuotationPurchaseRequest::whereIn('id', $quotationIds)->update(['status' => 'Rechazada']);
+        }
+
+        if (!$quotationsIdsGeneral->isEmpty()) {
+        QuotationPurchaseRequest::whereIn('id', $quotationsIdsGeneral)->update(['status' => 'Rechazada']);
+        }
         // actualizacion status product purchase request
         $productPurchaseRequest = ProductPurchaseRequest::find($quotationPurchase->product_purchase_request_id);
         $productPurchaseRequest->update(['status' => 'Cotización Aprobada']);
@@ -195,8 +267,8 @@ class PurchaseRequestController extends Controller
         // actualizacion status  purchase request
         $purchaseRequest = PurchaseRequest::find($productPurchaseRequest->purchase_request_id);
         $allProductsPurchaseRequestApproved = ProductPurchaseRequest::where('purchase_request_id', $purchaseRequest->id)
-        ->where('status', '<>', 'Cotización Aprobada')  //valor diff de cotizacion aprobada
-        ->count() == 0;
+            ->where('status', '<>', 'Cotización Aprobada')  //valor diff de cotizacion aprobada
+            ->count() == 0;
         if ($allProductsPurchaseRequestApproved) {
             $purchaseRequest->update(['status' => 'Aprobada']);
         }

@@ -33,7 +33,7 @@ class PurchaseRequest extends Model
 
     public function quotationPurchaseRequest()
     {
-        return $this->hasMany(QuotationPurchaseRequest::class);
+        return $this->hasMany(QuotationPurchaseRequest::class, 'purchase_request_id', 'id' );
     }
 
 }

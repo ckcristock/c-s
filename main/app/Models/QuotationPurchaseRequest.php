@@ -10,6 +10,7 @@ class QuotationPurchaseRequest extends Model
     use HasFactory;
 
     protected $fillable = [
+        'purchase_request_id',
         'product_purchase_request_id',
         'code',
         'format_code',
