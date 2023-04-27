@@ -1186,4 +1186,10 @@ class ActaRecepcionController extends Controller
 
         //$contabilizar->AnularMovimientoContable($idRegistroModulo, 15);
     }
+
+    public function descargarPdf(Request $request)
+    {
+        $tipo = $request->tipo;
+        $id = $request->id;
+    }
 }
