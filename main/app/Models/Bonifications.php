@@ -16,7 +16,6 @@ class Bonifications extends Model
         'status'
     ];
 
-
     public function ingreso()
     {
         return $this->belongsTo(Countable_income::class,  'countable_income_id', 'id');

@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class CompensationFund extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'code', 'nit', 'status'];
     protected $table = 'compensation_funds';
+    protected $fillable = [
+        'name',
+        'code',
+        'nit',
+        'status'
+    ];
 }

@@ -1068,5 +1068,8 @@ Route::group(
         /* Remision */
         Route::get('php/remision_nuevo/get_datos_iniciales.php', [RemisionController::class, 'datosIniciales']);
         Route::get('prueba-funcionario', [AsistenciaController::class, 'prueba']);
+
+
+        Route::get('pruebas-models', [GeneralController::class, 'pruebas']);
     }
 );

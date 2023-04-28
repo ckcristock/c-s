@@ -40,7 +40,8 @@ class ApuSet extends Model
         "sale_price_usd_withholding_total",
         "code",
         'format_code',
-        "state"
+        "state",
+        'typeapu_name'
     ];
 
     public function city()
