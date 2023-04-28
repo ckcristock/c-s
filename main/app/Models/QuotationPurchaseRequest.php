@@ -25,6 +25,11 @@ class QuotationPurchaseRequest extends Model
         return $this->belongsTo(PurchaseRequest::class);
     }
 
+    public function productPurchaseRequest()
+    {
+        return $this->belongsTo(ProductPurchaseRequest::class);
+    }
+
     public function thirdParty()
     {
         return $this->belongsTo(ThirdParty::class, 'third_party_id')->fullName();

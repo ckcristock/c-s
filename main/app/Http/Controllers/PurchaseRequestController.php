@@ -119,7 +119,7 @@ class PurchaseRequestController extends Controller
      */
     public function show($id)
     {
-        return $this->success(PurchaseRequest::with('productPurchaseRequest', 'person','quotationPurchaseRequest')->find($id));
+        return $this->success(PurchaseRequest::with('productPurchaseRequest', 'person', 'quotationPurchaseRequest')->find($id));
     }
 
     /**
@@ -211,28 +211,18 @@ class PurchaseRequestController extends Controller
         return $this->success('holi');
     }
 
-    public function getQuotationPurchaserequest($id)
+    public function getQuotationPurchaserequest($id, $value)
     {
-
-
-        $quotationInGeneral = QuotationPurchaseRequest::whereNull('product_purchase_request_id')
-        ->where('purchase_request_id', $id)->with('thirdParty')->get();
-        //dd($quotationInGeneral);
-        $quotationsPerProduct = QuotationPurchaseRequest::whereNull('purchase_request_id')
-        ->where('product_purchase_request_id', $id)->with('thirdParty')->get();
-        //dd($quotationsPerProduct);
-
-        if($quotationsPerProduct && $quotationInGeneral->isEmpty()){
-            $quotation = $quotationsPerProduct;
-
+        // esta validacion no esta funcionando
+        if ($value == 'product'){
+            $quotation = QuotationPurchaseRequest::with('productPurchaseRequest')
+                ->where('product_purchase_request_id', $id)->with('thirdParty')->get();
+        } else if ($value == 'purchase'){
+            $quotation = QuotationPurchaseRequest::with('purchaseRequest')
+                ->where('purchase_request_id', $id)->with('thirdParty')->get();
+        } else {
+            $quotation = '';
         }
-
-        if($quotationInGeneral && $quotationsPerProduct->isEmpty()){
-            $quotation = $quotationInGeneral;
-
-        }
-        //dd($quotation);
-
         return $this->success($quotation);
     }
 
@@ -242,36 +232,48 @@ class PurchaseRequestController extends Controller
         $quotationPurchase = QuotationPurchaseRequest::find($id);
         $quotationPurchase->update(['status' => 'Aprobada']);
         $quotationIds =
-        QuotationPurchaseRequest::whereNotNull('product_purchase_request_id')
-        ->where('product_purchase_request_id', $quotationPurchase->product_purchase_request_id)
+            QuotationPurchaseRequest::whereNotNull('product_purchase_request_id')
+            ->where('product_purchase_request_id', $quotationPurchase->product_purchase_request_id)
             ->where('id', '<>', $id)
             ->pluck('id');
         //dd($quotationIds);
-        $quotationsIdsGeneral=
-        QuotationPurchaseRequest::whereNotNull('purchase_request_id')
-        ->where('purchase_request_id', $quotationPurchase->purchase_request_id)
+        $quotationsIdsGeneral =
+            QuotationPurchaseRequest::whereNotNull('purchase_request_id')
+            ->where('purchase_request_id', $quotationPurchase->purchase_request_id)
             ->where('id', '<>', $id)
             ->pluck('id');
         //dd($quotationsIdsGeneral);
         if (!$quotationIds->isEmpty()) {
-        QuotationPurchaseRequest::whereIn('id', $quotationIds)->update(['status' => 'Rechazada']);
+            QuotationPurchaseRequest::whereIn('id', $quotationIds)->update(['status' => 'Rechazada']);
         }
 
         if (!$quotationsIdsGeneral->isEmpty()) {
-        QuotationPurchaseRequest::whereIn('id', $quotationsIdsGeneral)->update(['status' => 'Rechazada']);
+            QuotationPurchaseRequest::whereIn('id', $quotationsIdsGeneral)->update(['status' => 'Rechazada']);
         }
-        // actualizacion status product purchase request
-        $productPurchaseRequest = ProductPurchaseRequest::find($quotationPurchase->product_purchase_request_id);
-        $productPurchaseRequest->update(['status' => 'Cotización Aprobada']);
 
-        // actualizacion status  purchase request
-        $purchaseRequest = PurchaseRequest::find($productPurchaseRequest->purchase_request_id);
-        $allProductsPurchaseRequestApproved = ProductPurchaseRequest::where('purchase_request_id', $purchaseRequest->id)
-            ->where('status', '<>', 'Cotización Aprobada')  //valor diff de cotizacion aprobada
-            ->count() == 0;
-        if ($allProductsPurchaseRequestApproved) {
-            $purchaseRequest->update(['status' => 'Aprobada']);
+        if ($quotationPurchase['product_purchase_request_id'] && !$quotationPurchase['purchase_request_id']) {
+            $productPurchaseRequest = ProductPurchaseRequest::find($quotationPurchase->product_purchase_request_id);
+            $productPurchaseRequest->update(['status' => 'Cotización Aprobada']);
+
+            $purchaseRequest = PurchaseRequest::find($productPurchaseRequest->purchase_request_id);
+            $allProductsPurchaseRequestApproved = ProductPurchaseRequest::where('purchase_request_id', $purchaseRequest->id)
+                ->where('status', '<>', 'Cotización Aprobada')  //valor diff de cotizacion aprobada
+                ->count() == 0;
+            if ($allProductsPurchaseRequestApproved) {
+                $purchaseRequest->update(['status' => 'Aprobada']);
+            }
         }
+        //dd($quotationsIdsGeneral);
+        if (!$quotationPurchase['product_purchase_request_id'] && $quotationPurchase['purchase_request_id']) {
+            $purchaseRequest = PurchaseRequest::find($quotationPurchase->purchase_request_id);
+            $purchaseRequest->update(['status' => 'Aprobada']);
+
+            // esta validacion no esta funcionando
+            $productPurchaseRequest = ProductPurchaseRequest::where('purchase_request_id', $purchaseRequest->id);
+            $productPurchaseRequest->update(['status' => 'Cotización Aprobada']);
+        }
+        //dd($productPurchaseRequest);
+
         return $this->success('Operación existosa');
     }
 }
