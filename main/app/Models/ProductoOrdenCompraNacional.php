@@ -30,4 +30,9 @@ class ProductoOrdenCompraNacional extends Model
     {
         return $this->belongsTo(Tax::class, 'impuesto_id', 'Id_Impuesto');
     }
+
+    public function ordenCompraNacional()
+    {
+        return $this->hasOne(OrdenCompraNacional::class, 'Id_Orden_Compra_Nacional', 'Id_Orden_Compra_Nacional');
+    }
 }

@@ -9,6 +9,22 @@ class Applicant extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+    protected $fillable = [
+        'job_id',
+        'name',
+        'surname',
+        'email',
+        'phone',
+        'city',
+        'passport',
+        'visa',
+        'visaType_id',
+        'education',
+        'experience_year',
+        'conveyance',
+        'driving_license_id',
+        'curriculum',
+    ];
 
     public function visaType(){
         return $this->belongsTo(VisaType::class,'visaType_id', 'id');

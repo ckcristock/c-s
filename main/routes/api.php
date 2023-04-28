@@ -136,6 +136,7 @@ use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\BorradorContabilidadController;
 use App\Http\Controllers\CategoriaNuevaController;
+use App\Http\Controllers\CausalNoConformeController;
 use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\ChequeConsecutivoController;
 use App\Http\Controllers\CierreContableController;
@@ -150,6 +151,7 @@ use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\HistoryDataCompanyController;
+use App\Http\Controllers\InventarioNuevoController;
 use App\Http\Controllers\ListaComprasController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MarcationController;
@@ -163,6 +165,7 @@ use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\ProductNewController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\RawMaterialMaterialController;
+use App\Http\Controllers\RemisionController;
 use App\Http\Controllers\RetencionController;
 use App\Http\Controllers\SeveranceInterestPaymentController;
 use App\Http\Controllers\SeverancePaymentController;
@@ -817,6 +820,7 @@ Route::group(
         Route::get("quotation-purchase-request/{id}/{value}", [PurchaseRequestController::class, 'getQuotationPurchaserequest']);
         Route::get("save-quotation-approved/{id}", [PurchaseRequestController::class, 'saveQuotationApproved']);
         Route::post("save-quotation-purchase-request/", [PurchaseRequestController::class, 'saveQuotationPurchaseRequest']);
+        Route::get("datos-purchase-request", [PurchaseRequestController::class, 'getDatosPurchaseRequest']);
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
@@ -919,12 +923,14 @@ Route::group(
         Route::get('php/rotativoscompras/lista_pre_compra', [ListaComprasController::class, 'preCompras']);
         Route::get('php/funcionarios/lista_funcionarios', [ListaComprasController::class, 'getFuncionarios']);
         Route::get('php/rotativoscompras/detalle_pre_compra/{id}', [ListaComprasController::class, 'detallePreCompra']);
-        Route::get('impuestos', [BodegasController::class, 'impuestos']);
         Route::get('php/inventario_fisico_puntos/lista_punto_funcionario', [PersonController::class, 'funcionarioPunto']);
         Route::get('get-estados-compra', [ListaComprasController::class, 'getEstadosCompra']);
         Route::post('php/rotativoscompras/actualizar_estado', [ListaComprasController::class, 'actualizarEstadoPreCompra']);
         Route::post('php/comprasnacionales/guardar_compra_nacional', [ListaComprasController::class, 'storeCompra']);
         Route::post('php/comprasnacionales/actualiza_compra', [ListaComprasController::class, 'setEstadoCompra']);
+        /* Bodegas */
+        Route::get('impuestos', [BodegasController::class, 'impuestos']);
+        Route::get('php/bodega_nuevo/get_bodegas.php', [BodegasController::class, 'getBodegas']);
         /* Plan cuentas */
         Route::get('php/plancuentas/lista_plan_cuentas.php', [PlanCuentasController::class, 'paginate']);
         Route::get('plan-cuentas-paginacion', [PlanCuentasController::class, 'paginate2']);
@@ -975,6 +981,7 @@ Route::group(
         /* Retencion */
         Route::get('php/activofijo/retenciones.php', [RetencionController::class, 'index']);
         Route::get('php/contabilidad/lista_retenciones.php', [RetencionController::class, 'lista']);
+        Route::get('php/GENERALES/retenciones/get_retenciones_modalidad.php', [RetencionController::class, 'getRetencionesModalidad']);
         /* Tipos activos fijos */
         Route::get('php/tipoactivo/get_tipo_activos.php', [TipoActivoFijoController::class, 'index']);
         Route::get('php/tipoactivo/get_lista_tipo_activo.php', [TipoActivoFijoController::class, 'paginate']);
@@ -1051,5 +1058,21 @@ Route::group(
         Route::get('php/actarecepcion_nuevo/lista_actarecepcion.php', [ActaRecepcionController::class, 'listarActas']);
         Route::get('php/bodega_nuevo/detalle_acta_recepcion.php', [ActaRecepcionController::class, 'detalleActa']);
         Route::get('php/actarecepcion/actividades_acta_recepcion_compra.php', [ActaRecepcionController::class, 'getActividadesActa']);
+        Route::post('php/bodega_nuevo/guardar_acta_recepciond.php', [ActaRecepcionController::class, 'save']);
+        Route::post('php/actarecepcion_nuevo/aprobar_acta.php', [ActaRecepcionController::class, 'aprobarActa']);
+        Route::post('php/actarecepcion/anular_acta.php', [ActaRecepcionController::class, 'anularActa']);
+        Route::get('php/actarecepcion_nuevo/lista_impuesto_mes.php', [ActaRecepcionController::class, 'listaImpuestoMes']);
+        Route::get('php/actarecepcion_nuevo/lista_subcategorias.php', [ActaRecepcionController::class, 'listaSubcategorias']);
+        Route::get('php/actarecepcion/descarga_pdf.php', [ActaRecepcionController::class, 'descargarPdf']);
+        /* Inventario nuevo */
+        Route::get('php/inventario_nuevo/lista_inventario.php', [InventarioNuevoController::class, 'listar']);
+        /* Causal no conforme */
+        Route::get('php/actarecepcion/causal_no_conformes.php', [CausalNoConformeController::class, 'listar']);
+        /* Remision */
+        Route::get('php/remision_nuevo/get_datos_iniciales.php', [RemisionController::class, 'datosIniciales']);
+        Route::get('prueba-funcionario', [AsistenciaController::class, 'prueba']);
+
+
+        Route::get('pruebas-models', [GeneralController::class, 'pruebas']);
     }
 );

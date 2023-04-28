@@ -10,7 +10,6 @@ class BusinessQuotation extends Model
     use HasFactory;
     protected $table = 'business_quotation';
     protected $fillable = [
-        'id',
         'business_id',
         'quotation_id',
         'status'

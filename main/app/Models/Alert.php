@@ -19,7 +19,6 @@ class Alert extends Model
         'url',
         'destination_id',
         'read_boolean',
-        'created_at',
     ];
 
     public function transmitter()

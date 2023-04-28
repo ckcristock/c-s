@@ -46,11 +46,26 @@ class ActaRecepcion extends Model
 
     public function third()
     {
-        return $this->belongsTo(ThirdParty::class, 'Id_Proveedor');
+        return $this->belongsTo(ThirdParty::class, 'Id_Proveedor')->fullName();
     }
 
     public function causal()
     {
         return $this->belongsTo(CausalAnulacion::class, 'Id_Causal_Anulacion');
+    }
+
+    public function facturas()
+    {
+        return $this->hasMany(FacturaActaRecepcion::class, 'Id_Acta_Recepcion', 'Id_Acta_Recepcion');
+    }
+
+    public function products()
+    {
+        return $this->hasMany(ProductoActaRecepcion::class, 'Id_Acta_Recepcion', 'Id_Acta_Recepcion');
+    }
+
+    public function orden()
+    {
+        return $this->belongsTo(OrdenCompraNacional::class, 'Id_Orden_Compra_Nacional', 'Id_Orden_Compra_Nacional');
     }
 }

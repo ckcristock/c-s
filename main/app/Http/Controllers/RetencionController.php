@@ -30,6 +30,29 @@ class RetencionController extends Controller
         return json_encode($retenciones);
     }
 
+    public function getRetencionesModalidad()
+    {
+        ini_set('display_errors', 1);
+        ini_set('display_startup_errors', 1);
+        error_reporting(E_ALL);
+        $modalidad = (isset($_REQUEST['modalidad']) ? $_REQUEST['modalidad'] : '');
+
+        $query = '
+        SELECT
+            *
+        FROM Retencion
+        WHERE
+            LOWER(Modalidad_Retencion) = "' . strtolower($modalidad) . '"';
+
+        $q = new consulta();
+        $q->setQuery($query);
+        $q->setTipo('multiple');
+        $retenciones = $q->getData();
+        unset($q);
+
+        return response()->json($retenciones);
+    }
+
     public function lista()
     {
         $query = 'SELECT * FROM Retencion WHERE Estado = "Activo"';

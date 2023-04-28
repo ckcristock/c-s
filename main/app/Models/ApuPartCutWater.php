@@ -16,7 +16,6 @@ class ApuPartCutWater extends Model
         "material_id",
         "apu_part_id",
         "thickness_id",
-        "thickness_value",
         "amount",
         "long",
         "width",
@@ -26,7 +25,8 @@ class ApuPartCutWater extends Model
         "total_hole_perimeter",
         "time",
         "minute_value",
-        "value"
+        "value",
+        "thickness_value"
     ];
 
     protected $hidden = [

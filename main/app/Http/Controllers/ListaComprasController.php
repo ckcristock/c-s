@@ -74,8 +74,8 @@ class ListaComprasController extends Controller
                 ->when($request->search, function ($query, $fill) {
                     $query->where('Nombre_Comercial', 'like', "%$fill%");
                 })
-                ->when($request->subcategory_id, function ($query, $fill) {
-                    $query->where('Id_Subcategoria', $fill);
+                ->when($request->category_id, function ($query, $fill) {
+                    $query->where('Id_Categoria', $fill);
                 })
                 ->get(['*', 'Nombre_Comercial as name'])->take(10)
         );
@@ -294,7 +294,11 @@ class ListaComprasController extends Controller
     public function setEstadoCompra(Request $request)
     {
         try {
-            OrdenCompraNacional::find($request->id)->update(['Estado' => $request->estado]);
+            if ($request->estado == 'Anulada' || $request->estado == 'Pendiente') {
+                OrdenCompraNacional::find($request->id)->update(['Estado' => $request->estado]);
+            } else {
+                OrdenCompraNacional::find($request->id)->update(['Aprobacion' => $request->estado]);
+            }
             $motivo = "";
 
             if (in_array($request->estado, ['Aprobada', 'Rechazada'])) {

@@ -11,7 +11,12 @@ class CategoryVariable extends Model
 
     protected $table = 'category_variables';
 
-    protected $fillable = ['category_id', 'label', 'required', 'type'];
+    protected $fillable = [
+        'category_id',
+        'label',
+        'type',
+        'required'
+    ];
 
     /* public function scopeAlias($q, $alias){
         return $q->from($q->getQuery()->from." as ".$alias);

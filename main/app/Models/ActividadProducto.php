@@ -12,7 +12,10 @@ class ActividadProducto extends Model
     protected $primaryKey = 'Id_Actividad_Producto';
     protected $fillable =
     [
-        'Id_Actividad_Producto','Id_Producto','Person_Id','Detalles','Fecha'
+        'Id_Producto',
+        'Person_Id',
+        'Detalles',
+        'Fecha'
     ];
 
     public function scopeAlias($q, $alias){

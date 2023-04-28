@@ -8,46 +8,48 @@ use Illuminate\Database\Eloquent\Model;
 class Company extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'work_time',
+        'logo',
+        'social_reason',
+        'document_type',
+        'document_number',
+        'constitution_date',
+        'email_contact',
+        'phone',
+        'verification_digit',
+        'max_extras_hours',
+        'max_holidays_legal',
+        'max_late_arrival',
+        'base_salary',
+        'paid_operator',
+        'transportation_assistance',
+        'night_start_time',
+        'night_end_time',
+        'holidays',
+        'payment_frequency',
+        'account_number',
+        'account_type',
+        'payment_method',
+        'law_1429',
+        'law_590',
+        'law_1607',
+        'arl_id',
+        'bank_id',
+        'address',
+        'page_heading',
+        'commercial_terms',
+        'technical_requirements',
+        'legal_requirements'
+    ];
+
     public function scopeWithWhereHas($query, $relation, $constraint)
     {
         return $query->whereHas($relation, $constraint)
             ->with([$relation => $constraint]);
     }
-    protected $fillable = [
-      'constitution_date',
-      'document_number',
-      'document_type',
-      'email_contact',
-      'phone',
-      'id',
-      'social_reason',
-      'verification_digit',
-      'max_extras_hours',
-      'max_holidays_legal',
-      'max_late_arrival',
-      'base_salary',
-      'transportation_assistance',
-      'night_start_time',
-      'night_end_time',
-      'holidays',
-      'payment_frequency',
-      'payment_method',
-      'paid_operator',
-      'law_1429',
-      'law_590',
-      'law_1607',
-      'arl_id',
-      'bank_id',
-      'account_number',
-      'account_type',
-      'logo',
-      'page_heading',
-      'commercial_terms',
-      'technical_requirements',
-      'legal_requirements'
-    ];
-
-
 
     public function arl()
     {

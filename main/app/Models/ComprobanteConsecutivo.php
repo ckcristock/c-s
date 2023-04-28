@@ -14,15 +14,15 @@ class ComprobanteConsecutivo extends Model
     protected $fillable = [
         'Tipo',
         'Prefijo',
-        'Consecutivo',
         'Anio',
         'Mes',
         'Dia',
-        'company_id',
         'city',
         'longitud',
         'format_code',
+        'Consecutivo',
         'table_name',
+        'company_id',
         'editable'
     ];
 }

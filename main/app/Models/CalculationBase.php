@@ -9,5 +9,8 @@ class CalculationBase extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['concept',' value'];
+    protected $fillable = [
+        'concept',
+        'value'
+    ];
 }

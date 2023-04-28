@@ -13,13 +13,13 @@ class City extends Model
         'name',
         'type',
         'country_id',
+        'department_id',
+        'municipality_id',
+        'dane_code',
+        'dian_code',
         'percentage_product',
         'percentage_service',
         'state',
-        'department_id',
-        'dian_code',
-        'dane_code',
-        'municipality_id'
     ];
 
     protected $hidden = [

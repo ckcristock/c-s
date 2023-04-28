@@ -18,7 +18,7 @@ class MarcationService
             'img' => $fully,
             'person_id' => $id,
             'description' => $description,
-            'fecha' => date("Y-m-d H:i:s")
+            'date' => Carbon::now()
         ]);
     }
 
@@ -67,7 +67,7 @@ class MarcationService
                             'real_entry' => $hactual,
                             'entry' => $turno_asignado->entry_time
                         ); */
-        
+
     }
 
     static public function makeTime($hoy,$hactual,$date1,$date2){

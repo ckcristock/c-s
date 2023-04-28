@@ -10,6 +10,7 @@ class Business extends Model
     use HasFactory;
     protected $fillable = [
         'code',
+        'format_code',
         'name',
         'third_party_id',
         'third_party_person_id',
@@ -20,7 +21,6 @@ class Business extends Model
         'date',
         'budget_value',
         'quotation_value',
-        'format_code'
     ];
 
     public function thirdParty()
