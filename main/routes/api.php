@@ -817,6 +817,9 @@ Route::group(
         Route::resource("purchase-request", PurchaseRequestController::class);
         Route::get("paginate-purchase-request",[PurchaseRequestController::class,'paginate']);
         Route::get("get-product-typeahead", [PurchaseRequestController::class, 'getProducts']);
+        Route::get("quotation-purchase-request/{id}/{value}", [PurchaseRequestController::class, 'getQuotationPurchaserequest']);
+        Route::get("save-quotation-approved/{id}", [PurchaseRequestController::class, 'saveQuotationApproved']);
+        Route::post("save-quotation-purchase-request/", [PurchaseRequestController::class, 'saveQuotationPurchaseRequest']);
         Route::get("datos-purchase-request", [PurchaseRequestController::class, 'getDatosPurchaseRequest']);
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
