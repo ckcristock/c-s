@@ -11,6 +11,22 @@ class Budget extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+    protected $fillable = [
+        'code',
+        'format_code',
+        'user_id',
+        'customer_id',
+        'destinity_id',
+        'line',
+        'trm',
+        'project',
+        'observation',
+        'total_cop',
+        'total_usd',
+        'unit_value_prorrateado_cop',
+        'state',
+        'unit_value_prorrateado_usd',
+    ];
 
     public function customer()
     {

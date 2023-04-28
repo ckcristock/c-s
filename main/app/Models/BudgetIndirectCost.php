@@ -9,7 +9,12 @@ use Illuminate\Support\Facades\DB;
 class BudgetIndirectCost extends Model
 {
     protected $guarded = ['id'];
-    
+    protected $fillable = [
+        'indirect_cost_id',
+        'percentage',
+        'budget_id'
+    ];
+
     use HasFactory;
 
     /**
@@ -21,5 +26,5 @@ class BudgetIndirectCost extends Model
     {
         return $this->belongsTo(IndirectCost::class);
     }
-   
+
 }

@@ -62,6 +62,7 @@ class TravelExpenseService
                 $q->where('state','like','%'.$fill.'%');
             }
         })
+        ->orderByDesc('created_at')
         ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
     }
 }

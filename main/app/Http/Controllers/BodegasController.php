@@ -9,6 +9,7 @@ use App\Models\Estiba;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\DB;
+use App\Http\Services\consulta;
 use Illuminate\Support\Facades\URL;
 
 class BodegasController extends Controller
@@ -28,28 +29,30 @@ class BodegasController extends Controller
     {
         return $this->success(
             GrupoEstiba::where('Id_Bodega_Nuevo', $id)
-            ->when(request()->get('Nombre'), function ($q, $fill) {
-                $q->where('Nombre', 'like', '%' . $fill . '%');
-            })
-            ->when(request()->get('Fecha_Vencimiento'), function ($q, $fill) {
-                $q->where('Fecha_Vencimiento', '=', $fill );
-            })
-            ->when(request()->get('Presentacion'), function ($q, $fill) {
-                $q->where('Presentacion', '=', $fill );
-            })->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1)));
+                ->when(request()->get('Nombre'), function ($q, $fill) {
+                    $q->where('Nombre', 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get('Fecha_Vencimiento'), function ($q, $fill) {
+                    $q->where('Fecha_Vencimiento', '=', $fill);
+                })
+                ->when(request()->get('Presentacion'), function ($q, $fill) {
+                    $q->where('Presentacion', '=', $fill);
+                })->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1))
+        );
     }
 
     public function gruposConEstibas($id)
     {
         return $this->success(
             Estiba::where('Id_Grupo_Estiba', $id)
-            ->when(request()->get('Nombre'), function ($q, $fill) {
-                $q->where('Nombre', 'like', '%' . $fill . '%');
-            })->when(request()->get('Estado'), function ($q, $fill) {
-                $q->where('Estado', '=', $fill );
-            })->when(request()->get('Codigo_Barras'), function ($q, $fill) {
-                $q->where('Codigo_Barras', 'like', '%' . $fill . '%' );
-            })->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1)));
+                ->when(request()->get('Nombre'), function ($q, $fill) {
+                    $q->where('Nombre', 'like', '%' . $fill . '%');
+                })->when(request()->get('Estado'), function ($q, $fill) {
+                    $q->where('Estado', '=', $fill);
+                })->when(request()->get('Codigo_Barras'), function ($q, $fill) {
+                    $q->where('Codigo_Barras', 'like', '%' . $fill . '%');
+                })->paginate(request()->get('pageSize', 5), ['*'], 'page', request()->get('page', 1))
+        );
     }
 
     public function paginate()
@@ -67,22 +70,23 @@ class BodegasController extends Controller
         );
     }
 
-    public function activarInactivar(){
+    public function activarInactivar()
+    {
 
         switch (request("modulo")) {
             case 'bodega':
-                return $this->success(Bodegas::where('Id_Bodega_Nuevo',request()->get('id'))
-                ->update(['Estado' => request()->get('state')]));
+                return $this->success(Bodegas::where('Id_Bodega_Nuevo', request()->get('id'))
+                    ->update(['Estado' => request()->get('state')]));
                 break;
             case 'grupo':
-                return $this->success(GrupoEstiba::where('Id_Grupo_Estiba',request()->get('id'))
-                ->update(['Estado' => request()->get('state')]));
+                return $this->success(GrupoEstiba::where('Id_Grupo_Estiba', request()->get('id'))
+                    ->update(['Estado' => request()->get('state')]));
                 break;
         }
-
     }
 
-    public function impuestos(){
+    public function impuestos()
+    {
         return $this->success(DB::table("Impuesto")->get());
     }
 
@@ -106,58 +110,58 @@ class BodegasController extends Controller
     {
         try {
             $camposPorRegistrar = [
-                'Nombre'=> request()->get('nombre'),
-                'Direccion'=> request()->get('direccion'),
-                'Telefono'=> request()->get('telefono'),
-                'Compra_Internacional'=> request()->get('compraInternacional')
+                'Nombre' => request()->get('nombre'),
+                'Direccion' => request()->get('direccion'),
+                'Telefono' => request()->get('telefono'),
+                'Compra_Internacional' => request()->get('compraInternacional')
             ];
-            $type = '.'. request()->get('typeMapa');
-            if(!is_null(request("typeMapa"))){
-                if (in_array(request("typeMapa"),['jpeg','jpg','png'])) {
+            $type = '.' . request()->get('typeMapa');
+            if (!is_null(request("typeMapa"))) {
+                if (in_array(request("typeMapa"), ['jpeg', 'jpg', 'png'])) {
                     $base64 = saveBase64(request("mapa"), 'mapas_bodegas/', true, $type);
-                    $url=URL::to('/') . '/api/image?path=' . $base64;
+                    $url = URL::to('/') . '/api/image?path=' . $base64;
                 } else {
                     throw new Exception(
-                        "No se ha encontrado un formato de imagen válido (".request("typeMapa")."), revise e intente nuevamente"
+                        "No se ha encontrado un formato de imagen válido (" . request("typeMapa") . "), revise e intente nuevamente"
                     );
                 }
                 $camposPorRegistrar['Mapa'] = $url;
             }
-            $value = Bodegas::updateOrCreate( [ 'Id_Bodega_Nuevo'=> request()->get('id') ] , $camposPorRegistrar );
+            $value = Bodegas::updateOrCreate(['Id_Bodega_Nuevo' => request()->get('id')], $camposPorRegistrar);
             return ($value->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
-            return $this->errorResponse( [ "file" => $th->getFile(),"text" => $th->getMessage()]);
+            return $this->errorResponse(["file" => $th->getFile(), "text" => $th->getMessage()]);
         }
     }
 
     public function storeGrupo()
     {
         try {
-            $value = GrupoEstiba::updateOrCreate( [ 'Id_Grupo_Estiba'=> request()->get('id') ] , [
-                'Nombre'=> request()->get('nombre'),
-                'Presentacion'=> request()->get('presentacion'),
-                'Fecha_Vencimiento'=> request()->get('fechaVencimiento'),
-                'Id_Bodega_Nuevo'=> request()->get('idBodega')
-            ] );
+            $value = GrupoEstiba::updateOrCreate(['Id_Grupo_Estiba' => request()->get('id')], [
+                'Nombre' => request()->get('nombre'),
+                'Presentacion' => request()->get('presentacion'),
+                'Fecha_Vencimiento' => request()->get('fechaVencimiento'),
+                'Id_Bodega_Nuevo' => request()->get('idBodega')
+            ]);
             return ($value->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
-            return $this->errorResponse( $th->getFile().$th->getMessage() );
+            return $this->errorResponse($th->getFile() . $th->getMessage());
         }
     }
 
     public function storeEstiba()
     {
         try {
-            $value = Estiba::updateOrCreate( [ 'Id_Estiba'=> request()->get('id') ] , [
-                'Nombre'=> request()->get('nombre'),
-                'Id_Grupo_Estiba'=> request()->get('idGrupo'),
-                'Id_Bodega_Nuevo'=> request()->get('idBodega'),
-                'Codigo_Barras'=> request()->get('codigoBarras'),
-                'Estado'=> request()->get('estado')
-            ] );
+            $value = Estiba::updateOrCreate(['Id_Estiba' => request()->get('id')], [
+                'Nombre' => request()->get('nombre'),
+                'Id_Grupo_Estiba' => request()->get('idGrupo'),
+                'Id_Bodega_Nuevo' => request()->get('idBodega'),
+                'Codigo_Barras' => request()->get('codigoBarras'),
+                'Estado' => request()->get('estado')
+            ]);
             return ($value->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
-            return $this->errorResponse( $th->getFile().$th->getMessage() );
+            return $this->errorResponse($th->getFile() . $th->getMessage());
         }
     }
 
@@ -169,7 +173,7 @@ class BodegasController extends Controller
      */
     public function show($id)
     {
-        return $this->success(Bodegas::where('Id_Bodega_Nuevo',$id)->first());
+        return $this->success(Bodegas::where('Id_Bodega_Nuevo', $id)->first());
     }
 
     /**
@@ -204,5 +208,22 @@ class BodegasController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function getBodegas()
+    {
+        $bodega = Bodegas::get();
+        unset($oCon);
+        if ($bodega) {
+            $producto["Mensaje"] = 'Bodegas Encontradas con éxito';
+            $resultado["Tipo"] = "success";
+            $resultado["Bodegas"] = $bodega;
+        } else {
+            $resultado["Tipo"] = "error";
+            $resultado["Titulo"] = "Error al intentar buscar las bodegas";
+            $resultado["Texto"] = "Ha ocurrido un error inesperado.";
+        }
+
+        return response()->json($resultado);
     }
 }

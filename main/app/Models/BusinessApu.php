@@ -10,15 +10,13 @@ class BusinessApu extends Model
     use HasFactory;
 
     protected $fillable = [
-        'apuable_id',
-        'apuable_type',
         'business_id',
-        'status'
+        'apuable_id',
+        'apuable_type'
     ];
 
     public function apuable()
     {
         return $this->morphTo();
     }
-
 }

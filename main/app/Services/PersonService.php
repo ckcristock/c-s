@@ -57,7 +57,6 @@ class PersonService
     public static function funcionario_turno($personId, $dia, $hoy, $ayer)
     {
         $funcionario =  Person::where('personId', $personId)
-            /* ->with('cargo') */
             ->with('contractultimate')
             ->with('contractultimate.fixedTurn')
             ->with('contractultimate.fixedTurn.horariosTurnoFijo')

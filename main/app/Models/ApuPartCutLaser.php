@@ -13,21 +13,23 @@ class ApuPartCutLaser extends Model
 
 
     protected $fillable = [
-        "cut_laser_material_id",
-        "cut_laser_material_value_id",
+        "material_id",
         "apu_part_id",
         "thickness",
-        "amount",
+        "sheets_amount",
         "long",
         "width",
         "total_length",
-        "amount_cut",
-        "sheets_amount",
+        "amount_holes",
         "diameter",
         "total_hole_perimeter",
         "time",
         "minute_value",
-        "value"
+        "value",
+        "cut_laser_material_id",
+        "cut_laser_material_value_id",
+        /* "amount",
+        "amount_cut", */
     ];
 
     protected $hidden = [

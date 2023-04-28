@@ -9,6 +9,11 @@ class BenefitNotIncome extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+    protected $fillable = [
+        'person_id',
+        'countable_income_id',
+        'value'
+    ];
 
     public function ingreso()
     {

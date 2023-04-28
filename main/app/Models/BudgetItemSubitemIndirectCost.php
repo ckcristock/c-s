@@ -9,7 +9,9 @@ class BudgetItemSubitemIndirectCost extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
-
-  
-
+    protected $fillable = [
+        'budget_item_subitem_id',
+        'indirect_cost_id',
+        'value'
+    ];
 }

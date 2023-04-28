@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Services\consulta;
-use App\Models\UsersEmermedica;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
+use App\Models\CenterCost;
 
 include(app_path() . '/Http/Services/comprobantes/ObtenerProximoConsecutivo.php');
 
 class GeneralController extends Controller
 {
 
-    
+    public function pruebas(){
+        return CenterCost::get();
+    }
+
     public function listaGenerales()
     {
         $mod = (isset($_REQUEST['modulo']) ? $_REQUEST['modulo'] : '');
