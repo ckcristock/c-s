@@ -36,4 +36,9 @@ class PurchaseRequest extends Model
         return $this->hasMany(QuotationPurchaseRequest::class, 'purchase_request_id', 'id' );
     }
 
+    public function activity()
+    {
+        return $this->hasMany(PurchaseRequestActivity::class,'id_purchase_request', 'id');
+    }
+
 }
