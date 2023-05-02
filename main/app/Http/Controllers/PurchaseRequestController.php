@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductPurchaseRequest;
 use App\Models\PurchaseRequest;
+use App\Models\PurchaseRequestActivity;
 use App\Models\Quotation;
 use App\Models\QuotationPurchaseRequest;
 use App\Traits\ApiResponser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Mockery\Undefined;
@@ -102,6 +104,9 @@ class PurchaseRequestController extends Controller
             foreach ($products as $product) {
                 $purchaseRequest->productPurchaseRequest()->updateOrCreate(['id' => $product['id']], $product);
             }
+            //actividad compra va aquí
+            $this->newActivity("Se " . ((!$request->id) ? 'creó' : 'editó') . " la orden de compra con código " . $purchaseRequest->code , 'Creación');
+
             if (!$request->id) {
                 sumConsecutive('purchase_requests');
             }
@@ -117,6 +122,19 @@ class PurchaseRequestController extends Controller
      * @param  \App\Models\PurchaseRequest  $purchaseRequest
      * @return \Illuminate\Http\Response
      */
+
+    public function newActivity($details, $status)
+    {
+        PurchaseRequestActivity::create(
+            [
+                //'id_purchase_request' => $purchaseRequest -> id,
+                'user_id' => auth()->user()->id,
+                'details' => $details,
+                'date' => Carbon::now(),
+                'status' => $status
+            ]
+        );
+    }
     public function show($id)
     {
         return $this->success(PurchaseRequest::with('productPurchaseRequest', 'person', 'quotationPurchaseRequest')->find($id));
@@ -158,19 +176,24 @@ class PurchaseRequestController extends Controller
     //Funcion que guarda cotizaciones cargadas por producto
     public function saveQuotationPurchaseRequest(Request $request)
     {
+       // dd($request);
         $items = $request->items;
+        //dd($items);
         $code = generateConsecutive('quotation_purchase_requests');
+
+
         foreach ($items as $key => $value) {
             $value['code'] = $code . '-' . ($key + 1);
             $base64 = saveBase64File($value["file"], 'cotizaciones-solicitud-compra/', false, '.pdf');
             $value['file'] = URL::to('/') . '/api/file-view?path=' . $base64;
             QuotationPurchaseRequest::create($value);
 
-
-
             if ($value["product_purchase_request_id"]) {
                 $product = ProductPurchaseRequest::find($value['product_purchase_request_id']);
                 $product->update(['status' => 'Cotizaciones cargadas']);
+
+                $this->newActivity(("Se cotizó el producto ".$product['name'] ." " ." con número de cotización " .  $value['code']), 'Cotización');
+
             }
 
             if ($value["purchase_request_id"]) {
@@ -180,7 +203,10 @@ class PurchaseRequestController extends Controller
                 foreach ($products as $product) {
                     $product->update(['status' => 'Cotizaciones cargadas']);
                 }
+
+                $this->newActivity(("Se realizó una cotización general de la solitiud de compra " .  $purchase['code']. " con número de cotización " .  $value['code']) , 'Cotización');
             }
+
         }
         if ($value["product_purchase_request_id"]) {
             PurchaseRequest::find($product->purchase_request_id)->update(['status' => 'Cotizada']);
@@ -189,7 +215,7 @@ class PurchaseRequestController extends Controller
         }
 
         sumConsecutive('quotation_purchase_requests');
-        return $this->success('holi');
+        return $this->success('Cotización guardada con éxito');
     }
 
     public function saveGeneralQuotationPurchaseRequest(Request $request)
@@ -214,10 +240,10 @@ class PurchaseRequestController extends Controller
     public function getQuotationPurchaserequest($id, $value)
     {
         // esta validacion no esta funcionando
-        if ($value == 'product'){
+        if ($value == 'product') {
             $quotation = QuotationPurchaseRequest::with('productPurchaseRequest')
                 ->where('product_purchase_request_id', $id)->with('thirdParty')->get();
-        } else if ($value == 'purchase'){
+        } else if ($value == 'purchase') {
             $quotation = QuotationPurchaseRequest::with('purchaseRequest')
                 ->where('purchase_request_id', $id)->with('thirdParty')->get();
         } else {
@@ -255,12 +281,15 @@ class PurchaseRequestController extends Controller
             $productPurchaseRequest = ProductPurchaseRequest::find($quotationPurchase->product_purchase_request_id);
             $productPurchaseRequest->update(['status' => 'Cotización Aprobada']);
 
+            $this->newActivity("Se aprobó la cotización número ". $quotationPurchase->code . " del producto ". $productPurchaseRequest->name  , 'Aprobación');
+
             $purchaseRequest = PurchaseRequest::find($productPurchaseRequest->purchase_request_id);
             $allProductsPurchaseRequestApproved = ProductPurchaseRequest::where('purchase_request_id', $purchaseRequest->id)
                 ->where('status', '<>', 'Cotización Aprobada')  //valor diff de cotizacion aprobada
                 ->count() == 0;
             if ($allProductsPurchaseRequestApproved) {
                 $purchaseRequest->update(['status' => 'Aprobada']);
+                $this->newActivity("Se aprobarón todas las cotizaciones de la solicitud ".  $purchaseRequest->code , 'Aprobación');
             }
         }
         //dd($quotationsIdsGeneral);
@@ -268,9 +297,12 @@ class PurchaseRequestController extends Controller
             $purchaseRequest = PurchaseRequest::find($quotationPurchase->purchase_request_id);
             $purchaseRequest->update(['status' => 'Aprobada']);
 
-            // esta validacion no esta funcionando
+
             $productPurchaseRequest = ProductPurchaseRequest::where('purchase_request_id', $purchaseRequest->id);
             $productPurchaseRequest->update(['status' => 'Cotización Aprobada']);
+            //dd($purchaseRequest);
+
+            $this->newActivity("Se aprobó la cotización general de la solicitud de compra". $purchaseRequest->code. "con número de cotización ". $quotationPurchase->code, 'Aprobación');
         }
         //dd($productPurchaseRequest);
 
