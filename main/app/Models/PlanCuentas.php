@@ -48,6 +48,7 @@ class PlanCuentas extends Model
         'Tipo_Cierre_Mensual',
         'Tipo_Cierre_Anual',
         'Id_Empresa',
+        'company_id'
     ];
 
     public function cuenta_padre()

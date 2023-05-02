@@ -10,14 +10,12 @@ class Product extends Model
     protected $primaryKey = 'Id_Producto';
     protected $fillable =
     [
-        'Id_Producto',
         'Presentacion',
-        'Embalaje_id',
+        'Nombre_Comercial',
         'Unidad_Medida',
         'Cantidad',
-        'Codigo_Barras',
         'Precio',
-        'Nombre_Comercial',
+        'Codigo_Barras',
         'Imagen',
         'Id_Categoria',
         'Referencia',
@@ -25,6 +23,7 @@ class Product extends Model
         'Estado',
         'Id_Subcategoria',
         'company_id',
+        'Embalaje_id',
     ];
 
     public function scopeAlias($q, $alias)
@@ -51,7 +50,7 @@ class Product extends Model
 
     public function category()
     {
-        return $this->belongsTo(NewCategory::class, 'Id_Categoria', 'Id_Categoria_Nueva');
+        return $this->belongsTo(CategoriaNueva::class, 'Id_Categoria', 'Id_Categoria_Nueva');
     }
 
     public function activity()

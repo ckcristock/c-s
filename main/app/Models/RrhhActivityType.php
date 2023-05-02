@@ -9,5 +9,9 @@ class RrhhActivityType extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['color','name'];
+    protected $fillable = [
+        'name',
+        'color',
+        'state'
+    ];
 }

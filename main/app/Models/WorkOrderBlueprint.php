@@ -10,7 +10,6 @@ class WorkOrderBlueprint extends Model
     use HasFactory;
 
     protected $fillable =[
-        'id',
         'file',
         'general_set',
         'set_name',

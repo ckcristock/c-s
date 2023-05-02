@@ -9,8 +9,8 @@ class ContractTermWorkContractType extends Pivot
     protected $timestamp = true;
 
     protected $fillable = [
+        'contract_term_id',
         'work_contract_type_id',
-        'contract_term_id'
     ];
 
 }

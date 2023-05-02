@@ -12,9 +12,9 @@ class LayoffsCertificate extends Model
         'reason_withdrawal',
         'person_id',
         'reason',
-        'document',
         'monto',
         'valormonto',
+        'document',
         'state'
     ];
 

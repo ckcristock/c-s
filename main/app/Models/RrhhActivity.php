@@ -10,16 +10,16 @@ class RrhhActivity extends Model
     use HasFactory;
 
     protected $fillable = [
+        'description',
         'name',
         'user_id',
-        'date_start',
         'date_end',
-        'rrhh_activity_type_id',
-        'state',
-        'description',
-        'dependency_id',
+        'date_start',
         'hour_start',
         'hour_end',
+        'state',
+        'rrhh_activity_type_id',
+        'dependency_id',
         'code'
     ];
 

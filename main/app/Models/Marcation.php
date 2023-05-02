@@ -10,9 +10,9 @@ class Marcation extends Model
     use HasFactory;
     protected $fillable = [
         'type',
-        'img' ,
         'description' ,
         'date',
+        'img' ,
         'person_id'
     ];
 

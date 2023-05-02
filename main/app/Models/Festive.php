@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Festive extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'year',
+        'date',
+        'name',
+    ];
 }

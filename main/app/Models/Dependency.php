@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Dependency extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'group_id'];
+    protected $fillable = [
+        'name',
+        'group_id'
+    ];
 
     /**
      * Una dependencia tiene muchos cargos

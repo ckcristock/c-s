@@ -8,23 +8,23 @@ use Illuminate\Database\Eloquent\Model;
 class Measure extends Model
 {
     protected $fillable = [
-		"name",
-		"measure",
-	];
+        "name",
+        "measure",
+        'state'
+    ];
 
     protected $hidden = [
-        "updated_at","created_at",
+        "updated_at", "created_at",
     ];
 
 
     public function GeometriesM()
-	{
-		return $this->belongsToMany(Geometry::class);
-	}
+    {
+        return $this->belongsToMany(Geometry::class);
+    }
 
     public function ApuPartRawMaterial()
-	{
-		return $this->belongsToMany(ApuPartRawMaterial::class);
-	}
-
+    {
+        return $this->belongsToMany(ApuPartRawMaterial::class);
+    }
 }

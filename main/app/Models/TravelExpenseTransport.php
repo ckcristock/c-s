@@ -9,4 +9,14 @@ class TravelExpenseTransport extends Model
 {
 	use HasFactory;
 	protected $guarded = ['id'];
+    protected $fillable = [
+        'type',
+        'journey',
+        'company',
+        'ticket_payment',
+        'departure_date',
+        'ticket_value',
+        'travel_expense_id',
+        'total'
+    ];
 }

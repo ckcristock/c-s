@@ -7,8 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class TravelExpenseHotel extends Model
 {
-	use HasFactory;
-	protected $guarded = ['id'];
+    use HasFactory;
+    protected $guarded = ['id'];
+    protected $fillable = [
+        'travel_expense_id',
+        'hotel_id',
+        'n_night',
+        'who_cancels',
+        'accommodation',
+        'breakfast',
+        'total',
+        'rate'
+    ];
 
     public function accommodation()
     {
@@ -17,8 +27,15 @@ class TravelExpenseHotel extends Model
 
     public function hoteles()
     {
-        return $this->belongsTo(Hotel::class, 'id' ,'travel_expense_hotels')
-        ->withPivot('who_cancels', 'n_night', 'breakfast', 'total',
-                    'breakfast', 'rate', 'accommodation');
+        return $this->belongsTo(Hotel::class, 'id', 'travel_expense_hotels')
+            ->withPivot(
+                'who_cancels',
+                'n_night',
+                'breakfast',
+                'total',
+                'breakfast',
+                'rate',
+                'accommodation'
+            );
     }
 }

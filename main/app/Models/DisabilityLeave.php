@@ -19,7 +19,6 @@ class DisabilityLeave extends Model
         'concept',
         'accounting_account',
         'sum',
-        'percentage',
         'state',
         'novelty',
         'modality'

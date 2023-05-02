@@ -36,9 +36,7 @@ class SubcategoryController extends Controller
             }); */
             $q->where("s.Id_Categoria_Nueva",'=',$fill);
         })
-        ->when(request()->get("separable"), function ($q, $fill) {
-            $q->where("Separable",'=',$fill);
-        })->orderBy('Fijo','desc')
+        ->orderBy('Fijo','desc')
         ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1));
 
        /*  $q = DB::table('Subcategoria as S')
@@ -93,7 +91,7 @@ class SubcategoryController extends Controller
 
     }
 
-   
+
 
     /**
      * Show the form for creating a new resource.

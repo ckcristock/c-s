@@ -10,10 +10,14 @@ class Perfil extends Model
     use HasFactory;
     protected $table = 'Perfil';
     protected $primaryKey = 'Id_Perfil';
-    protected $fillable = ['Nombre','Detalle','Tablero'];
+    protected $fillable = [
+        'Nombre',
+        'Detalle',
+        'Tablero'
+    ];
 
-    public function scopeAlias($q, $alias){
-        return $q->from($q->getQuery()->from." as ".$alias);
+    public function scopeAlias($q, $alias)
+    {
+        return $q->from($q->getQuery()->from . " as " . $alias);
     }
-
 }

@@ -25,10 +25,10 @@ class OrdenCompraNacional extends Model
         'Codigo_Qr',
         'Aprobacion',
         'Id_Pre_Compra',
-        'format_code',
-        'Subtotal',
-        'Iva',
         'Total',
+        'Iva',
+        'Subtotal',
+        'format_code',
     ];
 
     public function scopeAlias($q, $alias){

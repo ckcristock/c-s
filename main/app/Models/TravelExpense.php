@@ -10,6 +10,36 @@ class TravelExpense extends Model
 {
 	use HasFactory;
 	protected $guarded = ['id'];
+    protected $fillale = [
+        'person_id',
+        'user_id',
+        'approve_user_id',
+        'origin_id',
+        'destinity_id',
+        'travel_type',
+        'departure_date',
+        'arrival_date',
+        'n_nights',
+        'baggage_usd',
+        'baggage_cop',
+        'total_hotels_usd',
+        'total_hotels_cop',
+        'total_transports_cop',
+        'total_taxis_usd',
+        'total_taxis_cop',
+        'total_feedings_usd',
+        'total_feedings_cop',
+        'total_laundry_cop',
+        'total_laundry_usd',
+        'other_expenses_usd',
+        'other_expenses_cop',
+        'total_usd',
+        'total_cop',
+        'total',
+        'work_order_id',
+        'observation',
+        'state',
+    ];
 
 	public function destiny()
 	{

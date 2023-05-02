@@ -12,10 +12,10 @@ class ThirdParty extends Model
     use HasFactory;
     protected $guarded = ['id'];
     /* protected $fillable = [
+        'document_type',
         'nit',
+        'dv',
         'person_type',
-        'is_client',
-        'is_supplier',
         'social_reason',
         'first_name',
         'second_name',
@@ -26,6 +26,7 @@ class ThirdParty extends Model
         'address_two',
         'address_three',
         'address_four',
+        'cod_dian_address',
         'tradename',
         'department_id',
         'municipality_id',
@@ -45,17 +46,23 @@ class ThirdParty extends Model
         'withholding_oninvoice',
         'reteica_type',
         'reteica_account_id',
+        'reteica_percentage',
         'retefuente_account_id',
+        'retefuente_percentage',
         'g_contribut',
         'reteiva_account_id',
+        'reteiva_percentage',
         'condition_payment',
         'assigned_space',
         'discount_prompt_payment',
         'discount_days',
         'state',
         'rut',
-        'cod_dian_address',
-        'image'
+        'image',
+        'fiscal_responsibility',
+        'country_id',
+        'location',
+        'city_id'
     ]; */
 
     protected $hidden = [

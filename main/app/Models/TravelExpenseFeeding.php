@@ -9,4 +9,12 @@ class TravelExpenseFeeding extends Model
 {
 	use HasFactory;
 	protected $guarded = ['id'];
+    protected $fillable = [
+        'type',
+        'breakfast',
+        'rate',
+        'travel_expense_id',
+        'stay',
+        'total'
+    ];
 }

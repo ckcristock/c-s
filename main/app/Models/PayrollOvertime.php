@@ -19,7 +19,6 @@ class PayrollOvertime extends Model
         'concept',
         'percentage',
         'account_plan_id',
-        'account_setoff'
     ];
 
     public function cuentaContable()
