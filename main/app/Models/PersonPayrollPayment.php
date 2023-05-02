@@ -15,7 +15,12 @@ class PersonPayrollPayment extends Model
         'transportation_assistance',
         'retentions_deductions',
         'net_salary',
-        'code'
+        'user_electronic_reported',
+        'electronic_reported_date',
+        'electronic_reported',
+        'status',
+        'code',
+        'cune'
     ];
 
     public function person(){

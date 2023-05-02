@@ -10,16 +10,16 @@ class DisciplinaryProcess extends Model
 {
     use HasFactory;
     protected $fillable  = [
-        'person_id',
         'code',
+        'person_id',
         'process_description',
         'date_of_admission',
         'date_end',
         'status',
         'file',
+        'fileType',
         'approve_user_id',
         'close_description',
-        'fileType'
     ];
 
     public function person()
@@ -30,7 +30,7 @@ class DisciplinaryProcess extends Model
     public function personInvolved()
     {
         return $this->hasMany(PersonInvolved::class)->with([
-            'person' => function($q){
+            'person' => function ($q) {
                 $q->select('id', 'first_name', 'second_name', 'first_surname', 'second_surname');
             }
         ]);

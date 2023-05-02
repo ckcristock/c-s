@@ -10,29 +10,26 @@ class PayrollPayment extends Model
 
     use HasFactory;
 
-   protected $fillable = [
-    "total_cost",
-    "user_id",
-    "code",
-    "payment_frequency",
-    "start_period",
-    "end_period",
-    "total_salaries",
-    "total_retentions",
-    "total_provisions",
-    "total_social_secturity",
-    "total_parafiscals",
-    "total_overtimes_surcharges",
-    "total_incomes",
-    "total_cost",
-    "created_at",
-    "updated_at",
-    "electronic_reported",
-    "electronic_reported_date",
-    "user_electronic_reported",
-    "company_id",
-    "email_reported"
-   ];
+    protected $fillable = [
+        "user_id",
+        "code",
+        "payment_frequency",
+        "start_period",
+        "end_period",
+        "total_salaries",
+        "total_retentions",
+        "total_provisions",
+        "total_social_secturity",
+        "total_parafiscals",
+        "total_overtimes_surcharges",
+        "total_incomes",
+        "total_cost",
+        "electronic_reported",
+        "electronic_reported_date",
+        "user_electronic_reported",
+        "company_id",
+        "email_reported",
+    ];
 
     public function personPayrollPayment()
     {
@@ -55,5 +52,4 @@ class PayrollPayment extends Model
             $query->select('id', 'person_id', 'payroll_payment_id', 'accumulated_vacations')->where('person_id', $id);
         }]);
     }
-
 }

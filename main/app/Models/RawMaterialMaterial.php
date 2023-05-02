@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class RawMaterialMaterial extends Model
 {
     use HasFactory;
-    protected $fillable = ['material_id', 'kg_value', 'density'];
+    protected $fillable = [
+        'material_id',
+        'kg_value',
+        'density'
+    ];
 
     public function product()
     {

@@ -11,23 +11,19 @@ class Hotel extends Model
 	protected $fillable = [
 		'type',
 		'name',
-		'address',
-		//'rate',
-		'phone',
-		'landline',
 		'city_id',
+		'person_contact',
+		'landline',
+		'address',
+		'phone',
 		'simple_rate',
 		'double_rate',
 		'breakfast',
-		//'accommodation_id',
+		'accommodation_id',
 	];
 
 	public function city()
 	{
-        //este cambio se debe a que se usa Munucipality para las ciudades
-        //Dejo la misma relación de city, pero a la tabla municipality para evitar
-        //que se rompa en otra parte __dy
-		//return $this->belongsTo(City::class);
 		return $this->belongsTo(Municipality::class);
 	}
 	public function travelExpenses()

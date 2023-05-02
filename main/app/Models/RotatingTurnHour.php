@@ -10,9 +10,9 @@ class RotatingTurnHour extends Model
     use HasFactory;
     protected $fillable = [
         'person_id',
+        'rotating_turn_id',
         'date',
         'weeks_number',
-        'rotating_turn_id'
     ];
     public function turnoRotativo()
     {

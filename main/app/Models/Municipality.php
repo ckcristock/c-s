@@ -10,14 +10,15 @@ class Municipality extends Model
     use HasFactory;
     protected $fillable = [
         'name',
-        'code',
+        'abbreviation',
         'department_id',
-        'dane_code',
+        'code',
         'dian_code',
+        'dane_code',
         'municipalities_id',
         'percentage_product',
         'percentage_service',
-        'abbreviation',
+        'state'
     ];
 
 

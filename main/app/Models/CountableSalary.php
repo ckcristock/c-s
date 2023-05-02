@@ -25,5 +25,4 @@ class CountableSalary extends Model
     {
         return $this->belongsTo(AccountPlan::class, 'account_setoff', 'Codigo_Niif');
     }
-
 }

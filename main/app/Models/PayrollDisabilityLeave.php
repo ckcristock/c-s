@@ -16,7 +16,6 @@ class PayrollDisabilityLeave extends Model
         'prefix',
         'concept',
         'account_plan_id',
-        'account_setoff',
         'percentage',
     ];
 

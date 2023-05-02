@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Eps extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'code', 'nit', 'status'];
     protected $table = 'epss';
+    protected $fillable = [
+        'name',
+        'nit',
+        'code',
+        'status'
+    ];
 }

@@ -289,9 +289,9 @@ class Configuration extends Model
         $numberPos = 'Consecutivo_' . $tipo_consecutivo;
 
         $data = new Collection();
-        $data->prefix = $this->$prefix;
-        $data->number = $this->$numberPos + 1;
-        $data->code = $this->$prefix . ($this->$numberPos + 1);
+        $data['prefix'] = $this->$prefix;
+        $data['number'] = $this->$numberPos + 1;
+        $data['code'] = $this->$prefix . ($this->$numberPos + 1);
 
         return  $data;
     }

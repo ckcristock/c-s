@@ -10,20 +10,22 @@ class RotatingTurn extends Model
 	use HasFactory;
 	protected $fillable = [
 		"name",
+		"extra_hours",
 		"entry_tolerance",
 		"leave_tolerance",
-		"extra_hours",
+        "state",
+		"launch",
+		"breack",
 		"entry_time",
 		"leave_time",
-		"launch",
 		"launch_time",
 		"launch_time_two",
-		"breack",
 		"breack_time",
 		"breack_time_two",
 		"sunday_id",
 		"saturday_id",
-		"color"
+		"color",
+        "empresa_id"
 	];
 
 	public function sunday()

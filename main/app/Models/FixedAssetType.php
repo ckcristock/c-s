@@ -24,10 +24,9 @@ class FixedAssetType extends Model
         'pcga_account_plan_debit_depreciation_id',
         'niif_account_plan_debit_depreciation_id',
         'consecutive',
-        'useful_life_pcga',
         'mantis',
         'state'
     ];
-    
-  
+
+
 }

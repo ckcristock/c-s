@@ -11,23 +11,24 @@ class WorkContract extends Model
     use HasFactory;
     protected $fillable = [
         'position_id',
-        'date_end',
-        'old_date_end',
+        'company_id',
+        'liquidated',
+        'person_id',
         'salary',
         'turn_type',
+        'fixed_turn_id',
+        'date_of_admission',
         'work_contract_type_id',
         'contract_term_id',
+        'date_end',
+        'old_date_end',
         'rotating_turn_id',
-        'liquidated',
-        'company_id',
-        'fixed_turn_id',
-        'person_id',
-        'date_of_admission',
         'transport_assistance'
     ];
 
-    public function scopeAlias($q, $alias){
-        return $q->from($q->getQuery()->from." as ".$alias);
+    public function scopeAlias($q, $alias)
+    {
+        return $q->from($q->getQuery()->from . " as " . $alias);
     }
 
     public function position()
@@ -40,7 +41,8 @@ class WorkContract extends Model
         return $this->belongsTo(Company::class);
     }
 
-    public function people(){
+    public function people()
+    {
         return $this->belongsTo(Person::class);
     }
 
@@ -87,5 +89,4 @@ class WorkContract extends Model
     {
         return $this->hasMany(Bonifications::class);
     }
-
 }

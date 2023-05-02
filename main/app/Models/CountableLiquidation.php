@@ -10,14 +10,13 @@ class CountableLiquidation extends Model
     use HasFactory;
 
     protected $fillable = [
-    'concept',
-    'account_plan_id',
-    'status'
+        'concept',
+        'account_plan_id',
+        'status'
     ];
 
     public function cuentaContable()
     {
         return $this->belongsTo(AccountPlan::class, 'account_plan_id', 'Codigo_Niif');
     }
-
 }

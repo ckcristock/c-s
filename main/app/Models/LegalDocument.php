@@ -8,5 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class LegalDocument extends Model
 {
     use HasFactory;
-    protected $fillable = ['file', 'disciplinary_process_id', 'name', 'type', 'state', 'motivo'];
+    protected $fillable = [
+        'file',
+        'disciplinary_process_id',
+        'name',
+        'type',
+        'state',
+        'motivo'
+    ];
 }

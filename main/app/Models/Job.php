@@ -10,6 +10,7 @@ class Job extends Model
     use HasFactory;
 
     protected $fillable = [
+        'code',
         'company_id',
         'title',
         'date_start',
@@ -26,6 +27,7 @@ class Job extends Model
         'max_age',
         'can_trip',
         'change_residence',
+        'state',
         'visa',
         'visa_type_id',
         'salary_type_id',
@@ -33,7 +35,6 @@ class Job extends Model
         'passport',
         'document_type_id',
         'conveyance',
-        'code'
     ];
 
     public function position()

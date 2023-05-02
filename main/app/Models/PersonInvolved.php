@@ -8,12 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class PersonInvolved extends Model
 {
     use HasFactory;
-    protected $fillable = ['observation', 'disciplinary_process_id', 'file', 'fileType', 'user_id', 'person_id', 'state'];
+    protected $fillable = [
+        'observation',
+        'disciplinary_process_id',
+        'file',
+        'fileType',
+        'user_id',
+        'state',
+        'person_id',
+    ];
 
     public function user()
     {
         return $this->belongsTo(User::class)->with([
-            'person' => function($q){
+            'person' => function ($q) {
                 $q->select('id', 'first_name', 'second_name', 'first_surname', 'second_surname');
             }
         ]);
@@ -28,5 +36,4 @@ class PersonInvolved extends Model
     {
         return $this->hasMany(MemorandumInvolved::class)->with('memorandum');
     }
-
 }

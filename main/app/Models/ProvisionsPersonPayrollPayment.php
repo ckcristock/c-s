@@ -10,13 +10,13 @@ class ProvisionsPersonPayrollPayment extends Model
     use HasFactory;
 
     protected $fillable = [
-	'person_id',
-	'payroll_payment_id',
-	'severance',
-	'severance_interest',
-	'prima',
-	'vacations',
-	'accumulated_vacations',
-	'total_provisions'
+        'person_id',
+        'payroll_payment_id',
+        'severance',
+        'severance_interest',
+        'prima',
+        'vacations',
+        'accumulated_vacations',
+        'total_provisions'
     ];
 }

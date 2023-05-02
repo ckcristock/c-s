@@ -10,8 +10,8 @@ class PayVacation extends Model
     use HasFactory;
     protected $fillable = [
         'payroll_factor_id',
+        'days',
         'state',
         'value',
-        'days'
     ];
 }
