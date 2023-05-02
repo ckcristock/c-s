@@ -14,11 +14,11 @@ class PurchaseRequest extends Model
         'category_id',
         'expected_date',
         'observations',
-        'status',
         'quantity_of_products',
-        'user_id',
+        'status',
         'code',
-        'format_code'
+        'format_code',
+        'user_id',
     ];
 
     public function productPurchaseRequest()

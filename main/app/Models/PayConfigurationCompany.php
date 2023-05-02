@@ -15,6 +15,16 @@ class PayConfigurationCompany extends Model
         'vacations_31_pay' => 'boolean'
     ];
 
+    protected $fillable = [
+        'disability_percentage_id',
+        'deductions_pay',
+        'recurrent_pay',
+        'pay_transportation_assistance',
+        'affect_transportation_assistance',
+        'vacations_31_pay',
+        'company_id'
+    ];
+
     protected $columns = ['id', 'disability_percentage_id'];
 
     public function company()

@@ -9,12 +9,14 @@ class Location extends Model
 {
     use HasFactory;
     protected $fillable =  [
+        'company_id',
         'name',
         'code',
         'address',
         'agreements',
         'category',
         'city',
+        'globo_id',
         'country_code',
         'creation_date',
         'disabled',
@@ -23,6 +25,14 @@ class Location extends Model
         'interface_id',
         'logo',
         'pbx',
-        'name',
+        'regional_id',
+        'send_email',
+        'settings',
+        'slogan',
+        'state',
+        'telephone',
+        'tin',
+        'allow_procedure',
+        'type'
     ];
 }

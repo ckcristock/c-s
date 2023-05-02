@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Services\consulta;
-use App\Models\CenterCost;
+use App\Models\ElectronicPayroll;
 
 include(app_path() . '/Http/Services/comprobantes/ObtenerProximoConsecutivo.php');
 
@@ -12,7 +12,7 @@ class GeneralController extends Controller
 {
 
     public function pruebas(){
-        return CenterCost::get();
+        return ElectronicPayroll::get();
     }
 
     public function listaGenerales()

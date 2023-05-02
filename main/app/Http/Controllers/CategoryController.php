@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\CategoryVariable;
 use Illuminate\Http\Request;
-use App\Models\NewCategory;
+use App\Models\CategoriaNueva;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
-     use ApiResponser;
+    use ApiResponser;
     /**
      * Display a listing of the resource.
      *
@@ -19,37 +19,38 @@ class CategoryController extends Controller
     public function index()
     {
         return $this->success(
-            NewCategory::with("subcategory")->active()->get()
+            CategoriaNueva::with("subcategory")->active()->get()
         );
     }
 
-    public function indexForSelect(){
+    public function indexForSelect()
+    {
         return $this->success(
-            NewCategory::active()->get(['Id_Categoria_Nueva as value', 'Nombre as text'])
+            CategoriaNueva::active()->get(['Id_Categoria_Nueva as value', 'Nombre as text'])
         );
     }
 
     public function paginate()
     {
         return $this->success(
-            NewCategory::with("subcategory","categoryVariables")
-            ->when(request()->get("nombre"), function ($q, $fill) {
-                $q->where("Nombre",'like','%'.$fill.'%');
-            })
-            ->when(request()->get("compraInternacional"), function ($q, $fill) {
-                $q->where("Compra_Internacional","=",$fill);
-            })
-            ->when(request()->get("separacionCategorias"), function ($q, $fill) {
-                $q->where("Aplica_Separacion_Categorias","=",$fill);
-            })->orderBy('Fijo','desc')
-            ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            CategoriaNueva::with("subcategory", "categoryVariables")
+                ->when(request()->get("nombre"), function ($q, $fill) {
+                    $q->where("Nombre", 'like', '%' . $fill . '%');
+                })
+                ->when(request()->get("compraInternacional"), function ($q, $fill) {
+                    $q->where("Compra_Internacional", "=", $fill);
+                })
+                ->when(request()->get("separacionCategorias"), function ($q, $fill) {
+                    $q->where("Aplica_Separacion_Categorias", "=", $fill);
+                })->orderBy('Fijo', 'desc')
+                ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 
     public function listCategories()
     {
         return $this->success(
-            NewCategory::orderBy('Id_Categoria_Nueva', 'ASC')->active()->get(['Nombre As text', 'Id_Categoria_Nueva As value'])
+            CategoriaNueva::orderBy('Id_Categoria_Nueva', 'ASC')->active()->get(['Nombre As text', 'Id_Categoria_Nueva As value'])
         );
     }
 
@@ -74,30 +75,31 @@ class CategoryController extends Controller
     {
         try {
             $dynamic = request()->get("dynamic");
-            $value = NewCategory::updateOrCreate( [ 'Id_Categoria_Nueva'=> request()->get('Id_Categoria_Nueva') ] , $request->except(["dynamic"]));
-            foreach($dynamic as $d){
-				$d["category_id"] = $value->Id_Categoria_Nueva;
-				CategoryVariable::updateOrCreate([ 'id'=> $d["id"] ],$d);
-			}
-           /*  $id=($value->wasRecentlyCreated)?$value->Id_Categoria_Nueva:request()->get('Id_Categoria_Nueva');
+            $value = CategoriaNueva::updateOrCreate(['Id_Categoria_Nueva' => request()->get('Id_Categoria_Nueva')], $request->except(["dynamic"]));
+            foreach ($dynamic as $d) {
+                $d["category_id"] = $value->Id_Categoria_Nueva;
+                CategoryVariable::updateOrCreate(['id' => $d["id"]], $d);
+            }
+            /*  $id=($value->wasRecentlyCreated)?$value->Id_Categoria_Nueva:request()->get('Id_Categoria_Nueva');
 
-            $category=NewCategory::find($id);
+            $category=CategoriaNueva::find($id);
             $category->subcategories()->sync(request()->get("Subcategorias")); */
             return ($value->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
         } catch (\Throwable $th) {
-            return $this->errorResponse( $th->getFile()." - ".$th->getMessage() );
+            return $this->errorResponse($th->getFile() . " - " . $th->getMessage());
         }
     }
 
-    public function turningOnOff($id,Request $request){
-        try{
-            $category=NewCategory::find($id);
+    public function turningOnOff($id, Request $request)
+    {
+        try {
+            $category = CategoriaNueva::find($id);
             $category->Activo = $request->activo;
             $category->save();
             $category->subcategory()->update(['Activo' => $request->activo]);
-            return  $this->success('Categoría '.(($request->activo == 0)?'anulada':'reactivada').' con éxito');
+            return  $this->success('Categoría ' . (($request->activo == 0) ? 'anulada' : 'reactivada') . ' con éxito');
         } catch (\Throwable $th) {
-            return $this->errorResponse( $th->getFile()." - ".$th->getMessage() );
+            return $this->errorResponse($th->getFile() . " - " . $th->getMessage());
         }
     }
 
@@ -109,14 +111,13 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-
     }
 
     public function getField($id)
     {
         return $this->success(
             CategoryVariable::select("id as cv_id", "label", "type", "required")
-            ->where("Category_Id",$id)->get()
+                ->where("Category_Id", $id)->get()
         );
     }
 
@@ -143,10 +144,10 @@ class CategoryController extends Controller
         //
     }
 
-    public function deleteVariable($id){
+    public function deleteVariable($id)
+    {
 
         CategoryVariable::where("id", $id)->delete();
-
     }
 
     /**
@@ -160,4 +161,3 @@ class CategoryController extends Controller
         //
     }
 }
-

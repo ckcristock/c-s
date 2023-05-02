@@ -9,11 +9,13 @@ class LateArrival extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'date',
-        'entry',
         'person_id',
-        'real_entry',
         'time',
+        'entry',
+        'real_entry',
+        'count',
+        'justification',
+        'date',
     ];
 
      /**

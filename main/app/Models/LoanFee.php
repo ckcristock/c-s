@@ -9,15 +9,17 @@ class LoanFee extends Model
 {
 	use HasFactory;
 	protected $fillable = [
+		"loan_id",
 		"number",
 		"amortization",
 		"interest",
 		"value",
 		"outstanding_balance",
 		"date",
-		"loan_id"
+        'payment_date',
+        'state'
 	];
 
-    
+
 
 }

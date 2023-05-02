@@ -19,9 +19,7 @@ class SocialSecurityPersonPayrollPayment extends Model
         'compensation_founds',
         'total_social_security',
         'total_parafiscals',
-        'total_social_security_parafiscals',
-        'created_at',
-        'updated_at'
+        'total_social_security_parafiscals'
     ];
 
 }

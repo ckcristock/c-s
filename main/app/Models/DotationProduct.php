@@ -9,11 +9,11 @@ class DotationProduct extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'quantity',
+        'dotation_id',
         'inventary_dotation_id',
+        'quantity',
         'cost',
         'code',
-        'dotation_id',
     ];
 
     public function inventary_dotation()

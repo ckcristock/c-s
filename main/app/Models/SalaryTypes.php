@@ -10,7 +10,6 @@ class SalaryTypes extends Model
     use HasFactory;
     protected $fillable = [
         'name',
-        'description',
         'status'
     ];
 }

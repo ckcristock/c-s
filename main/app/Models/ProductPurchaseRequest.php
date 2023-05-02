@@ -10,11 +10,11 @@ class ProductPurchaseRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'purchase_request_id',
         'product_id',
+        'purchase_request_id',
+        'status',
         'name',
         'ammount',
-        'status'
     ];
 
     public function purchaseRequest()

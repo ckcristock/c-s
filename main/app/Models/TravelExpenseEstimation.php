@@ -20,7 +20,6 @@ class TravelExpenseEstimation extends Model
         'aerial_international_value',
         'international_value',
         'national_value',
-        /* 'amount', */
         'unit_value',
         'formula_amount',
         'formula_total_value'

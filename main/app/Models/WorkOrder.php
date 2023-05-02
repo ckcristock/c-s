@@ -11,12 +11,10 @@ class WorkOrder extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id',
         'purchase_order',
         'quotation_id',
         'delivery_date',
         'date',
-        'name',
         'third_party_id',
         'municipality_id',
         'third_party_person_id',
@@ -27,7 +25,8 @@ class WorkOrder extends Model
         'legal_requirements',
         'status',
         'type',
-        'format_code'
+        'format_code',
+        'name',
     ];
 
     public function city()

@@ -14,7 +14,6 @@ class TaskTimeline extends Model
         'description',
         'task_id',
         'person_id',
-        'created_at',
     ];
 
     public function person()

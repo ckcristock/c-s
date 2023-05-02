@@ -13,5 +13,12 @@ class Estiba extends Model
 
     protected $primaryKey = 'Id_Estiba';
 
-    protected $fillable = ['Nombre','Id_Grupo_Estiba','Id_Bodega_Nuevo','Id_Punto_Dispensacion','Codigo_Barras','Estado'];
+    protected $fillable = [
+        'Nombre',
+        'Id_Grupo_Estiba',
+        'Id_Bodega_Nuevo',
+        'Id_Punto_Dispensacion',
+        'Codigo_Barras',
+        'Estado'
+    ];
 }

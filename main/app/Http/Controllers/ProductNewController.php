@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActividadProducto;
 use App\Models\CategoryVariable;
-use App\Models\NewCategory;
+use App\Models\CategoriaNueva;
 use App\Models\Packaging;
 use App\Models\Product;
 use App\Models\Subcategory;
@@ -63,7 +63,7 @@ class ProductNewController extends Controller
     {
         $unit = Unit::get(['name As text', 'id AS value']);
         $packaging = Packaging::get(['id as value', 'name as text']);
-        $categories = NewCategory::with(['subcategories' => function ($q) {
+        $categories = CategoriaNueva::with(['subcategories' => function ($q) {
             $q->select('Id_Subcategoria', 'Id_Categoria_Nueva', 'Id_Subcategoria as value', 'Nombre as text');
         }])->get(['Id_Categoria_Nueva', 'Id_Categoria_Nueva as value', 'Nombre as text']);
         $taxes = Tax::get(['Id_Impuesto as value', 'Valor as text']);
@@ -77,7 +77,7 @@ class ProductNewController extends Controller
 
     public function getVariablesCat($id)
     {
-        return $this->success(NewCategory::find($id)->categoryVariables);
+        return $this->success(CategoriaNueva::find($id)->categoryVariables);
     }
 
     public function getVariablesSubCat($id)
@@ -228,7 +228,7 @@ class ProductNewController extends Controller
                 break;
             case 'Id_Categoria':
                 $key = 'categoría';
-                $campo = NewCategory::find($campo)->Nombre;
+                $campo = CategoriaNueva::find($campo)->Nombre;
                 $this->createActivity(
                     $id,
                     "El campo '" . $key . "' fue ingresado con el valor '" . $campo . "'."
@@ -357,8 +357,8 @@ class ProductNewController extends Controller
                 break;
             case 'Id_Categoria':
                 $key = 'categoría';
-                $campo = NewCategory::find($campo)->Nombre;
-                $oldData = NewCategory::find($oldData)->Nombre;
+                $campo = CategoriaNueva::find($campo)->Nombre;
+                $oldData = CategoriaNueva::find($oldData)->Nombre;
                 $this->createActivity(
                     $id,
                     (isset($oldData))

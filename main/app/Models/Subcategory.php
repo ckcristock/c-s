@@ -9,7 +9,13 @@ class Subcategory extends Model
     protected $table = 'Subcategoria';
     protected $primaryKey = 'Id_Subcategoria';
 
-    protected $fillable = ['Nombre', 'Id_Categoria_Nueva', 'Separable','Fijo'];
+    protected $fillable = [
+        'Id_Categoria_Nueva',
+        'Nombre',
+        'Separable',
+        'Activo',
+        'Fijo'
+    ];
 
     /* public function category()
     {
@@ -21,16 +27,17 @@ class Subcategory extends Model
         return $this->hasMany(SubcategoryVariable::class, "subcategory_id");
     }
 
-    public function scopeAlias($q, $alias){
-        return $q->from($q->getQuery()->from." as ".$alias);
+    public function scopeAlias($q, $alias)
+    {
+        return $q->from($q->getQuery()->from . " as " . $alias);
     }
 
-    public function scopeActive($query){
+    public function scopeActive($query)
+    {
         $query->where('Activo', 1);
     }
 
     /* public function categories(){
-        return $this->belongsToMany(NewCategory::class,"categoria_nueva_subcategoria","Id_Subcategoria","Id_Categoria_Nueva");
+        return $this->belongsToMany(CategoriaNueva::class,"categoria_nueva_subcategoria","Id_Subcategoria","Id_Categoria_Nueva");
     } */
-
 }

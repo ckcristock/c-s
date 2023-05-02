@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Position extends Model
 {
-    /**Cargos */
-    protected $fillable = ['name', 'dependency_id'];
-
     use HasFactory;
+    protected $fillable = [
+        'dependency_id',
+        'name',
+    ];
+
     /**
      * una posicion pertenece a una dependencia
      *
@@ -20,7 +22,7 @@ class Position extends Model
     {
         return $this->belongsTo(Dependency::class);
     }
-    
+
     public function municipality()
     {
         return $this->belongsTo(Municipality::class);

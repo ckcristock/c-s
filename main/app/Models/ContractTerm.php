@@ -9,14 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 class ContractTerm extends Model
 {
     use HasFactory;
-
+    protected $table = 'contract_terms';
     protected $fillable = [
         'id',
         'name',
-        'status'
+        'status',
+        'conclude',
+        'modified',
+        'description',
     ];
-
-    protected $table = 'contract_terms';
 
     public function workContractTypes ()
     {

@@ -9,6 +9,8 @@ class VisaType extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'name', 'purpose', 'state'
+        'name',
+        'purpose',
+        'state'
     ];
 }

@@ -17,8 +17,8 @@ class InventaryDotation extends Model
         'type',
         'status',
         'cost',
-        'stock'
-
+        'stock',
+        'size',
     ];
 
     public function dotacionProducto(){

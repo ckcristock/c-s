@@ -10,11 +10,11 @@ class PrettyCash extends Model
 	use HasFactory;
 	protected $table = 'pretty_cash';
 	protected $fillable = [
-		'user_id',
 		'person_id',
-		'initial_balance',
 		'account_plan_id',
+		'initial_balance',
 		'description',
+		'user_id',
         'status'
 	];
 

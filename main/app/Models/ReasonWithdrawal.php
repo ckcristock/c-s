@@ -9,4 +9,8 @@ class ReasonWithdrawal extends Model
 {
     use HasFactory;
     protected $table = 'reason_withdrawal';
+    protected $fillable = [
+        'name',
+        'requirements',
+    ];
 }

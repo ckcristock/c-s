@@ -17,4 +17,23 @@ class CategoriaNueva extends Model
         'Activo',
         'Fijo'
     ];
+    public function categoryVariables()
+    {
+        return $this->hasMany(CategoryVariable::class, "category_id");
+    }
+
+    public function subcategory()
+    {
+        return $this->hasMany(Subcategory::class, "Id_Categoria_Nueva");
+    }
+
+    public function subcategories()
+    {
+        return $this->hasMany(Subcategory::class, 'Id_Categoria_Nueva', 'Id_Categoria_Nueva');
+    }
+
+    public function scopeActive($query)
+    {
+        $query->where('Activo', 1);
+    }
 }

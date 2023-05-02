@@ -13,13 +13,13 @@ class PayrollFactor extends Model
     protected $fillable = [
         'person_id',
         'disability_leave_id',
-        'disability_type',
         'date_start',
         'date_end',
+        'payback_date',
+        'disability_type',
+        'sum',
         'modality',
         'observation',
-        'sum',
-        'payback_date',
         'number_days'
     ];
 

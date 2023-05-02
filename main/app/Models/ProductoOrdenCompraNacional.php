@@ -14,11 +14,11 @@ class ProductoOrdenCompraNacional extends Model
         'Id_Orden_Compra_Nacional',
         'Id_Inventario',
         'Id_Producto',
-        'Cantidad',
-        'impuesto_id',
-        'Total',
-        'Subtotal',
         'Valor_Iva',
+        'Subtotal',
+        'impuesto_id',
+        'Cantidad',
+        'Total',
     ];
 
     public function product()

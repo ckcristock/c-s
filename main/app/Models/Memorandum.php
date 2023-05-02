@@ -10,12 +10,12 @@ class Memorandum extends Model
     use HasFactory;
     protected $fillable = [
         'person_id',
-        'memorandum_type_id',
         'details',
         'file',
         'level',
         'state',
-        'approve_user_id'
+        'approve_user_id',
+        'memorandum_type_id',
     ];
     protected $table = 'memorandums';
 

@@ -10,7 +10,8 @@ class RrhhActivityPerson extends Model
     use HasFactory;
     protected $fillable = [
         'person_id',
-        'rrhh_activity_id'
+        'rrhh_activity_id',
+        'state'
     ];
 
     public function person()

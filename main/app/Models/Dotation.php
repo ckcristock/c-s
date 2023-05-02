@@ -9,12 +9,13 @@ class Dotation extends Model
 {
     use HasFactory;
     protected $fillable=[
-        'type',
+        'dispatched_at',
         'person_id',
         'user_id',
-        'dispatched_at',
         'description',
         'cost',
+        'state',
+        'type',
         'delivery_code',
         'delivery_state',
     ];

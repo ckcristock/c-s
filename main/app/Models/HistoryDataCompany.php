@@ -17,8 +17,8 @@ class HistoryDataCompany extends Model
         'person_id',
     ];
 
-    public function Person(){
+    public function Person()
+    {
         return $this->belongsTo(Person::class)->completeName();
     }
-
 }

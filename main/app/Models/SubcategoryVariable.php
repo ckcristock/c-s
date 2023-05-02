@@ -11,7 +11,12 @@ class SubcategoryVariable extends Model
 
     protected $table = 'subcategory_variables';
 
-    protected $fillable = ['subcategory_id', 'label', 'required', 'type'];
+    protected $fillable = [
+        'subcategory_id',
+        'label',
+        'type',
+        'required',
+    ];
 
     /* public function scopeAlias($q, $alias){
         return $q->from($q->getQuery()->from." as ".$alias)->whereNull();
