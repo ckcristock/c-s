@@ -12,7 +12,6 @@ class Subcategory extends Model
     protected $fillable = [
         'Id_Categoria_Nueva',
         'Nombre',
-        'Separable',
         'Activo',
         'Fijo'
     ];

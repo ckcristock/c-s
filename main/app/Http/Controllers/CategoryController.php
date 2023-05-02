@@ -40,9 +40,7 @@ class CategoryController extends Controller
                 ->when(request()->get("compraInternacional"), function ($q, $fill) {
                     $q->where("Compra_Internacional", "=", $fill);
                 })
-                ->when(request()->get("separacionCategorias"), function ($q, $fill) {
-                    $q->where("Aplica_Separacion_Categorias", "=", $fill);
-                })->orderBy('Fijo', 'desc')
+                ->orderBy('Fijo', 'desc')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
