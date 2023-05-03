@@ -86,14 +86,20 @@ class PersonController extends Controller
     public function indexPaginate(Request $request)
     {
         return $this->success(
-            Person::with('work_contract')
+            Person::with(['work_contract' => function ($q) use ($request) {
+                if ($request->status == 'Activo') {
+                    $q->where('liquidated', 0);
+                } else {
+                    $q->where('liquidated', 1)->max('date_end');
+                }
+            }])
                 ->when($request->name, function ($q, $fill) {
-                    $q->where(function ($query) use($fill) {
+                    $q->where(function ($query) use ($fill) {
                         $query->where("identifier", "like", "%" . $fill . "%")
-                        ->orWhere(DB::raw('CONCAT_WS(" ", first_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
-                        ->orWhere(DB::raw('CONCAT_WS(" ", second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
-                        ->orWhere(DB::raw('CONCAT_WS(" ", first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
-                        ->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%");
+                            ->orWhere(DB::raw('CONCAT_WS(" ", first_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
+                            ->orWhere(DB::raw('CONCAT_WS(" ", second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
+                            ->orWhere(DB::raw('CONCAT_WS(" ", first_surname, second_surname)'), "LIKE", "%" . $fill . "%")
+                            ->orWhere(DB::raw('CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)'), "LIKE", "%" . $fill . "%");
                     });
                 })
                 ->when($request->dependency_id, function ($q, $fill) {
@@ -305,7 +311,7 @@ class PersonController extends Controller
                         "p.id",
                         "=",
                         "w.person_id"
-                    )->where('w.liquidated', 0);
+                    )/* ->where('w.liquidated', 0) */;
                 })
                 ->where("p.id", "=", $id)
                 ->first()
@@ -346,141 +352,140 @@ class PersonController extends Controller
         );
     }
 
-	public function salaryHistory($id)
-	{
-		return $this->success(
-			WorkContract::where('person_id', $id)
-				->where('liquidated', 1)
-				->with('work_contract_type', 'position')
-				->orderBy('date_end')
-				->get()
-		);
-	}
+    public function salaryHistory($id)
+    {
+        return $this->success(
+            WorkContract::where('person_id', $id)
+                ->where('liquidated', 1)
+                ->with('work_contract_type', 'position')
+                ->orderBy('date_end')
+                ->get()
+        );
+    }
 
-	public function updateSalaryInfo(Request $request)
-	{
-		try {
-			$salary = WorkContract::find($request->get("id"));
-			$salary->update($request->all());
-			return response()->json([
-				"message" => "Se ha actualizado con éxito",
-			]);
-		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
-		}
-	}
+    public function updateSalaryInfo(Request $request)
+    {
+        try {
+            $salary = WorkContract::find($request->get("id"));
+            $salary->update($request->all());
+            return response()->json([
+                "message" => "Se ha actualizado con éxito",
+            ]);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 
-	public function afiliation($id)
-	{
-		try {
-			return $this->success(
-				DB::table("people as p")
-					->select(
-						"p.eps_id",
-						"e.name as eps_name",
-						"p.compensation_fund_id",
-						"c.name as compensation_fund_name",
-						"p.severance_fund_id",
-						"s.name as severance_fund_name",
-						"p.pension_fund_id",
-						"pf.name as pension_fund_name",
-						"a.id as arl_id",
-						"a.name as arl_name"
-					)
-					->leftJoin("epss as e", function ($join) {
-						$join->on("e.id", "=", "p.eps_id");
-					})
-					->leftJoin("arl as a", function ($join) {
-						$join->on("a.id", "=", "p.arl_id");
-					})
-					->leftJoin("compensation_funds as c", function ($join) {
-						$join->on("c.id", "=", "p.compensation_fund_id");
-					})
-					->leftJoin("severance_funds as s", function ($join) {
-						$join->on("s.id", "=", "p.severance_fund_id");
-					})
-					->leftJoin("pension_funds as pf", function ($join) {
-						$join->on("pf.id", "=", "p.pension_fund_id");
-					})
-					->where("p.id", "=", $id)
-					->first()
-				/* ->get() */
-			);
-		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
-		}
-	}
+    public function afiliation($id)
+    {
+        try {
+            return $this->success(
+                DB::table("people as p")
+                    ->select(
+                        "p.eps_id",
+                        "e.name as eps_name",
+                        "p.compensation_fund_id",
+                        "c.name as compensation_fund_name",
+                        "p.severance_fund_id",
+                        "s.name as severance_fund_name",
+                        "p.pension_fund_id",
+                        "pf.name as pension_fund_name",
+                        "a.id as arl_id",
+                        "a.name as arl_name"
+                    )
+                    ->leftJoin("epss as e", function ($join) {
+                        $join->on("e.id", "=", "p.eps_id");
+                    })
+                    ->leftJoin("arl as a", function ($join) {
+                        $join->on("a.id", "=", "p.arl_id");
+                    })
+                    ->leftJoin("compensation_funds as c", function ($join) {
+                        $join->on("c.id", "=", "p.compensation_fund_id");
+                    })
+                    ->leftJoin("severance_funds as s", function ($join) {
+                        $join->on("s.id", "=", "p.severance_fund_id");
+                    })
+                    ->leftJoin("pension_funds as pf", function ($join) {
+                        $join->on("pf.id", "=", "p.pension_fund_id");
+                    })
+                    ->where("p.id", "=", $id)
+                    ->first()
+                /* ->get() */
+            );
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 
-	public function updateAfiliation(Request $request, $id)
-	{
-		try {
-			$afiliation = Person::find($id);
-			$afiliation->update($request->all());
-			return response()->json([
-				"message" => "Se ha actualizado con éxito",
-			]);
-		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
-		}
-	}
+    public function updateAfiliation(Request $request, $id)
+    {
+        try {
+            $afiliation = Person::find($id);
+            $afiliation->update($request->all());
+            return response()->json([
+                "message" => "Se ha actualizado con éxito",
+            ]);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 
-	public function fixed_turn()
-	{
-		try {
-			return $this->success(
-				FixedTurn::all(["id as value", "name as text"])
-			);
-		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
-		}
-	}
+    public function fixed_turn()
+    {
+        try {
+            return $this->success(
+                FixedTurn::all(["id as value", "name as text"])
+            );
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 
-	public function liquidateOrActivate(Request $request, Person $person)
-	{
-		try {
-			//$person = Person::find($id);
-			$person->update([
-				'status' => $request->status,
-			]);
-			return $this->success('El funcionario ha sido '.$request->status.' con éxito');
-		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
-		}
-	}
+    public function liquidateOrActivate(Request $request, Person $person)
+    {
+        try {
+            //$person = Person::find($id);
+            $person->update([
+                'status' => $request->status,
+            ]);
+            return $this->success('El funcionario ha sido ' . $request->status . ' con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 
-	public function epss()
-	{
-		try {
-			return $this->success(EPS::all(["name as text", "id as value"]));
-		} catch (\Throwable $th) {
-			return $this->error($th->getMessage(), 500);
-		}
-	}
+    public function epss()
+    {
+        try {
+            return $this->success(EPS::all(["name as text", "id as value"]));
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function create()
-	{
-		//
-	}
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
 
-	public function updateBasicData(Request $request, $id)
-	{
-		try {
-			$person = Person::find($id);
-
-			$personData = $request->all();
-			$cognitive = new CognitiveService();
-			if (!$person->personId) {
-				//return '0';
-				$person->personId = $cognitive->createPerson($person);
-				$person->save();
-				$cognitive->deleteFace($person);
-			}
-			if ($request->image != $person->image) {
+    public function updateBasicData(Request $request, $id)
+    {
+        try {
+            $person = Person::find($id);
+            $personData = $request->all();
+            $cognitive = new CognitiveService();
+            if (!$person->personId) {
+                $person->personId = $cognitive->createPerson($person);
+                dd($person->personId);
+                $person->save();
+                $cognitive->deleteFace($person);
+            }
+            if ($request->image != $person->image) {
                 $personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
                 $person->update($personData);
                 $cognitive->deleteFace($person);

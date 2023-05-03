@@ -44,13 +44,13 @@ class AccountPlanController extends Controller
 	public function accountPlan()
 	{
 		return $this->success(
-			DB::table('account_plans as a')
+			DB::table('Plan_Cuentas as a')
 			->select(
-				'a.id',
-				'a.percent',
-				'a.center_cost',
-				DB::raw('concat(a.code," - ",a.name) as code'),
-				DB::raw('concat(a.niif_code," - ",a.niif_name) as niif_code')
+				'a.Id_Plan_Cuentas as id',
+				'a.Porcentaje as percent',
+				'a.Centro_Costo as center_cost',
+				DB::raw('concat(a.Codigo," - ",a.Nombre) as code'),
+				DB::raw('concat(a.Codigo_Niif," - ",a.Nombre_Niif) as niif_code')
 			)
 			->get()
 		);

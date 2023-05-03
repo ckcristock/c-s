@@ -15,7 +15,7 @@ class CategoriaNueva extends Model
         'Compra_Internacional',
         'Aplica_Separacion_Categorias',
         'Activo',
-        'Fijo'
+        'Fijo',
     ];
     public function categoryVariables()
     {
