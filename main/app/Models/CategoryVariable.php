@@ -15,7 +15,8 @@ class CategoryVariable extends Model
         'category_id',
         'label',
         'type',
-        'required'
+        'required',
+        'reception'
     ];
 
     /* public function scopeAlias($q, $alias){

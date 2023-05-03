@@ -16,6 +16,7 @@ class SubcategoryVariable extends Model
         'label',
         'type',
         'required',
+        'reception'
     ];
 
     /* public function scopeAlias($q, $alias){

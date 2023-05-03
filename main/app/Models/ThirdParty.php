@@ -84,6 +84,7 @@ class ThirdParty extends Model
     {
         return $this->belongsTo(AccountPlan::class);
     }
+
     public function scopeName($q, $alias = 'full_name')
     {
         // Si se envió 'select *' retire 'social_reason' de la lista de campos
@@ -105,7 +106,8 @@ class ThirdParty extends Model
         );
     }
 
-    public function scopeFullName($q) {
+    public function scopeFullName($q)
+    {
         return $q->select('*', DB::raw('IFNULL(social_reason, CONCAT_WS(" ", first_name, first_surname)) as full_name'));
     }
 
@@ -136,21 +138,39 @@ class ThirdParty extends Model
             ]
         );
     }
+
     public function business()
     {
         return $this->hasMany(Business::class)->with('thirdParty', 'thirdPartyPerson', 'country', 'city', 'businessBudget');
     }
+
     public function country()
     {
         return $this->belongsTo(Country::class);
     }
+
     public function department()
     {
         return $this->belongsTo(Department::class);
     }
+
     public function document_type_()
     {
         return $this->belongsTo(DocumentTypes::class, 'document_type');
     }
 
+    public function reteica()
+    {
+        return $this->belongsTo(PlanCuentas::class, 'reteica_account_id', 'Id_Plan_Cuentas');
+    }
+
+    public function reteiva()
+    {
+        return $this->belongsTo(PlanCuentas::class, 'retefuente_account_id', 'Id_Plan_Cuentas');
+    }
+
+    public function retefuente()
+    {
+        return $this->belongsTo(PlanCuentas::class, 'reteiva_account_id', 'Id_Plan_Cuentas');
+    }
 }

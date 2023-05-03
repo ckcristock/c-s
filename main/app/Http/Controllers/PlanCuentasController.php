@@ -153,7 +153,7 @@ class PlanCuentasController extends Controller
                 ])
             );
         }
-        }
+    }
 
 
     public function importInitialBalances(Request $request)
@@ -430,9 +430,13 @@ class PlanCuentasController extends Controller
 
             $oItem->save();
             $id_plan = $oItem->Id_Plan_Cuentas;
-            AccountPlanBalance::create(['account_plan_id' => $id_plan], [
-                'balance' => 0
-            ]);
+            $balance = AccountPlanBalance::where('account_plan_id', $id_plan)->first();
+            if (!$balance) {
+                AccountPlanBalance::create([
+                    'account_plan_id' => $id_plan,
+                    'balance' => 0
+                ]);
+            }
             if (strval($datos['Codigo_Padre']) === '110510') {
                 PrettyCash::create([
                     'user_id' =>  Auth::id(),
@@ -455,8 +459,6 @@ class PlanCuentasController extends Controller
             $resultado['mensaje'] = "Ya existe un PUC con ese código.";
             $resultado['tipo'] = "error";
         }
-
-
         return json_encode($resultado);
     }
 

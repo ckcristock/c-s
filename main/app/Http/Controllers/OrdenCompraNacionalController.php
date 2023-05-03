@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use App\Http\Services\consulta;
+use App\Models\ActaRecepcion;
 use App\Models\OrdenCompraNacional;
 use App\Models\Product;
 use App\Models\ProductoOrdenCompraNacional;
@@ -45,8 +46,12 @@ class OrdenCompraNacionalController extends Controller
         return $this->success($resultado);
     }
 
-    public function actaRecepcionCompra()
+    public function actaRecepcionCompra(Request $request)
     {
+        $orden = $request->orden;
+        return $this->success(
+            OrdenCompraNacional::with('products', 'third', 'store')->where('Codigo', $request->codigo)->first()
+        );
         $codigo = (isset($_REQUEST['codigo']) ? $_REQUEST['codigo'] : '');
         $tipoCompra = (isset($_REQUEST['compra']) ? $_REQUEST['compra'] : '');
         $query = 'SELECT  COUNT(*) as Total_Items
