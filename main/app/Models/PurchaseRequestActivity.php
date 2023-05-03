@@ -10,7 +10,7 @@ class PurchaseRequestActivity extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id_purchase_request',
+        'purchase_request_id',
         'user_id',
         'date',
         'details',
@@ -20,5 +20,10 @@ class PurchaseRequestActivity extends Model
     public function person()
     {
         return $this-> belongsTo(Person::class, 'user_id')->fullName();
+    }
+
+    public function purchaseRequest()
+    {
+        return $this->belongsTo(PurchaseRequest::class);
     }
 }
