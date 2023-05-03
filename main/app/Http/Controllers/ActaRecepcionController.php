@@ -84,10 +84,10 @@ class ActaRecepcionController extends Controller
             } else {
                 $XEstiba++;
                 $XProducto = 0;
-                $porCategorias[$XEstiba]['Categoria_Nueva'] = $categorias['Categoria_Nueva'];
-                $porCategorias[$XEstiba]['Subcategorias'][$XProducto]['Nombre_Subcategoria'] = $categorias['Nombre'];
+                $porCategorias[$XEstiba]['Categoria_Nueva'] = $categorias->Categoria_Nueva;
+                $porCategorias[$XEstiba]['Subcategorias'][$XProducto]['Nombre_Subcategoria'] = $categorias->Nombre;
 
-                $porCategorias[$XEstiba]['Subcategorias'][$XProducto]['Id_Subcategoria'] = $categorias['Id_Subcategoria'];
+                $porCategorias[$XEstiba]['Subcategorias'][$XProducto]['Id_Subcategoria'] = $categorias->Id_Subcategoria;
                 $XProducto++;
             }
         }

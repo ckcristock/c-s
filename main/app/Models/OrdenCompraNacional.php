@@ -54,7 +54,7 @@ class OrdenCompraNacional extends Model
 
     public function third()
     {
-        return $this->belongsTo(ThirdParty::class, 'Id_Proveedor')->fullName();
+        return $this->belongsTo(ThirdParty::class, 'Id_Proveedor')->with('reteica', 'reteiva', 'retefuente')->fullName();
     }
 
     public function store()
