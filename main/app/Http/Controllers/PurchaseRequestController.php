@@ -42,7 +42,7 @@ class PurchaseRequestController extends Controller
     public function paginate(Request $request)
     {
         return $this->success(
-            PurchaseRequest::with('productPurchaseRequest', 'person')
+            PurchaseRequest::with('productPurchaseRequest', 'person', 'quotationPurchaseRequest')
                 ->when($request->code, function ($q, $fill) {
                     $q->where('code', 'like', "%$fill%");
                 })
@@ -92,24 +92,59 @@ class PurchaseRequestController extends Controller
                 $data['code'] = generateConsecutive('purchase_requests');
             }
             $data['quantity_of_products'] = count($products);
+            $actualData = PurchaseRequest::find($request->id);
             $purchaseRequest = PurchaseRequest::updateOrcreate(
                 ['id' => $request->id],
                 $data
             );
             if (count($products_delete) > 0) {
                 foreach ($products_delete as $product) {
-                    ProductPurchaseRequest::find($product)->delete();
+                    $productDelete = ProductPurchaseRequest::find($product);
+                    $this->newActivity(
+                        "Se eliminó el producto " . $productDelete->name,
+                        'Edición',
+                        $purchaseRequest->id
+                    );
+                    $productDelete->delete();
                 }
             }
             foreach ($products as $product) {
-                $purchaseRequest->productPurchaseRequest()->updateOrCreate(['id' => $product['id']], $product);
+                $productOld = $product['id'] ? ProductPurchaseRequest::find($product['id'])->toArray() : '';
+                $productAdd = $purchaseRequest->productPurchaseRequest()->updateOrCreate(['id' => $product['id']], $product);
+                if ($productAdd->wasRecentlyCreated) {
+                    $this->newActivity(
+                        "Se agregó el producto " . $productAdd->name,
+                        'Edición',
+                        $purchaseRequest->id
+                    );
+                } else if ($product['id']) {
+                    if ($product['ammount'] !== $productOld['ammount']) {
+                        $this->newActivity(
+                            "Se modificó el producto " . $productAdd->name,
+                            'Edición',
+                            $purchaseRequest->id
+                        );
+                    }
+                }
             }
             //actividad compra va aquí
-            $this->newActivity(
-                "Se " . ((!$request->id) ? 'creó' : 'editó') . " la solicitud de compra " . $purchaseRequest->code , 
-                (!$request->id) ? 'Creación': 'Edición',
-                $purchaseRequest->id
-            );
+            if ($purchaseRequest->wasRecentlyCreated) {
+                $this->newActivity(
+                    "Se creó la solicitud de compra " . $purchaseRequest->code,
+                    'Creación',
+                    $purchaseRequest->id
+                );
+            } else {
+                foreach ($data as $key => $campo) {
+                    if ($key != 'quantity_of_products' && $campo !== $actualData[$key]) {
+                        $this->newActivity(
+                            "Se editó la solicitud de compra " . $purchaseRequest->code,
+                            'Edición',
+                            $purchaseRequest->id
+                        );
+                    }
+                }
+            }
 
             if (!$request->id) {
                 sumConsecutive('purchase_requests');
@@ -180,7 +215,7 @@ class PurchaseRequestController extends Controller
     //Funcion que guarda cotizaciones cargadas por producto
     public function saveQuotationPurchaseRequest(Request $request)
     {
-       // dd($request);
+        // dd($request);
         $items = $request->items;
         //dd($items);
         $code = generateConsecutive('quotation_purchase_requests');
@@ -196,8 +231,7 @@ class PurchaseRequestController extends Controller
                 $product = ProductPurchaseRequest::find($value['product_purchase_request_id']);
                 $product->update(['status' => 'Cotizaciones cargadas']);
 
-                $this->newActivity(("Se cotizó el producto ".$product['name'] ." con número de cotización " .  $value['code']), 'Cotización', $product->purchase_request_id);
-
+                $this->newActivity(("Se cotizó el producto " . $product['name'] . " con número de cotización " .  $value['code']), 'Cotización', $product->purchase_request_id);
             }
 
             if ($value["purchase_request_id"]) {
@@ -208,11 +242,10 @@ class PurchaseRequestController extends Controller
                     $product->update(['status' => 'Cotizaciones cargadas']);
                 }
 
-                $this->newActivity(("Se realizó la cotización general numero ". $value['code']. " de la solitiud de compra " .  $purchase['code'] ) , 'Cotización', $purchase-> id);
+                $this->newActivity(("Se realizó la cotización general número " . $value['code']), 'Cotización', $purchase->id);
             }
-
         }
-        
+
         if ($value["product_purchase_request_id"]) {
             PurchaseRequest::find($product->purchase_request_id)->update(['status' => 'Cotizada']);
         } else {
@@ -223,7 +256,7 @@ class PurchaseRequestController extends Controller
         return $this->success('Cotización guardada con éxito');
     }
 
-   
+
 
     public function getQuotationPurchaserequest($id, $value)
     {
@@ -269,7 +302,7 @@ class PurchaseRequestController extends Controller
             $productPurchaseRequest = ProductPurchaseRequest::find($quotationPurchase->product_purchase_request_id);
             $productPurchaseRequest->update(['status' => 'Cotización Aprobada']);
 
-            $this->newActivity("Se aprobó la cotización ". $quotationPurchase->code . " del producto ". $productPurchaseRequest->name  , 'Aprobación', $productPurchaseRequest->purchase_request_id);
+            $this->newActivity("Se aprobó la cotización " . $quotationPurchase->code . " del producto " . $productPurchaseRequest->name, 'Aprobación', $productPurchaseRequest->purchase_request_id);
 
             $purchaseRequest = PurchaseRequest::find($productPurchaseRequest->purchase_request_id);
             $allProductsPurchaseRequestApproved = ProductPurchaseRequest::where('purchase_request_id', $purchaseRequest->id)
@@ -277,7 +310,7 @@ class PurchaseRequestController extends Controller
                 ->count() == 0;
             if ($allProductsPurchaseRequestApproved) {
                 $purchaseRequest->update(['status' => 'Aprobada']);
-                $this->newActivity("Se aprobarón todas las cotizaciones de la solicitud ".  $purchaseRequest->code , 'Aprobación', $purchaseRequest->id);
+                $this->newActivity("Se aprobaron todas las cotizaciones de la solicitud " .  $purchaseRequest->code, 'Aprobación', $purchaseRequest->id);
             }
         }
         //dd($quotationsIdsGeneral);
@@ -290,22 +323,10 @@ class PurchaseRequestController extends Controller
             $productPurchaseRequest->update(['status' => 'Cotización Aprobada']);
             //dd($purchaseRequest);
 
-            $this->newActivity("Se aprobó la cotización general ".$quotationPurchase->code." de la solicitud de compra ". $purchaseRequest->code , 'Aprobación', $purchaseRequest->id);
+            $this->newActivity("Se aprobó la cotización general " . $quotationPurchase->code, 'Aprobación', $purchaseRequest->id);
         }
         //dd($productPurchaseRequest);
 
         return $this->success('Operación existosa');
     }
 }
-
-
-/**
- *modificacion migracion enum falta Cotizacion aprobada
- *actualizar status a Cotizacion aprobada de un producto
- *recorrer productos que tengas el mismo purchase_request_id y si ya todos estan aprobados entonces que el status de purchase_request se actualice a aprobada
- * agregar a tabla principal en el front cantidad de productos cotizados
- * condicionar todos los botones (cargar, aprobar, ver, nueva order, editar afuera), que aparezcan y desaparezcan según status de la solicitud
- * modal de ver cotizacion aprobada
- * boton de cotizacion general
- * actividad
- */
