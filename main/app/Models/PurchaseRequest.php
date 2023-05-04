@@ -38,7 +38,7 @@ class PurchaseRequest extends Model
 
     public function activity()
     {
-        return $this->hasMany(PurchaseRequestActivity::class,'purchase_request_id', 'id')->with('person');
+        return $this->hasMany(PurchaseRequestActivity::class,'purchase_request_id', 'id')->with('person')->orderByDesc('created_at');
     }
 
 }
