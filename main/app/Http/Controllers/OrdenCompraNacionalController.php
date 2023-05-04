@@ -52,6 +52,8 @@ class OrdenCompraNacionalController extends Controller
         return $this->success(
             OrdenCompraNacional::with('products', 'third', 'store')->where('Codigo', $request->codigo)->first()
         );
+
+
         $codigo = (isset($_REQUEST['codigo']) ? $_REQUEST['codigo'] : '');
         $tipoCompra = (isset($_REQUEST['compra']) ? $_REQUEST['compra'] : '');
         $query = 'SELECT  COUNT(*) as Total_Items
