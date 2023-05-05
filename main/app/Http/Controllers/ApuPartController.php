@@ -143,12 +143,14 @@ class ApuPartController extends Controller
             }
 
             sumConsecutive('apu_parts');
-            return $this->success("Pieza guardada con éxito");
+            return $this->success($apu);
         } catch (\Throwable $th) {
 
             return $this->errorResponse($th->getMessage(), 500);
         }
     }
+
+
 
     /**
      * Display the specified resource.
