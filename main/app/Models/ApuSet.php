@@ -11,7 +11,6 @@ class ApuSet extends Model
     use HasFactory;
 
     protected $fillable = [
-
         "name",
         "city_id",
         "person_id",
@@ -41,7 +40,9 @@ class ApuSet extends Model
         "code",
         'format_code',
         "state",
-        'typeapu_name'
+        'typeapu_name',
+        'set_name',
+        'machine_name',
     ];
 
     public function city()
@@ -77,7 +78,9 @@ class ApuSet extends Model
                 person_id,
                 typeapu_name,
                 total_direct_cost as unit_cost,
-                third_party_id
+                third_party_id,
+                set_name,
+                machine_name
             ')
         )->when($request->code, function ($q, $fill) {
             $q->where('code', 'like', "%$fill%");
@@ -93,6 +96,12 @@ class ApuSet extends Model
             })
             ->when($request->type, function ($q, $fill) {
                 $q->where('typeapu_name', $fill);
+            })
+            ->when($request->set_name, function ($q, $fill) {
+                $q->where('set_name', 'like', "%$fill%");
+            })
+            ->when($request->machine_name, function ($q, $fill) {
+                $q->where('machine_name', 'like', "%$fill%");
             })
             ->when($request->date_one, function ($q) use ($request) {
                 $q->whereBetween('created_at', [$request->date_one, $request->date_two])

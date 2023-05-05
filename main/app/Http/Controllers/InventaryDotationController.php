@@ -19,7 +19,7 @@ class InventaryDotationController extends Controller
     use ApiResponser;
     //
 
-    public function index()
+    public function index(Request $request)
     {
         $page = Request()->get('page');
         $page = $page ? $page : 1;
@@ -28,18 +28,21 @@ class InventaryDotationController extends Controller
         $pageSize = $pageSize ? $pageSize : 10;
 
         return $this->success(
-            InventaryDotation::when(Request()->get('code'), function ($q, $fill) {
+            InventaryDotation::when($request->code, function ($q, $fill) {
                 $q->where('code', 'like', '%' . $fill . '%');
             })
-            ->when(Request()->get('name'), function ($q, $fill) {
+            ->when($request->nombre, function ($q, $fill) {
                 $q->where('name', 'like', '%' . $fill . '%');
             })
-            ->when(Request()->get('calidad'), function ($q, $fill) {
+            ->when($request->calidad, function ($q, $fill) {
                 $q->where('status', 'like', '%' . $fill . '%');
             })
-            ->when(Request()->get('tipo'), function ($q, $fill) {
+            ->when($request->tipo, function ($q, $fill) {
                 $q->where('type', 'like', '%' . $fill . '%');
-            })    
+            })
+            ->when($request->talla, function ($q, $fill) {
+                $q->where('size', 'like', '%' . $fill . '%');
+            })
             ->orderBy('id', 'DESC')->paginate($pageSize, '*', 'page', $page)
         );
     }

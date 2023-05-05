@@ -134,6 +134,7 @@ class LateArrivalController extends Controller
 
         if ($request->get('type') == 'diary') {
             $lates = LateArrivalService::getLates($dates);
+            //dd($lates);
             $res['lates'] = $lates;
 
             $res['allByDependency'] = LateArrivalService::getAllByDependecies($dates);
