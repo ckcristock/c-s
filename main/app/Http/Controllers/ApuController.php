@@ -61,7 +61,6 @@ class ApuController extends Controller
 
     public function paginate(Request $request)
     {
-
         $query = ApuPart::with(
             'thirdParty',
             'city:id,name',
@@ -95,7 +94,6 @@ class ApuController extends Controller
                     $query->where('social_reason', 'like', "%$fill%");
                 });
             });
-
         $queryService = ApuService::with('thirdParty', 'city:id,name', 'person:id,first_name,first_surname,full_name')
             ->extra($request)
             ->when($request->city, function ($q, $fill) {
@@ -119,6 +117,19 @@ class ApuController extends Controller
         return $this->success(
             $query_total->orderByDesc('created_at')->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
+    }
+
+    public function getApuPartToAddInSet(Request $request, $id)
+    {
+        $query = ApuPart::with(
+            'thirdParty',
+            'city:id,name',
+            'person:id,first_name,first_surname,full_name',
+            )
+            ->extra($request)
+            ->where('id', $id)
+            ->get();
+        return $this->success($query);
     }
 
     /**

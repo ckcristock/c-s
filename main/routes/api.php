@@ -495,6 +495,7 @@ Route::group(
         Route::get('get-file-permission/{id}', [PersonController::class, 'getFilePermission']);
         Route::get('person-profile/{id}', [PersonController::class, 'getProfile']);
         Route::get('third-party-person-for-third/{id}', [ThirdPartyPersonController::class, 'getThirdPartyPersonForThird']);
+        Route::get('third-party-person-index', [ThirdPartyPersonController::class, 'getThirdPartyPersonIndex']);
         Route::get('last-id-work-orders', [WorkOrderController::class, 'getLastId']);
         Route::get('apu-part-delete-file/{id}', [ApuPartController::class, 'deleteFile']);
         Route::get('apu-set-delete-file/{id}', [ApuSetController::class, 'deleteFile']);
@@ -708,6 +709,7 @@ Route::group(
         Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
         Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
         Route::get('paginateApus', [ApuController::class, 'paginate']);
+        Route::get('get-apu-part-to-add-in-set/{id}', [ApuController::class, 'getApuPartToAddInSet']);
         Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
         Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
         Route::get('paginate-locations', [LocationController::class, 'paginate']);
@@ -901,6 +903,7 @@ Route::group(
         Route::post('new-business-apu', [BusinessController::class, 'newBusinessApu']);
         Route::post('new-business-note', [BusinessController::class, 'newBusinessNote']);
         Route::get('business-notes/{id}', [BusinessController::class, 'getNotes']);
+        Route::post('update-basic-data-business', [BusinessController::class, 'updateBasicData']);
         Route::post('save-task', [BudgetController::class, 'saveTask']);
         Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
         Route::get('get-history-business/{id}', [BusinessController::class, 'getHistory']);

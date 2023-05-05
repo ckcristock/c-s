@@ -46,6 +46,8 @@ class ApuService extends Model
         'trm',
         'code',
         'format_code',
+        'set_name',
+        'machine_name',
     ];
 
     public function city()
@@ -81,7 +83,9 @@ class ApuService extends Model
                 person_id,
                 typeapu_name,
                 total_unit_cost as unit_cost,
-                third_party_id
+                third_party_id,
+                set_name,
+                machine_name
             ')
         )
             ->when($request->code, function ($q, $fill) {
@@ -98,6 +102,12 @@ class ApuService extends Model
             })
             ->when($request->type, function ($q, $fill) {
                 $q->where('typeapu_name', $fill);
+            })
+            ->when($request->set_name, function ($q, $fill) {
+                $q->where('set_name', 'like', "%$fill%");
+            })
+            ->when($request->machine_name, function ($q, $fill) {
+                $q->where('machine_name', 'like', "%$fill%");
             })
             ->when($request->date_one, function ($q) use($request) {
                 $q->whereBetween('created_at', [$request->date_one, $request->date_two])

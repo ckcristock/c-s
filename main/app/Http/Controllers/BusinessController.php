@@ -86,8 +86,9 @@ class BusinessController extends Controller
         try {
             $quotations = $request->quotations;
             $apus = $request->apu;
+            $data = $request->except('budgets', 'apu', 'quotations');
             $consecutive = getConsecutive('businesses');
-            $business = Business::create($request->except('budgets', 'apu', 'quotations'));
+            $business = Business::create($data);
             if ($consecutive->city) {
                 $abbreviation = Municipality::where('id', $request->city_id)->first()->abbreviation;
                 $business['code'] = generateConsecutive('businesses', $abbreviation);
@@ -340,6 +341,22 @@ class BusinessController extends Controller
             $business,
             $codeQRc
         );
+    }
+
+    public function updateBasicData(Request $request)
+    {
+        $business = Business::find($request->id);
+        $id = auth()->user()->id;
+        $person = Person::where('id',$id)->fullName()->first();
+        $data = $request->except('budgets', 'apu', 'quotations');
+        $business->update($data);
+        $this->addEventToHistroy([
+            'business_id' => $business->id,
+            'icon' => 'fas fa-edit',
+            'title' => 'Se ha editado el negocio',
+            'person_id' => auth()->user()->id,
+            'description' => $person->full_names . ' ha editado el negocio.'
+        ]);
     }
 
     /**
