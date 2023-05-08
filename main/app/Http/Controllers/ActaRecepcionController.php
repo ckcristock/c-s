@@ -524,8 +524,11 @@ class ActaRecepcionController extends Controller
         }
     }
 
+    public function save(){
 
-    public function save()
+    }
+
+    public function saveOld()
     {
         $company_id = 1;
 
