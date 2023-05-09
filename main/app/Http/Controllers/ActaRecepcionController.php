@@ -15,6 +15,8 @@ use App\Http\Services\conf;
 use App\Http\Services\HttpResponse;
 use App\Models\ActaRecepcion;
 use App\Models\CausalAnulacion;
+use App\Models\FacturaActaRecepcion;
+use App\Models\ProductoActaRecepcion;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -524,8 +526,77 @@ class ActaRecepcionController extends Controller
         }
     }
 
-    public function save(){
+    public function save(Request $request)
+    {
+        try {
+            //$data = $request->all();
 
+            $data = $request->except('invoices', 'products', 'products_acta','invoices');
+            //dd($data);
+            $products_acta = $request->products_acta;
+            //dd($products_acta);
+            $invoices = $request->invoices;
+            //dd($invoices);
+
+            $data['Identificacion_Funcionario'] = auth()->user()->id;
+
+            if (!$request->id) {
+                $data['Codigo'] = generateConsecutive('acta_recepcion');
+            }
+            $acta = ActaRecepcion::updateOrCreate(
+                ['Id_Acta_Recepcion' => $data['Id_Acta_Recepcion']]
+                , [
+                    'Id_Bodega_Nuevo' => $data['Id_Bodega_Nuevo'],
+                    'Identificacion_Funcionario' => $data['Identificacion_Funcionario'],
+                    'Observaciones' => $data['Observaciones'],
+                    'Codigo' => $data['Codigo'],
+                    'Id_Proveedor' => $data['Id_Proveedor'],
+                    'Id_Orden_Compra_Nacional' => $data['Id_Orden_Compra_Nacional'],
+                ]
+            );
+            foreach ($invoices as $invoice) {
+                $factura= FacturaActaRecepcion::updateOrCreate(
+                    ['Id_Factura_Acta_Recepcion' => $invoice['Id_Factura_Acta_Recepcion']],
+                    [
+                        'Id_Acta_Recepcion' => $acta['Id_Acta_Recepcion'], //este no sirve
+                        'Factura' => $invoice['Factura'],
+                        'Fecha_Factura' => $invoice['Fecha_Factura'],
+                        'Archivo_Factura' => $invoice['Archivo_Factura'],
+                        'Id_Orden_Compra' => $data['Id_Orden_Compra_Nacional'],
+                        'Tipo_Compra' => $data['Tipo'],
+                    ]
+            );
+            }
+
+            foreach ($products_acta as $product) {
+                ProductoActaRecepcion::updateOrCreate(
+                    ['Id_Producto_Acta_Recepcion' => $product['Id_Producto_Acta_Recepcion']],
+                    [
+                        'Id_Acta_Recepcion' => $acta['Id_Acta_Recepcion'], //este no sirve
+                        'Factura' => $factura['Id_Factura_Acta_Recepcion'],
+                        'Cantidad' => $product['Cantidad'],
+                        'Precio' => $product['Total'],
+                        'Impuesto' => $product['Iva'],
+                        'Subtotal' => $product['Subtotal'],
+                        'Id_Producto' => $product['Id_Producto'],
+                        'Tipo_Compra' => $data['Tipo'],
+                        'Id_Producto_Orden_Compra' => $data['Id_Orden_Compra_Nacional'],
+
+                    ]
+            );
+            }
+
+
+
+
+            if (!$request->id) {
+                sumConsecutive('purchase_requests');
+            }
+            return $this->success('Creado con éxito');
+
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     public function saveOld()
