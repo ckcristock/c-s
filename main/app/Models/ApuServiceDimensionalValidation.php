@@ -35,13 +35,17 @@ class ApuServiceDimensionalValidation extends Model
     ];
 
     public function travelEstimationDimensionalValidations()
-	{
-		return $this->hasMany(ApuServiceTravelEstimationDimensionalValidation::class, 'apu_service_dimensional_validation_id')->with('travelExpenseEstimation');
-	}
+    {
+        return $this->hasMany(
+            ApuServiceTravelEstimationDimensionalValidation::class,
+            'apu_service_dimensional_validation_id'
+        )
+            ->with('travelExpenseEstimation')
+            ->orderBy('travel_expense_estimation_id');
+    }
 
     public function profiles()
     {
         return $this->belongsTo(ApuProfile::class, 'apu_profile_id');
     }
-
 }

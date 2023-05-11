@@ -34,13 +34,17 @@ class ApuServiceAssemblyStartUp extends Model
     ];
 
     public function travelEstimationAssembliesStartUp()
-	{
-		return $this->hasMany(ApuServiceTravelEstimationAssemblyStartUp::class, 'apu_service_assembly_start_up_id')->with('travelExpenseEstimation');
-	}
+    {
+        return $this->hasMany(
+            ApuServiceTravelEstimationAssemblyStartUp::class,
+            'apu_service_assembly_start_up_id'
+        )
+            ->with('travelExpenseEstimation')
+            ->orderBy('travel_expense_estimation_id');
+    }
 
     public function profiles()
     {
         return $this->belongsTo(ApuProfile::class, 'apu_profile_id');
     }
-
 }
