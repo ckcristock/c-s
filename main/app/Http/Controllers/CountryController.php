@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Country;
 use App\Traits\ApiResponser;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 
 class CountryController extends Controller
 {
@@ -19,8 +23,8 @@ class CountryController extends Controller
         try {
             return $this->success(
                 Country::where('state', '=', 'Activo')
-                ->orderBy('name', 'asc')
-                ->get(['name as text', 'id as value'])
+                    ->orderBy('name', 'asc')
+                    ->get(['name as text', 'id as value'])
             );
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 400);
@@ -36,7 +40,7 @@ class CountryController extends Controller
                 }])
                 ->orderByRaw("CASE WHEN name = 'Colombia' THEN 0 ELSE 1 END, name ASC")
                 ->get(['*', 'name as text', 'id as value'])
-            );
+        );
     }
 
     public function paginate()
@@ -70,8 +74,26 @@ class CountryController extends Controller
     {
         try {
 
-            $countries = Country::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
-            return ($countries->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+            $validator = false;
+            $validatorCode = false;
+            if ($request->id) {
+                $mun = Country::find($request->id);
+                if ($mun->name != $request->name || $mun->dian_code != $request->dian_code) {
+                    $validator = Country::where('name', $request->name)->where('id', '!=', $request->id)->exists();
+                    $validatorCode = Country::where('dian_code', $request->dian_code)->where('id', '!=', $request->id)->exists();
+                }
+            } else {
+                $validator = Country::where('name', $request->name)->exists();
+                $validatorCode = Country::where('dian_code', $request->dian_code)->exists();
+            }
+            if (!$validator && !$validatorCode) {
+                $countries = Country::updateOrCreate(['id' => $request->get('id')], $request->all());
+                return ($countries->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+            } else if ($validator) {
+                throw new ModelNotFoundException('Ya existe un país con el mismo nombre');
+            } else if ($validatorCode) {
+                throw new ModelNotFoundException('Ya existe un país con el mismo código');
+            }
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 200);
         }
