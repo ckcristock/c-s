@@ -13,7 +13,7 @@ class AddTimestampsToFacturaActaRecepcionTable extends Migration
      */
     public function up()
     {
-        Schema::table('factura_acta_recepcion', function (Blueprint $table) {
+        Schema::table('Factura_Acta_Recepcion', function (Blueprint $table) {
             $table->timestamps();
         });
     }
@@ -25,7 +25,7 @@ class AddTimestampsToFacturaActaRecepcionTable extends Migration
      */
     public function down()
     {
-        Schema::table('factura_acta_recepcion', function (Blueprint $table) {
+        Schema::table('Factura_Acta_Recepcion', function (Blueprint $table) {
             //
         });
     }
