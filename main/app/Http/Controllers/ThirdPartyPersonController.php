@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ThirdPartyPerson;
 use App\Traits\ApiResponser;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -51,7 +52,8 @@ class ThirdPartyPersonController extends Controller
         return $this->success(ThirdPartyPerson::where('third_party_id', $id)->get(['*', 'id as value', 'name as text']));
     }
 
-    public function getThirdPartyPersonIndex() {
+    public function getThirdPartyPersonIndex()
+    {
         return $this->success(ThirdPartyPerson::get(['*', 'id as value', 'name as text']));
     }
 
@@ -73,12 +75,34 @@ class ThirdPartyPersonController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
         try {
-            $person = ThirdPartyPerson::updateOrCreate(['id'=> $request->id], $data);
-            return ($person->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+            $data = $request->all();
+            $validator = false;
+            $validatorDocument = false;
+            if ($request->id) {
+                $third_Person = ThirdPartyPerson::find($request->id);
+                if ($third_Person->n_document != $request->n_document || $third_Person->name != $request->name || $third_Person->third_party_id != $request->third_party_id) {
+                    $validator = ThirdPartyPerson::where('name', $request->name)->where('id', '!=', $request->id)->where('third_party_id', $request->third_party_id)->exists();
+                    if ($request->n_document) {
+                        $validatorDocument = ThirdPartyPerson::where('n_document', $request->n_document)->where('id', '!=', $request->id)->exists();
+                    }
+                }
+            } else {
+                $validator = ThirdPartyPerson::where('name', $request->name)->where('third_party_id', $request->third_party_id)->exists();
+                if ($request->n_document) {
+                    $validatorDocument = ThirdPartyPerson::where('n_document', $request->n_document)->exists();
+                }
+            }
+            if (!$validator && !$validatorDocument) {
+                $person = ThirdPartyPerson::updateOrCreate(['id' => $request->id], $data);
+                return ($person->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
+            } else if ($validator) {
+                throw new ModelNotFoundException('Ya existe una persona con el mismo nombre asignada a este tercero');
+            } else if ($validatorDocument) {
+                throw new ModelNotFoundException('Ya existe una persona con el mismo documento');
+            }
         } catch (\Throwable $th) {
-            return response()->json([$th->getMessage(), $th->getLine()]);
+            return $this->error($th->getMessage(), 200);
         }
     }
 

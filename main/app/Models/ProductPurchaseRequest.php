@@ -27,7 +27,7 @@ class ProductPurchaseRequest extends Model
     }
 
     public function quotation() {
-        return $this->hasMany(QuotationPurchaseRequest::class, 'product_purchase_request_id', 'id');
+        return $this->hasMany(QuotationPurchaseRequest::class, 'product_purchase_request_id', 'id')->with('thirdParty');
     }
 
 

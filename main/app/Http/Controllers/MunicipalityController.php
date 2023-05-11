@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Municipality;
 use App\Traits\ApiResponser;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MunicipalityController extends Controller
 {
@@ -31,11 +33,26 @@ class MunicipalityController extends Controller
             }
         ])
             ->with('department_')
-            ->orderBy('name', 'asc')
+            ->orderBy('municipalities.name', 'asc')
             ->when(Request()->get('department_id'), function ($q, $param) {
                 $q->where('department_id', $param);
             })
-            ->get(['id','percentage_product', 'percentage_service', 'name As text', 'id As value', 'department_id', 'code', 'abbreviation']);
+            ->join('departments', 'municipalities.department_id', '=', 'departments.id')
+            ->join('countries', 'departments.country_id', '=', 'countries.id')
+            ->select(
+                'municipalities.id',
+                'municipalities.percentage_product',
+                'municipalities.percentage_service',
+                //'municipalities.name AS text',
+                'municipalities.id AS value',
+                'municipalities.department_id',
+                'municipalities.code',
+                'municipalities.abbreviation',
+                DB::raw("UPPER(CONCAT(municipalities.name, ' - ', departments.name, ' - ', countries.name)) AS text")
+            )
+            ->get();
+        /* ->selectRaw("CONCAT(municipalities.name, ' - ', department_.name, ' - ', countries.name) AS full_name")
+            ->get(['id', 'percentage_product', 'percentage_service', 'name As text', 'id As value', 'department_id', 'code', 'abbreviation']); */
         return $this->success($data);
     }
 
@@ -68,23 +85,26 @@ class MunicipalityController extends Controller
 
     public function store(Request $request)
     {
-        /* try {
-            $validate_code = Municipality::where('code', $request->get('code'))->first();
-            if ($validate_code) {
-                return $this->error('El código del Municipio ya existe', 423);
-            }
-            Municipality::updateOrCreate(['id' => $request->get('id')], $request->all());
-            return $this->success('creacion exitosa');
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 200);
-        } */
         try {
-            $validate_code = Municipality::where('code', $request->code)->first();
-            if ($validate_code) {
+            $validator = false;
+            $validatorCode = false;
+            if ($request->id) {
+                $mun = Municipality::find($request->id);
+                if ($mun->name != $request->name || $mun->department_id != $request->department_id || $mun->dian_code != $request->dian_code || $mun->dane_code != $request->dane_code) {
+                    $validator = Municipality::where('name', $request->name)->where('department_id', $request->department_id)->where('id', '!=', $request->id)->exists();
+                    $validatorCode = Municipality::where('dian_code', $request->dian_code)->orWhere('dane_code', $request->dane_code)->where('id', '!=', $request->id)->exists();
+                }
+            } else {
+                $validator = Municipality::where('name', $request->name)->where('department_id', $request->department_id)->exists();
+                $validatorCode = Municipality::where('dian_code', $request->dian_code)->orWhere('dane_code', $request->dane_code)->exists();
+            }
+            if (!$validator && !$validatorCode) {
                 $municipality = Municipality::updateOrCreate(['id' => $request->get('id')], $request->all());
                 return ($municipality->wasRecentlyCreated) ? $this->success('Creado con éxito') : $this->success('Actualizado con éxito');
-            } else {
-                return $this->error('El código del Municipio ya existe', 423);
+            } else if ($validator) {
+                throw new ModelNotFoundException('Ya existe un municipio con el mismo nombre que pertenece a este departamento');
+            } else if ($validatorCode) {
+                throw new ModelNotFoundException('Ya existe un municipio con el mismo código');
             }
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 200);
