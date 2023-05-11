@@ -1055,6 +1055,7 @@ Route::group(
         Route::get('php/bodega_nuevo/acta_recepcion_comprad_test.php', [OrdenCompraNacionalController::class, 'actaRecepcionCompra']);
         Route::get('php/actarecepcion/codigo_barrad.php', [OrdenCompraNacionalController::class, 'codigoBarras']);
         /* Acta recepcion */
+        Route::get('validate-acta-history/{id}', [ActaRecepcionController::class, 'validateActa']);
         Route::get('php/actarecepcion_nuevo/lista_actas_pendientes.php', [ActaRecepcionController::class, 'listarPendientes']);
         Route::get('php/actarecepcion/lista_acta_anula.php', [ActaRecepcionController::class, 'listarAnuladas']);
         Route::get('php/facturasventas/causales_anulacion.php', [ActaRecepcionController::class, 'indexCausalAnulacion']);

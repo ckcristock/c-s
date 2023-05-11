@@ -66,4 +66,9 @@ class OrdenCompraNacional extends Model
     {
         return $this->hasMany(ActividadOrdenCompra::class, 'Id_Orden_Compra_Nacional', 'Id_Orden_Compra_Nacional')->with('person');
     }
+
+    public function factura()
+    {
+        return $this->hasMany(FacturaActaRecepcion::class, 'Id_Orden_Compra','Id_Orden_Compra_Nacional' );
+    }
 }

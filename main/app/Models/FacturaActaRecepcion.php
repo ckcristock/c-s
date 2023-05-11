@@ -20,4 +20,13 @@ class FacturaActaRecepcion extends Model
         'Tipo_Compra',
         'Estado'
     ];
+
+    public function orden_compra()
+    {
+        return $this->belongsTo(OrdenCompraNacional::class);
+    }
+    public function products_acta()
+    {
+        return $this->hasMany(ProductoActaRecepcion::class, 'Factura', 'Id_Factura_Acta_Recepcion');
+    }
 }
