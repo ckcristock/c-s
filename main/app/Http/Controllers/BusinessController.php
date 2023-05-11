@@ -58,6 +58,14 @@ class BusinessController extends Controller
                 ->when($request->code, function ($q, $fill) {
                     $q->where('code', 'like', "%$fill%");
                 })
+                ->when($request->status, function ($q, $fill) {
+                    $q->where('status', $fill);
+                })
+                ->when($request->date_start, function ($q) use ($request) {
+                    $q->whereBetween('date', [$request->date_start, $request->date_end])
+                        ->orWhereDate('date', date($request->date_start))
+                        ->orWhereDate('date', date($request->date_end));
+                })
                 ->when($request->company_name, function ($q, $fill) {
                     return $q->whereHas('thirdParty', function ($q) use ($fill) {
                         $q->where('social_reason', 'like', "%$fill%")
@@ -275,15 +283,26 @@ class BusinessController extends Controller
     public function newBusinessNote(Request $request)
     {
         $person = Person::where('id', $request->person_id)->fullName()->first();
-        BusinessNote::create($request->all());
-        $this->addEventToHistroy([
-            'business_id' => $request->business_id,
-            'icon' => 'fas fa-sticky-note',
-            'title' => 'Se ha agregado una nota',
-            'person_id' => $request->person_id,
-            'description' => $person->full_names . ' ha publicado una nueva nota.'
-        ]);
-        return $this->success('Creada con éxito');
+        $note = BusinessNote::updateOrCreate(['id' => $request->id], $request->all());
+        if ($note->wasRecentlyCreated) {
+            $this->addEventToHistroy([
+                'business_id' => $request->business_id,
+                'icon' => 'fas fa-sticky-note',
+                'title' => 'Se ha agregado una nota',
+                'person_id' => $request->person_id,
+                'description' => $person->full_names . ' ha publicado una nueva nota.'
+            ]);
+            return $this->success('Creada con éxito');
+        } else {
+            $this->addEventToHistroy([
+                'business_id' => $request->business_id,
+                'icon' => 'fas fa-sticky-note',
+                'title' => 'Se ha editado una nota',
+                'person_id' => $request->person_id,
+                'description' => $person->full_names . ' ha editado una nota.'
+            ]);
+            return $this->success('Editada con éxito');
+        }
     }
 
     public function getNotes($id)
@@ -347,7 +366,7 @@ class BusinessController extends Controller
     {
         $business = Business::find($request->id);
         $id = auth()->user()->id;
-        $person = Person::where('id',$id)->fullName()->first();
+        $person = Person::where('id', $id)->fullName()->first();
         $data = $request->except('budgets', 'apu', 'quotations');
         $business->update($data);
         $this->addEventToHistroy([
