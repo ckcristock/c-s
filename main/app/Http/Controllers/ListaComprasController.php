@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActaRecepcion;
 use App\Models\ActividadOrdenCompra;
 use App\Models\Company;
 use App\Models\OrdenCompraNacional;
@@ -254,6 +255,8 @@ class ListaComprasController extends Controller
                     $producto
                 );
             }
+
+
             ActividadOrdenCompra::create(
                 [
                     'Id_Orden_Compra_Nacional' => $ocn->Id_Orden_Compra_Nacional,
@@ -316,6 +319,8 @@ class ListaComprasController extends Controller
                     ]
                 );
             }
+            
+
             return $this->success([
                 "mensaje" => 'Orden de compra ' . strtolower($request->estado) . $motivo . '.',
                 "tipo" => "success",
