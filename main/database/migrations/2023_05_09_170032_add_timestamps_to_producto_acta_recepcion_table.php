@@ -13,7 +13,7 @@ class AddTimestampsToProductoActaRecepcionTable extends Migration
      */
     public function up()
     {
-        Schema::table('producto_acta_recepcion', function (Blueprint $table) {
+        Schema::table('Producto_Acta_Recepcion', function (Blueprint $table) {
             $table->timestamps();
         });
     }
@@ -25,7 +25,7 @@ class AddTimestampsToProductoActaRecepcionTable extends Migration
      */
     public function down()
     {
-        Schema::table('producto_acta_recepcion', function (Blueprint $table) {
+        Schema::table('Producto_Acta_Recepcion', function (Blueprint $table) {
             //
         });
     }
