@@ -71,4 +71,9 @@ class OrdenCompraNacional extends Model
     {
         return $this->hasMany(FacturaActaRecepcion::class, 'Id_Orden_Compra','Id_Orden_Compra_Nacional' );
     }
+
+    public function acta()
+    {
+        return $this->hasOne(ActaRecepcion::class, 'Id_Orden_Compra_Nacional', 'Id_Orden_Compra_Nacional' );
+    }
 }

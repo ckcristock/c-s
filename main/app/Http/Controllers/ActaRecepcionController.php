@@ -16,10 +16,12 @@ use App\Http\Services\HttpResponse;
 use App\Models\ActaRecepcion;
 use App\Models\CausalAnulacion;
 use App\Models\FacturaActaRecepcion;
+use App\Models\OrdenCompraNacional;
 use App\Models\ProductoActaRecepcion;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class ActaRecepcionController extends Controller
 {
@@ -111,7 +113,7 @@ class ActaRecepcionController extends Controller
                 $q->where('Id_Bodega_Nuevo', '<>', null);
             }])
             ->with('bodega:Id_Bodega_Nuevo,Nombre')
-            ->where('Acta_Recepcion.Estado', '=', 'Pendiente')
+            ->where('Acta_Recepcion.Estado', '=', 'Creada')
             ->orderBy('Fecha_Creacion', 'desc')
             ->orderBy('Codigo', 'desc')
             ->get();
@@ -537,31 +539,51 @@ class ActaRecepcionController extends Controller
 
             $data = $request->except('invoices', 'products', 'products_acta', 'invoices');
             //dd($data);
-            $products_acta = $request->selected_products;
+            $products_acta = $request-> selected_products;
             //dd($products_acta);
             $invoices = $request->invoices;
             //dd($invoices);
+            $products_orden_compra= $request ->products;
 
             $data['Identificacion_Funcionario'] = auth()->user()->id;
 
             if (!$request->id) {
                 $data['Codigo'] = generateConsecutive('acta_recepcion');
             }
-            $acta = ActaRecepcion::updateOrCreate(
+            $acta = ActaRecepcion::updateOrcreate(
                 ['Id_Acta_Recepcion' => $data['Id_Acta_Recepcion']], $data
             );
-            foreach ($invoices as $invoice) {
-                $factura = FacturaActaRecepcion::updateOrCreate(
-                    ['Id_Factura_Acta_Recepcion' => $invoice['Id_Factura_Acta_Recepcion']],
-                    [
-                        'Id_Acta_Recepcion' => $acta['Id_Acta_Recepcion'], //este no sirve
-                        'Factura' => $invoice['Factura'],
-                        'Fecha_Factura' => $invoice['Fecha_Factura'],
-                        'Archivo_Factura' => $invoice['Archivo_Factura'],
-                        'Id_Orden_Compra' => $data['Id_Orden_Compra_Nacional'],
-                        'Tipo_Compra' => $data['Tipo'],
-                    ]
-                );
+
+            $products_received = ProductoActaRecepcion::where('Id_Producto_Orden_Compra', $acta->Id_Orden_Compra_Nacional)->count();
+
+            $total_products_received = $products_received + count($products_acta);
+
+            if ($total_products_received !== count($products_orden_compra)) {
+               $acta->update(['Estado' => 'Parcial']);
+            }
+
+            $ordenCompra= OrdenCompraNacional::find($acta->Id_Orden_Compra_Nacional);
+            if ($total_products_received == count($products_orden_compra)) {
+                $acta->update(['Estado' => 'Creada ']);
+                $ordenCompra -> update(['Estado' => 'Recibida']);
+
+            }
+            if (isset($invoices)) {
+                foreach ($invoices as $invoice) {
+                    $base64 = saveBase64File($invoice["Archivo_Factura"], 'factura-acta-compra/', false, '.pdf,.png,.jpg,.jpeg');
+                    $invoice['Archivo_Factura'] = URL::to('/') . '/api/file-view?path=' . $base64;
+                    $factura = FacturaActaRecepcion::updateOrCreate(
+                        ['Id_Factura_Acta_Recepcion' => $invoice['Id_Factura_Acta_Recepcion']],
+                        [
+                            'Id_Acta_Recepcion' => $acta['Id_Acta_Recepcion'],
+                            'Factura' => $invoice['Factura'],
+                            'Fecha_Factura' => $invoice['Fecha_Factura'],
+                            'Archivo_Factura' => $invoice['Archivo_Factura'],
+                            'Id_Orden_Compra' => $data['Id_Orden_Compra_Nacional'],
+                            'Tipo_Compra' => $data['Tipo'],
+                        ]
+                    );
+                }
             }
 
             foreach ($products_acta as $product) {
@@ -580,6 +602,8 @@ class ActaRecepcionController extends Controller
                     ]
                 );
             }
+
+
             if (!$request->id) {
                 sumConsecutive('acta_recepcion');
             }
