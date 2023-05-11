@@ -28,9 +28,14 @@ class ApuServiceAccompanimentContractor extends Model
     ];
 
     public function travelEstimationAccompanimentC()
-	{
-		return $this->hasMany(ApuServiceTravelEstimationAccompanimentContractor::class, 'apu_service_accompaniment_contractors_id')->with('travelExpenseEstimation');
-	}
+    {
+        return $this->hasMany(
+            ApuServiceTravelEstimationAccompanimentContractor::class,
+            'apu_service_accompaniment_contractors_id'
+        )
+            ->with('travelExpenseEstimation')
+            ->orderBy('travel_expense_estimation_id');
+    }
 
     public function profiles()
     {
