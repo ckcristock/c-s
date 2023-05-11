@@ -50,7 +50,7 @@ class OrdenCompraNacionalController extends Controller
     {
         $orden = $request->orden;
         return $this->success(
-            OrdenCompraNacional::with('products', 'third', 'store')->where('Codigo', $request->codigo)->first()
+            OrdenCompraNacional::with('products', 'third', 'store')->find($request->id)
         );
 
 

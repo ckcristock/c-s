@@ -68,6 +68,10 @@ class ActaRecepcionController extends Controller
         return response()->json($resultado);
     }
 
+    public function validateActa($id) {
+        return $this->success(ActaRecepcion::with('facturas', 'products')->where('Id_Orden_Compra_Nacional', $id)->first());
+    }
+
     function separarPorEstiba($resultado)
     {
         $porCategorias = [];
@@ -531,9 +535,9 @@ class ActaRecepcionController extends Controller
         try {
             //$data = $request->all();
 
-            $data = $request->except('invoices', 'products', 'products_acta','invoices');
+            $data = $request->except('invoices', 'products', 'products_acta', 'invoices');
             //dd($data);
-            $products_acta = $request->products_acta;
+            $products_acta = $request->selected_products;
             //dd($products_acta);
             $invoices = $request->invoices;
             //dd($invoices);
@@ -544,18 +548,10 @@ class ActaRecepcionController extends Controller
                 $data['Codigo'] = generateConsecutive('acta_recepcion');
             }
             $acta = ActaRecepcion::updateOrCreate(
-                ['Id_Acta_Recepcion' => $data['Id_Acta_Recepcion']]
-                , [
-                    'Id_Bodega_Nuevo' => $data['Id_Bodega_Nuevo'],
-                    'Identificacion_Funcionario' => $data['Identificacion_Funcionario'],
-                    'Observaciones' => $data['Observaciones'],
-                    'Codigo' => $data['Codigo'],
-                    'Id_Proveedor' => $data['Id_Proveedor'],
-                    'Id_Orden_Compra_Nacional' => $data['Id_Orden_Compra_Nacional'],
-                ]
+                ['Id_Acta_Recepcion' => $data['Id_Acta_Recepcion']], $data
             );
             foreach ($invoices as $invoice) {
-                $factura= FacturaActaRecepcion::updateOrCreate(
+                $factura = FacturaActaRecepcion::updateOrCreate(
                     ['Id_Factura_Acta_Recepcion' => $invoice['Id_Factura_Acta_Recepcion']],
                     [
                         'Id_Acta_Recepcion' => $acta['Id_Acta_Recepcion'], //este no sirve
@@ -565,7 +561,7 @@ class ActaRecepcionController extends Controller
                         'Id_Orden_Compra' => $data['Id_Orden_Compra_Nacional'],
                         'Tipo_Compra' => $data['Tipo'],
                     ]
-            );
+                );
             }
 
             foreach ($products_acta as $product) {
@@ -581,19 +577,13 @@ class ActaRecepcionController extends Controller
                         'Id_Producto' => $product['Id_Producto'],
                         'Tipo_Compra' => $data['Tipo'],
                         'Id_Producto_Orden_Compra' => $data['Id_Orden_Compra_Nacional'],
-
                     ]
-            );
+                );
             }
-
-
-
-
             if (!$request->id) {
-                sumConsecutive('purchase_requests');
+                sumConsecutive('acta_recepcion');
             }
             return $this->success('Creado con éxito');
-
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

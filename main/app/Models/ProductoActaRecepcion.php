@@ -30,6 +30,17 @@ class ProductoActaRecepcion extends Model
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'Id_Producto', 'Id_Producto');
+        return $this->belongsTo(Product::class, 'Id_Producto', 'Id_Producto')->with('unit');
     }
+    public function factura()
+    {
+        return $this->hasOne(FacturaActaRecepcion::class, 'Id_Factura_Acta_Recepcion', 'Factura');
+    }
+
+    public function unidad()
+    {
+        return $this->hasOne(FacturaActaRecepcion::class, 'Id_Factura_Acta_Recepcion', 'Factura');
+    }
+
+
 }
