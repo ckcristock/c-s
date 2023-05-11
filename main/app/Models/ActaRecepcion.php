@@ -61,7 +61,7 @@ class ActaRecepcion extends Model
 
     public function products()
     {
-        return $this->hasMany(ProductoActaRecepcion::class, 'Id_Acta_Recepcion', 'Id_Acta_Recepcion');
+        return $this->hasMany(ProductoActaRecepcion::class, 'Id_Acta_Recepcion', 'Id_Acta_Recepcion')->with('product', 'factura');
     }
 
     public function orden()

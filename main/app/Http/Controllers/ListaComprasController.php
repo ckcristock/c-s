@@ -239,6 +239,7 @@ class ListaComprasController extends Controller
     {
         try {
             $data = $request->except('Productos');
+            //dd($data);
             $data['Codigo'] = generateConsecutive('Orden_Compra_Nacional');
             $productos = $request->Productos;
             $ocn = OrdenCompraNacional::updateOrCreate(
