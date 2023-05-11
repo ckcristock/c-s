@@ -17,7 +17,7 @@ class OrdenCompraNacionalController extends Controller
 
     public function listarPendientes(Request $request)
     {
-        $resultado = OrdenCompraNacional::with('person', 'third')
+        $resultado = OrdenCompraNacional::with('person', 'third', 'acta')
             ->whereNotIn('Estado', ['Recibida', 'Anulada'])
             ->where('Aprobacion', '=', 'Aprobada')
             ->where('Id_Bodega_Nuevo', '<>', 0)
