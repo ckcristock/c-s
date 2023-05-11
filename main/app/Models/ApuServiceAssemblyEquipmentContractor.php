@@ -28,9 +28,14 @@ class ApuServiceAssemblyEquipmentContractor extends Model
     ];
 
     public function travelEstimationAssembliesStartUpC()
-	{
-		return $this->hasMany(ApuServiceTravelEstimationAssemblyEquipmentContractor::class, 'apu_service_assembly_equipment_contractor_id')->with('travelExpenseEstimation');
-	}
+    {
+        return $this->hasMany(
+            ApuServiceTravelEstimationAssemblyEquipmentContractor::class,
+            'apu_service_assembly_equipment_contractor_id'
+        )
+            ->with('travelExpenseEstimation')
+            ->orderBy('travel_expense_estimation_id');
+    }
 
     public function profiles()
     {

@@ -9,7 +9,7 @@ class ApuServiceDimensionalValidationContractors extends Model
 {
     use HasFactory;
 
-    protected $table ='apu_service_dimensional_validation_contractors';
+    protected $table = 'apu_service_dimensional_validation_contractors';
 
     protected $fillable = [
         'apu_service_id',
@@ -30,9 +30,15 @@ class ApuServiceDimensionalValidationContractors extends Model
     ];
 
     public function travelEstimationDimensionalValidationsC()
-	{
-		return $this->hasMany(ApuServiceTravelEstimationDimensionalValidationContractors::class, 'apu_service_dimensional_validation_contractors_id', 'id')->with('travelExpenseEstimation');
-	}
+    {
+        return $this->hasMany(
+            ApuServiceTravelEstimationDimensionalValidationContractors::class,
+            'apu_service_dimensional_validation_contractors_id',
+            'id'
+        )
+            ->with('travelExpenseEstimation')
+            ->orderBy('travel_expense_estimation_id');
+    }
 
     public function profiles()
     {
