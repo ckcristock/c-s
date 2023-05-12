@@ -22,7 +22,7 @@ class TaskTypeController extends Controller
     }
     public function getTypes()
     {
-        
+
     }
 
     public function paginate()
@@ -49,7 +49,8 @@ class TaskTypeController extends Controller
      */
     public function store(Request $request)
     {
-        TaskType::create($request->all());
+        $createOrUpdate = TaskType::updateOrCreate(['id' => $request->id],$request->all());
+        return $this->success($createOrUpdate->wasRecentlyCreated ? 'Creado con éxito' : 'Actualizado con éxito');
     }
 
     /**
