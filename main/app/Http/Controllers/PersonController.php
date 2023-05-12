@@ -303,7 +303,8 @@ class PersonController extends Controller
                     "p.visa",
                     "p.passport_number",
                     "p.title",
-                    "p.address"
+                    "p.address",
+                    "p.signature",
 
                 )
                 ->join("work_contracts as w", function ($join) {
@@ -481,9 +482,11 @@ class PersonController extends Controller
             $cognitive = new CognitiveService();
             if (!$person->personId) {
                 $person->personId = $cognitive->createPerson($person);
-                dd($person->personId);
                 $person->save();
                 $cognitive->deleteFace($person);
+            }
+            if ($request->signature != $person->signature) {
+                $personData['signature'] = URL::to('/') . '/api/image?path=' . saveBase64($personData['signature'], 'people/');
             }
             if ($request->image != $person->image) {
                 $personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
@@ -525,13 +528,10 @@ class PersonController extends Controller
     {
         $per = [];
         try {
-
             $personData = $request->get("person");
-
             $personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], realpath('../../../public/app/public/people/'));
-
+            $personData['signature'] = URL::to('/') . '/api/image?path=' . saveBase64($personData['signature'], 'people/');
             $personData["personId"] = null;
-
             $per = $person = Person::create($personData);
             $contractData = $personData["workContract"];
             $contractData["person_id"] = $person->id;
@@ -545,8 +545,6 @@ class PersonController extends Controller
             //crear personID
             $cognitive = new CognitiveService();
             $person->personId = $cognitive->createPerson($person);
-
-
             if ($personData["image"]) {
                 $cognitive->deleteFace($person);
                 $person->persistedFaceId = $cognitive->createFacePoints(

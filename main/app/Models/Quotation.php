@@ -54,6 +54,11 @@ class Quotation extends Model
         return $this->hasMany(QuotationItem::class)->with('subItems', 'quotationitemable');
     }
 
+    public function activities()
+    {
+        return $this->hasMany(QuotationActivity::class)->with('person')->orderByDesc('id');
+    }
+
     public function budgets()
     {
         return $this->hasOne(Budget::class, 'id', 'budget_id');

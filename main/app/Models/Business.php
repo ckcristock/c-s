@@ -17,6 +17,7 @@ class Business extends Model
         'country_id',
         'description',
         'status',
+        'business_type_id',
         'city_id',
         'date',
         'budget_value',
@@ -76,5 +77,10 @@ class Business extends Model
     public function notes()
     {
         return $this->hasMany(BusinessNote::class)->with('person');
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(BusinessType::class, 'business_type_id');
     }
 }
