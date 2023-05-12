@@ -538,7 +538,7 @@ class ActaRecepcionController extends Controller
             //$data = $request->all();
 
             $data = $request->except('invoices', 'products', 'products_acta', 'invoices');
-            //dd($data);
+            //  dd($data);
             $products_acta = $request-> selected_products;
             //dd($products_acta);
             $invoices = $request->invoices;
@@ -546,12 +546,14 @@ class ActaRecepcionController extends Controller
             $products_orden_compra= $request ->products;
 
             $data['Identificacion_Funcionario'] = auth()->user()->id;
-
+            $data['Observaciones'] = $data['Observaciones_acta'];
             if (!$request->id) {
                 $data['Codigo'] = generateConsecutive('acta_recepcion');
+            
             }
             $acta = ActaRecepcion::updateOrcreate(
                 ['Id_Acta_Recepcion' => $data['Id_Acta_Recepcion']], $data
+
             );
 
             $products_received = ProductoActaRecepcion::where('Id_Producto_Orden_Compra', $acta->Id_Orden_Compra_Nacional)->count();
