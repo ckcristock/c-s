@@ -135,6 +135,7 @@ use App\Http\Controllers\ReasonWithdrawalController;
 use App\Http\Controllers\WorkCertificateController;
 use App\Http\Controllers\BodegasController;
 use App\Http\Controllers\BorradorContabilidadController;
+use App\Http\Controllers\BusinessTypeController;
 use App\Http\Controllers\CategoriaNuevaController;
 use App\Http\Controllers\CausalNoConformeController;
 use App\Http\Controllers\CentroCostoController;
@@ -504,6 +505,7 @@ Route::group(
 
         Route::resource('applicants', ApplicantController::class);
         Route::resource('packaging', PackagingController::class);
+        Route::resource('business-type', BusinessTypeController::class);
         Route::resource('bodegas', BodegasController::class)->only(['index', 'store', 'show']);
         Route::resource('reason_withdrawal', ReasonWithdrawalController::class);
         Route::resource('work-certificate', WorkCertificateController::class);
@@ -644,6 +646,7 @@ Route::group(
         Route::get('paginateBodegas', [BodegasController::class, 'paginate']);
         Route::get('paginate-marcations', [MarcationController::class, 'paginate']);
         Route::get('packaging-paginate', [PackagingController::class, 'paginate']);
+        Route::get('bussines-type-paginate', [BusinessTypeController::class, 'paginate']);
         Route::get('severance-payment-paginate', [SeverancePaymentController::class, 'paginate']);
         Route::get('get-severance-payment', [SeverancePaymentController::class, 'getSeverancePayment']);
         Route::get('severance-payments-validate', [SeverancePaymentController::class, 'validatPay']);

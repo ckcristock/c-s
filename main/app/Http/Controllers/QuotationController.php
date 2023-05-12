@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Models\Municipality;
 use App\Models\Quotation;
+use App\Models\QuotationActivity;
 use App\Models\QuotationItem;
 use App\Models\QuotationItemSubitem;
 use App\Traits\ApiResponser;
@@ -94,6 +95,7 @@ class QuotationController extends Controller
             foreach ($item as $index => $subitem) {
                 $subitem->subItems()->createMany($request->items[$index]['subItems']);
             }
+            $this->addActivities($quotation->id, 'fas fa-plus', 'Cotización creada', '', 'Creación');
             return $this->success('Creado con éxito');
         } else {
             $deleted = QuotationItem::where('quotation_id', $quotation->id)->pluck('id');
@@ -103,8 +105,21 @@ class QuotationController extends Controller
             foreach ($item as $index => $subitem) {
                 $subitem->subItems()->createMany($request->items[$index]['subItems']);
             }
+            $this->addActivities($quotation->id, 'fas fa-edit', 'Cotización editada', '', 'Edición');
             return $this->success('Actualizado con éxito');
         }
+    }
+
+    function addActivities($id, $icon, $title, $description, $status)
+    {
+        QuotationActivity::create([
+            'quotation_id' => $id,
+            'icon' => $icon,
+            'title' => $title,
+            'person_id' => auth()->user()->id,
+            'description' => $description,
+            'status' => $status
+        ]);
     }
 
     /**
@@ -115,7 +130,7 @@ class QuotationController extends Controller
      */
     public function show($id)
     {
-        return $this->success(Quotation::where('id', $id)->with('municipality', 'client', 'items', 'third_person')->first());
+        return $this->success(Quotation::where('id', $id)->with('municipality', 'client', 'items', 'third_person', 'activities')->first());
     }
 
     /**
@@ -139,6 +154,23 @@ class QuotationController extends Controller
     public function update(Request $request, $id)
     {
         $quotation = Quotation::find($id);
+        switch ($request->status) {
+            case 'Anulada':
+                $this->addActivities($id, 'fas fa-ban', 'Cotización anulada', '', 'Anulación');
+                break;
+            case 'Aprobada':
+                $this->addActivities($id, 'fas fa-check', 'Cotización aprobada', '', 'Aprobación');
+                break;
+            case 'Pendiente':
+                if ($quotation->status == 'Anulada') {
+                    $this->addActivities($id, 'fas fa-check', 'Cotización activada', '', 'Edición');
+                } else {
+                    $this->addActivities($id, 'fas fa-check', 'Cotización devuelta', '', 'Devuelta');
+                }
+                break;
+            default:
+                break;
+        }
         $data = $request->all();
         $quotation->fill($data)->save();
         return $this->success('Actualizado con éxito');
@@ -159,7 +191,18 @@ class QuotationController extends Controller
     {
         $company = Company::first();
         $image = $company->page_heading;
-        $data = Quotation::where('id', $id)->with('municipality', 'client', 'items', 'third_person')->first();
+        $data = Quotation::where('id', $id)->with('municipality', 'client', 'items', 'third_person', 'activities')->first();
+        $creator = data_get($data, 'activities', [])
+            ->first(function ($activity) {
+                return data_get($activity, 'status') === 'Creación';
+            })
+            ->person;
+
+        $approve = data_get($data, 'activities', [])
+            ->first(function ($activity) {
+                return data_get($activity, 'status') === 'Aprobación';
+            })
+            ->person;
         $datosCabecera = (object) array(
             'Titulo' => 'Cotización',
             'Codigo' => $data->code,
@@ -170,7 +213,9 @@ class QuotationController extends Controller
             'data' => $data,
             'company' => $company,
             'datosCabecera' => $datosCabecera,
-            'image' => $image
+            'image' => $image,
+            'creator' => $creator,
+            'approve' => $approve,
         ]);
         return $pdf->download('cotizacion.pdf');
     }
