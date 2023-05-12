@@ -1,4 +1,5 @@
 @include('components/cabecera', [$company, $datosCabecera, $image])
+
 <style>
     * {
         font-family: 'Roboto', sans-serif;
@@ -127,3 +128,21 @@
 <div style="font-size: 10px;">{!! $data->commercial_terms !!}</div>
 <div style="font-size: 10px;">{!! $data->legal_requirements !!}</div>
 <div style="font-size: 10px;">{!! $data->technical_requirements !!}</div>
+<table class="div ">
+    <thead>
+        <tr>
+            <th> <img src="{{ $creator->signature }}" style="width: 300px" /> </th>
+            <th><img src="{{ $approve->signature }}" style="width: 300px"/></th>
+        </tr>
+        <tr>
+            <th>{{ $creator->full_names }}</th>
+            <th>{{ $approve->full_names }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="text-center">CREACIÓN</td>
+            <td class="text-center">APROBACIÓN</td>
+        </tr>
+    <tbody>
+</table>

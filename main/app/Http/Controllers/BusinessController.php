@@ -50,7 +50,7 @@ class BusinessController extends Controller
     public function paginate(Request $request)
     {
         return $this->success(
-            Business::with('thirdParty', 'thirdPartyPerson', 'country', 'city', 'businessBudget', 'quotations')
+            Business::with('thirdParty', 'thirdPartyPerson', 'country', 'city', 'businessBudget', 'quotations', 'type')
                 ->orderByDesc('created_at')
                 ->when($request->name, function ($q, $fill) {
                     $q->where('name', 'like', "%$fill%");
@@ -60,6 +60,9 @@ class BusinessController extends Controller
                 })
                 ->when($request->status, function ($q, $fill) {
                     $q->where('status', $fill);
+                })
+                ->when($request->business_type_id, function ($q, $fill) {
+                    $q->where('business_type_id', $fill);
                 })
                 ->when($request->date_start, function ($q) use ($request) {
                     $q->whereBetween('date', [$request->date_start, $request->date_end])
@@ -350,7 +353,8 @@ class BusinessController extends Controller
                 'apus',
                 'businessBudget',
                 'quotations',
-                'notes'
+                'notes',
+                'type'
             )
             ->first();
         $codeQR = new DNS2D();
