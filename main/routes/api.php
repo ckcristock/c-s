@@ -712,7 +712,6 @@ Route::group(
         Route::get('paginationApuProfiles', [ApuProfileController::class, 'paginate']);
         Route::get('paginationApuServices', [ApuServiceController::class, 'paginate']);
         Route::get('paginateApus', [ApuController::class, 'paginate']);
-        Route::get('get-apu-part-to-add-in-set/{id}', [ApuController::class, 'getApuPartToAddInSet']);
         Route::get('paginateLunchValue', [LunchValueController::class, 'paginate']);
         Route::get('paginate-contract-term', [ContractTermController::class, 'paginate']);
         Route::get('paginate-locations', [LocationController::class, 'paginate']);
@@ -725,6 +724,10 @@ Route::group(
             'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
         ]);
         /* Paginations */
+
+        /* TO ADD */
+        Route::get('get-apu-part-to-add-in-set/{id}', [ApuController::class, 'getApuPartToAddInSet']);
+        Route::get('get-budget-to-add/{id}', [BudgetController::class, 'getBudgetToAdd']);
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
         Route::get('work-contract-type-list', [WorkContractTypeController::class, 'getWorkContractTypeList']);
@@ -820,7 +823,7 @@ Route::group(
         Route::get("get-category-for-select", [CategoryController::class, 'indexForSelect']);
 
         Route::resource("purchase-request", PurchaseRequestController::class);
-        Route::get("paginate-purchase-request",[PurchaseRequestController::class,'paginate']);
+        Route::get("paginate-purchase-request", [PurchaseRequestController::class, 'paginate']);
         Route::get("get-product-typeahead", [PurchaseRequestController::class, 'getProducts']);
         Route::get("quotation-purchase-request/{id}/{value}", [PurchaseRequestController::class, 'getQuotationPurchaserequest']);
         Route::get("save-quotation-approved/{id}", [PurchaseRequestController::class, 'saveQuotationApproved']);

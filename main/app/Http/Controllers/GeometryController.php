@@ -7,6 +7,7 @@ use App\Models\GeometryMeasure;
 use App\Models\Measure;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 
 class GeometryController extends Controller
@@ -17,10 +18,17 @@ class GeometryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->success(Geometry::with('measures')
-                                        ->get(['id','image','weight_formula','name As text', 'id As value']));
+        return $this->success(
+            Geometry::with('measures')
+            ->when($request->name, function ($q, $fill) {
+                $q->where('name', 'like', '%' . $fill . '%');
+            })
+            ->when($request->limit, function ($query) {
+                return $query->limit(10);
+            })
+            ->get(['id', 'image', 'weight_formula', DB::raw('UPPER(name) AS text'), 'id As value']));
     }
 
     public function paginate()
@@ -54,7 +62,7 @@ class GeometryController extends Controller
     {
         try {
             $data = $request->except(["measures"]);
-            if ($data["image"] != ''){
+            if ($data["image"] != '') {
                 $data["image"] = URL::to('/') . '/api/image?path=' . saveBase64($data["image"], 'geometries/', true);
             }
             $geometry = Geometry::create($data);
@@ -67,7 +75,6 @@ class GeometryController extends Controller
                 ]);
             }
             return $this->success('creacion exitosa');
-
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), $th->getLine(), $th->getFile(), 500);
         }
@@ -83,7 +90,7 @@ class GeometryController extends Controller
     {
         return $this->success(
             Geometry::with('measures')
-                        ->find($id,['id','image','weight_formula','name As text', 'id As value'])
+                ->find($id, ['id', 'image', 'weight_formula', 'name As text', 'id As value'])
         );
     }
 
@@ -113,7 +120,7 @@ class GeometryController extends Controller
 
             $geometry->update($request->all());
 
-           GeometryMeasure::where('geometry_id', $geometry->id)->delete();
+            GeometryMeasure::where('geometry_id', $geometry->id)->delete();
 
             foreach ($measures as $measure) {
                 GeometryMeasure::create([
@@ -124,7 +131,6 @@ class GeometryController extends Controller
             return response()->json([
                 "message" => "Se ha actualizado con éxito",
             ]);
-
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
