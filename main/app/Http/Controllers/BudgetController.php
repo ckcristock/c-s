@@ -116,6 +116,32 @@ class BudgetController extends Controller
         );
     }
 
+    public function getBudgetToAdd(Request $request, $id)
+    {
+        $query = Budget::with(
+            [
+                'destiny' => function ($q) {
+                    $q->select('*');
+                },
+                'user' => function ($q) {
+                    $q->select('id', 'usuario', 'person_id')
+                        ->with(
+                            ['person' => function ($q) {
+                                $q->select('id', 'first_name', 'first_surname');
+                            }]
+                        );;
+                },
+                'customer' => function ($q) {
+                    $q->select('id', 'nit')
+                        ->selectRaw('IFNULL(social_reason, CONCAT_WS(" ",first_name, first_surname) ) as name');
+                },
+                'items'
+            ]
+        )->where('id', $id)
+            ->first();
+        return $this->success($query);
+    }
+
     public function saveTask(Request $request)
     {
         /*  $data = $request->get('data');
@@ -184,7 +210,7 @@ class BudgetController extends Controller
                 }
             }
             sumConsecutive('budgets');
-            return $this->success($request);
+            return $this->success($budgetDb);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -234,7 +260,6 @@ class BudgetController extends Controller
                 BudgetIndirectCost::create($indirectCost);
             }
 
-
             if ($data['itemsTodelete'] && count($data['itemsTodelete']) > 0) {
                 BudgetService::deleteItems($data['itemsTodelete']);
             }
@@ -253,10 +278,7 @@ class BudgetController extends Controller
                 unset($item['shows']);
                 ##unset($item['subItems']);
                 unset($item['subtotal_indirect_cost_dynamic']);
-
                 # dd(['id' => $item['id'], $item]);
-
-
                 $itemDb =  BudgetItem::updateOrCreate(['id' => $item['id']], $item);
                 # AccountPlan::updateOrCreate(['id' => $request->get('id')], $request->all());
                 foreach ($item['subItems'] as $subitem) {

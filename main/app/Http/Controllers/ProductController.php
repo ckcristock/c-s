@@ -88,12 +88,20 @@ class ProductController extends Controller
         );
     }
 
-    public function getMaterials()
+    public function getMaterials(Request $request)
     {
         /** Funcion que obtiene los productos de la categoría materia prima y subcategoria materiales para llamar
          * en materiales comerciales de apu y para mostrar en la parametrización de apu materiales corte agua y corte láser
          */
-        $product = Product::where('Id_Categoria', 1)->where('Id_Subcategoria', 1)->get(['Id_Producto as id', 'Id_Producto as value', 'Nombre_Comercial as text']);
+        $product = Product::where('Id_Categoria', 1)
+            ->where('Id_Subcategoria', 1)
+            ->when($request->name, function ($q, $fill) {
+                $q->where('Nombre_Comercial', 'like', '%' . $fill . '%');
+            })
+            ->when($request->limit, function ($query) {
+                return $query->limit(10);
+            })
+            ->get(['Id_Producto as id', 'Id_Producto as value', DB::raw('UPPER(Nombre_Comercial) AS text')]);
         return $this->success($product);
     }
 

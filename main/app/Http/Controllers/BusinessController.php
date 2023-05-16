@@ -191,26 +191,38 @@ class BusinessController extends Controller
         }
     }
 
+    public function generalViewBusiness() {
+        return $this->success(Business::get());
+    }
+
     public function newBusinessBudget(Request $request)
     {
         try {
             $person = Person::where('id', $request->person_id)->fullName()->first();
+            $businessBudget = BusinessBudget::where('business_id', $request->business_id)->get();
+            $count = 0;
             foreach ($request->get('budgets') as $budget) {
-                BusinessBudget::create([
-                    'budget_id' => $budget['budget_id'],
-                    'business_id' =>  $budget['business_budget_id']
-                ]);
-                $budget_ = Budget::where('id', $budget['budget_id'])->first();
-                Business::where('id', $request->business_id)->update(['budget_value' => $budget_->total_cop]);
-                $this->addEventToHistroy([
-                    'business_id' => $request->business_id,
-                    'icon' => 'fas fa-money-bill',
-                    'title' => 'Se ha agregado un presupuesto',
-                    'person_id' => $request->person_id,
-                    'description' => $person->full_names . ' ha añadido el presupuesto ' . $budget_->line . ' - ' . $budget_->project . '.'
-                ]);
+                $existingBudget = $businessBudget->where('budget_id', $budget['budget_id'])->first();
+                if (!$existingBudget) {
+                    BusinessBudget::create([
+                        'budget_id' => $budget['budget_id'],
+                        'business_id' => $budget['business_budget_id']
+                    ]);
+
+                    $budget_ = Budget::where('id', $budget['budget_id'])->first();
+                    Business::where('id', $request->business_id)->update(['budget_value' => $budget_->total_cop]);
+                    $this->addEventToHistroy([
+                        'business_id' => $request->business_id,
+                        'icon' => 'fas fa-money-bill',
+                        'title' => 'Se ha agregado un presupuesto',
+                        'person_id' => $request->person_id,
+                        'description' => $person->full_names . ' ha añadido el presupuesto ' . $budget_->line . ' - ' . $budget_->project . '.'
+                    ]);
+                } else {
+                    $count++;
+                }
             }
-            return $this->success('Creado con éxito');
+            return $this->success($count == 0 ? 'Presupuesto(s) agregado(s) con éxito.' : 'Hemos encontrado un(os) presupuesto(s) que ya existía(n) en la lista. Hemos agregado los demás.');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -221,23 +233,29 @@ class BusinessController extends Controller
         try {
             $person = Person::where('id', $request->person_id)->fullName()->first();
             $business = Business::where('id', $request->business_id)->first();
-
+            $businessQuotation = BusinessQuotation::where('business_id', $request->business_id)->get();
+            $count = 0;
             foreach ($request->quotations as $quotation) {
-                BusinessQuotation::create([
-                    'quotation_id' => $quotation['quotation_id'],
-                    'business_id' =>  $quotation['business_id']
-                ]);
-                $quotation = Quotation::where('id', $quotation['quotation_id'])->first();
-                $business->update(['quotation_value' => $quotation->total_cop]);
-                $this->addEventToHistroy([
-                    'business_id' => $business->id,
-                    'icon' => 'fas fa-money-check-alt',
-                    'title' => 'Se ha agregado una cotización',
-                    'person_id' => $request->person_id,
-                    'description' => $person->full_names . ' ha añadido la cotización ' . $quotation->code
-                ]);
+                $existingQuotation = $businessQuotation->where('quotation_id', $quotation['quotation_id'])->first();
+                if (!$existingQuotation) {
+                    BusinessQuotation::create([
+                        'quotation_id' => $quotation['quotation_id'],
+                        'business_id' =>  $quotation['business_id']
+                    ]);
+                    $quotation = Quotation::where('id', $quotation['quotation_id'])->first();
+                    $business->update(['quotation_value' => $quotation->total_cop]);
+                    $this->addEventToHistroy([
+                        'business_id' => $business->id,
+                        'icon' => 'fas fa-money-check-alt',
+                        'title' => 'Se ha agregado una cotización',
+                        'person_id' => $request->person_id,
+                        'description' => $person->full_names . ' ha añadido la cotización ' . $quotation->code
+                    ]);
+                } else {
+                    $count++;
+                }
             }
-            return $this->success('Creado con éxito');
+            return $this->success($count == 0 ? 'Cotización(es) agregada(s) con éxito.' : 'Hemos encontrado una(s) cotización(es) que ya existía(n) en la lista. Hemos agregado las demás.');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

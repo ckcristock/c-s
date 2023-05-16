@@ -15,12 +15,21 @@ class CutLaserMaterialController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         return $this->success(
-            CutLaserMaterial::with('cutLaserMaterialValue', 'product')->get()
+            CutLaserMaterial::with('cutLaserMaterialValue', 'product')
+            ->when($request->name, function ($q, $fill) {
+                $q->whereHas('product', function ($query) use ($fill) {
+                    $query->where('Nombre_Comercial', 'like', "%$fill%");
+                });
+            })
+            ->when($request->limit, function ($query) {
+                return $query->limit(10);
+            })
+            ->get()
             ->transform(function ($material) {
-                $material->name = $material->product->name;
+                $material->name = strtoupper($material->product->name);
                 unset($material->product);
                 return $material;
             })

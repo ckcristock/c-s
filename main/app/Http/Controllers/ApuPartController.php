@@ -235,8 +235,8 @@ class ApuPartController extends Controller
                     ]);
                 }
             }
+            ApuPartService::deleteMaterial($id);
             if ($materia_prima) {
-                ApuPartService::deleteMaterial($id);
                 //  echo json_encode($materia_prima);
                 foreach ($materia_prima as $mprima) {
                     $mprima["apu_part_id"] = $id;
@@ -257,57 +257,57 @@ class ApuPartController extends Controller
             //         ApuPartRawMaterialMeasure::create($value);
             //     }
             //    }
+            ApuPartCommercialMaterial::where("apu_part_id", $id)->delete();
             if ($commercial_materials) {
-                ApuPartCommercialMaterial::where("apu_part_id", $id)->delete();
                 foreach ($commercial_materials as $cmaterials) {
                     $cmaterials["apu_part_id"] = $id;
                     ApuPartCommercialMaterial::create($cmaterials);
                 }
             }
+            ApuPartCutWater::where("apu_part_id", $id)->delete();
             if ($cut_water) {
-                ApuPartCutWater::where("apu_part_id", $id)->delete();
                 foreach ($cut_water as $cwater) {
                     $cwater["apu_part_id"] = $id;
                     ApuPartCutWater::create($cwater);
                 }
             }
+            ApuPartCutLaser::where("apu_part_id", $id)->delete();
             if ($cut_laser) {
-                ApuPartCutLaser::where("apu_part_id", $id)->delete();
                 foreach ($cut_laser as $claser) {
                     $claser["apu_part_id"] = $id;
                     ApuPartCutLaser::create($claser);
                 }
             }
+            ApuPartMachineTool::where("apu_part_id", $id)->delete();
             if ($machine_tools) {
-                ApuPartMachineTool::where("apu_part_id", $id)->delete();
                 foreach ($machine_tools as $mtool) {
                     $mtool["apu_part_id"] = $id;
                     ApuPartMachineTool::create($mtool);
                 }
             }
+            ApuPartInternalProcess::where("apu_part_id", $id)->delete();
             if ($internal_proccesses) {
-                ApuPartInternalProcess::where("apu_part_id", $id)->delete();
                 foreach ($internal_proccesses as $iproccesses) {
                     $iproccesses["apu_part_id"] = $id;
                     ApuPartInternalProcess::create($iproccesses);
                 }
             }
+            ApuPartExternalProcess::where("apu_part_id", $id)->delete();
             if ($external_proccesses) {
-                ApuPartExternalProcess::where("apu_part_id", $id)->delete();
                 foreach ($external_proccesses as $eproccesses) {
                     $eproccesses["apu_part_id"] = $id;
                     ApuPartExternalProcess::create($eproccesses);
                 }
             }
+            ApuPartOther::where("apu_part_id", $id)->delete();
             if ($others) {
-                ApuPartOther::where("apu_part_id", $id)->delete();
                 foreach ($others as $other) {
                     $other["apu_part_id"] = $id;
                     ApuPartOther::create($other);
                 }
             }
+            ApuPartIndirectCost::where("apu_part_id", $id)->delete();
             if ($indirect_cost) {
-                ApuPartIndirectCost::where("apu_part_id", $id)->delete();
                 foreach ($indirect_cost as $icost) {
                     $icost["apu_part_id"] = $id;
                     ApuPartIndirectCost::create($icost);

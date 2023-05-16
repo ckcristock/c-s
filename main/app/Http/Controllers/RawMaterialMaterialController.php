@@ -22,12 +22,21 @@ class RawMaterialMaterialController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         return $this->success(
-            RawMaterialMaterial::with('product')->get()
+            RawMaterialMaterial::with('product')
+                ->when($request->name, function ($q, $fill) {
+                    $q->whereHas('product', function ($query) use ($fill) {
+                        $query->where('Nombre_Comercial', 'like', "%$fill%");
+                    });
+                })
+                ->when($request->limit, function ($query) {
+                    return $query->limit(10);
+                })
+                ->get()
                 ->transform(function ($material) {
-                    $material->text = $material->product->name;
+                    $material->text = strtoupper($material->product->name);
                     unset($material->product);
                     return $material;
                 })
