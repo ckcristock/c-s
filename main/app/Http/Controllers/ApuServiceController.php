@@ -164,7 +164,7 @@ class ApuServiceController extends Controller
             }
 
             sumConsecutive('apu_services');
-            return $this->success('Creado con éxito');
+            return $this->success($apuservice);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -276,12 +276,12 @@ class ApuServiceController extends Controller
 
             ApuService::find($id)->update($data);
 
+            $apuServiceDimensionalValidation =  ApuServiceDimensionalValidation::where("apu_service_id", $id)->get();
+            foreach ($apuServiceDimensionalValidation as $value) {
+                ApuServiceTravelEstimationDimensionalValidation::where("apu_service_dimensional_validation_id",  $value["id"])->delete();
+            }
+            ApuServiceDimensionalValidation::where("apu_service_id", $id)->delete();
             if ($calculate_labor) {
-                $data =  ApuServiceDimensionalValidation::where("apu_service_id", $id)->get();
-                foreach ($data as $value) {
-                    ApuServiceTravelEstimationDimensionalValidation::where("apu_service_dimensional_validation_id",  $value["id"])->delete();
-                }
-                ApuServiceDimensionalValidation::where("apu_service_id", $id)->delete();
                 foreach ($calculate_labor as $cl) {
                     $cl["apu_service_id"] = $id;
                     $dimsionalValid = ApuServiceDimensionalValidation::create($cl);
@@ -292,12 +292,12 @@ class ApuServiceController extends Controller
                 }
             }
 
+            $apuServiceAssemblyStartUp =  ApuServiceAssemblyStartUp::where("apu_service_id", $id)->get();
+            foreach ($apuServiceAssemblyStartUp as $value) {
+                ApuServiceTravelEstimationAssemblyStartUp::where("apu_service_assembly_start_up_id",  $value["id"])->delete();
+            }
+            ApuServiceAssemblyStartUp::where("apu_service_id", $id)->delete();
             if ($mpm_calculate_labor) {
-                $data =  ApuServiceAssemblyStartUp::where("apu_service_id", $id)->get();
-                foreach ($data as $value) {
-                    ApuServiceTravelEstimationAssemblyStartUp::where("apu_service_assembly_start_up_id",  $value["id"])->delete();
-                }
-                ApuServiceAssemblyStartUp::where("apu_service_id", $id)->delete();
                 foreach ($mpm_calculate_labor as $mpm_cl) {
                     $mpm_cl["apu_service_id"] = $id;
                     $assemblyStart = ApuServiceAssemblyStartUp::create($mpm_cl);
@@ -308,12 +308,12 @@ class ApuServiceController extends Controller
                 }
             }
 
+            $apuServiceAccompaniment =  ApuServiceAccompaniment::where("apu_service_id", $id)->get();
+            foreach ($apuServiceAccompaniment as $value) {
+                ApuServiceTravelEstimationAccompaniment::where("apu_service_accompaniments_id",  $value["id"])->delete();
+            }
+            ApuServiceAccompaniment::where("apu_service_id", $id)->delete();
             if ($apm_calculate_labor) {
-                $accompaniment_ =  ApuServiceAccompaniment::where("apu_service_id", $id)->get();
-                foreach ($accompaniment_ as $value) {
-                    ApuServiceTravelEstimationAccompaniment::where("apu_service_accompaniments_id",  $value["id"])->delete();
-                }
-                ApuServiceAccompaniment::where("apu_service_id", $id)->delete();
                 foreach ($apm_calculate_labor as $apm_cl) {
                     $apm_cl["apu_service_id"] = $id;
                     $accompaniment = ApuServiceAccompaniment::create($apm_cl);
@@ -324,12 +324,12 @@ class ApuServiceController extends Controller
                 }
             }
 
+            $apuServiceAccompanimentContractor =  ApuServiceAccompanimentContractor::where("apu_service_id", $id)->get();
+            foreach ($apuServiceAccompanimentContractor as $value) {
+                ApuServiceTravelEstimationAccompanimentContractor::where("apu_service_accompaniment_contractors_id",  $value["id"])->delete();
+            }
+            ApuServiceAccompanimentContractor::where("apu_service_id", $id)->delete();
             if ($c_apm_calculate_labor) {
-                $data =  ApuServiceAccompanimentContractor::where("apu_service_id", $id)->get();
-                foreach ($data as $value) {
-                    ApuServiceTravelEstimationAccompanimentContractor::where("apu_service_accompaniment_contractors_id",  $value["id"])->delete();
-                }
-                ApuServiceAccompanimentContractor::where("apu_service_id", $id)->delete();
                 foreach ($c_apm_calculate_labor as $c_amp_cl) {
                     $c_amp_cl["apu_service_id"] = $id;
                     $accompanimentC = ApuServiceAccompanimentContractor::create($c_amp_cl);
@@ -340,12 +340,12 @@ class ApuServiceController extends Controller
                 }
             }
 
+            $apuServiceAssemblyEquipmentContractor =  ApuServiceAssemblyEquipmentContractor::where("apu_service_id", $id)->get();
+            foreach ($apuServiceAssemblyEquipmentContractor as $value) {
+                ApuServiceTravelEstimationAssemblyEquipmentContractor::where("apu_service_assembly_equipment_contractor_id",  $value["id"])->delete();
+            }
+            ApuServiceAssemblyEquipmentContractor::where("apu_service_id", $id)->delete();
             if ($c_me_calculate_labor) {
-                $data =  ApuServiceAssemblyEquipmentContractor::where("apu_service_id", $id)->get();
-                foreach ($data as $value) {
-                    ApuServiceTravelEstimationAssemblyEquipmentContractor::where("apu_service_assembly_equipment_contractor_id",  $value["id"])->delete();
-                }
-                ApuServiceAssemblyEquipmentContractor::where("apu_service_id", $id)->delete();
                 foreach ($c_me_calculate_labor as $c_me_cl) {
                     $c_me_cl["apu_service_id"] = $id;
                     $assemblyEquipentC = ApuServiceAssemblyEquipmentContractor::create($c_me_cl);
@@ -356,12 +356,12 @@ class ApuServiceController extends Controller
                 }
             }
 
+            $apuServiceDimensionalValidationContractors =  ApuServiceDimensionalValidationContractors::where("apu_service_id", $id)->get();
+            foreach ($apuServiceDimensionalValidationContractors as $value) {
+                ApuServiceTravelEstimationDimensionalValidationContractors::where("apu_service_dimensional_validation_contractors_id",  $value["id"])->delete();
+            }
+            ApuServiceDimensionalValidationContractors::where("apu_service_id", $id)->delete();
             if ($c_vd_calculate_labor) {
-                $data =  ApuServiceDimensionalValidationContractors::where("apu_service_id", $id)->get();
-                foreach ($data as $value) {
-                    ApuServiceTravelEstimationDimensionalValidationContractors::where("apu_service_dimensional_validation_contractors_id",  $value["id"])->delete();
-                }
-                ApuServiceDimensionalValidationContractors::where("apu_service_id", $id)->delete();
                 foreach ($c_vd_calculate_labor as $c_vd_cl) {
                     $c_vd_cl["apu_service_id"] = $id;
                     $dimsionalValidC = ApuServiceDimensionalValidationContractors::create($c_vd_cl);

@@ -71,6 +71,15 @@ class QuotationController extends Controller
         //
     }
 
+    public function getQuotationToAdd(Request $request, $id)
+    {
+        $query = Quotation::with('municipality', 'client', 'items')
+            ->name()
+            ->where('id', $id)
+            ->first();
+        return $this->success($query);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -96,7 +105,6 @@ class QuotationController extends Controller
                 $subitem->subItems()->createMany($request->items[$index]['subItems']);
             }
             $this->addActivities($quotation->id, 'fas fa-plus', 'Cotización creada', '', 'Creación');
-            return $this->success('Creado con éxito');
         } else {
             $deleted = QuotationItem::where('quotation_id', $quotation->id)->pluck('id');
             QuotationItemSubitem::whereIn('quotation_item_id', $deleted)->delete();
@@ -106,8 +114,8 @@ class QuotationController extends Controller
                 $subitem->subItems()->createMany($request->items[$index]['subItems']);
             }
             $this->addActivities($quotation->id, 'fas fa-edit', 'Cotización editada', '', 'Edición');
-            return $this->success('Actualizado con éxito');
         }
+        return $this->success($quotation);
     }
 
     function addActivities($id, $icon, $title, $description, $status)

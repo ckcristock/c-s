@@ -127,7 +127,7 @@ class ApuSetController extends Controller
                 ApuSetIndirectCost::create($ic);
             }
             sumConsecutive('apu_sets');
-            return $this->success('Creado con éxito');
+            return $this->success($apuset);
         } catch (\Throwable $th) {
 
             return $this->error($th->getMessage(), 500);
@@ -215,43 +215,43 @@ class ApuSetController extends Controller
                     ]);
                 }
             }
+            ApuSetPartList::where("apu_set_id", $id)->delete();
             if ($list_pieces_sets) {
-                ApuSetPartList::where("apu_set_id", $id)->delete();
                 foreach ($list_pieces_sets as $lps) {
                     $lps["apu_set_id"] = $id;
                     ApuSetPartList::create($lps);
                 }
             }
+            ApuSetMachineTool::where("apu_set_id", $id)->delete();
             if ($machine_tools) {
-                ApuSetMachineTool::where("apu_set_id", $id)->delete();
                 foreach ($machine_tools as $mt) {
                     $mt["apu_set_id"] = $id;
                     ApuSetMachineTool::create($mt);
                 }
             }
+            ApuSetInternalProcess::where("apu_set_id", $id)->delete();
             if ($internal_processes) {
-                ApuSetInternalProcess::where("apu_set_id", $id)->delete();
                 foreach ($internal_processes as $ip) {
                     $ip["apu_set_id"] = $id;
                     ApuSetInternalProcess::create($ip);
                 }
             }
+            ApuSetExternalProcess::where("apu_set_id", $id)->delete();
             if ($external_processes) {
-                ApuSetExternalProcess::where("apu_set_id", $id)->delete();
                 foreach ($external_processes as $ep) {
                     $ep["apu_set_id"] = $id;
                     ApuSetExternalProcess::create($ep);
                 }
             }
+            ApuSetOther::where("apu_set_id", $id)->delete();
             if ($others) {
-                ApuSetOther::where("apu_set_id", $id)->delete();
                 foreach ($others as $ot) {
                     $ot["apu_set_id"] = $id;
                     ApuSetOther::create($ot);
                 }
             }
+            ApuSetIndirectCost::where("apu_set_id", $id)->delete();
             if ($indirect_cost) {
-                ApuSetIndirectCost::where("apu_set_id", $id)->delete();
                 foreach ($indirect_cost as $ic) {
                     $ic["apu_set_id"] = $id;
                     ApuSetIndirectCost::create($ic);

@@ -260,7 +260,6 @@ class BudgetController extends Controller
                 BudgetIndirectCost::create($indirectCost);
             }
 
-
             if ($data['itemsTodelete'] && count($data['itemsTodelete']) > 0) {
                 BudgetService::deleteItems($data['itemsTodelete']);
             }
@@ -279,10 +278,7 @@ class BudgetController extends Controller
                 unset($item['shows']);
                 ##unset($item['subItems']);
                 unset($item['subtotal_indirect_cost_dynamic']);
-
                 # dd(['id' => $item['id'], $item]);
-
-
                 $itemDb =  BudgetItem::updateOrCreate(['id' => $item['id']], $item);
                 # AccountPlan::updateOrCreate(['id' => $request->get('id')], $request->all());
                 foreach ($item['subItems'] as $subitem) {

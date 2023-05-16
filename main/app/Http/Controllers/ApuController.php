@@ -65,7 +65,7 @@ class ApuController extends Controller
             'thirdParty',
             'city:id,name',
             'person:id,first_name,first_surname,full_name',
-            )
+        )
             ->extra($request)
             ->when($request->city, function ($q, $fill) {
                 $q->whereHas('city', function ($query) use ($fill) {
@@ -82,7 +82,7 @@ class ApuController extends Controller
             'thirdParty',
             'city:id,name',
             'person:id,first_name,first_surname,full_name',
-            ])
+        ])
             ->extra($request)
             ->when($request->city, function ($q, $fill) {
                 $q->whereHas('city', function ($query) use ($fill) {
@@ -125,7 +125,29 @@ class ApuController extends Controller
             'thirdParty',
             'city:id,name',
             'person:id,first_name,first_surname,full_name',
-            )
+        )
+            ->extra($request)
+            ->where('id', $id)
+            ->get();
+        return $this->success($query);
+    }
+
+    public function getApuSetToAdd(Request $request, $id)
+    {
+        $query = ApuSet::with([
+            'thirdParty',
+            'city:id,name',
+            'person:id,first_name,first_surname,full_name',
+        ])
+            ->extra($request)
+            ->where('id', $id)
+            ->get();
+        return $this->success($query);
+    }
+
+    public function getApuServiceToAdd(Request $request, $id)
+    {
+        $query = ApuService::with('thirdParty', 'city:id,name', 'person:id,first_name,first_surname,full_name')
             ->extra($request)
             ->where('id', $id)
             ->get();

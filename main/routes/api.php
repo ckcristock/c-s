@@ -727,7 +727,10 @@ Route::group(
 
         /* TO ADD */
         Route::get('get-apu-part-to-add-in-set/{id}', [ApuController::class, 'getApuPartToAddInSet']);
+        Route::get('get-apu-set-to-add/{id}', [ApuController::class, 'getApuSetToAdd']);
+        Route::get('get-apu-service-to-add/{id}', [ApuController::class, 'getApuServiceToAdd']);
         Route::get('get-budget-to-add/{id}', [BudgetController::class, 'getBudgetToAdd']);
+        Route::get('get-quotation-to-add/{id}', [QuotationController::class, 'getQuotationToAdd']);
 
         Route::get('person/{id}', [PersonController::class, 'basicData']);
         Route::get('work-contract-type-list', [WorkContractTypeController::class, 'getWorkContractTypeList']);
@@ -914,6 +917,7 @@ Route::group(
         Route::get('get-tasks-business/{id}', [BusinessController::class, 'getTasks']);
         Route::get('get-history-business/{id}', [BusinessController::class, 'getHistory']);
         Route::post('change-status-in-business', [BusinessController::class, 'changeStatusInBusiness']);
+        Route::get('general-view-business', [BusinessController::class, 'generalViewBusiness']);
         Route::get("get-product-typeahead-oc", [ListaComprasController::class, 'getProducts']);
         Route::post('import-validator-account-plans/{delete}', [PlanCuentasController::class, 'validateExcel']);
         Route::post('import-initial-balances', [PlanCuentasController::class, 'importInitialBalances']);
