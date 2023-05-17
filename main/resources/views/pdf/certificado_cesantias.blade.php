@@ -174,7 +174,8 @@
     <div class="body-certificate">
         <p><b>Girón, {{ $date }}</b></p>
         <div class="mt-4"><b>Señores</b></div>
-        <div>{{ $layoffs_certificate->person->severance_fund->name }}</div>
+        <div>{{ $layoffs_certificate->person ? ($layoffs_certificate->person->severance_fund ? $layoffs_certificate->person->severance_fund->name : '') : '' }}
+        </div>
         <p class="mt-4"><b>ASUNTO:</b>
             @if ($layoffs_certificate->monto == 'parcial')
                 RETIRO PARCIAL DE CESANTIAS <br><br>
@@ -191,11 +192,11 @@
             <tbody>
                 <tr>
                     <td><b>NOMBRE DEL EMPLEADO(A):</b></td>
-                    <td>{{ $layoffs_certificate->person->person }}</td>
+                    <td>{{ optional($layoffs_certificate->person)->person }}</td>
                 </tr>
                 <tr>
                     <td><b>IDENTIFICACION:</b></td>
-                    <td>{{ number_format($layoffs_certificate->person->identifier, 0, '', '.') }}</td>
+                    <td>{{ number_format(optional($layoffs_certificate->person)->identifier, 0, '', '.') }}</td>
                 </tr>
                 @if ($layoffs_certificate->monto == 'parcial')
                     <tr>
@@ -204,13 +205,13 @@
                     </tr>
                     <tr>
                         <td><b>INVERSION O DESTINO:</b></td>
-                        <td>{{ $layoffs_certificate->reason_withdrawal_list->name }}</td>
+                        <td>{{ optional($layoffs_certificate->reason_withdrawal_list)->name }}</td>
                     </tr>
                 @endif
                 @if ($layoffs_certificate->monto == 'total')
                     <tr>
                         <td><b>MOTIVO:</b></td>
-                        <td>{{ $layoffs_certificate->reason_withdrawal_list->name }}</td>
+                        <td>{{ optional($layoffs_certificate->reason_withdrawal_list)->name }}</td>
                     </tr>
                 @endif
             </tbody>
@@ -247,11 +248,11 @@
             </tr>
             <tr>
                 <td style="font-weight:bold;">ALBERTO BALCARCEL ZAMBRANO</td>
-                <td style="font-weight:bold;">{{ $layoffs_certificate->person->person }}</td>
+                <td style="font-weight:bold;">{{ optional($layoffs_certificate->person)->person }}</td>
             </tr>
             <tr>
                 <td>Representante legal</td>
-                <td>C.C {{ number_format($layoffs_certificate->person->identifier, 0, '', '.') }} </td>
+                <td>C.C {{ number_format(optional($layoffs_certificate->person)->identifier, 0, '', '.') }} </td>
             </tr>
         </table>
     </footer>

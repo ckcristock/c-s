@@ -115,17 +115,17 @@
     </div>
     <div class="blocks">
         <strong>Cliente:</strong>
-        {{ $data['thirdparty']['name'] }}
+        {{ optional($data['thirdparty'])['name'] }}
     </div>
     <div class="blocks">
         <strong>Destino:</strong>
-        {{ $data['city']['name'] }}
+        {{ optional($data['city'])['name'] }}
     </div>
 </div>
 <div class="div">
     <div class="blocks-50">
         <strong>Quién elabora:</strong>
-        {{ $data['person']['name'] }}
+        {{ optional($data['person'])['name'] }}
     </div>
 
     <div class="blocks">
@@ -188,7 +188,7 @@
             <tbody>
                 <tr class="text-center">
                     <td class="align-middle">
-                        {{ $dimentional['profiles']['profile'] }}
+                        {{ optional($dimentional['profiles'])['profile'] }}
                     </td>
                     <td class="align-middle">
                         {{ getDesplazamiento($dimentional['displacement_type']) }}
@@ -259,7 +259,7 @@
                 <thead>
                     <tr class="table-primary text-uppercase" style="background:#E1EEC0;">
                         <th class="text-center">Perfil</th>
-                        <th>{{ $dimentional['profiles']['profile'] }}</th>
+                        <th>{{ optional($dimentional['profiles'])['profile'] }}</th>
                         <th colspan="3" class="text-center">Viáticos</th>
                     </tr>
                 </thead>
@@ -360,7 +360,7 @@
                         {{ $key + 1 }}
                     </td>
                     <td class="align-middle" *ngIf="item.profiles">
-                        {{ $assemblies['profiles']['profile'] }}
+                        {{ optional($assemblies['profiles'])['profile'] }}
                     </td>
                     <td class="align-middle">
                         {{ getDesplazamiento($assemblies['displacement_type']) }}
@@ -430,7 +430,7 @@
                 <thead>
                     <tr class="table-primary text-uppercase" style="background:#E1EEC0;">
                         <th class="text-center">Perfil</th>
-                        <th>{{ $assemblies_['profiles']['profile'] }}</th>
+                        <th>{{ optional($assemblies_['profiles'])['profile'] }}</th>
                         <th colspan="3" class="text-center">Viáticos</th>
                     </tr>
                 </thead>
@@ -532,7 +532,7 @@
                         {{ $key + 1 }}
                     </td>
                     <td class="align-middle" *ngIf="item.profiles">
-                        {{ $accompaniment['profiles']['profile'] }}
+                        {{ optional($accompaniment['profiles'])['profile'] }}
                     </td>
                     <td class="align-middle">
                         {{ getDesplazamiento($accompaniment['displacement_type']) }}
@@ -602,7 +602,7 @@
                 <thead>
                     <tr class="table-primary text-uppercase" style="background:#E1EEC0;">
                         <th class="text-center">Perfil</th>
-                        <th>{{ $accompaniment_['profiles']['profile'] }}</th>
+                        <th>{{ optional($accompaniment_['profiles'])['profile'] }}</th>
                         <th colspan="3" class="text-center">Viáticos</th>
                     </tr>
                 </thead>
@@ -704,7 +704,7 @@
             <tbody>
                 <tr class="text-center">
                     <td class="align-middle">
-                        {{ $dimentional['profiles']['profile'] }}
+                        {{ optional($dimentional['profiles'])['profile'] }}
                     </td>
                     <td class="align-middle">
                         {{ getDesplazamiento($dimentional['displacement_type']) }}
@@ -754,7 +754,7 @@
                 <thead>
                     <tr class="table-primary text-uppercase" style="background:#E1EEC0;">
                         <th class="text-center">Perfil</th>
-                        <th>{{ $dimentional['profiles']['profile'] }}</th>
+                        <th>{{ optional($dimentional['profiles'])['profile'] }}</th>
                         <th colspan="3" class="text-center">Viáticos</th>
                     </tr>
                 </thead>
@@ -845,7 +845,7 @@
                         {{ $key + 1 }}
                     </td>
                     <td class="align-middle" *ngIf="item.profiles">
-                        {{ $assemblies['profiles']['profile'] }}
+                        {{ optional($assemblies['profiles'])['profile'] }}
                     </td>
                     <td class="align-middle">
                         {{ getDesplazamiento($assemblies['displacement_type']) }}
@@ -894,7 +894,7 @@
                 <thead>
                     <tr class="table-primary text-uppercase" style="background:#E1EEC0;">
                         <th class="text-center">Perfil</th>
-                        <th>{{ $assemblies_['profiles']['profile'] }}</th>
+                        <th>{{ optional($assemblies_['profiles'])['profile'] }}</th>
                         <th colspan="3" class="text-center">Viáticos</th>
                     </tr>
                 </thead>
@@ -986,7 +986,7 @@
                         {{ $key + 1 }}
                     </td>
                     <td class="align-middle" *ngIf="item.profiles">
-                        {{ $assemblies['profiles']['profile'] }}
+                        {{ optional($assemblies['profiles'])['profile'] }}
                     </td>
                     <td class="align-middle">
                         {{ getDesplazamiento($assemblies['displacement_type']) }}
@@ -1035,7 +1035,7 @@
                 <thead>
                     <tr class="table-primary text-uppercase" style="background:#E1EEC0;">
                         <th class="text-center">Perfil</th>
-                        <th>{{ $assemblies_['profiles']['profile'] }}</th>
+                        <th>{{ optional($assemblies_['profiles'])['profile'] }}</th>
                         <th colspan="3" class="text-center">Viáticos</th>
                     </tr>
                 </thead>

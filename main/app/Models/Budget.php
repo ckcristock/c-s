@@ -23,6 +23,7 @@ class Budget extends Model
         'observation',
         'total_cop',
         'total_usd',
+        'internal_total',
         'unit_value_prorrateado_cop',
         'state',
         'unit_value_prorrateado_usd',

@@ -101,11 +101,11 @@
     <div class="div">
         <div class="blocks-50">
             <strong>Cliente:</strong>
-            {{ $data->customer->name }}
+            {{ optional($data->customer)->name }}
         </div>
         <div class="blocks">
             <strong>Destino:</strong>
-            {{ $data->destiny->name }}
+            {{ optional($data->destiny)->name }}
         </div>
         <div class="blocks">
             <strong>Proyecto:</strong>
@@ -136,7 +136,7 @@
 
             @foreach ($data->indirectCosts as $item)
                 <tr>
-                    <td> {{ $item->indirectCost->name }} </td>
+                    <td> {{ optional($item->indirectCost)->name }} </td>
                     <td class="text-right">
                         {{ $item->percentage }}%
                     </td>

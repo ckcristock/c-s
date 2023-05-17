@@ -29,15 +29,15 @@
                         <td class="text-center">
 
                             @if ($subItem->apu_set_id)
-                                <span> {{ $subItem->apuSet->name }}</span>
+                                <span> {{ optional($subItem->apuSet)->name }}</span>
                             @endif
 
                             @if ($subItem->apu_part_id)
-                                <span> {{ $subItem->apuPart->name }}</span>
+                                <span> {{ optional($subItem->apuPart)->name }}</span>
                             @endif
 
                             @if ($subItem->apu_service_id)
-                                <span>{{ $subItem->apuService->name }}</span>
+                                <span>{{ optional($subItem->apuService)->name }}</span>
                             @endif
 
                             @if (!$subItem->type_module)
