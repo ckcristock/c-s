@@ -51,13 +51,14 @@
 </style>
 <h5 class="mb-0">Señores:</h5>
 <div style="font-size: 12px">
-    {{ $data['third_person']['name'] }} -
-    {{ $data['client']['social_reason'] ? $data['client']['social_reason'] : $data['client']['full_name'] }}
+    {{ optional($data['client'])['social_reason'] ? optional($data['client'])['social_reason'] : optional($data['client'])['full_name'] }}
     <br />
-    <small style="font-size: 10px">{{ $data['municipality']['name'] }}</small>
+    {{ optional($data['third_person'])['name'] }}
+    <br>
+    <small style="font-size: 10px">{{ optional($data['municipality'])['name'] }}</small>
 </div>
 <div class="alert alert-primary mt-1" role="alert">
-    <i class="fas fa-cogs"></i> {{ strtoupper($data['description']) }}
+     {{ strtoupper($data['description']) }}
 </div>
 <table class="div table-border">
     <thead>

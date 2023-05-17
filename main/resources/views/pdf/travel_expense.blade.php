@@ -80,11 +80,11 @@
 <div style="width: 100%; font-size: 10px; ">
     <div class="blocks" style="width: 50%;">
         <strong>Funcionario:</strong>
-        {{ $data['person']['first_name'] }} {{ $data['person']['first_surname'] }}
+        {{ optional($data['person'])['first_name'] }} {{ optional($data['person'])['first_surname'] }}
     </div>
     <div class="blocks">
         <strong>Documento:</strong>
-        {{ $data['person']['identifier'] }}
+        {{ optional($data['person'])['identifier'] }}
     </div>
     <div class="blocks">
         <strong>Tipo viaje:</strong>
@@ -101,11 +101,11 @@
 
     <div class="blocks">
         <strong>Origen:</strong>
-        {{ $data['origin']['name'] }}
+        {{ optional($data['origin'])['name'] }}
     </div>
     <div class="blocks">
         <strong>Destino:</strong>
-        {{ $data['destiny']['name'] }}
+        {{ optional($data['destiny'])['name'] }}
 
     </div>
 </div>
@@ -141,11 +141,11 @@
                     <td> {{ $hotel['name'] }} </td>
                     <td style="text-align: center;"> {{ $hotel['address'] }} </td>
                     <td style="text-align: center;"> {{ $hotel['phone'] }} </td>
-                    <td style="text-align: center;"> {{ $hotel['pivot']['accommodation'] }} </td>
-                    <td style="text-align: center;"> {{ $hotel['pivot']['n_night'] }} </td>
-                    <td style="text-align: center;"> {{ $hotel['pivot']['breakfast'] }} </td>
-                    <td> {{ $hotel['pivot']['who_cancels'] }} </td>
-                    <td style="text-align: right;"> {{ $hotel['pivot']['total'] }} </td>
+                    <td style="text-align: center;"> {{ optional($hotel['pivot'])['accommodation'] }} </td>
+                    <td style="text-align: center;"> {{ optional($hotel['pivot'])['n_night'] }} </td>
+                    <td style="text-align: center;"> {{ optional($hotel['pivot'])['breakfast'] }} </td>
+                    <td> {{ optional($hotel['pivot'])['who_cancels'] }} </td>
+                    <td style="text-align: right;"> {{ optional($hotel['pivot'])['total'] }} </td>
                 </tr>
             @endforeach
         </tbody>
@@ -176,9 +176,9 @@
         <tbody>
             @foreach ($data['expenseTaxiCities'] as $taxi)
                 <tr>
-                    <td> {{ $taxi['taxiCity']['taxi']['route'] }} </td>
-                    <td style="text-align: center;"> {{ $taxi['taxiCity']['city']['name'] }} </td>
-                    <td style="text-align: center;"> {{ $taxi['taxiCity']['type'] }} </td>
+                    <td> {{ optional(optional($taxi['taxiCity'])['taxi'])['route'] }} </td>
+                    <td style="text-align: center;"> {{ optional(optional($taxi['taxiCity'])['city'])['name'] }} </td>
+                    <td style="text-align: center;"> {{ optional($taxi['taxiCity'])['type'] }} </td>
                     <td style="text-align: center;"> {{ $taxi['rate'] }} </td>
                     <td style="text-align: center;"> {{ $taxi['journeys'] }} </td>
                     <td style="text-align: right;"> {{ $taxi['total'] }} </td>

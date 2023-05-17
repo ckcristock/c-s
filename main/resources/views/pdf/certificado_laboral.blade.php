@@ -148,16 +148,17 @@
             <b>{{ number_format($funcionario->identifier, 0, '', '.') }}</b>
             de {{ $funcionario->place_of_birth }} laboró en la empresa desde el
             {{ $date_of_admission }},
-            con un contrato {{ $funcionario->contractultimate->work_contract_type->name }}
+            con un contrato {{ $funcionario->contractultimate ? ($funcionario->contractultimate->work_contract_type ? $funcionario->contractultimate->work_contract_type->name : '') : '' }}
+
             @foreach ($informations as $info)
                 @if ($info == 'salario')
                     y devengando un salario mensual de
                     {{ $salario_numeros }}
-                    ($ {{ number_format($funcionario->contractultimate->salary, 0, '.', ',') }})
+                    ($ {{ number_format(optional($funcionario->contractultimate)->salary, 0, '.', ',') }})
                 @endif
                 @if ($info == 'cargo')
                     desempeñando el cargo de
-                    <b>{{ $funcionario->contractultimate->position->name }}</b>
+                    <b>{{ $funcionario->contractultimate ? ($funcionario->contractultimate->position ? $funcionario->contractultimate->position->name : '') : '' }}</b>
                 @endif
             @endforeach ,
             La presente certificación se expide en Bucaramanga, al (los)

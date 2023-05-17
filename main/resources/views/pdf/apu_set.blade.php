@@ -82,18 +82,18 @@
     </div>
     <div class="blocks">
         <strong>Cliente:</strong>
-        {{ $data['thirdparty']['name'] }}
+        {{ optional($data['thirdparty'])['name'] }}
     </div>
     <div class="blocks">
         <strong>Destino:</strong>
-        {{ $data['city']['name'] }}
+        {{ optional($data['city'])['name'] }}
     </div>
 </div>
 
 <div class="div">
     <div class="blocks-50">
         <strong>Quién elabora:</strong>
-        {{ $data['person']['name'] }}
+        {{ optional($data['person'])['name'] }}
     </div>
 
     <div class="blocks">
@@ -143,12 +143,12 @@
                 <tr>
                     <td style="text-align: center;"> {{ $setpartlist['apu_type'] }} </td>
                     @if ($setpartlist['apu_type'] == 'P')
-                        <td style="text-align: center;"> {{ $setpartlist['apupart']['name'] }} </td>
+                        <td style="text-align: center;"> {{ optional($setpartlist['apupart'])['name'] }} </td>
                     @endif
                     @if ($setpartlist['apu_type'] == 'C')
-                        <td style="text-align: center;"> {{ $setpartlist['apuset']['name'] }} </td>
+                        <td style="text-align: center;"> {{ optional($setpartlist['apuset'])['name'] }} </td>
                     @endif
-                    <td style="text-align: center;"> {{ $setpartlist['unit']['name'] }} </td>
+                    <td style="text-align: center;"> {{ optional($setpartlist['unit'])['name'] }} </td>
                     <td style="text-align: center;"> {{ $setpartlist['amount'] }} </td>
                     <td style="text-align: center;"> @money($setpartlist['unit_cost']) </td>
                     <td style="text-align: right; padding-right: 5px"> @money($setpartlist['total']) </td>
@@ -179,8 +179,8 @@
         <tbody>
             @foreach ($data['machine'] as $machine)
                 <tr>
-                    <td style="text-align: center;"> {{ $machine['machine']['name'] }} </td>
-                    <td style="text-align: center;"> {{ $machine['unit']['name'] }} </td>
+                    <td style="text-align: center;"> {{ optional($machine['machine'])['name'] }} </td>
+                    <td style="text-align: center;"> {{ optional($machine['unit'])['name'] }} </td>
                     <td style="text-align: center;"> {{ $machine['amount'] }} </td>
                     <td style="text-align: right; padding-right: 5px"> @money($machine['unit_cost']) </td>
                     <td style="text-align: right; padding-right: 5px"> @money($machine['total']) </td>
@@ -211,8 +211,8 @@
         <tbody>
             @foreach ($data['internal'] as $internal)
                 <tr>
-                    <td style="text-align: center;"> {{ $internal['internal']['name'] }} </td>
-                    <td style="text-align: center;"> {{ $internal['unit']['name'] }} </td>
+                    <td style="text-align: center;"> {{ optional($internal['internal'])['name'] }} </td>
+                    <td style="text-align: center;"> {{ optional($internal['unit'])['name'] }} </td>
                     <td style="text-align: center;"> {{ $internal['amount'] }} </td>
                     <td style="text-align: right; padding-right: 5px"> @money($internal['unit_cost']) </td>
                     <td style="text-align: right; padding-right: 5px"> @money($internal['total']) </td>
@@ -243,8 +243,8 @@
         <tbody>
             @foreach ($data['external'] as $external)
                 <tr>
-                    <td style="text-align: center;"> {{ $external['external']['name'] }} </td>
-                    <td style="text-align: center;"> {{ $external['unit']['name'] }} </td>
+                    <td style="text-align: center;"> {{ optional($external['external'])['name'] }} </td>
+                    <td style="text-align: center;"> {{ optional($external['unit'])['name'] }} </td>
                     <td style="text-align: center;"> {{ $external['amount'] }} </td>
                     <td style="text-align: right; padding-right: 5px"> @money($external['unit_cost']) </td>
                     <td style="text-align: right; padding-right: 5px"> @money($external['total']) </td>
@@ -276,7 +276,7 @@
             @foreach ($data['other'] as $other)
                 <tr>
                     <td style="text-align: center;"> {{ $other['description'] }} </td>
-                    <td style="text-align: center;"> {{ $other['unit']['name'] }} </td>
+                    <td style="text-align: center;"> {{ optional($other['unit'])['name'] }} </td>
                     <td style="text-align: center;"> {{ $other['amount'] }} </td>
                     <td style="text-align: right; padding-right: 5px"> @money($other['unit_cost']) </td>
                     <td style="text-align: right; padding-right: 5px"> @money($other['total']) </td>

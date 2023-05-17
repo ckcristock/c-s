@@ -67,6 +67,7 @@
     .text-center {
         text-align: center
     }
+
     .text-left {
         text-align: left
     }
@@ -93,10 +94,10 @@
     <tbody>
         <tr class="text-left">
             <td>
-                {{ $data->third->full_name }}
+                {{ optional($data->third)->full_name }}
             </td>
             <td>
-                {{ $data->store->Nombre }}
+                {{ optional($data->store)->Nombre }}
             </td>
             <td>
                 {{ $data->created_at }}
@@ -129,21 +130,21 @@
             <tr class="text-center">
                 <td>{{ $key + 1 }}</td>
                 <td class="align-middle">
-                    {{ $producto->product->Nombre_Comercial }}
+                    {{ optional($producto->product)->Nombre_Comercial }}
                 </td>
                 <td class="align-middle">
                     <span class="text-muted">
-                        {{ $producto->product->packaging->name }}
+                        {{ optional(optional($producto->product))->packaging->name }}
                     </span>
                 </td>
                 <td class="align-middle">
                     {{ $producto->Cantidad }}
                 </td>
                 <td class="align-middle">
-                    @money($producto->product->Precio)
+                    @money(optional($producto->product)->Precio)
                 </td>
                 <td class="align-middle">
-                    {{ $producto->tax->Valor }}%
+                    {{ optional($producto->tax)->Valor }}%
                 </td>
                 <td class="align-middle">
                     @money($producto->Subtotal)
@@ -185,4 +186,3 @@
         @money($data['Total'])
     </div>
 </div>
-

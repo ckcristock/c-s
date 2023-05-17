@@ -65,7 +65,7 @@
                 <tr>
                     <td><b>Retenciones y Deducciones</b></td>
                     <td class="text-right">$
-                        {{ number_format($info['deducciones']['valor_total'] + $info['retencion']['valor_total'], 2, ',', '.') }}
+                        {{ number_format(optional($info['deducciones'])['valor_total'] + optional($info['retencion'])['valor_total'], 2, ',', '.') }}
                     </td>
                 </tr>
                 <tr>
