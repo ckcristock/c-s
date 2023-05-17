@@ -109,7 +109,7 @@ class LoanController extends Controller
         $oItem->save();
         $id_prestamo = $oItem->getId(); */
 
-            $datos["user_id"] = auth()->user()->id;
+            $datos["user_id"] = auth()->user()->person_id;
 
             $loanDB = Loan::create($datos);
             LoanService::guardarCuotasPrestamo(

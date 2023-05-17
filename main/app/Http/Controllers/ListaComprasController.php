@@ -312,14 +312,14 @@ class ListaComprasController extends Controller
                 ActividadOrdenCompra::create(
                     [
                         'Id_Orden_Compra_Nacional' => $request->id,
-                        'Identificacion_Funcionario' => auth()->user()->id,
+                        'Identificacion_Funcionario' => auth()->user()->person_id,
                         'Detalles' => 'Ha sido ' . strtolower($request->estado) . $motivo . '.',
                         'Fecha' => Carbon::now(),
                         'Estado' => ($request->estado == "Aprobada") ? 'Aprobacion' : 'Rechazada'
                     ]
                 );
             }
-            
+
 
             return $this->success([
                 "mensaje" => 'Orden de compra ' . strtolower($request->estado) . $motivo . '.',

@@ -545,11 +545,11 @@ class ActaRecepcionController extends Controller
             //dd($invoices);
             $products_orden_compra= $request ->products;
 
-            $data['Identificacion_Funcionario'] = auth()->user()->id;
+            $data['Identificacion_Funcionario'] = auth()->user()->person_id;
             $data['Observaciones'] = $data['Observaciones_acta'];
             if (!$request->id) {
                 $data['Codigo'] = generateConsecutive('acta_recepcion');
-            
+
             }
             $acta = ActaRecepcion::updateOrcreate(
                 ['Id_Acta_Recepcion' => $data['Id_Acta_Recepcion']], $data

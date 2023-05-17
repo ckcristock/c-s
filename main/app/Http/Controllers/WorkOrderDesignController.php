@@ -68,7 +68,7 @@ class WorkOrderDesignController extends Controller
         $data = $request->except('people');
         $people = $request->people;
 
-        $data['allocator_person_id'] = auth()->user()->id;
+        $data['allocator_person_id'] = auth()->user()->person_id;
         $work_order_design = WorkOrderDesign::create($data);
         $work_order = WorkOrder::where('id', $data['work_order_id'])->first();
         $work_order_design->people()->attach($people);

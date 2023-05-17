@@ -28,6 +28,6 @@ class PrettyCash extends Model
 	}
 	function user()
 	{
-		return $this->belongsTo(user::class);
+		return $this->belongsTo(User::class);
 	}
 }

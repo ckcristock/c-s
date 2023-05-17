@@ -124,7 +124,7 @@ class QuotationController extends Controller
             'quotation_id' => $id,
             'icon' => $icon,
             'title' => $title,
-            'person_id' => auth()->user()->id,
+            'person_id' => auth()->user()->person_id,
             'description' => $description,
             'status' => $status
         ]);

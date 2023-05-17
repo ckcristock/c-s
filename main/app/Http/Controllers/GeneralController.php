@@ -12,6 +12,7 @@ class GeneralController extends Controller
 {
 
     public function pruebas(){
+        dd(auth()->user()->person_id);
         return ElectronicPayroll::get();
     }
 

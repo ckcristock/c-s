@@ -87,7 +87,7 @@ class PurchaseRequestController extends Controller
             $products_delete = $request->products_delete;
             $data = $request->except('products', 'products_delete');
             $products = $request->products;
-            $data['user_id'] = auth()->user()->id;
+            $data['user_id'] = auth()->user()->person_id;
             if (!$request->id) {
                 $data['code'] = generateConsecutive('purchase_requests');
             }
@@ -167,7 +167,7 @@ class PurchaseRequestController extends Controller
         PurchaseRequestActivity::create(
             [
                 'purchase_request_id' => $id,
-                'user_id' => auth()->user()->id,
+                'user_id' => auth()->user()->person_id,
                 'details' => $details,
                 'date' => Carbon::now(),
                 'status' => $status

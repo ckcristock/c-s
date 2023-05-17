@@ -387,7 +387,7 @@ class BusinessController extends Controller
     public function updateBasicData(Request $request)
     {
         $business = Business::find($request->id);
-        $id = auth()->user()->id;
+        $id = auth()->user()->person_id;
         $person = Person::where('id', $id)->fullName()->first();
         $data = $request->except('budgets', 'apu', 'quotations');
         $business->update($data);
@@ -395,7 +395,7 @@ class BusinessController extends Controller
             'business_id' => $business->id,
             'icon' => 'fas fa-edit',
             'title' => 'Se ha editado el negocio',
-            'person_id' => auth()->user()->id,
+            'person_id' => auth()->user()->person_id,
             'description' => $person->full_names . ' ha editado el negocio.'
         ]);
     }

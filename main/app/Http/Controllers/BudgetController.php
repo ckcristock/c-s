@@ -179,7 +179,7 @@ class BudgetController extends Controller
     {
         try {
             $data = $request->get('data');
-            $data['user_id'] = auth()->user()->id;
+            $data['user_id'] = auth()->user()->id; //!Este sí es el id del user
             $consecutive = getConsecutive('budgets');
             if ($consecutive->city) {
                 $abbreviation = Municipality::where('id', $data['destinity_id'])->first()->abbreviation;
