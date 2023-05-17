@@ -415,7 +415,7 @@ class ProductNewController extends Controller
         //dd($details);
         ActividadProducto::create([
             "Id_Producto" => $id,
-            "Person_Id" => auth()->user()->id,
+            "Person_Id" => auth()->user()->person_id,
             "Detalles" => $details
         ]);
     }

@@ -66,7 +66,7 @@ class WorkOrderEngineeringController extends Controller
     {
         //crear tarea
         $data = $request->all();
-        $data['allocator_person_id'] = auth()->user()->id;
+        $data['allocator_person_id'] = auth()->user()->person_id;
         $data['person_id'] = $request->person_id['value'];
         $work_order_engineering = WorkOrderEngineering::create($data);
         $work_order = WorkOrder::where('id', $data['work_order_id'])->first();

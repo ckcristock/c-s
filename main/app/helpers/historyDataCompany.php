@@ -35,7 +35,7 @@ if (!function_exists('saveHistoryCompanyData')) {
                 'data_name' => $key,
                 'date_end' => Carbon::now(),
                 'value' => $value,
-                'person_id' => auth()->user()->id,
+                'person_id' => auth()->user()->person_id,
             ]);
         }
     }

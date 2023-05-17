@@ -395,7 +395,6 @@ class PlanCuentasController extends Controller
      */
     public function store()
     {
-        //dd(auth()->user()->id);
         $datos = isset($_REQUEST['Datos']) ? $_REQUEST['Datos'] : false;
         $datos = json_decode($datos, true);
         unset($datos['Cuenta_Padre_Nombre']);
