@@ -21,7 +21,9 @@ class Business extends Model
         'city_id',
         'date',
         'budget_value',
+        'budget_value_usd',
         'quotation_value',
+        'quotation_value_usd',
     ];
 
     public function thirdParty()

@@ -98,9 +98,9 @@ class ProductController extends Controller
             ->when($request->name, function ($q, $fill) {
                 $q->where('Nombre_Comercial', 'like', '%' . $fill . '%');
             })
-            ->when($request->limit, function ($query) {
+            /* ->when($request->limit, function ($query) {
                 return $query->limit(10);
-            })
+            }) */
             ->get(['Id_Producto as id', 'Id_Producto as value', DB::raw('UPPER(Nombre_Comercial) AS text')]);
         return $this->success($product);
     }

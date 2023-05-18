@@ -5,10 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
     <title>Document</title>
     <style>
         * {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Ubuntu', sans-serif;
         }
 
         body,
@@ -19,9 +22,13 @@
             background-image: url({{ $image }});
         }
 
-       td {
+        td {
             font-size: 10px;
             background-color: transparent;
+        }
+
+        .font-weight-bold {
+            font-weight: bold;
         }
 
         .text-right {
@@ -108,13 +115,14 @@
 
 <body>
     <header>
-        <table class="w-100" >
+        <table class="w-100">
             <tr>
                 <td class="align-top">
                     <figure class="figure">
                         <img src="{{ $company->logo }}" class="figure-img img-fluid" />
                         <figcaption class="figure-caption">
-                            <strong>{{ $company->name }}</strong> <br /><strong>NIT:</strong>
+                            <div class="font-weight-bold">{{ $company->name }}</div>
+                            <span class="font-weight-bold">NIT:</span>
                             {{ $company->document_number }}-{{ $company->verification_digit }}
                         </figcaption>
                     </figure>
@@ -123,7 +131,7 @@
                     <div class="text-right">
                         <h1 class="text-primary mb-0">{{ $datosCabecera->Titulo }}</h1>
                         <h2 class=my-0>{{ $datosCabecera->Codigo }}</h2>
-                        <h3 class=my-0>{{ $datosCabecera->Fecha }}</h3>
+                        <h3 class=my-0>{{ $datosCabecera->Fecha->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}</h3>
                         <small>{{ $datosCabecera->CodigoFormato ?? '' }}</small>
                     </div>
                 </td>

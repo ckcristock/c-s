@@ -3,10 +3,7 @@
     </div>
 
     @foreach ($data->items as $item)
-        <div class="text-center">
-            <strong>{{ $item->name }} </strong>
-            {{-- <strong>ITEM {{ $loop->index + 1 }} </strong> --}}
-        </div>
+        <h6 class="mb-0">{{ $item->name }} </h6>
 
         <table class="div-small table-border">
             <thead>

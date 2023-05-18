@@ -122,7 +122,10 @@ class BusinessController extends Controller
                         'business_id' =>  $business->id
                     ]);
                     $quotation = Quotation::where('id', $value['id'])->first();
-                    $business->update(['quotation_value' => $quotation->total_cop]);
+                    $business->update([
+                        'quotation_value' => $quotation->total_cop,
+                        'quotation_value_usd' => $quotation->total_usd,
+                    ]);
                     $this->addEventToHistroy([
                         'business_id' => $business->id,
                         'icon' => 'fas fa-money-check-alt',
@@ -174,7 +177,10 @@ class BusinessController extends Controller
                         'business_id' =>  $business->id
                     ]);
                     $budget_ = Budget::where('id', $budget['id'])->first();
-                    $business->update(['budget_value' => $budget_->total_cop]);
+                    $business->update([
+                        'budget_value' => $budget_->total_cop,
+                        'budget_value_usd' => $budget_->total_usd,
+                    ]);
                     $this->addEventToHistroy([
                         'business_id' => $business->id,
                         'icon' => 'fas fa-money-bill',
@@ -191,8 +197,14 @@ class BusinessController extends Controller
         }
     }
 
-    public function generalViewBusiness() {
-        return $this->success(Business::get());
+    public function generalViewBusiness(Request $request)
+    {
+        return $this->success(
+            Business::whereBetween('created_at', [$request->date_start, $request->date_end])
+                ->orWhereDate('created_at', date($request->date_start))
+                ->orWhereDate('created_at', date($request->date_end))
+                ->get()
+        );
     }
 
     public function newBusinessBudget(Request $request)
@@ -210,7 +222,10 @@ class BusinessController extends Controller
                     ]);
 
                     $budget_ = Budget::where('id', $budget['budget_id'])->first();
-                    Business::where('id', $request->business_id)->update(['budget_value' => $budget_->total_cop]);
+                    Business::where('id', $request->business_id)->update([
+                        'budget_value' => $budget_->total_cop,
+                        'budget_value_usd' => $budget_->total_usd,
+                    ]);
                     $this->addEventToHistroy([
                         'business_id' => $request->business_id,
                         'icon' => 'fas fa-money-bill',
@@ -243,7 +258,10 @@ class BusinessController extends Controller
                         'business_id' =>  $quotation['business_id']
                     ]);
                     $quotation = Quotation::where('id', $quotation['quotation_id'])->first();
-                    $business->update(['quotation_value' => $quotation->total_cop]);
+                    $business->update([
+                        'quotation_value' => $quotation->total_cop,
+                        'quotation_value_usd' => $quotation->total_usd,
+                    ]);
                     $this->addEventToHistroy([
                         'business_id' => $business->id,
                         'icon' => 'fas fa-money-check-alt',
@@ -338,7 +356,10 @@ class BusinessController extends Controller
             if ($request->status == 'Aprobado') {
                 BusinessBudget::where('business_id', $aux->business_id)->update(['status' => 'Rechazado']);
                 $budget = Budget::find($aux->budget_id);
-                Business::find($aux->business_id)->update(['budget_value' => $budget->total_cop]);
+                Business::find($aux->business_id)->update([
+                    'budget_value' => $budget->total_cop,
+                    'budget_value_usd' => $budget->total_usd,
+                ]);
             }
             $aux->update(['status' => $request->status]);
         } else if ($request->label == 'quotation') {
@@ -346,7 +367,10 @@ class BusinessController extends Controller
             if ($request->status == 'Aprobada') {
                 BusinessQuotation::where('business_id', $aux->business_id)->update(['status' => 'Rechazada']);
                 $quotation = Quotation::find($aux->quotation_id);
-                Business::find($aux->business_id)->update(['quotation_value' => $quotation->total_cop]);
+                Business::find($aux->business_id)->update([
+                    'quotation_value' => $quotation->total_cop,
+                    'quotation_value_usd' => $quotation->total_usd,
+                ]);
             }
             $aux->update(['status' => $request->status]);
         }

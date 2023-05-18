@@ -136,6 +136,13 @@ class WorkCertificateController extends Controller
         $salario_numeros = $formatterES->format($funcionario->contractultimate->salary);
         $addressee = $work_certificate->addressee ?: 'A QUIEN INTERESE';
         $gener = $funcionario->gener === 'Masculino' ? 'certifica que el señor' : 'certifica que la señora';
+        $image = $company->page_heading;
+        $datosCabecera = (object) array(
+            'Titulo' => 'Certificación laboral',
+            'Codigo' => $work_certificate->code,
+            'Fecha' => $work_certificate->created_at,
+            'CodigoFormato' => $work_certificate->format_code
+        );
         $pdf = PDF::loadView('pdf.certificado_laboral', [
             'date' => $date,
             'date2' => $date2,
@@ -146,7 +153,9 @@ class WorkCertificateController extends Controller
             'work_certificate' => $work_certificate,
             'informations' => $informations,
             'salario_numeros' => $salario_numeros,
-            'addressee' => $addressee
+            'addressee' => $addressee,
+            'datosCabecera' => $datosCabecera,
+            'image' => $image
         ]);
         return $pdf->download('certificado.pdf');
     }

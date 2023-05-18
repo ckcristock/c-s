@@ -107,7 +107,6 @@
     }
 @endphp
 @include('components/cabecera', [$company, $datosCabecera, $image])
-<hr>
 <div class="div">
     <div class="blocks-50">
         <strong>Nombre:</strong>
@@ -117,33 +116,45 @@
         <strong>Cliente:</strong>
         {{ optional($data['thirdparty'])['name'] }}
     </div>
-    <div class="blocks">
-        <strong>Destino:</strong>
-        {{ optional($data['city'])['name'] }}
-    </div>
+
 </div>
 <div class="div">
     <div class="blocks-50">
+        <strong>Destino:</strong>
+        {{ optional($data['city'])['name'] }}
+    </div>
+    <div class="blocks">
         <strong>Quién elabora:</strong>
         {{ optional($data['person'])['name'] }}
     </div>
+</div>
 
+<div class="div">
+    <div class="blocks-50">
+        <strong>Conjunto:</strong>
+        {{ $data['set_name'] ?? 'Sin información' }}
+    </div>
     <div class="blocks">
+        <strong>Máquina:</strong>
+        {{ $data['machine_name'] ?? 'Sin información' }}
+    </div>
+</div>
+
+<div class="div">
+    <div class="blocks-50">
         <strong>Línea:</strong>
         {{ $data['line'] }}
     </div>
 </div>
-<table class="div mt-1">
-    <tbody>
-        <tr>
-            <td><strong>OBSERVACIONES</strong></td>
-        </tr>
-        <tr>
-            <td>
-                {{ isset($data['observation']) ? $data['observation'] : 'No existen observaciones.' }}
-        </tr>
-    </tbody>
-</table>
+
+<div class="div">
+    <div class="blocks-50">
+        <strong>Observaciones:</strong>
+    </div>
+    <div class="blocks-50">
+        {{ $data['observation'] ?? 'No existen observaciones.' }}
+    </div>
+</div>
 
 @if (count($data['dimensionalValidation']) > 0 || count($data['assembliesStartUp']) > 0 || count($data['accompaniments']) > 0)
     <h5>MAQMO</h5>
@@ -302,15 +313,15 @@
         @endif
     @endforeach
     <div class="row">
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL MANO DE OBRA: </strong>
             @money($data['subtotal_labor'])
         </div>
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL VIÁTICOS: </strong>
             @money($data['subtotal_travel_expense'])
         </div>
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL VALID DIMENSIONAL: </strong>
             @money($data['subtotal_dimensional_validation'])
         </div>
@@ -473,15 +484,15 @@
         @endif
     @endforeach
     <div class="row">
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL MANO DE OBRA: </strong>
             @money($data['subtotal_labor_mpm'])
         </div>
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL VIÁTICOS: </strong>
             @money($data['subtotal_travel_expense_mpm'])
         </div>
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL MONTAJE DE EQUIPOS: </strong>
             @money($data['subtotal_assembly_commissioning'])
         </div>
@@ -645,15 +656,15 @@
         @endif
     @endforeach
     <div class="row">
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL MANO DE OBRA: </strong>
             @money($data['subtotal_labor_apm'])
         </div>
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL VIÁTICOS: </strong>
             @money($data['subtotal_travel_expense_apm'])
         </div>
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL ACOMPAÑAMIENTO Y PUESTA EN MARCHA: </strong>
             @money($data['subtotal_accompaniment'])
         </div>
@@ -662,7 +673,7 @@
     <hr>
 @endif
 @if (count($data['dimensionalValidation']) > 0 || count($data['assembliesStartUp']) > 0 || count($data['accompaniments']) > 0)
-<div class="text-right" style="font-size: 10px;">
+<div class="text-right" style="font-size: 13px;">
     <strong>SUBTOTAL GENERAL VIÁTICOS + MANO DE OBRA: </strong>
     @money($data['general_subtotal_travel_expense_labor'])
 </div>
@@ -797,11 +808,11 @@
         @endif
     @endforeach
     <div class="row">
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL VIÁTICOS: </strong>
             @money($data['subtotal_travel_expense_vd_c'])
         </div>
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL VALID DIMENSIONAL: </strong>
             @money($data['subtotal_dimensional_validation_c'])
         </div>
@@ -937,11 +948,11 @@
         @endif
     @endforeach
     <div class="row">
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL VIÁTICOS: </strong>
             @money($data['subtotal_travel_expense_me_c'])
         </div>
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL MONTAJE DE EQUIPOS: </strong>
             @money($data['subtotal_assembly_c'])
         </div>
@@ -1078,11 +1089,11 @@
         @endif
     @endforeach
     <div class="row">
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL VIÁTICOS: </strong>
             @money($data['subtotal_travel_expense_apm_c'])
         </div>
-        <div class="text-right" style="font-size: 10px;">
+        <div class="text-right" style="font-size: 13px;">
             <strong>SUBTOTAL ACOMPAÑAMIENTO Y PUESTA EN MARCHA: </strong>
             @money($data['subtotal_accompaniment_c'])
         </div>
@@ -1092,56 +1103,56 @@
 @endif
 
 @if (count($data['dimensionalValidationC']) > 0 || count($data['assembliesStartUpC']) > 0 || count($data['accompanimentsC']) > 0)
-<div class="text-right" style="font-size: 10px;">
+<div class="text-right" style="font-size: 13px;">
     <strong>SUBTOTAL GENERAL VIÁTICOS + MANO DE OBRA: </strong>
     @money($data['general_subtotal_travel_expense_labor_c'])
 </div>
 @endif
 
 <h5 class="text-center">AIU</h5>
-<table class="table-border" style="font-size: 15px; text-transform: uppercase">
+<table style="font-size: 15px; text-transform: uppercase">
     <tbody>
         <tr>
             <td colspan="2">Subtotal maqmo</td>
-            <td class="text-right">
+            <td class="text-right" style="font-size: 13px">
               @money($data["general_subtotal_travel_expense_labor"])
             </td>
           </tr>
           <tr>
             <td colspan="2">Subtotal contratistas</td>
-            <td class="text-right">
+            <td class="text-right" style="font-size: 13px">
               @money($data["general_subtotal_travel_expense_labor_c"])
             </td>
           </tr>
           <tr>
             <td colspan="2">Maqmo + Contratistas</td>
-            <td class="text-right">
+            <td class="text-right" style="font-size: 13px">
               @money($data["total_unit_cost"])
             </td>
           </tr>
         <tr class="text-right">
             <td class="text-left">Administrativos</td>
             <td>{{ $data['administrative_percentage'] }}%</td>
-            <td>@money($data['administrative_value'])</td>
+            <td style="font-size: 13px">@money($data['administrative_value'])</td>
         </tr>
         <tr class="text-right">
             <td class="text-left">Imprevistos</td>
             <td>{{ $data['unforeseen_percentage'] }}%</td>
-            <td>@money($data['unforeseen_value'])</td>
+            <td style="font-size: 13px">@money($data['unforeseen_value'])</td>
         </tr>
         <tr class="text-right">
             <td class="text-left" colspan="2">Subtotal A + I</td>
-            <td>
+            <td style="font-size: 13px">
                 @money($data['subtotal_administrative_unforeseen'])
             </td>
         </tr>
         <tr class="text-right">
             <td class="text-left" colspan="2">Utilidad</td>
-            <td>{{ $data['utility_percentage'] }}%</td>
+            <td style="font-size: 13px">{{ $data['utility_percentage'] }}%</td>
         </tr>
         <tr class="text-right">
             <td class="text-left" colspan="2">SubTotal A + I + U</td>
-            <td>
+            <td style="font-size: 13px">
                 @money($data['subtotal_administrative_unforeseen_utility'])
             </td>
         </tr>
@@ -1149,19 +1160,19 @@
             <td class="text-left" colspan="2">
                 Precio venta COP incluye retención
             </td>
-            <td>
+            <td style="font-size: 13px">
                 @money($data['sale_price_cop_withholding_total'])
             </td>
         </tr>
         <tr class="text-right">
             <td class="text-left" colspan="2">TRM</td>
-            <td>@money($data['trm'])</td>
+            <td style="font-size: 13px">@money($data['trm'])</td>
         </tr>
         <tr class="text-right">
             <td class="text-left" colspan="2">
                 Precio venta USD incluye retención
             </td>
-            <td>USD @money($data['sale_price_usd_withholding_total'])</td>
+            <td style="font-size: 13px">USD @money($data['sale_price_usd_withholding_total'])</td>
         </tr>
     </tbody>
 </table>
