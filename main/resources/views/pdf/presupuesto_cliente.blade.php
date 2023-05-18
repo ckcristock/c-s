@@ -1,8 +1,4 @@
 <style>
-    * {
-        font-family: 'Roboto', sans-serif;
-    }
-
     table {
         border-collapse: collapse;
     }
@@ -94,36 +90,33 @@
         <strong>Destino:</strong>
         {{ optional($data->destiny)->name }}
     </div>
-    <div class="blocks">
-        <strong>Proyecto:</strong>
-        {{ $data->project }}
-    </div>
+
 </div>
 <div class="div">
     <div class="blocks-50">
+        <strong>Proyecto:</strong>
+        {{ $data->project }}
+    </div>
+    <div class="blocks">
         <strong>Linea:</strong>
         {{ $data->line }}
     </div>
-    <div class="blocks">
+
+</div>
+<div class="div">
+    <div class="blocks-50">
         <strong>TRM:</strong>
         @money($data->trm)
     </div>
 </div>
-
-<!-- Configuracion presupuestal -->
-
-<!--  END  Configuracion presupuestal -->
-<table class="div mt-1">
-    <tbody>
-        <tr>
-            <td><strong>OBSERVACIONES</strong></td>
-        </tr>
-        <tr>
-            <td>
-                {{ isset($data->observation) ? $data->observation : 'No existen observaciones.' }}
-        </tr>
-    </tbody>
-</table>
+<div class="div mt-1">
+    <div class="blocks-50">
+        <strong>Observaciones:</strong>
+    </div>
+    <div class="blocks-50">
+        {{ $data['observation'] ?? 'No existen observaciones.' }}
+    </div>
+</div>
 <!-- ITEMS -->
 @include('pdf.utils.item_presupuesto')
 <!-- ITEMS -->
@@ -133,13 +126,13 @@
         @if ($currency == 'cop')
             <tr>
                 <th class="text-left">TOTAL PRESUPUESTO COP</th>
-                <th class="text-right"> @money($data->total_cop)</th>
+                <th class="text-right" style="font-size: 13px;"> @money($data->total_cop)</th>
             </tr>
         @endif
         @if ($currency == 'usd')
             <tr>
                 <th class="text-left">TOTAL PRESUPUESTO USD</th>
-                <th class="text-right"> @money($data->total_usd)</th>
+                <th class="text-right" style="font-size: 13px;"> @money($data->total_usd)</th>
             </tr>
         @endif
 

@@ -131,11 +131,20 @@ class LayoffsCertificateController extends Controller
         $company = Company::first();
         $date = Carbon::now()->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY');
         $layoffs_certificate = LayoffsCertificate::where('id', $id)
-            ->with('person', 'reason_withdrawal_list')->first();
+        ->with('person', 'reason_withdrawal_list')->first();
+        $image = $company->page_heading;
+        $datosCabecera = (object) array(
+            'Titulo' => 'Certificación cesantías',
+            'Codigo' => $layoffs_certificate->code,
+            'Fecha' => $layoffs_certificate->created_at,
+            'CodigoFormato' => $layoffs_certificate->format_code
+        );
         $pdf = PDF::loadView('pdf.certificado_cesantias', [
             'date' => $date,
             'company' => $company,
-            'layoffs_certificate' => $layoffs_certificate
+            'layoffs_certificate' => $layoffs_certificate,
+            'datosCabecera' => $datosCabecera,
+            'image' => $image
         ]);
         return $pdf->download('comprobante.pdf');
     }

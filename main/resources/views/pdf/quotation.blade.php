@@ -1,10 +1,6 @@
 @include('components/cabecera', [$company, $datosCabecera, $image])
 
 <style>
-    * {
-        font-family: 'Roboto', sans-serif;
-    }
-
     table {
         width: 100%;
         border-collapse: collapse;

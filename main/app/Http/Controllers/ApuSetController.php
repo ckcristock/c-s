@@ -323,7 +323,7 @@ class ApuSetController extends Controller
         $image = $company->page_heading;
         $data = ApuSetService::show($id);
         $datosCabecera = (object) array(
-            'Titulo' => 'APU Pieza',
+            'Titulo' => 'APU Conjunto',
             'Codigo' => $data->code,
             'Fecha' => $data->created_at,
             'CodigoFormato' => $data->format_code

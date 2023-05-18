@@ -67,10 +67,10 @@ class MarcationService
                             'real_entry' => $hactual,
                             'entry' => $turno_asignado->entry_time
                         ); */
-
     }
 
-    static public function makeTime($hoy,$hactual,$date1,$date2){
+    static public function makeTime($hoy, $hactual, $date1, $date2)
+    {
         $startTime = Carbon::parse($hoy . " " . $hactual);
         $finishTime = Carbon::parse($date1 . " " . $date2);
         return  $finishTime->diffInSeconds($startTime);

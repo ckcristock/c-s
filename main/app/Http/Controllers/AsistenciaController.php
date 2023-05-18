@@ -11,6 +11,7 @@ use App\Models\Empresa;
 use App\Models\Person;
 use Facade\FlareClient\Http\Response;
 use Illuminate\Support\Facades\Log; */
+
 use App\Http\Controllers\DiariosController as Diarios;
 use App\Http\Controllers\LlegadasTardeController as Llegadas;
 use App\Models\Company;
@@ -24,6 +25,7 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Support\Facades\URL;
 /* require_once $path = base_path('vendor/pear/http_request2/HTTP/Request2.php'); */
+
 date_default_timezone_set('America/Bogota');
 class AsistenciaController extends Controller
 {
@@ -643,8 +645,9 @@ class AsistenciaController extends Controller
                 if ($rotativo_hoy->turnoRotativo->breack == 1 && $rotativo_hoy->breack_time_one != null && $rotativo_hoy->breack_time_two == null) {
                     MarcationService::marcation('success', $fully, $func->id, 'El funcionario ingresa del break');
                     $durationLaunch = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->turnoRotativo->breack_time_two);
-                    /*  if ($durationLaunch > 300) { */
-                    MarcationService::makeLateArrival($func->id, $hoy, $durationLaunch, $hactual, $rotativo_hoy->turnoRotativo->breack_time_two);
+                    if ($durationLaunch > 300) {
+                        MarcationService::makeLateArrival($func->id, $hoy, $durationLaunch, $hactual, $rotativo_hoy->turnoRotativo->breack_time_two);
+                    }
                     $datos = array(
                         'breack_two_date' => $hoy,
                         'breack_time_two' => $hactual,
@@ -779,7 +782,7 @@ class AsistenciaController extends Controller
                         Diarios::guardarDiarioTurnoRotativo($datos);
                         MarcationService::makeLateArrival($func->id, $hoy, $totalDuration, $hactual, $turno_asignado->entry_time);
                         /** FIN GUARDAR LLEGADA */
-                        $lleg = 'Hoy has Llegado tarde';
+                        $lleg = 'Hoy has llegado tarde';
                         if ($func->email != '') {
                             MarcationService::sendEmail($func, $fully, 'Ingreso', $hoy, $hactual, $empresa, $temperatura, $lleg);
                         }

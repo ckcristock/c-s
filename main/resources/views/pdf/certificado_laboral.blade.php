@@ -6,9 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        * {
-            font-family: 'Roboto', sans-serif;
-        }
 
         body,
         html {
@@ -93,9 +90,9 @@
         }
 
         .body-certificate {
-            margin-left: 2rem;
+            /* margin-left: 2rem;
             margin-right: 2rem;
-            margin-top: 3rem;
+            margin-top: 3rem; */
             text-transform: uppercase;
         }
 
@@ -109,31 +106,8 @@
         }
     </style>
 </head>
-
+@include('components/cabecera', [$company, $datosCabecera, $image])
 <body>
-    <header>
-        <table class="w-100">
-            <tr>
-                <td>
-                    <figure class="figure mt-4 mx-4">
-                        <img src="{{ $company->logo }}" class="figure-img img-fluid" />
-                        <figcaption class="figure-caption">
-                            <strong>{{ $company->name }}</strong> <br /><strong>NIT:</strong>
-                            {{ $company->document_number }}-{{ $company->verification_digit }}
-                        </figcaption>
-                    </figure>
-                </td>
-                <td>
-                    <div class="text-right mx-4">
-                        <h2 class="text-primary mb-0">Certificación laboral</h2>
-                        {{-- <h2 class=my-0>{{ $datosCabecera->Codigo }}</h2>
-                        <h3 class=my-0>{{ $datosCabecera->Fecha }}</h3>
-                        <small>{{ $datosCabecera->CodigoFormato }}</small> --}}
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </header>
     <div class="body-certificate">
         <p style="font-size:16px;font-weight:bold;">
             Girón,

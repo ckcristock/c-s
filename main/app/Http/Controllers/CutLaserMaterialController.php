@@ -24,9 +24,9 @@ class CutLaserMaterialController extends Controller
                     $query->where('Nombre_Comercial', 'like', "%$fill%");
                 });
             })
-            ->when($request->limit, function ($query) {
+            /* ->when($request->limit, function ($query) {
                 return $query->limit(10);
-            })
+            }) */
             ->get()
             ->transform(function ($material) {
                 $material->name = strtoupper($material->product->name);

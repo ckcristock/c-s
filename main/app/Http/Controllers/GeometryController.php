@@ -25,9 +25,9 @@ class GeometryController extends Controller
             ->when($request->name, function ($q, $fill) {
                 $q->where('name', 'like', '%' . $fill . '%');
             })
-            ->when($request->limit, function ($query) {
+            /* ->when($request->limit, function ($query) {
                 return $query->limit(10);
-            })
+            }) */
             ->get(['id', 'image', 'weight_formula', DB::raw('UPPER(name) AS text'), 'id As value']));
     }
 

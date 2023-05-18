@@ -1,7 +1,4 @@
 <style>
-    * {
-        font-family: 'Roboto', sans-serif;
-    }
 
     table {
         border-collapse: collapse;
@@ -17,9 +14,11 @@
         width: 100%;
         font-size: 9px;
     }
+
     .div-small td {
         font-size: 7px;
     }
+
     .div-small {
         width: 100%;
         font-size: 7px;
@@ -92,7 +91,7 @@
         text-align: left
     }
 
-    .text-uppercase{
+    .text-uppercase {
         text-transform: uppercase
     }
 </style>
@@ -107,17 +106,21 @@
             <strong>Destino:</strong>
             {{ optional($data->destiny)->name }}
         </div>
-        <div class="blocks">
-            <strong>Proyecto:</strong>
-            {{ $data->project }}
-        </div>
+
     </div>
     <div class="div">
         <div class="blocks-50">
+            <strong>Proyecto:</strong>
+            {{ $data->project }}
+        </div>
+        <div class="blocks">
             <strong>Linea:</strong>
             {{ $data->line }}
         </div>
-        <div class="blocks">
+
+    </div>
+    <div class="div">
+        <div class="blocks-50">
             <strong>TRM:</strong>
             @money($data->trm)
         </div>
@@ -128,7 +131,7 @@
         <thead>
             <tr>
                 <th class="text-center" colspan="2">
-                    <h5>% DE CONFIGURACIÓN PRESUPUESTAL</h5>
+                    <h4>% DE CONFIGURACIÓN PRESUPUESTAL</h4>
                 </th>
             </tr>
         </thead>
@@ -145,18 +148,14 @@
         </tbody>
     </table>
     <!--  END  Configuracion presupuestal -->
-
-    <table class="div mt-1">
-        <tbody>
-            <tr>
-                <td><strong>OBSERVACIONES</strong></td>
-            </tr>
-            <tr>
-                <td>
-                    {{ isset($data->observation) ? $data->observation : 'No existen observaciones.' }}
-            </tr>
-        </tbody>
-    </table>
+    <div class="div mt-1">
+        <div class="blocks-50">
+            <strong>Observaciones:</strong>
+        </div>
+        <div class="blocks-50">
+            {{ $data['observation'] ?? 'No existen observaciones.' }}
+        </div>
+    </div>
     <!-- ITEMS -->
     @include('pdf.utils.item_presupuesto_interno')
     <!-- ITEMS -->
@@ -166,19 +165,19 @@
             <tbody>
                 <tr>
                     <td>TOTAL COP</td>
-                    <td class="text-right"> @money($data->total_cop)</td>
+                    <td style="font-size: 13px;" class="text-right"> @money($data->total_cop)</td>
                 </tr>
                 <tr>
                     <td>TOTAL USD</td>
-                    <td class="text-right"> @money($data->total_usd)</td>
+                    <td style="font-size: 13px;" class="text-right"> @money($data->total_usd)</td>
                 </tr>
                 <tr>
                     <td>V/U VENTA PRORRATEADO COP</td>
-                    <td class="text-right"> @money($data->unit_value_prorrateado_cop)</td>
+                    <td style="font-size: 13px;" class="text-right"> @money($data->unit_value_prorrateado_cop)</td>
                 </tr>
                 <tr>
                     <td>V/U VENTA PRORRATEADO USD</td>
-                    <td class="text-right"> @money($data->unit_value_prorrateado_usd)</td>
+                    <td style="font-size: 13px;" class="text-right"> @money($data->unit_value_prorrateado_usd)</td>
                 </tr>
             </tbody>
         </table>
