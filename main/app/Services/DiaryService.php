@@ -66,12 +66,12 @@ class DiaryService
 			->selectRaw('
 			ROUND( (
 				TIMESTAMPDIFF(
-				SECOND,CONCAT(date," ",entry_time_one)
-				,CONCAT(leave_date," ",leave_time_one)
+				SECOND,CONCAT(la.date," ",la.entry_time_one)
+				,CONCAT(IFNULL(la.leave_date, la.date)," ",la.leave_time_one)
 				) -
 				IFNULL(TIMESTAMPDIFF(
-					SECOND,CONCAT(date," ",la.launch_time_one)
-					,CONCAT(leave_date," ",la.launch_time_two)
+					SECOND,CONCAT(la.date," ",la.launch_time_one)
+					,CONCAT(IFNULL(la.leave_date, la.date)," ",la.launch_time_two)
 				),0)
 			)
 			/3600 ,2 ) as working_hours')
