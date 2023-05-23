@@ -422,6 +422,7 @@ class BusinessController extends Controller
             'person_id' => auth()->user()->person_id,
             'description' => $person->full_names . ' ha editado el negocio.'
         ]);
+        return $this->success('Negocio editado');
     }
 
     /**
@@ -445,7 +446,16 @@ class BusinessController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            Business::find($id)->update($request->all());
+            $business = Business::find($id);
+            $business->update($request->all());
+            $person = Person::fullName()->find(auth()->user()->person_id);
+            $this->addEventToHistroy([
+                'business_id' => $business->id,
+                'icon' => 'fas fa-redo',
+                'title' => 'Se ha cambiado la etapa a ' . $request->status,
+                'person_id' => $person->id,
+                'description' => $person->full_names . ' ha cambiado la etapa del negocio.'
+            ]);
             return $this->success('Estado cambiado');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
