@@ -72,6 +72,10 @@
         width: 100%;
         font-size: 10px;
     }
+
+    .avoid {
+        page-break-inside: avoid;
+    }
 </style>
 @include('components/cabecera', [$company, $datosCabecera, $image])
 
@@ -128,173 +132,183 @@
 
 
 @if (count($data['setpartlist']) > 0)
-    <h6 class="mt-2 mb-0">LISTADO DE PIEZAS CONJUNTO</h6>
-    <table class="div table-border" cellpadding="0" cellspacing="0">
-        <thead>
-            <tr style="background:#E1EEC0;">
-                <th>Tipo</th>
-                <th>Descripción</th>
-                <th>Unidad</th>
-                <th>Cantidad</th>
-                <th>Costo unidario</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($data['setpartlist'] as $setpartlist)
-                <tr>
-                    <td style="text-align: center;"> {{ $setpartlist['apu_type'] }} </td>
-                    @if ($setpartlist['apu_type'] == 'P')
-                        <td style="text-align: center;"> {{ optional($setpartlist['apupart'])['name'] }} </td>
-                    @endif
-                    @if ($setpartlist['apu_type'] == 'C')
-                        <td style="text-align: center;"> {{ optional($setpartlist['apuset'])['name'] }} </td>
-                    @endif
-                    <td style="text-align: center;"> {{ optional($setpartlist['unit'])['name'] }} </td>
-                    <td style="text-align: center;"> {{ $setpartlist['amount'] }} </td>
-                    <td style="text-align: center;"> @money($setpartlist['unit_cost']) </td>
-                    <td style="text-align: right; padding-right: 5px"> @money($setpartlist['total']) </td>
+    <div class="avoid">
+        <h6 class="mt-2 mb-0">LISTADO DE PIEZAS CONJUNTO</h6>
+        <table class="div table-border" cellpadding="0" cellspacing="0">
+            <thead>
+                <tr style="background:#E1EEC0;">
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Unidad</th>
+                    <th>Cantidad</th>
+                    <th>Costo unidario</th>
+                    <th>Total</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="row">
-        <div class="text-right" style="font-size: 13px;">
-            <strong>SUBTOTAL: </strong>
-            @money($data['list_pieces_sets_subtotal'])
+            </thead>
+            <tbody>
+                @foreach ($data['setpartlist'] as $setpartlist)
+                    <tr>
+                        <td style="text-align: center;"> {{ $setpartlist['apu_type'] }} </td>
+                        @if ($setpartlist['apu_type'] == 'P')
+                            <td style="text-align: center;"> {{ optional($setpartlist['apupart'])['name'] }} </td>
+                        @endif
+                        @if ($setpartlist['apu_type'] == 'C')
+                            <td style="text-align: center;"> {{ optional($setpartlist['apuset'])['name'] }} </td>
+                        @endif
+                        <td style="text-align: center;"> {{ optional($setpartlist['unit'])['name'] }} </td>
+                        <td style="text-align: center;"> {{ $setpartlist['amount'] }} </td>
+                        <td style="text-align: center;"> @money($setpartlist['unit_cost']) </td>
+                        <td style="text-align: right; padding-right: 5px"> @money($setpartlist['total']) </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="text-right" style="font-size: 13px;">
+                <strong>SUBTOTAL: </strong>
+                @money($data['list_pieces_sets_subtotal'])
+            </div>
         </div>
     </div>
 @endif
 
 @if (count($data['machine']) > 0)
-    <h6 class="mt-1 mb-0" style="text-transform: uppercase">Máquinas herramientas</h6>
-    <table class="div table-border" cellpadding="0" cellspacing="0">
-        <thead>
-            <tr style="background:#E1EEC0;">
-                <th>Descripción</th>
-                <th>Unidad</th>
-                <th>Cantidad</th>
-                <th>Costo unitario</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($data['machine'] as $machine)
-                <tr>
-                    <td style="text-align: center;"> {{ optional($machine['machine'])['name'] }} </td>
-                    <td style="text-align: center;"> {{ optional($machine['unit'])['name'] }} </td>
-                    <td style="text-align: center;"> {{ $machine['amount'] }} </td>
-                    <td style="text-align: right; padding-right: 5px"> @money($machine['unit_cost']) </td>
-                    <td style="text-align: right; padding-right: 5px"> @money($machine['total']) </td>
+    <div class="avoid">
+        <h6 class="mt-1 mb-0" style="text-transform: uppercase">Máquinas herramientas</h6>
+        <table class="div table-border" cellpadding="0" cellspacing="0">
+            <thead>
+                <tr style="background:#E1EEC0;">
+                    <th>Descripción</th>
+                    <th>Unidad</th>
+                    <th>Cantidad</th>
+                    <th>Costo unitario</th>
+                    <th>Total</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="row">
-        <div class="text-right" style="font-size: 13px;">
-            <strong>SUBTOTAL: </strong>
-            @money($data['machine_tools_subtotal'])
+            </thead>
+            <tbody>
+                @foreach ($data['machine'] as $machine)
+                    <tr>
+                        <td style="text-align: center;"> {{ optional($machine['machine'])['name'] }} </td>
+                        <td style="text-align: center;"> {{ optional($machine['unit'])['name'] }} </td>
+                        <td style="text-align: center;"> {{ $machine['amount'] }} </td>
+                        <td style="text-align: right; padding-right: 5px"> @money($machine['unit_cost']) </td>
+                        <td style="text-align: right; padding-right: 5px"> @money($machine['total']) </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="text-right" style="font-size: 13px;">
+                <strong>SUBTOTAL: </strong>
+                @money($data['machine_tools_subtotal'])
+            </div>
         </div>
     </div>
 @endif
 
 @if (count($data['internal']) > 0)
-    <h6 class="mt-1 mb-0" style="text-transform: uppercase">Procesos internos</h6>
-    <table class="div table-border" cellpadding="0" cellspacing="0">
-        <thead>
-            <tr style="background:#E1EEC0;">
-                <th>Descripción</th>
-                <th>Unidad</th>
-                <th>Cantidad</th>
-                <th>Costo unitario</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($data['internal'] as $internal)
-                <tr>
-                    <td style="text-align: center;"> {{ optional($internal['internal'])['name'] }} </td>
-                    <td style="text-align: center;"> {{ optional($internal['unit'])['name'] }} </td>
-                    <td style="text-align: center;"> {{ $internal['amount'] }} </td>
-                    <td style="text-align: right; padding-right: 5px"> @money($internal['unit_cost']) </td>
-                    <td style="text-align: right; padding-right: 5px"> @money($internal['total']) </td>
+    <div class="avoid">
+        <h6 class="mt-1 mb-0" style="text-transform: uppercase">Procesos internos</h6>
+        <table class="div table-border" cellpadding="0" cellspacing="0">
+            <thead>
+                <tr style="background:#E1EEC0;">
+                    <th>Descripción</th>
+                    <th>Unidad</th>
+                    <th>Cantidad</th>
+                    <th>Costo unitario</th>
+                    <th>Total</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="row">
-        <div class="text-right" style="font-size: 13px;">
-            <strong>SUBTOTAL: </strong>
-            @money($data['internal_proccesses_subtotal'])
+            </thead>
+            <tbody>
+                @foreach ($data['internal'] as $internal)
+                    <tr>
+                        <td style="text-align: center;"> {{ optional($internal['internal'])['name'] }} </td>
+                        <td style="text-align: center;"> {{ optional($internal['unit'])['name'] }} </td>
+                        <td style="text-align: center;"> {{ $internal['amount'] }} </td>
+                        <td style="text-align: right; padding-right: 5px"> @money($internal['unit_cost']) </td>
+                        <td style="text-align: right; padding-right: 5px"> @money($internal['total']) </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="text-right" style="font-size: 13px;">
+                <strong>SUBTOTAL: </strong>
+                @money($data['internal_proccesses_subtotal'])
+            </div>
         </div>
     </div>
 @endif
 
 @if (count($data['external']) > 0)
-    <h6 class="mt-1 mb-0" style="text-transform: uppercase">Procesos externos</h6>
-    <table class="div table-border" cellpadding="0" cellspacing="0">
-        <thead>
-            <tr style="background:#E1EEC0;">
-                <th>Descripción</th>
-                <th>Unidad</th>
-                <th>Cantidad</th>
-                <th>Costo unitario</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($data['external'] as $external)
-                <tr>
-                    <td style="text-align: center;"> {{ optional($external['external'])['name'] }} </td>
-                    <td style="text-align: center;"> {{ optional($external['unit'])['name'] }} </td>
-                    <td style="text-align: center;"> {{ $external['amount'] }} </td>
-                    <td style="text-align: right; padding-right: 5px"> @money($external['unit_cost']) </td>
-                    <td style="text-align: right; padding-right: 5px"> @money($external['total']) </td>
+    <div class="avoid">
+        <h6 class="mt-1 mb-0" style="text-transform: uppercase">Procesos externos</h6>
+        <table class="div table-border" cellpadding="0" cellspacing="0">
+            <thead>
+                <tr style="background:#E1EEC0;">
+                    <th>Descripción</th>
+                    <th>Unidad</th>
+                    <th>Cantidad</th>
+                    <th>Costo unitario</th>
+                    <th>Total</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="row">
-        <div class="text-right" style="font-size: 13px;">
-            <strong>SUBTOTAL: </strong>
-            @money($data['external_proccesses_subtotal'])
+            </thead>
+            <tbody>
+                @foreach ($data['external'] as $external)
+                    <tr>
+                        <td style="text-align: center;"> {{ optional($external['external'])['name'] }} </td>
+                        <td style="text-align: center;"> {{ optional($external['unit'])['name'] }} </td>
+                        <td style="text-align: center;"> {{ $external['amount'] }} </td>
+                        <td style="text-align: right; padding-right: 5px"> @money($external['unit_cost']) </td>
+                        <td style="text-align: right; padding-right: 5px"> @money($external['total']) </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="text-right" style="font-size: 13px;">
+                <strong>SUBTOTAL: </strong>
+                @money($data['external_proccesses_subtotal'])
+            </div>
         </div>
     </div>
 @endif
 
 @if (count($data['other']) > 0)
-    <h6 class="mt-1 mb-0" style="text-transform: uppercase">Otros</h6>
-    <table class="div table-border" cellpadding="0" cellspacing="0">
-        <thead>
-            <tr style="background:#E1EEC0;">
-                <th>Descripción</th>
-                <th>Unidad</th>
-                <th>Cantidad</th>
-                <th>Costo unitario</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($data['other'] as $other)
-                <tr>
-                    <td style="text-align: center;"> {{ $other['description'] }} </td>
-                    <td style="text-align: center;"> {{ optional($other['unit'])['name'] }} </td>
-                    <td style="text-align: center;"> {{ $other['amount'] }} </td>
-                    <td style="text-align: right; padding-right: 5px"> @money($other['unit_cost']) </td>
-                    <td style="text-align: right; padding-right: 5px"> @money($other['total']) </td>
+    <div class="avoid">
+        <h6 class="mt-1 mb-0" style="text-transform: uppercase">Otros</h6>
+        <table class="div table-border" cellpadding="0" cellspacing="0">
+            <thead>
+                <tr style="background:#E1EEC0;">
+                    <th>Descripción</th>
+                    <th>Unidad</th>
+                    <th>Cantidad</th>
+                    <th>Costo unitario</th>
+                    <th>Total</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="row">
-        <div class="text-right" style="font-size: 13px;">
-            <strong>SUBTOTAL: </strong>
-            @money($data['others_subtotal'])
+            </thead>
+            <tbody>
+                @foreach ($data['other'] as $other)
+                    <tr>
+                        <td style="text-align: center;"> {{ $other['description'] }} </td>
+                        <td style="text-align: center;"> {{ optional($other['unit'])['name'] }} </td>
+                        <td style="text-align: center;"> {{ $other['amount'] }} </td>
+                        <td style="text-align: right; padding-right: 5px"> @money($other['unit_cost']) </td>
+                        <td style="text-align: right; padding-right: 5px"> @money($other['total']) </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="text-right" style="font-size: 13px;">
+                <strong>SUBTOTAL: </strong>
+                @money($data['others_subtotal'])
+            </div>
         </div>
     </div>
 @endif
 
-<table class="mt-1">
+<table class="mt-1 avoid">
     <tbody>
         <tr>
             <td style="vertical-align: top !important; padding-right: 20px">

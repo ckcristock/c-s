@@ -191,7 +191,7 @@ class BusinessController extends Controller
                 }
             }
             sumConsecutive('businesses');
-            return $this->success('Creado con éxito');
+            return $this->success($business);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -422,7 +422,7 @@ class BusinessController extends Controller
             'person_id' => auth()->user()->person_id,
             'description' => $person->full_names . ' ha editado el negocio.'
         ]);
-        return $this->success('Negocio editado');
+        return $this->success($business);
     }
 
     /**

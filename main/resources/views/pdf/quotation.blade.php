@@ -48,6 +48,9 @@
     .align-bottom {
         vertical-align: bottom !important;
     }
+    .avoid {
+        page-break-inside: avoid;
+    }
 </style>
 <h5 class="mb-0">Señores:</h5>
 <div style="font-size: 12px">
@@ -61,7 +64,7 @@
     {{ strtoupper($data['description']) }}
 </div>
 @if (count($data['items']) > 0)
-    <table class="div table-border">
+    <table class="div table-border avoid">
         <thead>
             <tr style="background:#E1EEC0;">
                 <th>#</th>
@@ -120,7 +123,7 @@
         </tbody>
     </table>
 @endif
-<div class="d-flex justify-content-end">
+<div class="d-flex justify-content-end avoid">
     @if ($data['money_type'] == 'cop')
         <h5>TOTAL SIN IVA: @money($data['total_cop'])</h5>
     @endif

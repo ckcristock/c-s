@@ -79,6 +79,9 @@
     .text-left {
         text-align: left
     }
+    .avoid {
+        page-break-inside: avoid;
+    }
 </style>
 @include('components/cabecera', [$company, $datosCabecera, $image])
 <div class="div">
@@ -109,7 +112,7 @@
         @money($data->trm)
     </div>
 </div>
-<div class="div mt-1">
+<div class="div mt-1 avoid">
     <div class="blocks-50">
         <strong>Observaciones:</strong>
     </div>
@@ -121,7 +124,7 @@
 @include('pdf.utils.item_presupuesto')
 <!-- ITEMS -->
 
-<table class="div mt-4">
+<table class="div mt-4 avoid">
     <tbody>
         @if ($currency == 'cop')
             <tr>

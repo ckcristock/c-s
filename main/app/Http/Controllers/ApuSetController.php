@@ -196,7 +196,8 @@ class ApuSetController extends Controller
         $others = request()->get("others");
         $indirect_cost = request()->get("indirect_cost");
         try {
-            ApuSet::find($id)->update($data);
+            $apuset = ApuSet::find($id);
+            $apuset->update($data);
             if ($files) {
                 foreach ($files as $file) {
                     if ($file['type'] == 'image/jpeg' || $file['type'] == 'image/jpg' || $file['type'] == 'image/png') {
@@ -257,7 +258,7 @@ class ApuSetController extends Controller
                     ApuSetIndirectCost::create($ic);
                 }
             }
-            return $this->success('Creado con éxito');
+            return $this->success($apuset);
         } catch (\Throwable $th) {
 
             return $this->error($th->getMessage(), 500);

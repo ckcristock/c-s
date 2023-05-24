@@ -296,7 +296,7 @@ class BudgetController extends Controller
                 }
             }
 
-            return $this->success('Actualizado con éxito');
+            return $this->success($budgetDb);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

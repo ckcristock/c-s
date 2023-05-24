@@ -54,7 +54,10 @@ class ThirdPartyPersonController extends Controller
 
     public function getThirdPartyPersonIndex()
     {
-        return $this->success(ThirdPartyPerson::get(['*', 'id as value', 'name as text']));
+        return $this->success(
+            ThirdPartyPerson::selectRaw('*, id as value, UPPER(name) as text')
+                ->get()
+        );
     }
 
     /**
