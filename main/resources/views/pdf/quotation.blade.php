@@ -61,64 +61,64 @@
     {{ strtoupper($data['description']) }}
 </div>
 @if (count($data['items']) > 0)
-<table class="div table-border">
-    <thead>
-        <tr style="background:#E1EEC0;">
-            <th>#</th>
-            <th>Descripción</th>
-            <th>Cantidad</th>
-            <th>Valor unitario</th>
-            <th>Valor total</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($data['items'] as $key => $item)
-            <tr class="text-center">
-                <td>{{ $key + 1 }}</td>
-                <td class="text-left">
-                    {!! $item['name'] !!}
-
-                </td>
-                <td>{{ $item['cuantity'] }}</td>
-                @if ($data['money_type'] == 'cop')
-                    <td class="text-right">@money($item['value_cop'])</td>
-                    <td class="text-right">@money($item['total_cop'])</td>
-                @endif
-                @if ($data['money_type'] == 'usd')
-                    <td class="text-right">USD @money($item['value_usd'])</td>
-                    <td class="text-right">USD @money($item['total_usd'])</td>
-                @endif
+    <table class="div table-border">
+        <thead>
+            <tr style="background:#E1EEC0;">
+                <th>#</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Valor unitario</th>
+                <th>Valor total</th>
             </tr>
-            @if (count($item['subItems']) > 0)
-                @foreach ($item['subItems'] as $key2 => $subitem)
-                    <tr>
-                        <td class="text-center">{{ $key + 1 }}.{{ $key2 + 1 }}</td>
-                        <td>
-                            <div>{!! $subitem['description'] !!}</div>
-                        </td>
-                        <td class="text-center">{{ $subitem['cuantity'] }}</td>
-                        @if ($data['money_type'] == 'cop')
-                            <td class="text-right">
-                                @money($subitem['value_cop'])
+        </thead>
+        <tbody>
+            @foreach ($data['items'] as $key => $item)
+                <tr class="text-center">
+                    <td>{{ $key + 1 }}</td>
+                    <td class="text-left">
+                        {!! $item['name'] !!}
+
+                    </td>
+                    <td>{{ $item['cuantity'] }}</td>
+                    @if ($data['money_type'] == 'cop')
+                        <td class="text-right">@money($item['value_cop'])</td>
+                        <td class="text-right">@money($item['total_cop'])</td>
+                    @endif
+                    @if ($data['money_type'] == 'usd')
+                        <td class="text-right">USD @money($item['value_usd'])</td>
+                        <td class="text-right">USD @money($item['total_usd'])</td>
+                    @endif
+                </tr>
+                @if (count($item['subItems']) > 0)
+                    @foreach ($item['subItems'] as $key2 => $subitem)
+                        <tr>
+                            <td class="text-center">{{ $key + 1 }}.{{ $key2 + 1 }}</td>
+                            <td>
+                                <div>{!! $subitem['description'] !!}</div>
                             </td>
-                            <td class="text-right">
-                                @money($subitem['total_cop'])
-                            </td>
-                        @endif
-                        @if ($data['money_type'] == 'usd')
-                            <td class="text-right">
-                                USD @money($subitem['value_usd'])
-                            </td>
-                            <td class="text-right">
-                                USD @money($subitem['total_usd'])
-                            </td>
-                        @endif
-                    </tr>
-                @endforeach
-            @endif
-        @endforeach
-    </tbody>
-</table>
+                            <td class="text-center">{{ $subitem['cuantity'] }}</td>
+                            @if ($data['money_type'] == 'cop')
+                                <td class="text-right">
+                                    @money($subitem['value_cop'])
+                                </td>
+                                <td class="text-right">
+                                    @money($subitem['total_cop'])
+                                </td>
+                            @endif
+                            @if ($data['money_type'] == 'usd')
+                                <td class="text-right">
+                                    USD @money($subitem['value_usd'])
+                                </td>
+                                <td class="text-right">
+                                    USD @money($subitem['total_usd'])
+                                </td>
+                            @endif
+                        </tr>
+                    @endforeach
+                @endif
+            @endforeach
+        </tbody>
+    </table>
 @endif
 <div class="d-flex justify-content-end">
     @if ($data['money_type'] == 'cop')
@@ -131,12 +131,13 @@
 <div style="font-size: 10px;">{!! $data->commercial_terms !!}</div>
 <div style="font-size: 10px;">{!! $data->legal_requirements !!}</div>
 <div style="font-size: 10px;">{!! $data->technical_requirements !!}</div>
-<table class="div">
-    <tbody style="page-break-inside: avoid;">
+<table class="div" style="page-break-inside: avoid;">
+    <tbody>
         <tr>
             <th class="align-bottom" style="width: 50%"> <img src="{{ optional($creator)->signature }}"
                     style="max-width: 190px" /> </th>
-            <th class="align-bottom" style="width: 50%"><img src="{{ optional($approve)->signature }}" style="max-width: 190px" /></th>
+            <th class="align-bottom" style="width: 50%"><img src="{{ optional($approve)->signature }}"
+                    style="max-width: 190px" /></th>
         </tr>
         <tr>
             <th>{{ strtoupper(optional($creator)->full_names) }}</th>
