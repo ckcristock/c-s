@@ -19,7 +19,7 @@ class PreliquidatedLogController extends Controller
      */
     public function index(Request $request)
     {
-        
+
         try {
             $people_liq = Person::alias('p')
                 ->with('onePreliquidatedLog')
@@ -38,7 +38,7 @@ class PreliquidatedLogController extends Controller
                 })
                 ->fullName()
                 ->where('p.status', 'PreLiquidado')
-               ->paginate($request->get('pageSize', 10), ['*'], 'page', $request->get('page', 1));
+                ->paginate($request->get('pageSize', 10), ['*'], 'page', $request->get('page', 1));
 
             return $this->success($people_liq);
         } catch (\Throwable $th) {

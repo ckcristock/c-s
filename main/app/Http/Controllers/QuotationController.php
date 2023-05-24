@@ -200,17 +200,22 @@ class QuotationController extends Controller
         $company = Company::first();
         $image = $company->page_heading;
         $data = Quotation::where('id', $id)->with('municipality', 'client', 'items', 'third_person', 'activities')->first();
-        $creator = data_get($data, 'activities', [])
-            ->first(function ($activity) {
-                return data_get($activity, 'status') === 'Creación';
-            })
-            ->person;
+        $creator_aux = data_get($data, 'activities', [])->first(function ($activity) {
+            return data_get($activity, 'status') === 'Creación';
+        });
+        $creator = null; // Valor predeterminado si no se encuentra el creador
 
-        $approve = data_get($data, 'activities', [])
-            ->first(function ($activity) {
-                return data_get($activity, 'status') === 'Aprobación';
-            })
-            ->person;
+        if ($creator_aux && is_object($creator_aux)) {
+            $creator = data_get($creator_aux, 'person');
+        }
+        $approve_aux = data_get($data, 'activities', [])->first(function ($activity) {
+            return data_get($activity, 'status') === 'Aprobación';
+        });
+        $approve = null; // Valor predeterminado si no se encuentra el creador
+
+        if ($approve_aux && is_object($approve_aux)) {
+            $approve = data_get($approve_aux, 'person');
+        }
         $datosCabecera = (object) array(
             'Titulo' => 'Cotización',
             'Codigo' => $data->code,
