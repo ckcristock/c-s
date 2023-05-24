@@ -131,8 +131,8 @@
 <div style="font-size: 10px;">{!! $data->commercial_terms !!}</div>
 <div style="font-size: 10px;">{!! $data->legal_requirements !!}</div>
 <div style="font-size: 10px;">{!! $data->technical_requirements !!}</div>
-<table class="div ">
-    <thead>
+<table class="div">
+    <tbody style="page-break-inside: avoid;">
         <tr>
             <th class="align-bottom" style="width: 50%"> <img src="{{ optional($creator)->signature }}"
                     style="max-width: 190px" /> </th>
@@ -142,8 +142,6 @@
             <th>{{ strtoupper(optional($creator)->full_names) }}</th>
             <th>{{ strtoupper(optional($approve)->full_names) }}</th>
         </tr>
-    </thead>
-    <tbody>
         <tr>
             <td class="text-center">CREACIÓN</td>
             <td class="text-center">APROBACIÓN</td>
