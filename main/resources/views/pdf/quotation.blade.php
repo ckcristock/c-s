@@ -44,18 +44,23 @@
     .text-left {
         text-align: left;
     }
+
+    .align-bottom {
+        vertical-align: bottom !important;
+    }
 </style>
 <h5 class="mb-0">Señores:</h5>
 <div style="font-size: 12px">
-    {{ optional($data['client'])['social_reason'] ? optional($data['client'])['social_reason'] : optional($data['client'])['full_name'] }}
+    {{ optional($data['client'])['social_reason'] ? strtoupper(optional($data['client'])['social_reason']) : strtoupper(optional($data['client'])['full_name']) }}
     <br />
-    {{ optional($data['third_person'])['name'] }}
+    {{ strtoupper(optional($data['third_person'])['name']) }}
     <br>
-    <small style="font-size: 10px">{{ optional($data['municipality'])['name'] }}</small>
+    <small style="font-size: 10px">{{ strtoupper(optional($data['municipality'])['name']) }}</small>
 </div>
 <div class="alert alert-primary mt-1" role="alert">
-     {{ strtoupper($data['description']) }}
+    {{ strtoupper($data['description']) }}
 </div>
+@if (count($data['items']) > 0)
 <table class="div table-border">
     <thead>
         <tr style="background:#E1EEC0;">
@@ -114,6 +119,7 @@
         @endforeach
     </tbody>
 </table>
+@endif
 <div class="d-flex justify-content-end">
     @if ($data['money_type'] == 'cop')
         <h5>TOTAL SIN IVA: @money($data['total_cop'])</h5>
@@ -128,12 +134,13 @@
 <table class="div ">
     <thead>
         <tr>
-            <th> <img src="{{ $creator->signature }}" style="width: 300px" /> </th>
-            <th><img src="{{ $approve->signature }}" style="width: 300px"/></th>
+            <th class="align-bottom" style="width: 50%"> <img src="{{ optional($creator)->signature }}"
+                    style="max-width: 190px" /> </th>
+            <th class="align-bottom" style="width: 50%"><img src="{{ optional($approve)->signature }}" style="max-width: 190px" /></th>
         </tr>
         <tr>
-            <th>{{ $creator->full_names }}</th>
-            <th>{{ $approve->full_names }}</th>
+            <th>{{ strtoupper(optional($creator)->full_names) }}</th>
+            <th>{{ strtoupper(optional($approve)->full_names) }}</th>
         </tr>
     </thead>
     <tbody>
