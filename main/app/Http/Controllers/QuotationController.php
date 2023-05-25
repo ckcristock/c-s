@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alert;
 use App\Models\Company;
 use App\Models\Municipality;
 use App\Models\Quotation;
@@ -46,8 +47,12 @@ class QuotationController extends Controller
                 ->when($request->code, function ($q, $fill) {
                     $q->where('code', 'like', '%' . $fill . '%');
                 })
-                ->when($request->date_start, function ($q, $fill) use ($request) {
-                    $q->whereBetween('created_at', [$fill, $request->date_end]);
+                ->when($request->date_start, function ($q) use ($request) {
+                    $q->where(function ($query) use ($request) {
+                        $query->whereBetween('created_at', [$request->date_start, $request->date_end])
+                            ->orWhereDate('created_at', date($request->date_start))
+                            ->orWhereDate('created_at', date($request->date_end));
+                    });
                 })
                 ->when($request->status, function ($q, $fill) {
                     $q->where('status', $fill);
@@ -105,6 +110,15 @@ class QuotationController extends Controller
                 $subitem->subItems()->createMany($request->items[$index]['subItems']);
             }
             $this->addActivities($quotation->id, 'fas fa-plus', 'Cotización creada', '', 'Creación');
+            Alert::create([
+                'person_id' => auth()->user()->person_id,
+                'user_id' => 11530,
+                'modal' => 0,
+                'icon' => 'fas fa-file-alt',
+                'type' => 'Nueva cotización',
+                'url' => '/crm/cotizacion/ver/' . $quotation->id,
+                'description' => 'Se ha agregado una nueva cotización para ser revisada y aprobada'
+            ]);
         } else {
             $deleted = QuotationItem::where('quotation_id', $quotation->id)->pluck('id');
             QuotationItemSubitem::whereIn('quotation_item_id', $deleted)->delete();

@@ -65,9 +65,11 @@ class BusinessController extends Controller
                     $q->where('business_type_id', $fill);
                 })
                 ->when($request->date_start, function ($q) use ($request) {
-                    $q->whereBetween('date', [$request->date_start, $request->date_end])
-                        ->orWhereDate('date', date($request->date_start))
-                        ->orWhereDate('date', date($request->date_end));
+                    $q->where(function ($query) use ($request) {
+                        $query->whereBetween('date', [$request->date_start, $request->date_end])
+                              ->orWhereDate('date', date($request->date_start))
+                              ->orWhereDate('date', date($request->date_end));
+                    });
                 })
                 ->when($request->company_name, function ($q, $fill) {
                     return $q->whereHas('thirdParty', function ($q) use ($fill) {

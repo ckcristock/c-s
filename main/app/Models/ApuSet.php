@@ -104,9 +104,11 @@ class ApuSet extends Model
                 $q->where('machine_name', 'like', "%$fill%");
             })
             ->when($request->date_one, function ($q) use ($request) {
-                $q->whereBetween('created_at', [$request->date_one, $request->date_two])
-                    ->orWhereDate('created_at', date($request->date_one))
-                    ->orWhereDate('created_at', date($request->date_two));
+                $q->where(function ($query) use ($request) {
+                    $query->whereBetween('created_at', [$request->date_one, $request->date_two])
+                          ->orWhereDate('created_at', date($request->date_one))
+                          ->orWhereDate('created_at', date($request->date_two));
+                });
             });
     }
 
