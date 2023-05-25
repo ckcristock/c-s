@@ -106,7 +106,13 @@ class ApuController extends Controller
                     $query->where('social_reason', 'like', "%$fill%");
                 });
             });
-        if ($request->type_multiple == 'pyc') {
+        if ($request->type_multiple == 'pieza') {
+            $query_total = $query;
+        } else if ($request->type_multiple == 'conjunto') {
+            $query_total = $querySets;
+        } else if ($request->type_multiple == 'servicio') {
+            $query_total = $queryService;
+        } else if ($request->type_multiple == 'pyc') {
             $query_total = $query->union($querySets);
         } else {
             $query_total = $queryService

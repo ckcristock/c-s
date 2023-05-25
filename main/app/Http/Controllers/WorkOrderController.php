@@ -27,42 +27,43 @@ class WorkOrderController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function paginate(Request $request)
-    {
-        return $this->success(
-            WorkOrder::with('city', 'third_party', 'third_party_person')
-                ->when($request->city, function ($q, $fill) {
-                    $q->whereHas('city', function ($query) use ($fill) {
-                        $query->where('name', 'like', "%$fill%");
-                    });
-                })
-                ->when($request->client, function ($q, $fill) {
-                    $q->whereHas('client', function ($query) use ($fill) {
-                        $query->where('social_reason', 'like', "%$fill%");
-                    });
-                })
-                ->when($request->code, function ($q, $fill) {
-                    $q->where('code', 'like', "%$fill%");
-                })
-                ->when($request->description, function ($q, $fill) {
-                    $q->where('description', 'like', "%$fill%");
-                })
-                ->when($request->observation, function ($q, $fill) {
-                    $q->where('observation', 'like', "%$fill%");
-                })
-                /* ->when($request->status, function ($q, $fill) {
-                    $q->where('status', $fill);
-                }) */
-                ->when($request->start_date, function ($q, $fill) use ($request) {
-                    $q->whereBetween('date', [$fill, $request->date_end]);
-                })
-                ->when($request->start_delivery_date, function ($q, $fill) use ($request) {
-                    $q->whereBetween('delivery_date', [$fill, $request->end_delivery_date]);
-                })
-                ->orderByDesc('created_at')
-                ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
-        );
-    }
+     public function paginate(Request $request)
+     {
+         $pageSize = $request->get('pageSize', 10);
+         $page = $request->get('page', 1);
+
+         $workOrdersQuery = WorkOrder::with('city.department_', 'third_party', 'third_party_person')
+             ->when($request->city, function ($q, $fill) {
+                 $q->whereHas('city', function ($query) use ($fill) {
+                     $query->where('name', 'like', "%$fill%");
+                 });
+             })
+             ->when($request->client, function ($q, $fill) {
+                 $q->whereHas('client', function ($query) use ($fill) {
+                     $query->where('social_reason', 'like', "%$fill%");
+                 });
+             })
+             ->when($request->code, function ($q, $fill) {
+                 $q->where('code', 'like', "%$fill%");
+             })
+             ->when($request->description, function ($q, $fill) {
+                 $q->where('description', 'like', "%$fill%");
+             })
+             ->when($request->observation, function ($q, $fill) {
+                 $q->where('observation', 'like', "%$fill%");
+             })
+             ->when($request->start_date, function ($q, $fill) use ($request) {
+                 $q->whereBetween('date', [$fill, $request->date_end]);
+             })
+             ->when($request->start_delivery_date, function ($q, $fill) use ($request) {
+                 $q->whereBetween('delivery_date', [$fill, $request->end_delivery_date]);
+             })
+             ->orderByDesc('created_at');
+
+         $workOrders = $workOrdersQuery->paginate($pageSize, ['*'], 'page', $page);
+
+         return $this->success($workOrders);
+     }
 
 
     public function getLastId()
@@ -77,27 +78,28 @@ class WorkOrderController extends Controller
     }
 
     public function forStage(Request $request)
-    {
-        $wo = WorkOrder::with('city', 'third_party', 'third_party_person', 'engineering')
-            ->when($request->status, function ($q, $fill) {
-                if ($fill == 'ingenieria') {
-                    $q->where('status', $fill);
-                    $q->whereHas('engineering', function ($query) {
-                        $query->where('status', 'completado');
-                    });
-                } else if ($fill == 'diseño') {
-                    $q->where('status', $fill);
-                    $q->whereHas('design', function ($query) {
-                        $query->where('status', 'completado');
-                    });
-                } else if ($fill == 'inicial') {
-                    $q->where('status', $fill);
-                }
-            })
-            ->orderBy('delivery_date', strval($request->orderBy))
-            ->get();
-        return $this->success($wo);
-    }
+{
+    $workOrders = WorkOrder::with('city', 'third_party', 'third_party_person', 'engineering')
+        ->when($request->status, function ($query, $status) {
+            if ($status == 'ingenieria') {
+                $query->where('status', $status);
+                $query->whereHas('engineering', function ($query) {
+                    $query->where('status', 'completado');
+                });
+            } else if ($status == 'diseño') {
+                $query->where('status', $status);
+                $query->whereHas('design', function ($query) {
+                    $query->where('status', 'completado');
+                });
+            } else if ($status == 'inicial') {
+                $query->where('status', $status);
+            }
+        })
+        ->orderBy('delivery_date', strval($request->orderBy))
+        ->get();
+
+    return $this->success($workOrders);
+}
 
     /**
      * Store a newly created resource in storage.

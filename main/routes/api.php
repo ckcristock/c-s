@@ -1,7 +1,5 @@
 <?php
-
 /* use App\Http\Controllers\AuthController; */
-
 use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\AccountPlanController;
 use App\Http\Controllers\ActaRecepcionController;
@@ -46,7 +44,6 @@ use App\Http\Controllers\DependencyController;
 use App\Http\Controllers\DianAddressController;
 use App\Http\Controllers\DisabilityLeaveController;
 use App\Http\Controllers\DisciplinaryProcessController;
-use App\Http\Controllers\DisplacementController;
 use App\Http\Controllers\DocumentTypesController;
 use App\Http\Controllers\DotationController;
 use App\Http\Controllers\DrivingLicenseController;
@@ -172,7 +169,6 @@ use App\Http\Controllers\SeveranceInterestPaymentController;
 use App\Http\Controllers\SeverancePaymentController;
 use App\Http\Controllers\TaskTypeController;
 use App\Http\Controllers\TipoActivoFijoController;
-use App\Http\Controllers\TipoDocumentoController;
 use App\Http\Controllers\WorkOrderBlueprintController;
 use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\WorkOrderDesignController;
@@ -180,21 +176,11 @@ use App\Http\Controllers\WorkOrderEngineeringController;
 use App\Http\Controllers\WorkOrderProductionController;
 use App\Models\Accommodation;
 use App\Models\Budget;
-use App\Models\Business;
-use App\Models\BusinessBudget;
-use App\Models\ComprobanteConsecutivo;
-use App\Models\Deduction;
-use App\Models\Loan;
-use App\Models\Person;
-use App\Models\PlanCuentas;
-use App\Models\PreliquidatedLog;
-use App\Models\ThirdParty;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
-
 use App\Services\ExtraHoursService; //eliminar este
 
 /*

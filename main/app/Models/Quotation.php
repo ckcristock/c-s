@@ -69,8 +69,6 @@ class Quotation extends Model
         return $q->select('*', DB::raw('description as name', 'id as value'));
     }
 
-
-
     public static function getTableName()
     {
         return (new self())->getTable();

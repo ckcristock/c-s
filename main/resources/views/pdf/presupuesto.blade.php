@@ -94,6 +94,9 @@
     .text-uppercase {
         text-transform: uppercase
     }
+    .avoid {
+        page-break-inside: avoid;
+    }
 </style>
 @include('components/cabecera', [$company, $datosCabecera, $image])
 <div class="page-content">
@@ -127,7 +130,7 @@
     </div>
 
     <!-- Configuracion presupuestal -->
-    <table class="div mt-4">
+    <table class="div mt-4 avoid">
         <thead>
             <tr>
                 <th class="text-center" colspan="2">
@@ -148,7 +151,7 @@
         </tbody>
     </table>
     <!--  END  Configuracion presupuestal -->
-    <div class="div mt-1">
+    <div class="div mt-1 avoid">
         <div class="blocks-50">
             <strong>Observaciones:</strong>
         </div>
@@ -160,7 +163,7 @@
     @include('pdf.utils.item_presupuesto_interno')
     <!-- ITEMS -->
 
-    <div class="div mt-4">
+    <div class="div mt-4 avoid">
         <table class="table table-sm table-striped">
             <tbody>
                 <tr>

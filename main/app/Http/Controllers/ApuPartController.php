@@ -216,7 +216,8 @@ class ApuPartController extends Controller
             $external_proccesses = request()->get("external_proccesses");
             $others = request()->get("others");
             $indirect_cost = request()->get("indirect_cost");
-            ApuPart::find($id)->update($data);
+            $apu = ApuPart::find($id);
+            $apu->update($data);
             if ($files) {
                 foreach ($files as $file) {
                     if ($file['type'] == 'image/jpeg' || $file['type'] == 'image/jpg' || $file['type'] == 'image/png') {
@@ -313,7 +314,7 @@ class ApuPartController extends Controller
                     ApuPartIndirectCost::create($icost);
                 }
             }
-            return $this->success("guardado con éxito");
+            return $this->success($apu);
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage() . ' ' . $th->getLine(), $th->getFile(), 500);
         }

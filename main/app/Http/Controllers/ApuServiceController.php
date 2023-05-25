@@ -274,8 +274,8 @@ class ApuServiceController extends Controller
             $c_me_calculate_labor = request()->get("c_me_calculate_labor");
             $c_vd_calculate_labor = request()->get("c_vd_calculate_labor");
 
-            ApuService::find($id)->update($data);
-
+            $apuservice = ApuService::find($id);
+            $apuservice->update($data);
             $apuServiceDimensionalValidation =  ApuServiceDimensionalValidation::where("apu_service_id", $id)->get();
             foreach ($apuServiceDimensionalValidation as $value) {
                 ApuServiceTravelEstimationDimensionalValidation::where("apu_service_dimensional_validation_id",  $value["id"])->delete();
@@ -372,7 +372,7 @@ class ApuServiceController extends Controller
                 }
             }
 
-            return $this->success('Actualizado con éxito');
+            return $this->success($apuservice);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
