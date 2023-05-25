@@ -51,6 +51,11 @@
     .avoid {
         page-break-inside: avoid;
     }
+
+    .mx-2 {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
 </style>
 <h5 class="mb-0">Señores:</h5>
 <div style="font-size: 12px">
@@ -78,41 +83,41 @@
             @foreach ($data['items'] as $key => $item)
                 <tr class="text-center">
                     <td>{{ $key + 1 }}</td>
-                    <td class="text-left">
+                    <td class="text-left mx-2">
                         {!! $item['name'] !!}
 
                     </td>
                     <td>{{ $item['cuantity'] }}</td>
                     @if ($data['money_type'] == 'cop')
-                        <td class="text-right">@money($item['value_cop'])</td>
-                        <td class="text-right">@money($item['total_cop'])</td>
+                        <td class="text-right mx-2">@money($item['value_cop'])</td>
+                        <td class="text-right mx-2">@money($item['total_cop'])</td>
                     @endif
                     @if ($data['money_type'] == 'usd')
-                        <td class="text-right">USD @money($item['value_usd'])</td>
-                        <td class="text-right">USD @money($item['total_usd'])</td>
+                        <td class="text-right mx-2">USD @money($item['value_usd'])</td>
+                        <td class="text-right mx-2">USD @money($item['total_usd'])</td>
                     @endif
                 </tr>
                 @if (count($item['subItems']) > 0)
                     @foreach ($item['subItems'] as $key2 => $subitem)
                         <tr>
                             <td class="text-center">{{ $key + 1 }}.{{ $key2 + 1 }}</td>
-                            <td>
+                            <td class="mx-2">
                                 <div>{!! $subitem['description'] !!}</div>
                             </td>
                             <td class="text-center">{{ $subitem['cuantity'] }}</td>
                             @if ($data['money_type'] == 'cop')
-                                <td class="text-right">
+                                <td class="text-right mx-2">
                                     @money($subitem['value_cop'])
                                 </td>
-                                <td class="text-right">
+                                <td class="text-right mx-2">
                                     @money($subitem['total_cop'])
                                 </td>
                             @endif
                             @if ($data['money_type'] == 'usd')
-                                <td class="text-right">
+                                <td class="text-right mx-2">
                                     USD @money($subitem['value_usd'])
                                 </td>
-                                <td class="text-right">
+                                <td class="text-right mx-2">
                                     USD @money($subitem['total_usd'])
                                 </td>
                             @endif
@@ -131,8 +136,15 @@
         <h5>TOTAL: @money($data['total_usd'])</h5>
     @endif
 </div>
+<div style="page-break-after:always;"></div>
 <div style="font-size: 10px;">{!! $data->commercial_terms !!}</div>
+@if ($data->legal_requirements)
+<div style="page-break-after:always;"></div>
+@endif
 <div style="font-size: 10px;">{!! $data->legal_requirements !!}</div>
+@if ($data->technical_requirements)
+<div style="page-break-after:always;"></div>
+@endif
 <div style="font-size: 10px;">{!! $data->technical_requirements !!}</div>
 <table class="div" style="page-break-inside: avoid;">
     <tbody>
