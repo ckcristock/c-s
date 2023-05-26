@@ -20,4 +20,9 @@ class WorkOrderElement extends Model
     {
         return $this->morphTo();
     }
+
+    public function getGroupedByCategoriaAttribute()
+    {
+        return $this->all()->groupBy('work_orderable_type');
+    }
 }

@@ -23,6 +23,6 @@ class Alert extends Model
 
     public function transmitter()
     {
-        return $this->hasOne(Person::class, 'id', 'person_id');
+        return $this->hasOne(Person::class, 'id', 'person_id')->fullName();
     }
 }

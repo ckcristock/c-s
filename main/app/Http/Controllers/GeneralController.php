@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewNotification;
 use Illuminate\Http\Request;
 use App\Http\Services\consulta;
+use App\Models\Alert;
 use App\Models\ElectronicPayroll;
 use App\Services\MarcationService;
 use App\Services\PersonService;
@@ -16,24 +18,7 @@ class GeneralController extends Controller
 
     public function pruebas()
     {
-        $hoy = date('Y-m-d');
-        $hactual = date("H:i:s");
-
-        $dias = array(
-            0 => "Domingo",
-            1 => "Lunes",
-            2 => "Martes",
-            3 => "Miercoles",
-            4 => "Jueves",
-            5 => "Viernes",
-            6 => "Sabado"
-        );
-        $candidato = 'e4e33943-2674-4ef1-b087-d766bc14409a';
-        $ayer = date("Y-m-d", strtotime(date("Y-m-d") . ' - 1 day'));
-        $funcionario = PersonService::funcionario_turno($candidato, $dias[date("w", strtotime($hoy))], $hoy, $ayer);
-        $rotativo_hoy = $funcionario->diariosTurnoRotativoHoy[0];
-        $durationLaunch = MarcationService::makeTime($hoy, $hactual, $rotativo_hoy->date, $rotativo_hoy->turnoRotativo->breack_time_two);
-        dd($funcionario);
+        event(new NewNotification('hola2'));
     }
 
     public function listaGenerales()
