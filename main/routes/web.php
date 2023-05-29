@@ -20,3 +20,4 @@ use Illuminate\Support\Facades\View;
 Route::get('/', function () {
     return view('mails.payroll_email');
 });
+

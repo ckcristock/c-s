@@ -52,11 +52,11 @@ class DepartmentController extends Controller
                 $dep = Department::find($request->id);
                 if ($dep->name != $request->name || $dep->country_id != $request->country_id || $dep->dian_code != $request->dian_code || $dep->dane_code != $request->dane_code) {
                     $validator = Department::where('name', $request->name)->where('country_id', $request->country_id)->where('id', '!=', $request->id)->exists();
-                    $validatorCode = Department::where('dian_code', $request->dian_code)->orWhere('dane_code', $request->dane_code)->where('id', '!=', $request->id)->exists();
+                    //$validatorCode = Department::where('dian_code', $request->dian_code)->orWhere('dane_code', $request->dane_code)->where('id', '!=', $request->id)->exists();
                 }
             } else {
                 $validator = Department::where('name', $request->name)->where('country_id', $request->country_id)->exists();
-                $validatorCode = Department::where('dian_code', $request->dian_code)->orWhere('dane_code', $request->dane_code)->exists();
+                //$validatorCode = Department::where('dian_code', $request->dian_code)->orWhere('dane_code', $request->dane_code)->exists();
             }
             if (!$validator && !$validatorCode){
                 $departamentos = Department::updateOrCreate(['id' => $request->get('id')], $request->all());
