@@ -92,11 +92,11 @@ class MunicipalityController extends Controller
                 $mun = Municipality::find($request->id);
                 if ($mun->name != $request->name || $mun->department_id != $request->department_id || $mun->dian_code != $request->dian_code || $mun->dane_code != $request->dane_code) {
                     $validator = Municipality::where('name', $request->name)->where('department_id', $request->department_id)->where('id', '!=', $request->id)->exists();
-                    $validatorCode = Municipality::where('dian_code', $request->dian_code)->orWhere('dane_code', $request->dane_code)->where('id', '!=', $request->id)->exists();
+                    //$validatorCode = Municipality::where('dian_code', $request->dian_code)->orWhere('dane_code', $request->dane_code)->where('id', '!=', $request->id)->exists();
                 }
             } else {
                 $validator = Municipality::where('name', $request->name)->where('department_id', $request->department_id)->exists();
-                $validatorCode = Municipality::where('dian_code', $request->dian_code)->orWhere('dane_code', $request->dane_code)->exists();
+                //$validatorCode = Municipality::where('dian_code', $request->dian_code)->orWhere('dane_code', $request->dane_code)->exists();
             }
             if (!$validator && !$validatorCode) {
                 $municipality = Municipality::updateOrCreate(['id' => $request->get('id')], $request->all());

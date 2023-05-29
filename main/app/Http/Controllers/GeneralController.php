@@ -18,7 +18,15 @@ class GeneralController extends Controller
 
     public function pruebas()
     {
-        event(new NewNotification('hola2'));
+        Alert::create([
+            'person_id' => 1,
+            'user_id' => 1,
+            'modal' => 0,
+            'icon' => 'fas fa-file-contract',
+            'type' => 'Finalización de contrato',
+            'description' => 'Tu contrato finalizará el día '
+        ]);
+        //event(new NewNotification('hola2'));
     }
 
     public function listaGenerales()

@@ -36,9 +36,4 @@ class NewNotification implements ShouldBroadcast
         //return new PrivateChannel('channel-name');
         return new Channel('notification');
     }
-
-    public function broadcastAs()
-    {
-        return 'notification';
-    }
 }

@@ -80,11 +80,11 @@ class CountryController extends Controller
                 $mun = Country::find($request->id);
                 if ($mun->name != $request->name || $mun->dian_code != $request->dian_code) {
                     $validator = Country::where('name', $request->name)->where('id', '!=', $request->id)->exists();
-                    $validatorCode = Country::where('dian_code', $request->dian_code)->where('id', '!=', $request->id)->exists();
+                    //$validatorCode = Country::where('dian_code', $request->dian_code)->where('id', '!=', $request->id)->exists();
                 }
             } else {
                 $validator = Country::where('name', $request->name)->exists();
-                $validatorCode = Country::where('dian_code', $request->dian_code)->exists();
+                //$validatorCode = Country::where('dian_code', $request->dian_code)->exists();
             }
             if (!$validator && !$validatorCode) {
                 $countries = Country::updateOrCreate(['id' => $request->get('id')], $request->all());
