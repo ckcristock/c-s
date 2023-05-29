@@ -622,6 +622,7 @@ Route::group(
         Route::get('bonuses-report/{anio}/{period}/{pagado}', [BonusController::class, 'reportBonus']);
         Route::get('bonus-stubs/{anio}/{period}', [BonusController::class, 'pdfGenerate']);
         Route::get('bonus-stub/{id}/{period}', [BonusPersonController::class, 'pdfGenerate']);
+        Route::get('mark-all-notifications-as-read', [AlertController::class, 'markAllAsRead']);
 
         Route::get('/dotations-type',  [DotationController::class, 'getDotationType']);
         Route::get('measure-active', [MeasureController::class, 'measureActive']);
