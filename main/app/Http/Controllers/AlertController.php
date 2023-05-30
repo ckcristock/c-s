@@ -52,6 +52,12 @@ class AlertController extends Controller
         );
     }
 
+    public function markAllAsRead() {
+        $person_id = auth()->user()->person_id;
+        Alert::where('read_boolean', 0)->where('user_id', $person_id)->update(['read_boolean' => 1]);
+        return $this->success('Todas las notificaciones han sido marcadas como leidas');
+    }
+
     public function paginate(Request $req)
     {
         $data = DB::table('alerts as a')

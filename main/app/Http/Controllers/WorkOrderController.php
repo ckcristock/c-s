@@ -129,9 +129,9 @@ class WorkOrderController extends Controller
         if (!$request->id) {
             if ($consecutive->city) {
                 $abbreviation = Municipality::where('id', $data['municipality_id'])->first()->abbreviation;
-                $data['code'] = generateConsecutive('quotations', $abbreviation);
+                $data['code'] = generateConsecutive('work_orders', $abbreviation);
             } else {
-                $data['code'] = generateConsecutive('quotations');
+                $data['code'] = generateConsecutive('work_orders');
             }
         }
         $updateOrCreate = WorkOrder::updateOrCreate(['id' => $request->id], $data);
