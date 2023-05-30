@@ -15,6 +15,7 @@ use App\Models\WorkOrder;
 use App\Models\WorkOrderElement;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class WorkOrderController extends Controller
 {
@@ -117,73 +118,36 @@ class WorkOrderController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->except('apu_parts', 'apu_services', 'apu_sets', 'budgets', 'business', 'quotations');
-        $apu_parts = $request->apu_parts;
-        $apu_services = $request->apu_services;
-        $apu_sets = $request->apu_sets;
-        $budgets = $request->budgets;
-        $business = $request->business;
-        $quotations = $request->quotations;
+        $data = $request->except([
+            'apu_parts', 'apu_services', 'apu_sets', 'budgets', 'business', 'quotations'
+        ]);
+
+        [$apu_parts, $apu_services, $apu_sets, $budgets, $business, $quotations] = [
+            $request->apu_parts, $request->apu_services, $request->apu_sets,
+            $request->budgets, $request->business, $request->quotations
+        ];
         $consecutive = getConsecutive('work_orders');
 
         if (!$request->id) {
-            if ($consecutive->city) {
-                $abbreviation = Municipality::where('id', $data['municipality_id'])->first()->abbreviation;
-                $data['code'] = generateConsecutive('work_orders', $abbreviation);
-            } else {
-                $data['code'] = generateConsecutive('work_orders');
+            $abbreviation = Municipality::where('id', $data['municipality_id'])->first()->abbreviation;
+            $data['code'] = generateConsecutive('work_orders', $consecutive->city ? $abbreviation : '');
+        }
+
+        $updateOrCreate = WorkOrder::updateOrCreate(['id' => $request->id], $data);
+        WorkOrderElement::where('work_order_id', $updateOrCreate->id)->delete();
+
+        foreach (compact('apu_parts', 'apu_services', 'apu_sets', 'budgets', 'business', 'quotations') as $key => $value) {
+            $className = 'App\\Models\\' . Str::studly(Str::singular($key));
+            foreach ($value as $item) {
+                WorkOrderElement::create([
+                    'work_order_id' => $updateOrCreate->id,
+                    'work_orderable_id' => $item['id'],
+                    'work_orderable_type' => $className,
+                ]);
             }
         }
-        $updateOrCreate = WorkOrder::updateOrCreate(['id' => $request->id], $data);
+
         if ($updateOrCreate->wasRecentlyCreated) {
-            foreach ($apu_parts as $apu_part) {
-                WorkOrderElement::create([
-                    'work_order_id' => $updateOrCreate->id,
-                    'work_orderable_id' => $apu_part['id'],
-                    'work_orderable_type' => ApuPart::class,
-                ]);
-            }
-
-            foreach ($apu_services as $apu_service) {
-                WorkOrderElement::create([
-                    'work_order_id' => $updateOrCreate->id,
-                    'work_orderable_id' => $apu_service['id'],
-                    'work_orderable_type' => ApuService::class,
-                ]);
-            }
-
-            foreach ($apu_sets as $apu_set) {
-                WorkOrderElement::create([
-                    'work_order_id' => $updateOrCreate->id,
-                    'work_orderable_id' => $apu_set['id'],
-                    'work_orderable_type' => ApuSet::class,
-                ]);
-            }
-
-            foreach ($budgets as $budget) {
-                WorkOrderElement::create([
-                    'work_order_id' => $updateOrCreate->id,
-                    'work_orderable_id' => $budget['id'],
-                    'work_orderable_type' => Budget::class,
-                ]);
-            }
-
-            foreach ($business as $business) {
-                WorkOrderElement::create([
-                    'work_order_id' => $updateOrCreate->id,
-                    'work_orderable_id' => $business['id'],
-                    'work_orderable_type' => Business::class,
-                ]);
-            }
-
-            foreach ($quotations as $quotation) {
-                WorkOrderElement::create([
-                    'work_order_id' => $updateOrCreate->id,
-                    'work_orderable_id' => $quotation['id'],
-                    'work_orderable_type' => Quotation::class,
-                ]);
-            }
-
             sumConsecutive('work_orders');
             $centroCosto = CentroCosto::create([
                 'Nombre' => $updateOrCreate->name,
@@ -198,8 +162,10 @@ class WorkOrderController extends Controller
                 'work_order_id' => $updateOrCreate->id
             ]);
         }
+
         return $this->success($request->all());
     }
+
 
     /**
      * Display the specified resource.
@@ -210,7 +176,7 @@ class WorkOrderController extends Controller
     public function show($id)
     {
         $workOrder = WorkOrder::with('third_party', 'third_party_person', 'quotation', 'blueprints', 'elements', 'city:*,id,name as text,id as value')
-        ->find($id);
+            ->find($id);
         return $this->success(
             $workOrder
         );
