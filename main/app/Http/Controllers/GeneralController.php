@@ -6,7 +6,12 @@ use App\Events\NewNotification;
 use Illuminate\Http\Request;
 use App\Http\Services\consulta;
 use App\Models\Alert;
+use App\Models\DiarioTurnoFijo;
+use App\Models\DiarioTurnoRotativo;
 use App\Models\ElectronicPayroll;
+use App\Models\RotatingTurn;
+use App\Models\RotatingTurnHour;
+use App\Models\WorkContract;
 use App\Services\MarcationService;
 use App\Services\PersonService;
 use Carbon\Carbon;
@@ -18,15 +23,55 @@ class GeneralController extends Controller
 
     public function pruebas()
     {
-        Alert::create([
+        /* Alert::create([
             'person_id' => 1,
             'user_id' => 1,
             'modal' => 0,
             'icon' => 'fas fa-file-contract',
             'type' => 'Finalización de contrato',
             'description' => 'Tu contrato finalizará el día '
-        ]);
+        ]); */
         //event(new NewNotification('hola2'));
+        $registrosFijosSinSalida = DiarioTurnoFijo::whereNull('leave_time_two')->get();
+        $registrosRotativosSinSalida = DiarioTurnoRotativo::whereNull('leave_time_one')->get();
+        foreach ($registrosRotativosSinSalida as $registro) {
+            $personId = $registro->person_id;
+            $fecha = $registro->date;
+
+            $turno = RotatingTurnHour::where('person_id', $personId)
+                ->where('date', $fecha)
+                ->first();
+
+            if ($turno) {
+                $horaSalida = RotatingTurn::find($turno->rotating_turn_id)->leave_time;
+                $horaEntrada = $registro->entry_time_one;
+                $leaveDate = $horaSalida < $horaEntrada ? Carbon::parse($fecha)->addDay() : $fecha;
+                $registro->leave_time_one = $horaSalida;
+                $registro->leave_date = $leaveDate;
+                $registro->save();
+            }
+        }
+        foreach ($registrosFijosSinSalida as $registro) {
+            $personId = $registro->person_id;
+            $fecha = $registro->date;
+            $fechaCarbon = Carbon::parse($fecha);
+            $nombreDia = ucfirst($fechaCarbon->locale('es')->isoFormat('dddd'));
+            $turno = WorkContract::where('person_id', $personId)->where('liquidated', 0)
+                ->with(['fixedTurn.horariosTurnoFijo' => function ($query) use ($nombreDia) {
+                    $query->where('day', '=', $nombreDia);
+                }])
+                ->first();
+
+            if ($turno && $turno->fixedTurn) {
+                $horaSalida = $turno->fixedTurn->horariosTurnoFijo->first()->leave_time_two;
+                $horaSalidaAlmuerzo = $turno->fixedTurn->horariosTurnoFijo->first()->leave_time_one;
+                $horaEntradaAlmuerzo = $turno->fixedTurn->horariosTurnoFijo->first()->entry_time_two;
+                $registro->leave_time_two = $horaSalida;
+                $registro->leave_time_one = $horaSalidaAlmuerzo;
+                $registro->entry_time_two = $horaEntradaAlmuerzo;
+                $registro->save();
+            }
+        }
     }
 
     public function listaGenerales()
