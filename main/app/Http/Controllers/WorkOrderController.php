@@ -162,8 +162,7 @@ class WorkOrderController extends Controller
                 'work_order_id' => $updateOrCreate->id
             ]);
         }
-
-        return $this->success($request->all());
+        return $this->success($updateOrCreate->id);
     }
 
 
