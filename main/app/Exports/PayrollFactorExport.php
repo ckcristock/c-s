@@ -62,6 +62,7 @@ class PayrollFactorExport implements FromCollection,  WithHeadings, ShouldAutoSi
                     DB::raw('DATE_FORMAT(payroll_factors.date_start, "%d-%m-%Y")'),
                     DB::raw('DATE_FORMAT(payroll_factors.date_end, "%d-%m-%Y")'),
                 )
+                ->orderByDesc('payroll_factors.date_start')
                 ->get()
         );
     }
