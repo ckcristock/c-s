@@ -112,7 +112,7 @@ class QuotationController extends Controller
             $this->addActivities($quotation->id, 'fas fa-plus', 'Cotización creada', '', 'Creación');
             Alert::create([
                 'person_id' => auth()->user()->person_id,
-                'user_id' => 1,
+                'user_id' => 11530,
                 'modal' => 0,
                 'icon' => 'fas fa-file-alt',
                 'type' => 'Nueva cotización',
