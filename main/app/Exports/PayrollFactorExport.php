@@ -22,7 +22,7 @@ class PayrollFactorExport implements FromCollection,  WithHeadings, ShouldAutoSi
     public function headings(): array
     {
         return [
-            'Nombres y apellidos', 'Fecha', 'Novedad', 'Descripción', 'Inicio', 'Fin'
+            'Nombres y apellidos', 'Fecha de creación', 'Novedad', 'Descripción', 'Inicio', 'Fin'
         ];
     }
     /**
