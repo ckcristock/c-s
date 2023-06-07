@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PeopleExport;
 use App\Models\Eps;
 use App\Models\FixedTurn;
 use App\Models\Person;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Intervention\Image\Facades\Image;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PersonController extends Controller
 {
@@ -47,9 +49,14 @@ class PersonController extends Controller
                 ->orderBy('first_name')
                 ->get([
                     "id as value",
-                    DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text '),
+                    DB::raw('UPPER(CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)) as text')
                 ])
         );
+    }
+
+    public function download() {
+        $people = Person::where('status', 'Activo')->with('contractultimate')->get();
+        return Excel::download(new PeopleExport($people), 'funcionarios.xlsx');
     }
 
     public function peopleSelects()

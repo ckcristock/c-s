@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alert;
 use App\Models\DrivingLicenseJob;
 use App\Models\Job;
+use App\Models\Responsible;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Http\ResponseTrait;
@@ -70,7 +72,7 @@ class JobController extends Controller
                 })
                 ->where('state', 'Activo')
                 ->whereDate('date_end', '>', DB::raw('CURDATE()'))
-                ->orderBy('id', 'ASC')
+                ->orderBy('id', 'DESC')
                 ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
@@ -164,6 +166,16 @@ class JobController extends Controller
                     ]);
                 }
             }
+            $responsableNomina = Responsible::find(3);
+            Alert::create([
+                'person_id' => auth()->user()->person_id,
+                'user_id' => $responsableNomina->person_id,
+                'modal' => 0,
+                'icon' => 'fas fa-user-md',
+                'type' => 'Nueva vacante',
+                'url' => '/rrhh/vacantes-ver/' . $jobDB->id,
+                'description' => 'Se ha agregado una nueva vacante al sistema.'
+            ]);
 
             return $this->success('creacion exitosa');
         } catch (\Throwable $th) {

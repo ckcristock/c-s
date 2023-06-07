@@ -6,6 +6,7 @@ use App\Models\Department;
 use App\Traits\ApiResponser;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DepartmentController extends Controller
 {
@@ -14,7 +15,7 @@ class DepartmentController extends Controller
     public function index()
     {
         return $this->success(
-            Department::orderBy('name', 'DESC')->get(['name As text', 'id As value'])
+            Department::orderBy('name')->select(DB::raw('UPPER(name) AS text, id AS value'))->get()
         );
     }
 
