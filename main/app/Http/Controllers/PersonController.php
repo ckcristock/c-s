@@ -71,6 +71,12 @@ class PersonController extends Controller
         );
     }
 
+    public function myProfle() {
+        $id = auth()->user()->person_id;
+        $person = Person::fullName()->find($id);
+        return $this->success($person);
+    }
+
     public function funcionarioPunto()
     {
         return $this->success(

@@ -721,6 +721,9 @@ Route::group(
         Route::get('get-budget-to-add/{id}', [BudgetController::class, 'getBudgetToAdd']);
         Route::get('get-quotation-to-add/{id}', [QuotationController::class, 'getQuotationToAdd']);
 
+        Route::get('my-profile', [PersonController::class, 'myProfle']);
+
+
         Route::get('person/{id}', [PersonController::class, 'basicData']);
         Route::get('work-contract-type-list', [WorkContractTypeController::class, 'getWorkContractTypeList']);
         Route::get('get-consecutivo/{table}', [ComprobanteConsecutivoController::class, 'getConsecutive']);
