@@ -28,7 +28,11 @@ class TaskController extends Controller
             $q->where('company_id', $companyId);
         })
             ->where('status', 'Activo')
-            ->get(['id as value', DB::raw('CONCAT_WS(" ",first_name, second_name, first_surname, second_surname) as text ')]);
+            ->orderBy('first_name')
+            ->get([
+                "id as value",
+                DB::raw('UPPER(CONCAT_WS(" ", first_name, second_name, first_surname, second_surname)) as text')
+            ]);
         return $this->success($person);
     }
 
@@ -173,8 +177,8 @@ class TaskController extends Controller
     public function new(Request $request)
     {
         $data = $request->all();
-        Task::create($data);
-        $task_id = DB::getPdo()->lastInsertId();
+        $task = Task::create($data);
+        $task_id = $task->id;
         if ($request->has('files')) {
             $data_files = $request->get('files');
             foreach ($data_files as $file) {

@@ -15,9 +15,9 @@ class AlertObserver
      */
     public function created(Alert $alert)
     {
-        if ($alert->user_id == auth()->user()->person_id) {
+        /* if ($alert->user_id == auth()->user()->person_id) {
             event(new NewNotification($alert));
-        }
+        } */
     }
 
     /**

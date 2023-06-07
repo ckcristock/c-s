@@ -164,6 +164,7 @@ use App\Http\Controllers\ProductNewController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\RawMaterialMaterialController;
 use App\Http\Controllers\RemisionController;
+use App\Http\Controllers\ResponsibleController;
 use App\Http\Controllers\RetencionController;
 use App\Http\Controllers\SeveranceInterestPaymentController;
 use App\Http\Controllers\SeverancePaymentController;
@@ -592,6 +593,7 @@ Route::group(
         Route::resource('countable_deductions', CountableDeductionController::class);
         Route::resource('indirect-cost', IndirectCostController::class);
         Route::resource('apu-parts', ApuPartController::class);
+        Route::resource('responsibles', ResponsibleController::class);
         Route::resource('apu-sets', ApuSetController::class);
         Route::resource('thicknesses', ThicknessController::class);
         Route::resource('cut-laser-material', CutLaserMaterialController::class);
@@ -785,6 +787,7 @@ Route::group(
         Route::resource('task-types', TaskTypeController::class);
         Route::get('paginate-task-types', [TaskTypeController::class, 'paginate']);
         Route::get("list-subcategories", [SubcategoryController::class, 'listSubcategories']);
+        Route::get("download-people", [PersonController::class, 'download']);
 
         //se ejecuta al crear
         Route::get("subcategory-field/{id}", [SubcategoryController::class, 'getField']);
