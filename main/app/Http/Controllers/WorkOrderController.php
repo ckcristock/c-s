@@ -13,8 +13,10 @@ use App\Models\Municipality;
 use App\Models\Quotation;
 use App\Models\WorkOrder;
 use App\Models\WorkOrderElement;
+use App\Models\WorkOrderOrderManagement;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 class WorkOrderController extends Controller
@@ -119,12 +121,12 @@ class WorkOrderController extends Controller
     public function store(Request $request)
     {
         $data = $request->except([
-            'apu_parts', 'apu_services', 'apu_sets', 'budgets', 'business', 'quotations'
+            'apu_parts', 'apu_services', 'apu_sets', 'budgets', 'business', 'quotations', 'orders_managment'
         ]);
 
-        [$apu_parts, $apu_services, $apu_sets, $budgets, $business, $quotations] = [
+        [$apu_parts, $apu_services, $apu_sets, $budgets, $business, $quotations, $orders_managment] = [
             $request->apu_parts, $request->apu_services, $request->apu_sets,
-            $request->budgets, $request->business, $request->quotations
+            $request->budgets, $request->business, $request->quotations, $request->orders_managment
         ];
         $consecutive = getConsecutive('work_orders');
 
@@ -145,6 +147,26 @@ class WorkOrderController extends Controller
                     'work_orderable_type' => $className,
                 ]);
             }
+        }
+        WorkOrderOrderManagement::where('work_order_id', $updateOrCreate->id)->delete();
+        foreach ($orders_managment as $key => $value) {
+            $file = $value['file'];
+            if (!Str::startsWith($value['file'], ['http://', 'https://'])) {
+                if ($value['file_type'] != 'application/pdf') {
+                    $base64 = saveBase64($value['file'], 'orden-pedido-orden-produccion/', true);
+                    $file = URL::to('/') . '/api/image?path=' . $base64;
+                } else {
+                    $base64 = saveBase64File($value['file'], 'orden-pedido-orden-produccion/', false);
+                    $file = URL::to('/') . '/api/file?path=' . $base64;
+                }
+            }
+            WorkOrderOrderManagement::create(
+                [
+                    'work_order_id' => $updateOrCreate->id,
+                    'file' => $file
+                ] +
+                    $value
+            );
         }
 
         if ($updateOrCreate->wasRecentlyCreated) {
@@ -174,7 +196,15 @@ class WorkOrderController extends Controller
      */
     public function show($id)
     {
-        $workOrder = WorkOrder::with('third_party', 'third_party_person', 'quotation', 'blueprints', 'elements', 'city:*,id,name as text,id as value')
+        $workOrder = WorkOrder::with(
+            'third_party',
+            'third_party_person',
+            'quotation',
+            'blueprints',
+            'elements',
+            'city:*,id,name as text,id as value',
+            'order_managments'
+        )
             ->find($id);
         return $this->success(
             $workOrder

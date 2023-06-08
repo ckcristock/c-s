@@ -208,4 +208,9 @@ class WorkOrder extends Model
     {
         return $this->hasMany(WorkOrderElement::class)->with('work_orderable');
     }
+
+    public function order_managments()
+    {
+        return $this->hasMany(WorkOrderOrderManagement::class);
+    }
 }
