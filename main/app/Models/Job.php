@@ -35,6 +35,7 @@ class Job extends Model
         'passport',
         'document_type_id',
         'conveyance',
+        'driving_license'
     ];
 
     public function position()
@@ -49,9 +50,12 @@ class Job extends Model
     {
         return $this->belongsTo(SalaryTypes::class,'salary_type_id','id');
     }
+    public function driving_licence_name()
+    {
+        return $this->belongsTo(DrivingLicense::class,'driving_license','id');
+    }
     public function work_contract_type()
     {
         return $this->belongsTo(WorkContractType::class,'work_contract_type_id','id');
-
     }
 }

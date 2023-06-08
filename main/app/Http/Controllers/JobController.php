@@ -40,7 +40,8 @@ class JobController extends Controller
                 },
                 'municipality.department' => function ($q) {
                     $q->select('name', 'id');
-                }
+                },
+                'driving_licence_name'
             ])
                 ->whereHas('position', function ($q) {
                     $q->when(request()->get('dependencia'), function ($q, $fill) {
@@ -99,7 +100,8 @@ class JobController extends Controller
             Job::with([
                 'position' => function ($q) {
                     $q->select('name', 'id', 'dependency_id');
-                }, 'salary_type' => function ($q) {
+                },
+                'salary_type' => function ($q) {
                     $q->select('id', 'name');
                 },
                 'position.dependency' => function ($q) {
@@ -212,6 +214,7 @@ class JobController extends Controller
                 'salary_type' => function ($q) {
                     $q->select('id', 'name');
                 },
+                'driving_licence_name'
             ])
                 ->where('id', $id)
                 ->first()
