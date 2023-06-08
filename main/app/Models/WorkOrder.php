@@ -16,7 +16,6 @@ class WorkOrder extends Model
         'code',
         'referral_number',
         'invoice_number',
-        'purchase_order',
         'name',
         'class',
         'type',
@@ -36,6 +35,12 @@ class WorkOrder extends Model
         'technical_requirements',
         'legal_requirements',
         'status',
+        'total_budgets',
+        'total_apu_parts',
+        'total_apu_sets',
+        'total_apu_services',
+        'total_budget_part_set_service',
+        'total_order_managment',
     ];
 
     protected $appends = [
