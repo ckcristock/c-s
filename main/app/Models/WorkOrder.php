@@ -41,6 +41,14 @@ class WorkOrder extends Model
         'total_apu_services',
         'total_budget_part_set_service',
         'total_order_managment',
+        'total_indirect_cost_budgets',
+        'total_direct_cost_budgets',
+        'total_indirect_cost_apu_services',
+        'total_direct_cost_apu_services',
+        'total_indirect_cost_apu_parts',
+        'total_direct_cost_apu_parts',
+        'total_indirect_cost_apu_sets',
+        'total_direct_cost_apu_sets',
     ];
 
     protected $appends = [
@@ -66,7 +74,8 @@ class WorkOrder extends Model
         }
     }
 
-    public function getProductionDaysAttribute() {
+    public function getProductionDaysAttribute()
+    {
         if (!$this->attributes['date_of_plans_received']) {
             return 'N/A';
         }
@@ -212,5 +221,10 @@ class WorkOrder extends Model
     public function order_managments()
     {
         return $this->hasMany(WorkOrderOrderManagement::class);
+    }
+
+    public function quotation_items()
+    {
+        return $this->hasMany(WorkOrderQuotationItem::class);
     }
 }

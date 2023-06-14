@@ -50,6 +50,15 @@ class ApuService extends Model
         'machine_name',
     ];
 
+    protected $appends = [
+        'indirect_cost_total',
+    ];
+
+    public function getIndirectCostTotalAttribute()
+    {
+        return 0;
+    }
+
     public function city()
     {
         return $this->belongsTo(Municipality::class, 'city_id', 'id');
@@ -83,6 +92,7 @@ class ApuService extends Model
                 person_id,
                 typeapu_name,
                 total_unit_cost as unit_cost,
+                0 as indirect_cost_total,
                 third_party_id,
                 set_name,
                 machine_name

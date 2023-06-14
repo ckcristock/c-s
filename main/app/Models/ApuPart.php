@@ -98,6 +98,7 @@ class ApuPart extends Model
                 person_id,
                 typeapu_name,
                 unit_direct_cost as unit_cost,
+                indirect_cost_total,
                 third_party_id,
                 set_name,
                 machine_name'

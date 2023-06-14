@@ -14,6 +14,8 @@ use App\Models\Quotation;
 use App\Models\WorkOrder;
 use App\Models\WorkOrderElement;
 use App\Models\WorkOrderOrderManagement;
+use App\Models\WorkOrderQuotationItem;
+use App\Models\WorkOrderQuotationSubitem;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
@@ -121,12 +123,18 @@ class WorkOrderController extends Controller
     public function store(Request $request)
     {
         $data = $request->except([
-            'apu_parts', 'apu_services', 'apu_sets', 'budgets', 'business', 'quotations', 'orders_managment'
+            'apu_parts', 'apu_services', 'apu_sets', 'budgets', 'business', 'quotations', 'orders_managment', 'quotation_items'
         ]);
 
-        [$apu_parts, $apu_services, $apu_sets, $budgets, $business, $quotations, $orders_managment] = [
-            $request->apu_parts, $request->apu_services, $request->apu_sets,
-            $request->budgets, $request->business, $request->quotations, $request->orders_managment
+        [$apu_parts, $apu_services, $apu_sets, $budgets, $business, $quotations, $orders_managment, $quotation_items] = [
+            $request->apu_parts,
+            $request->apu_services,
+            $request->apu_sets,
+            $request->budgets,
+            $request->business,
+            $request->quotations,
+            $request->orders_managment,
+            $request->quotation_items
         ];
         $consecutive = getConsecutive('work_orders');
 
@@ -145,6 +153,9 @@ class WorkOrderController extends Controller
                     'work_order_id' => $updateOrCreate->id,
                     'work_orderable_id' => $item['id'],
                     'work_orderable_type' => $className,
+                    'total_direct_cost' => $item['total_direct_cost'] ?? null,
+                    'total_indirect_cost' => $item['total_indirect_cost'] ?? null,
+                    'total' => $item['total'] ?? null
                 ]);
             }
         }
@@ -168,7 +179,13 @@ class WorkOrderController extends Controller
                     $value
             );
         }
-
+        WorkOrderQuotationItem::where('work_order_id', $updateOrCreate->id)->delete();
+        foreach ($quotation_items as $key => $item) {
+            WorkOrderQuotationItem::create($item); //!AGREGAR ID'S
+            foreach ($item['subitems'] as $key => $subitem) {
+                WorkOrderQuotationSubitem::create($subitem);
+            }
+        }
         if ($updateOrCreate->wasRecentlyCreated) {
             sumConsecutive('work_orders');
             $centroCosto = CentroCosto::create([
