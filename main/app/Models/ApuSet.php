@@ -78,6 +78,7 @@ class ApuSet extends Model
                 person_id,
                 typeapu_name,
                 total_direct_cost as unit_cost,
+                indirect_cost_total,
                 third_party_id,
                 set_name,
                 machine_name

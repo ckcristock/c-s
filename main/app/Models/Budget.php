@@ -29,6 +29,18 @@ class Budget extends Model
         'unit_value_prorrateado_usd',
     ];
 
+    protected $appends = ['total_indirect_cost', 'total_direct_cost'];
+
+    public function getTotalIndirectCostAttribute()
+    {
+        return $this->items->sum('subtotal_indirect_cost');
+    }
+
+    public function getTotalDirectCostAttribute()
+    {
+        return $this->items->sum('total_cost');
+    }
+
     public function customer()
     {
         return $this->belongsTo(ThirdParty::class, 'customer_id', 'id');

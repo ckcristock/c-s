@@ -14,6 +14,9 @@ class WorkOrderElement extends Model
         'work_order_id',
         'work_orderable_id',
         'work_orderable_type',
+        'total_indirect_cost',
+        'total_direct_cost',
+        'total',
     ];
 
     public function work_orderable(): MorphTo
