@@ -35,7 +35,9 @@ class Job extends Model
         'passport',
         'document_type_id',
         'conveyance',
-        'driving_license'
+        'driving_license',
+        'gener',
+        'languages'
     ];
 
     public function position()

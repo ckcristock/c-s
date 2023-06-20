@@ -22,4 +22,9 @@ class Dependency extends Model
     {
         return $this->hasMany(Position::class);
     }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
 }

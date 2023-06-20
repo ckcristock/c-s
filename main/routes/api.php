@@ -341,6 +341,7 @@ Route::group(
         Route::get('/get-total-inventary',  [InventaryDotationController::class, 'getTotatInventary']);
         Route::get('/inventary-dotation-stock-epp',  [InventaryDotationController::class, 'getInventaryEpp']);
         Route::post('/dotations-update/{id}',  [DotationController::class, 'update']);
+        Route::post('dotations-update-stock',  [DotationController::class, 'updateStock']);
         Route::post('/dotations-approve/{id}',  [DotationController::class, 'approve']);
         Route::get('/dotations-total-types',  [DotationController::class, 'getTotatlByTypes']);
         Route::get('/dotations-list-product',  [DotationController::class, 'getListProductsDotation']);

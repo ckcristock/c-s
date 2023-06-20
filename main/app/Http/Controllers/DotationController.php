@@ -258,9 +258,21 @@ class DotationController extends Controller
             return $this->success('guardado con éxito');
         } catch (\Throwable $th) {
             //throw $th;
-            return $this->success($th->getMessage(), 500);
+            return $this->error($th->getMessage(), 500);
         }
     }
+
+    public function updateStock(Request $request)
+    {
+        try {
+            InventaryDotation::where('id', $request->id)->update(['stock' => $request->stock]);
+            return $this->success('Stock actualizado con éxito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+
     public function approve(Request $request, $id)
     {
         //
