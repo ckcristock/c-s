@@ -142,6 +142,7 @@ use App\Http\Controllers\ComprobanteConsecutivoController;
 use App\Http\Controllers\CreditNoteTypeController;
 use App\Http\Controllers\CuentaDocumentoContableController;
 use App\Http\Controllers\DepreciacionController;
+use App\Http\Controllers\DiaryEditController;
 use App\Http\Controllers\DocumentoContableController;
 use App\Http\Controllers\EgresoController;
 use App\Http\Controllers\EstadoResultadoController;
@@ -828,6 +829,7 @@ Route::group(
         Route::get("datos-purchase-request", [PurchaseRequestController::class, 'getDatosPurchaseRequest']);
 
         //Route::get('add-thirds-params', [ThirdPartyController::class, 'loanpdf']);
+        Route::post("update-hours-worked", [DiaryEditController::class, 'updateDiary']);
         Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
         Route::get('proyeccion_excel/{id}', [LoanController::class, 'loanExcel']);
         // Route::post('attentionCall', [MemorandumController::class, 'attentionCall']);
