@@ -25,7 +25,7 @@ class DiaryEditController extends Controller
             ]);
             return $this->success('Horas modificadas correctamente');
         } catch (\Throwable $th) {
-            return $this->error('Error', 200);
+            return $this->error($th->getMessage(), 200);
         }
 
     }

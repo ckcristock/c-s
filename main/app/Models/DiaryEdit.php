@@ -19,7 +19,7 @@ class DiaryEdit extends Model
     ];
 
     public function person() {
-        return $this->belongsTo(Person::class);
+        return $this->belongsTo(Person::class)->fullName();
     }
 
     public function diariable() {
