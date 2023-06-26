@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class DiarioTurnoFijo extends Model
 {
@@ -46,5 +47,15 @@ class DiarioTurnoFijo extends Model
     public function turnoFijo()
     {
         return $this->belongsTo(FixedTurn::class);
+    }
+
+    public function edit(): MorphMany
+    {
+        return $this->morphMany(DiaryEdit::class, 'diariable')->with('person');
+    }
+
+    public function scopeAlias($q, $alias)
+    {
+        return $q->from($q->getQuery()->from . " as " . $alias);
     }
 }

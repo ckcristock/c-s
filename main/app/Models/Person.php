@@ -75,8 +75,8 @@ class Person extends Model
 
     public function scopeLoans($q, $inicio, $fin)
     {
-        return $q->where('state',"Pendiente")
-                 ->whereBetween('date', [$inicio, $fin]);
+        return $q->where('state', "Pendiente")
+            ->whereBetween('date', [$inicio, $fin]);
     }
 
     /* public function getFullNameAttribute()
@@ -96,7 +96,7 @@ class Person extends Model
 
     public function contractultimate()
     {
-        return $this->hasOne(WorkContract::class)->with('position.dependency', 'work_contract_type')->where('liquidated', 0)->orderBy('id', 'DESC');
+        return $this->hasOne(WorkContract::class)->with('position.dependency', 'work_contract_type', 'contract_term')->where('liquidated', 0)->orderBy('id', 'DESC');
     }
 
     public function contractUltimateLiquidated()
@@ -120,7 +120,7 @@ class Person extends Model
     }
     public function loans_list()
     {
-        return $this->hasMany(Loan::class,'person_id', 'id')->with('fees');
+        return $this->hasMany(Loan::class, 'person_id', 'id')->with('fees');
     }
 
     public function liquidado()
@@ -194,6 +194,24 @@ class Person extends Model
     public function severance_fund()
     {
         return $this->belongsTo(SeveranceFund::class, 'id');
+    }
+
+    public function eps()
+    {
+        return $this->belongsTo(Eps::class);
+    }
+
+    public function arl()
+    {
+        return $this->belongsTo(Arl::class);
+    }
+    public function compensation_fund()
+    {
+        return $this->belongsTo(CompensationFund::class);
+    }
+    public function pension_funds()
+    {
+        return $this->belongsTo(PensionFund::class, 'pension_fund_id');
     }
 
     public function liquidation()

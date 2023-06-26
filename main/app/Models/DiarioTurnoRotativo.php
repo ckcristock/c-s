@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class DiarioTurnoRotativo extends Model
 {
@@ -44,5 +45,15 @@ class DiarioTurnoRotativo extends Model
     public function funcionario()
     {
         return $this->belongsTo(Person::class, 'person_id');
+    }
+
+    public function edit(): MorphMany
+    {
+        return $this->morphMany(DiaryEdit::class, 'diariable')->with('person');
+    }
+
+    public function scopeAlias($q, $alias)
+    {
+        return $q->from($q->getQuery()->from . " as " . $alias);
     }
 }

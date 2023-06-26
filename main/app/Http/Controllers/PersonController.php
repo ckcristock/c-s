@@ -54,8 +54,20 @@ class PersonController extends Controller
         );
     }
 
-    public function download() {
-        $people = Person::where('status', 'Activo')->with('contractultimate')->get();
+    public function download()
+    {
+        $people = Person::where('status', 'Activo')
+            ->with(
+                'contractultimate',
+                'severance_fund',
+                'eps',
+                'arl',
+                'compensation_fund',
+                'pension_funds',
+            )
+            ->fullName()
+            ->get();
+        //return $people;
         return Excel::download(new PeopleExport($people), 'funcionarios.xlsx');
     }
 
@@ -71,7 +83,8 @@ class PersonController extends Controller
         );
     }
 
-    public function myProfle() {
+    public function myProfle()
+    {
         $id = auth()->user()->person_id;
         $person = Person::fullName()->find($id);
         return $this->success($person);

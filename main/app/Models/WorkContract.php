@@ -51,6 +51,12 @@ class WorkContract extends Model
         return $this->belongsTo(WorkContractType::class);
     }
 
+    public function contract_term()
+    {
+        return $this->belongsTo(ContractTerm::class);
+    }
+
+
     /**
      * El contrato pertenece a un funcionario
      *

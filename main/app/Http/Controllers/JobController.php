@@ -155,29 +155,24 @@ class JobController extends Controller
     public function store(Request $request)
     {
         $job = $request->except(["drivingLicenseJob"]);
-        $drivingLincenseJob = request()->get('drivingLicenseJob');
         try {
-            $jobDB = Job::create($job);
-            $jobDB["code"] = "VAC" . $jobDB->id;
-            $jobDB->save();
-            if (is_array($drivingLincenseJob) || is_object($drivingLincenseJob)) {
-                foreach ($drivingLincenseJob as $driving) {
-                    DrivingLicenseJob::create([
-                        'job_id' =>  $jobDB->id,
-                        'driving_license_id' => $driving
-                    ]);
-                }
-            }
+            $jobDB = Job::updateOrCreate(
+                ['id' => $job['id']],
+                $job
+            );
+            $jobDB->code = "VAC" . $jobDB->id;
             $responsableNomina = Responsible::find(3);
-            Alert::create([
-                'person_id' => auth()->user()->person_id,
-                'user_id' => $responsableNomina->person_id,
-                'modal' => 0,
-                'icon' => 'fas fa-user-md',
-                'type' => 'Nueva vacante',
-                'url' => '/rrhh/vacantes-ver/' . $jobDB->id,
-                'description' => 'Se ha agregado una nueva vacante al sistema.'
-            ]);
+            if ($jobDB->wasRecentlyCreated) {
+                Alert::create([
+                    'person_id' => auth()->user()->person_id,
+                    'user_id' => $responsableNomina->person_id,
+                    'modal' => 0,
+                    'icon' => 'fas fa-user-md',
+                    'type' => 'Nueva vacante',
+                    'url' => '/rrhh/vacantes-ver/' . $jobDB->id,
+                    'description' => 'Se ha agregado una nueva vacante al sistema.'
+                ]);
+            }
 
             return $this->success('creacion exitosa');
         } catch (\Throwable $th) {
@@ -200,6 +195,9 @@ class JobController extends Controller
                     $q->select('name', 'id', 'dependency_id');
                 },
                 'position.dependency' => function ($q) {
+                    $q->select('name', 'id', 'group_id');
+                },
+                'position.dependency.group' => function ($q) {
                     $q->select('name', 'id');
                 },
                 'municipality' => function ($q) {

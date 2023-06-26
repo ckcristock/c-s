@@ -179,12 +179,12 @@ class WorkOrderController extends Controller
                     $value
             );
         }
+        $deleted = WorkOrderQuotationItem::where('work_order_id', $updateOrCreate->id)->pluck('id');
+        WorkOrderQuotationSubitem::whereIn('work_order_quotation_item_id', $deleted)->delete();
         WorkOrderQuotationItem::where('work_order_id', $updateOrCreate->id)->delete();
-        foreach ($quotation_items as $key => $item) {
-            WorkOrderQuotationItem::create($item); //!AGREGAR ID'S
-            foreach ($item['subitems'] as $key => $subitem) {
-                WorkOrderQuotationSubitem::create($subitem);
-            }
+        $items = $updateOrCreate->quotation_items()->createMany($quotation_items);
+        foreach ($items as $key => $subitem) {
+            $subitem->subItems()->createMany($quotation_items[$key]['subitems']);
         }
         if ($updateOrCreate->wasRecentlyCreated) {
             sumConsecutive('work_orders');
@@ -220,7 +220,8 @@ class WorkOrderController extends Controller
             'blueprints',
             'elements',
             'city:*,id,name as text,id as value',
-            'order_managments'
+            'order_managments',
+            'quotation_items.subItems'
         )
             ->find($id);
         return $this->success(

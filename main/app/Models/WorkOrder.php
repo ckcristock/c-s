@@ -49,6 +49,8 @@ class WorkOrder extends Model
         'total_direct_cost_apu_parts',
         'total_indirect_cost_apu_sets',
         'total_direct_cost_apu_sets',
+        'total_indirect_cost_budget_part_set_service',
+        'total_direct_cost_budget_part_set_service'
     ];
 
     protected $appends = [
