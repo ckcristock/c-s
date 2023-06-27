@@ -49,7 +49,7 @@ class DiarioTurnoRotativo extends Model
 
     public function edit(): MorphMany
     {
-        return $this->morphMany(DiaryEdit::class, 'diariable')->with('person');
+        return $this->morphMany(DiaryEdit::class, 'diariable')->orderByDesc('id')->with('person');
     }
 
     public function scopeAlias($q, $alias)

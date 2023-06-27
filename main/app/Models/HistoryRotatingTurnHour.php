@@ -5,21 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RotatingTurnHour extends Model
+class HistoryRotatingTurnHour extends Model
 {
     use HasFactory;
+
     protected $fillable = [
+        'rotating_turn_hour_id',
         'person_id',
-        'rotating_turn_id',
-        'date',
-        'weeks_number',
+        'batch',
+        'action'
     ];
-    public function turnoRotativo()
-    {
-        return $this->belongsTo(RotatingTurn::class, 'rotating_turn_id');
+
+    public function rotating_turn_hour() {
+        return $this->belongsTo(RotatingTurnHour::class)->with('person', 'turnoRotativo');
     }
 
     public function person() {
         return $this->belongsTo(Person::class)->fullName();
     }
+
 }
