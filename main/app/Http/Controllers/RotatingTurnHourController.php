@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\HistoryRotatingTurnHour;
 use App\Models\RotatingTurnHour;
 use App\Services\RotatingHourService;
 use App\Traits\ApiResponser;
@@ -95,20 +96,36 @@ class RotatingTurnHourController extends Controller
  */
         $data = Request()->all();
         try {
+            $lastBatch = HistoryRotatingTurnHour::orderBy('id', 'desc')->value('batch');
+            $lote = $lastBatch ? $lastBatch + 1 : 1;
             foreach ($data as $atributos) {
                 $fecha = $atributos['date'];
                 $personId = $atributos['person_id'];
+                $action = null;
                 $horarioExistente = RotatingTurnHour::where('date', $fecha)->where('person_id', $personId)->first();
-
                 if ($horarioExistente) {
+                    if ($horarioExistente->rotating_turn_id != $atributos['rotating_turn_id']) {
+                        $action = 'edit';
+                    }
                     $horarioExistente->update($atributos);
-                }else{
-                    RotatingTurnHour::create($atributos);
+                    $id = $horarioExistente->id;
+                } else {
+                    $create = RotatingTurnHour::create($atributos);
+                    $id = $create->id;
+                    $action = 'create';
+                }
+                if ($action) {
+                    HistoryRotatingTurnHour::create([
+                        'rotating_turn_hour_id' => $id,
+                        'person_id' => auth()->user()->person_id,
+                        'batch' => $lote,
+                        'action' => $action
+                    ]);
                 }
             }
-            return $this->success('Horario Asignado correctamente');
+            return $this->success('Horario asignado correctamente');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(),401);
+            return $this->error($th->getMessage(), 401);
         }
     }
 
@@ -125,7 +142,8 @@ class RotatingTurnHourController extends Controller
 
 
 
-    public function update($id){
+    public function update($id)
+    {
         dd($id);
     }
 }
