@@ -23,6 +23,7 @@ class Job extends Model
         'description',
         'education',
         'experience_year',
+        'months_experience',
         'min_age',
         'max_age',
         'can_trip',
@@ -60,4 +61,13 @@ class Job extends Model
     {
         return $this->belongsTo(WorkContractType::class,'work_contract_type_id','id');
     }
+    public function document_type()
+    {
+        return $this->belongsTo(DocumentTypes::class,'document_type_id','id');
+    }
+    public function visa_type() {
+        return $this->belongsTo(VisaType::class,'visa_type_id','id');
+    }
+
+
 }
