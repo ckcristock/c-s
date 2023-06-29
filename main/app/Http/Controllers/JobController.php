@@ -161,6 +161,7 @@ class JobController extends Controller
                 $job
             );
             $jobDB->code = "VAC" . $jobDB->id;
+            $jobDB->save();
             $responsableNomina = Responsible::find(3);
             if ($jobDB->wasRecentlyCreated) {
                 Alert::create([
@@ -174,7 +175,7 @@ class JobController extends Controller
                 ]);
             }
 
-            return $this->success('creacion exitosa');
+            return $this->success($jobDB->id);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), $th->getLine(), $th->getFile(), 500);
         }
@@ -212,7 +213,9 @@ class JobController extends Controller
                 'salary_type' => function ($q) {
                     $q->select('id', 'name');
                 },
-                'driving_licence_name'
+                'driving_licence_name',
+                'document_type',
+                'visa_type'
             ])
                 ->where('id', $id)
                 ->first()
