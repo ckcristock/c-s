@@ -13,4 +13,8 @@ class MenuPermission extends Model
         'menu_id',
         'permission_id',
     ];
+
+    public function menu() {
+        return $this->belongsTo(Menu::class);
+    }
 }

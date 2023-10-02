@@ -72,4 +72,8 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Permission::class);
     }
 
+    public function menu() {
+        return $this->hasMany(MenuPermissionUsuario::class, 'usuario_id', 'id')->with('menuPermission');
+    }
+
 }
