@@ -169,6 +169,12 @@ class MenuController extends Controller
         return response()->json($menus);
     }
 
+    public function getMenu()
+    {
+        return $this->success(User::where('id', 1)->first());
+        return $this->success(User::with('menu')->get());
+    }
+
     private function getChilds($item)
     {
         $menus = DB::table('menus AS M')

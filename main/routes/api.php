@@ -295,6 +295,7 @@ Route::group(
         Route::get("people-with-dni", [PersonController::class, "peoplesWithDni"]);
         Route::get("validar-cedula/{documento}", [PersonController::class, "validarCedula"]);
         Route::get('/get-menu',  [MenuController::class, 'getByPerson']);
+        Route::get('get-megamenu',  [MenuController::class, 'getMenu']);
         Route::post('/save-menu',  [MenuController::class, 'store']);
 
         Route::get('jobs-preview',  [JobController::class, 'getPreview']);
